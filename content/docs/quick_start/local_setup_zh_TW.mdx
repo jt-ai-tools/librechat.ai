@@ -1,0 +1,60 @@
+---
+title: "本地設定指南"
+icon: Monitor
+---
+
+import AdditionalLinks from '@/components/repeated/AdditionalLinks.mdx';
+
+這是我們 [本地安裝指南](/docs/local/index_zh_TW) 的精簡版本。
+
+## 第一步：下載專案
+
+### 手動下載
+
+1. **前往專案頁面**：造訪 [https://github.com/danny-avila/LibreChat](https://github.com/danny-avila/LibreChat)。
+
+2. **下載 ZIP 檔案**：點擊綠色的 "Code" 按鈕，然後點擊 "Download ZIP"。
+
+3. **解壓縮 ZIP 檔案**：找到下載的 ZIP 檔案，右鍵點擊並選擇「全部解壓縮...」。
+
+### 使用 Git
+
+在終端機中，從您想要的父目錄執行以下 [git](https://git-scm.com/) 命令：
+
+```bash
+git clone https://github.com/danny-avila/LibreChat.git
+```
+
+## 第二步：安裝 Docker
+
+1. **下載**：前往 [Docker Desktop 下載頁面](https://www.docker.com/products/docker-desktop) 並下載 Docker Desktop。
+2. **安裝**：開啟安裝程式並按照指示操作。
+3. **執行**：開啟 Docker Desktop 以確保其正在運行。
+
+**注意事項：**
+- 建議大多數使用者使用 Docker Desktop。如果您正在尋找進階的 docker/容器設定，特別是在遠端伺服器上安裝，請參閱我們的 [Ubuntu Docker 部署指南](/docs/remote/docker_linux_zh_TW)。
+- 安裝後您可能需要重新啟動電腦。
+
+## 第三步：執行應用程式
+
+1. **導航至專案目錄**
+
+2. **建立並配置 .env 檔案**：
+   - 將 `.env.example` 的內容複製到名為 `.env` 的新檔案中。
+   - 填入任何必要的數值。
+      - 如需深入的環境配置資訊，請參閱 [.env 檔案配置指南](/docs/configuration/dotenv_zh_TW)。
+
+3. **啟動應用程式**：
+   - 執行以下命令：
+
+   ```bash
+   docker compose up -d
+   ```
+
+## 結論
+
+**大功告成！** 您現在應該已經在機器上本地運行 **LibreChat** 了。盡情享受吧！
+
+---
+
+<AdditionalLinks />

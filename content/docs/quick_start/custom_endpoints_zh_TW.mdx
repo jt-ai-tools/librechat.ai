@@ -1,0 +1,132 @@
+---
+title: "自定義終端 (Custom Endpoints)"
+icon: Plug
+---
+
+import AdditionalLinks from '@/components/repeated/AdditionalLinks.mdx';
+
+LibreChat 支援使用 `librechat.yaml` 配置檔案來連接各種與 OpenAI API 相容的服務。
+
+本指南假設您已經按照 **[本地設定指南](/docs/quick_start/local_setup_zh_TW)** 的說明，使用 Docker 設定好 LibreChat。
+
+<Callout type="info" title="配置檔案說明">
+LibreChat 使用多個配置檔案，每個檔案都有特定用途：
+
+1. **librechat.yaml** - 用於自定義終端配置及其他應用程式設定。
+2. **.env 檔案** - 用於伺服器配置、預設終端的 API 金鑰以及身份驗證設定。
+3. **docker-compose.override.yml** - 用於 Docker 特定的配置以及掛載磁碟卷（volumes）。
+</Callout>
+
+## 第一步：建立或編輯 Docker 覆寫檔案 (Override File)
+
+- 在專案根目錄建立一個名為 `docker-compose.override.yml` 的檔案（如果尚不存在）。
+- 在該檔案中加入以下內容：
+
+```yaml
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ./librechat.yaml
+        target: /app/librechat.yaml
+```
+
+> 在此瞭解更多關於 [Docker Compose 覆寫檔案](/docs/configuration/docker_override_zh_TW) 的資訊。
+
+## 第二步：配置 `librechat.yaml`
+
+- 在專案根目錄 **建立一個名為 `librechat.yaml` 的檔案**（如果尚不存在）。
+- **加入您的自定義終端：** 您可以在 [AI 終端章節](/docs/configuration/librechat_yaml/ai_endpoints_zh_TW) 查看相容的終端。
+  - 該列表並未窮舉，通常任何與 OpenAI API 相容的服務都應該可以運作。
+  - 自定義終端有很多選項。在此查看完整資訊：[自定義終端物件結構](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW)。
+- 以下是一個同時配置 **OpenRouter** 與 **Ollama** 的範例：
+
+   ```yaml
+   version: 1.3.4
+   cache: true
+   endpoints:
+     custom:
+       - name: "OpenRouter"
+         apiKey: "${OPENROUTER_KEY}"
+         baseURL: "https://openrouter.ai/api/v1"
+         models:
+           default: ["gpt-3.5-turbo"]
+           fetch: true
+         titleConvo: true
+         titleModel: "current_model"
+         summarize: false
+         summaryModel: "current_model"
+         modelDisplayLabel: "OpenRouter"
+       - name: "Ollama"
+         apiKey: "ollama"
+         baseURL: "http://host.docker.internal:11434/v1/"
+         models:
+           default: [
+             "llama3:latest",
+             "command-r",
+             "mixtral",
+             "phi3"
+             ]
+           fetch: true # 不支援獲取模型列表
+         titleConvo: true
+         titleModel: "current_model"
+   ```
+
+<Callout type="warning" title="重要：API 金鑰配置">
+在自定義終端中配置 API 金鑰時，您有三種選擇：
+
+1. **環境變數引用**：使用 `${VARIABLE_NAME}` 語法引用來自 .env 檔案的變數（基於安全性考量，推薦此做法）。
+   ```yaml
+   apiKey: "${OPENROUTER_KEY}"
+   ```
+
+2. **使用者提供 (User Provided)**：設定為 `"user_provided"`（不含 ${} 語法），以允許使用者透過網頁介面輸入自己的 API 金鑰。
+   ```yaml
+   apiKey: "user_provided"
+   ```
+
+3. **直接填寫數值**：直接在配置檔案中包含 API 金鑰（基於安全性考量，不推薦此做法）。
+   ```yaml
+   apiKey: "your-actual-api-key"
+   ```
+
+這與 .env 檔案中的預設終端不同，在 .env 中您會設定 `ENDPOINT_KEY=user_provided`（例如：`OPENAI_API_KEY=user_provided`）。
+</Callout>
+
+## 第三步：配置 .env 檔案
+
+- **編輯專案根目錄下現有的 `.env` 檔案**。
+    - 如果 `.env` 尚不存在，請複製 `.env.example` 並重新命名為 `.env`。
+- 根據上述配置，系統需要環境變數 `OPENROUTER_KEY`，應如下設定：
+
+```bash
+OPENROUTER_KEY=your_openrouter_api_key
+```
+
+**注意事項：**
+- 作為範例，本指南假設您已獨立安裝 Ollama，且可透過 `http://host.docker.internal:11434` 存取。
+    - "host.docker.internal" 是一個特殊的 DNS 名稱，會解析為宿主機使用的內部 IP 位址。
+    - 您可能需要根據實際情況將其更改為 Ollama 實例的實際 IP 位址。
+- 在未來的指南中，我們將深入探討如何同時設定 Ollama 與 LibreChat。
+
+## 第四步：執行應用程式
+
+- 檔案配置完成後，即可執行應用程式：
+
+```bash
+docker compose up
+```
+
+或者，如果應用程式已在執行中，您可以透過以下命令重啟：
+
+```bash
+docker compose restart
+```
+
+> 注意：執行命令前，請確保 Docker Desktop 或 Docker Engine 正在運行。
+
+## 結論
+
+**大功告成！** 您現在已經為您的 LibreChat 實例配置好了 **自定義終端**。
+
+<AdditionalLinks />
