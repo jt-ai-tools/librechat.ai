@@ -1,0 +1,117 @@
+---
+title: LDAP/AD
+icon: Users
+description: 學習如何配置 LibreChat 使用 LDAP 進行使用者身份驗證。
+---
+
+您可以使用輕量級目錄存取協定 (LDAP) 身份驗證伺服器來驗證使用者。
+
+## LDAP/AD 伺服器配置
+
+**基本配置**
+
+- `LDAP_URL` 與 `LDAP_USER_SEARCH_BASE` 為必填項。
+- `LDAP_SEARCH_FILTER` 為選填項；若未指定，預設使用 `mail` 屬性。若要指定，請使用字面量 `{{username}}` 以使用提供的使用者名稱進行搜尋。
+
+<OptionTable
+  options={[
+    ['LDAP_URL', '字串', 'LDAP 伺服器 URL。', 'LDAP_URL=ldap://localhost:389'],
+    ['LDAP_BIND_DN', '字串', '繫結 DN (Bind DN)', 'LDAP_BIND_DN=cn=root'],
+    ['LDAP_BIND_CREDENTIALS', '字串', '繫結 DN 的密碼', 'LDAP_BIND_CREDENTIALS=password'],
+    [
+      'LDAP_USER_SEARCH_BASE',
+      '字串',
+      'LDAP 使用者搜尋基準',
+      'LDAP_USER_SEARCH_BASE=o=users,o=example.com',
+    ],
+    ['LDAP_SEARCH_FILTER', '字串', 'LDAP 搜尋篩選條件', 'LDAP_SEARCH_FILTER=mail={{username}}'],
+  ]}
+/>
+
+**欄位映射 (Field Mappings)**
+
+您可以指定 LibreChat 使用者屬性與 LDAP 使用者屬性之間的映射。如果預設映射無法正常運作，請使用這些設定。
+
+<OptionTable
+  options={[
+    [
+      'LDAP_ID',
+      '字串',
+      '指定唯一使用者 ID。預設情況下，使用 uid 或 sAMAccountName, mail。',
+      'LDAP_ID=uid',
+    ],
+    [
+      'LDAP_USERNAME',
+      '字串',
+      '預設情況下，使用 givenName 或 mail。',
+      'LDAP_USERNAME=givenName',
+    ],
+    [
+      'LDAP_EMAIL',
+      '字串',
+      '預設情況下，使用 mail。',
+      'LDAP_EMAIL=userPrincipalName',
+    ],
+    [
+      'LDAP_FULL_NAME',
+      '字串',
+      '預設情況下，使用 givenName 與 surname 的組合。',
+      'LDAP_FULL_NAME=givenName,surname',
+    ],
+  ]}
+/>
+
+**使用者名稱或電子郵件**
+
+根據預設，LibreChat 使用電子郵件地址與密碼進行驗證。
+這有時可能會導致 LDAP 出現問題，您可能希望改用使用者名稱。
+將 `LDAP_SEARCH_FILTER` 設定為針對使用者名稱進行篩選（例如 `LDAP_SEARCH_FILTER=uid={{username}}`），並配置 LibreChat 要求透過使用者名稱登入：
+
+<OptionTable
+  options={[
+    [
+      'LDAP_LOGIN_USES_USERNAME',
+      '字串',
+      '使用使用者名稱而非電子郵件。',
+      'LDAP_LOGIN_USES_USERNAME=true',
+    ],
+  ]}
+/>
+
+**透過 SSL 的 Active Directory**
+
+若要透過 SSL (ldaps://) 連接（例如使用 Windows AD 的公司），請指定內部 CA 憑證的路徑。
+`LDAP_TLS_REJECT_UNAUTHORIZED` 為選填；若未指定，當 LDAP 伺服器的憑證無法驗證時，LibreChat 將拒絕 TLS/SSL 連接。
+將 `LDAP_TLS_REJECT_UNAUTHORIZED` 設定為 false（不建議用於生產環境），以允許 LibreChat 在 LDAP 伺服器憑證無法驗證時仍接受 TLS/SSL 連接。
+
+<OptionTable
+  options={[
+    [
+      'LDAP_CA_CERT_PATH',
+      '字串',
+      'CA 憑證路徑。',
+      'LDAP_CA_CERT_PATH=/path/to/root_ca_cert.crt',
+    ],
+    [
+      'LDAP_TLS_REJECT_UNAUTHORIZED',
+      '字串',
+      '停用 TLS 驗證',
+      'LDAP_TLS_REJECT_UNAUTHORIZED=true',
+    ],
+  ]}
+/>
+
+**LDAP StartTLS**
+
+啟用 LDAP StartTLS 允許 LibreChat 將不安全的連線升級為安全的 TLS 連線。如果您想在不切換為 ldaps:// 的情況下保護連線，這非常有用。
+
+<OptionTable
+    options={[
+        [
+            'LDAP_STARTTLS',
+            '字串',
+            '啟用 LDAP StartTLS 以將連線升級至 TLS。設定為 true 以啟用此功能。',
+            'LDAP_STARTTLS=true',
+        ],
+    ]}
+/>

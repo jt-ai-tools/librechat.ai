@@ -1,0 +1,525 @@
+---
+title: "自定義終端物件結構"
+icon: Braces
+---
+
+`custom` 陣列中的每個終端都應具備下列結構：
+
+## 範例 
+
+```yaml filename="終端物件結構"
+endpoints:
+    custom:
+        # 使用 Mistral AI API 的範例
+    - name: "Mistral"
+        apiKey: "${YOUR_ENV_VAR_KEY}"
+        baseURL: "https://api.mistral.ai/v1"
+        models: 
+        default: ["mistral-tiny", "mistral-small", "mistral-medium", "mistral-large-latest"]
+        titleConvo: true
+        titleModel: "mistral-tiny" 
+        modelDisplayLabel: "Mistral"
+        # addParams:
+        #   safe_prompt: true # Mistral 特有的訊息審核值
+        # 注意：對於 Mistral，必須刪除下列參數，否則會遇到 422 錯誤：
+        dropParams: ["stop", "user", "frequency_penalty", "presence_penalty"]
+```
+
+## name (名稱)
+
+**Key：**
+<OptionTable
+  options={[
+    ['name', '字串', '終端的唯一名稱。', '將作為終端選擇器中的「標題」顯示。'],
+  ]}
+/>
+
+**必填**
+
+**範例：**
+```yaml filename="endpoints / custom / name"
+name: "Mistral"
+```
+
+## apiKey
+
+**Key：**
+<OptionTable
+  options={[
+    ['apiKey', '字串 (apiKey | "user_provided")', '服務的 API 金鑰。可以引用環境變數，或允許使用者提供數值。', '強烈建議對此欄位使用環境變數引用，例如 `${YOUR_VARIABLE}`。'],
+  ]}
+/>
+
+**必填**
+
+**範例：**
+```yaml filename="endpoints / custom / apiKey"
+apiKey: "${MISTRAL_API_KEY}"
+```
+或
+```yaml filename="endpoints / custom / apiKey"
+apiKey: "您的_api_key"
+```
+或
+```yaml filename="endpoints / custom / apiKey"
+apiKey: "user_provided"
+```
+
+## baseURL
+
+**Key：**
+<OptionTable
+  options={[
+    ['baseURL', '字串 (baseURL | "user_provided")', 'API 的基礎 URL。可以引用環境變數，或允許使用者提供數值。', '強烈建議對此欄位使用環境變數引用，例如 `${YOUR_VARIABLE}`。'],
+  ]}
+/>
+
+**必填**
+
+**範例：**
+```yaml filename="endpoints / custom / baseURL"
+baseURL: "https://api.mistral.ai/v1"
+```
+或
+```yaml filename="endpoints / custom / baseURL"
+baseURL: "${MISTRAL_BASE_URL}"
+```
+或
+```yaml filename="endpoints / custom / baseURL"
+baseURL: "user_provided"
+```
+
+**備註：**
+
+* 如果您設定的 `baseURL` 是完整的補全 (completions) 終端位址，可以將 [directEndpoint](#directendpoint) 欄位設定為 `true` 以直接使用。
+  - 這是必要的，因為應用程式預設會在 `baseURL` 後方附加 「/chat/completions」 或 「/completion」。
+
+## iconURL (圖標 URL)
+
+**Key：**
+<OptionTable
+  options={[
+    ['iconURL', '字串', '用作終端圖標的 URL。', ''],
+  ]}
+/>
+
+**預設值：** `""`
+
+**範例：**
+```yaml filename="endpoints / custom / iconURL"
+iconURL: https://github.com/danny-avila/LibreChat/raw/main/docs/assets/LibreChat.svg
+```
+**備註：**
+
+* 如果您想使用專案現有的圖標，請將終端 `name` 定義為下列主要終端之一（區分大小寫）：
+  - "openAI" | "azureOpenAI" | "google" | "anthropic" | "assistants" | "gptPlugins"
+* 另外還有「已知終端」（不區分大小寫），它們已內建圖標。若您的終端 `name` 與下列名稱相符，應省略此欄位：
+  - "Anyscale"
+  - "APIpie"
+  - "Cohere"
+  - "Deepseek"
+  - "Fireworks"
+  - "groq"
+  - "Helicone"
+  - "Huggingface"
+  - "Mistral"
+  - "MLX"
+  - "Moonshot"
+  - "ollama"
+  - "OpenRouter"
+  - "Perplexity"
+  - "Qwen"
+  - "ShuttleAI"
+  - "together.ai"
+  - "Unify"
+  - "xai"
+
+## models (模型)
+
+**Key：**
+<OptionTable
+  options={[
+    ['models', '物件', '模型的配置。', ''],
+  ]}
+/>
+
+**必填**
+
+**屬性：**
+
+### default (預設)
+
+**Key：**
+<OptionTable
+  options={[
+    ['default', '字串陣列', '表示預設使用模型名稱的字串陣列。', '若獲取模型清單失敗，將退而使用這些預設值。'],
+  ]}
+/>
+
+**必填**
+
+**範例：**
+```yaml filename="endpoints / custom / models / default"
+default:
+  - "mistral-tiny"
+  - "mistral-small"
+  - "mistral-medium"
+```
+
+### fetch (獲取)
+
+**Key：**
+<OptionTable
+  options={[
+    ['fetch', '布林值', '設定為 `true` 時，嘗試從 API 獲取模型清單。', '若回應延遲，可能會導致應用程式初始使用時速度變慢。預設值為 `false`。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / custom / models / fetch"
+fetch: true
+```
+
+### userIdQuery
+
+**Key：**
+<OptionTable
+  options={[
+    ['userIdQuery', '布林值', '設定為 `true` 時，在請求 API 模型清單時會將 LibreChat 使用者 ID 作為查詢參數加入。', ''],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / custom / models / userIdQuery"
+userIdQuery: true
+```
+
+## titleConvo (對話標題)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleConvo', '布林值', '設定為 `true` 時啟用對話標題產生功能。', ''],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / custom / titleConvo"
+titleConvo: true
+```
+
+## titleMethod (標題產生方法)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleMethod', '字串', '控制產生對話標題所使用的方法。', '有效值："completion" (預設), "structured", "functions" ("structured" 的舊版別名)'],
+  ]}
+/>
+
+**預設值：** `"completion"`
+
+**可用方法：**
+- **`"completion"`** - 使用標準補全 API，不包含工具/函式。與大多數 LLM 相容。
+- **`"structured"`** - 使用結構化輸出產生標題。需要供應商/模型支援。
+- **`"functions"`** - "structured" 的舊版別名。功能完全相同。
+
+**範例：**
+```yaml filename="endpoints / custom / titleMethod"
+titleMethod: "completion"
+```
+
+## titleModel (標題產生模型)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleModel', '字串', '指定用於產生標題的模型。', '若省略則預設為 "gpt-3.5-turbo"。若無法存取 "gpt-3.5-turbo" 可能會導致問題。您也可以將其設定為 "current_model" 以動態使用當前對話模型。'],
+  ]}
+/>
+
+**預設值：** `"gpt-3.5-turbo"`
+
+**範例：**
+```yaml filename="endpoints / custom / titleModel"
+titleModel: "mistral-tiny"
+```
+
+```yaml filename="endpoints / custom / titleModel"
+titleModel: "current_model"
+```
+
+## titlePrompt (標題提示詞)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titlePrompt', '字串', '標題產生的自定義提示詞。必須包含 {convo} 佔位符。', '允許完整控制標題產生的方式。'],
+  ]}
+/>
+
+**預設值：** 
+```
+分析此對話並提供：
+1. 偵測到的對話語言
+2. 使用偵測到的語言提供一個精簡標題（5 個字以內，不含標點符號或引號）
+
+{convo}
+```
+
+**備註：**
+- 必須始終包含 `{convo}` 佔位符。
+- `{convo}` 佔位符將被替換為格式化後的對話內容。
+
+**範例：**
+```yaml filename="endpoints / custom / titlePrompt"
+titlePrompt: "請為下列對話建立一個簡短、具描述性的標題：
+
+{convo}
+
+標題："
+```
+
+## titlePromptTemplate (標題提示詞模板)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titlePromptTemplate', '字串', '用於格式化對話內容的模板，該內容會取代 titlePrompt 中的 {convo}。', '必須包含 {input} 與 {output} 佔位符。'],
+  ]}
+/>
+
+**預設值：** `"使用者：{input}
+AI：{output}"`
+
+**備註：**
+- 必須同時包含 `{input}` 與 `{output}` 佔位符。
+- 控制對話插入 `titlePrompt` 時的格式化方式。
+
+**範例：**
+```yaml filename="endpoints / custom / titlePromptTemplate"
+titlePromptTemplate: "人類：{input}
+
+助手：{output}"
+```
+
+## titleEndpoint (標題產生終端)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleEndpoint', '字串', '指定用於標題產生的替代終端。', '允許使用不同的模型/終端來產生標題。'],
+  ]}
+/>
+
+**預設值：** 使用當前的自定義終端
+
+**接受的值：**
+- `openAI`
+- `azureOpenAI`
+- `google`
+- `anthropic`
+- `bedrock`
+- 其他自定義終端名稱
+
+**範例：**
+```yaml filename="endpoints / custom / titleEndpoint"
+# 使用不同的自定義終端產生標題
+endpoints:
+  custom:
+    - name: "我的聊天終端"
+      apiKey: "${CHAT_API_KEY}"
+      baseURL: "https://api.example.com/v1/chat"
+      models:
+        default: ["gpt-4"]
+      titleEndpoint: "我的標題終端"
+      
+    - name: "我的標題終端"
+      apiKey: "${TITLE_API_KEY}"
+      baseURL: "https://api.example.com/v1/title"
+      models:
+        default: ["gpt-3.5-turbo"]
+```
+
+## summarize (摘要)
+
+**Key：**
+<OptionTable
+  options={[
+    ['summarize', '布林值', '設定為 `true` 時啟用摘要功能。', '此功能需要相容於 OpenAI Functions 的 API。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / custom / summarize"
+summarize: false
+```
+
+## summaryModel (摘要模型)
+
+**Key：**
+<OptionTable
+  options={[
+    ['summaryModel', '字串', '指定啟用摘要時使用的模型。', '若省略則預設為 "gpt-3.5-turbo"。若無法存取 "gpt-3.5-turbo" 可能會導致問題。'],
+  ]}
+/>
+
+**預設值：** `"gpt-3.5-turbo"`
+
+**範例：**
+```yaml filename="endpoints / custom / summaryModel"
+summaryModel: "mistral-tiny"
+```
+
+## modelDisplayLabel (模型顯示標籤)
+
+**Key：**
+<OptionTable
+  options={[
+    ['modelDisplayLabel', '字串', '訊息中顯示在當前 AI 模型圖標旁的標籤。', '顯示優先順序為：1. 透過預設 (preset) 設定的自定義名稱（若有），2. 衍生自模型名稱的標籤（若適用），3. 若上述皆未指定則使用此值。預設為 "AI"。'],
+  ]}
+/>
+
+**預設值：** `"AI"`
+
+**範例：**
+```yaml filename="endpoints / custom / modelDisplayLabel"
+modelDisplayLabel: "Mistral"
+```
+
+## addParams (新增參數)
+
+**Key：**
+<OptionTable
+  options={[
+    ['addParams', '物件/字典', '為請求新增額外參數。', '新增/覆寫參數。適用於指定特定 API 的選項。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="endpoints / custom / addParams"
+addParams:
+  safe_prompt: true
+  max_tokens: 2048
+```
+**備註：**
+- `addParams` 欄位允許您加入不屬於預設負載的額外參數（參見[「預設參數」](/docs/configuration/librechat_yaml/object_structure/default_params_zh_TW)章節）。這對於設定 API 特有的選項特別有用。
+
+## dropParams (刪除參數)
+
+**Key：**
+<OptionTable
+  options={[
+    ['dropParams', '字串陣列/清單', '從請求中移除預設參數。', '排除指定的預設參數。適用於不接受或無法識別某些參數的 API。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="endpoints / custom / dropParams"
+dropParams:
+  - "stop"
+  - "user"
+  - "frequency_penalty"
+  - "presence_penalty"
+```
+**備註：** 
+- `dropParams` 欄位允許您移除每次請求都會發送的[「預設參數」](/docs/configuration/librechat_yaml/object_structure/default_params_zh_TW)。這在處理不支援某些參數的 API 時非常有幫助。
+
+## headers (標頭)
+
+**Key：**
+<OptionTable
+  options={[
+    ['headers', '物件/字典', '為請求新增額外標頭。支援使用 `{{LIBRECHAT_USER_*}}` 進行動態使用者欄位替換、使用 `{{LIBRECHAT_BODY_*}}` 進行請求主體替換，以及使用 `${ENV_VAR}` 引用環境變數。', '`headers` 物件指定請求的自定義標頭。適用於身份驗證與設定內容類型。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="endpoints / custom / headers"
+headers:
+  x-api-key: "${ENVIRONMENT_VARIABLE}"
+  Content-Type: "application/json"
+  X-User-ID: "{{LIBRECHAT_USER_ID}}"
+  X-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
+```
+**備註：** 支援動態環境變數值，格式為：`"${VARIABLE_NAME}"`。
+
+
+**可用的使用者欄位預留位置：**
+
+| 預留位置 | 使用者欄位 | 類型 | 說明 |
+|------------|------------|------|-------------|
+| `{{LIBRECHAT_USER_ID}}` | `id` | 字串 | 使用者的唯一識別碼 |
+| `{{LIBRECHAT_USER_NAME}}` | `name` | 字串 | 使用者的顯示名稱 |
+| `{{LIBRECHAT_USER_USERNAME}}` | `username` | 字串 | 使用者的使用者名稱 |
+| `{{LIBRECHAT_USER_EMAIL}}` | `email` | 字串 | 使用者的電子郵件地址 |
+| `{{LIBRECHAT_USER_PROVIDER}}` | `provider` | 字串 | 身份驗證供應商 (例如: "email", "google", "github") |
+| `{{LIBRECHAT_USER_ROLE}}` | `role` | 字串 | 使用者的角色 (例如: "user", "admin") |
+| `{{LIBRECHAT_USER_GOOGLEID}}` | `googleId` | 字串 | Google 帳號 ID |
+| `{{LIBRECHAT_USER_FACEBOOKID}}` | `facebookId` | 字串 | Facebook 帳號 ID |
+| `{{LIBRECHAT_USER_OPENIDID}}` | `openidId` | 字串 | OpenID 帳號 ID |
+| `{{LIBRECHAT_USER_SAMLID}}` | `samlId` | 字串 | SAML 帳號 ID |
+| `{{LIBRECHAT_USER_LDAPID}}` | `ldapId` | 字串 | LDAP 帳號 ID |
+| `{{LIBRECHAT_USER_GITHUBID}}` | `githubId` | 字串 | GitHub 帳號 ID |
+| `{{LIBRECHAT_USER_DISCORDID}}` | `discordId` | 字串 | Discord 帳號 ID |
+| `{{LIBRECHAT_USER_APPLEID}}` | `appleId` | 字串 | Apple 帳號 ID |
+| `{{LIBRECHAT_USER_EMAILVERIFIED}}` | `emailVerified` | 布林值 → 字串 | 電子郵件驗證狀態 ("true" 或 "false") |
+| `{{LIBRECHAT_USER_TWOFACTORENABLED}}` | `twoFactorEnabled` | 布林值 → 字串 | 兩步驟驗證狀態 ("true" 或 "false") |
+| `{{LIBRECHAT_USER_TERMSACCEPTED}}` | `termsAccepted` | 布林值 → 字串 | 服務條款接受狀態 ("true" 或 "false") |
+
+**可用的請求主體預留位置：**
+
+| 預留位置 | 主體欄位 | 類型 | 說明 |
+|------------|------------|------|-------------|
+| `{{LIBRECHAT_BODY_CONVERSATIONID}}` | `conversationId` | 字串 | 當前對話識別碼 |
+| `{{LIBRECHAT_BODY_PARENTMESSAGEID}}` | `parentMessageId` | 字串 | 父訊息識別碼 |
+| `{{LIBRECHAT_BODY_MESSAGEID}}` | `messageId` | 字串 | 當前訊息識別碼 |
+
+**使用請求主體預留位置的範例：**
+
+```yaml filename="包含主體預留位置的 endpoints / custom / headers"
+headers:
+  X-Conversation-ID: "{{LIBRECHAT_BODY_CONVERSATIONID}}"
+  X-Parent-Message-ID: "{{LIBRECHAT_BODY_PARENTMESSAGEID}}"
+  X-Message-ID: "{{LIBRECHAT_BODY_MESSAGEID}}"
+```
+
+## directEndpoint
+
+**Key：**
+<OptionTable
+  options={[
+    ['directEndpoint', '布林值', '設定為 `true` 時，將配置的 `baseURL` 視為要使用的補全 (completions) 終端位址。', ''],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / custom / directEndpoint"
+directEndpoint: true
+```
+
+## titleMessageRole (標題訊息角色)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleMessageRole', '字串', '指定用於產生標題的訊息負載中的角色值。', '若省略則預設為 "system"。若 "system" 不是有效值，可能會導致問題，這在某些單一訊息負載（如產生標題時）中偶爾會發生。'],
+  ]}
+/>
+
+**預設值：** `"system"`
+
+**範例：**
+```yaml filename="endpoints / custom / titleMessageRole"
+titleMessageRole: "user"
+```

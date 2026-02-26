@@ -1,0 +1,95 @@
+---
+title: Google
+icon: Chrome
+description: 學習如何配置 LibreChat 使用 Google 進行使用者身份驗證。
+---
+
+## 建立 Google 應用程式
+
+- 造訪：**[Google Cloud Console](https://cloud.google.com)** 並開啟 `Console`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/a7d290ea-6031-43b3-b367-36ce00e46f20)
+
+- 建立一個新專案 (New Project) 並為其命名。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/ce71c9ca-7ddd-4021-9133-a872c64c20c4)
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/8abbd41e-8332-4851-898d-9cddb373c527)
+
+## Google 應用程式配置
+
+- 選擇您剛建立的專案，並前往 `APIs and Services`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/c6265582-2cf6-430f-ae51-1edbdd9f2c48)
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/006e16ba-56b8-452d-b324-5f2d202637ab)
+
+- 選擇 `Credentials` 並點擊 `CONFIGURE CONSENT SCREEN`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/e4285cbb-833f-4366-820d-addf04a2ad77)
+
+- 選擇 `External`（外部）後點擊 `CREATE`（建立）。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/232d46c0-dd00-4637-b538-3ba3bdbdc0b2)
+
+- 填寫您的應用程式資訊。
+
+> 備註：您可以從您的 LibreChat 資料夾獲取圖標：`docs\assets\favicon_package\android-chrome-192x192.png`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/e6c4c8ec-2f02-4af5-9458-c72394d0b7c5)
+
+- 配置您的 `App domain`（應用程式網域）並新增您的 `Developer contact information`（開發者聯絡資訊），接著點擊 `SAVE AND CONTINUE`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/6c2aa557-9b9b-412d-bc2b-76a0dc11f394)
+
+- 配置 `Scopes`（範圍）：
+    - 新增 `email`、`profile` 與 `openid`。
+    - 點擊 `UPDATE`，接著點擊 `SAVE AND CONTINUE`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/46af2fb9-8cfd-41c5-a763-814b308e45c3)
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/4e832970-d392-4c67-bb38-908a5c51660a)
+
+- 點擊 `SAVE AND CONTINUE`。
+- 檢閱您的應用程式並返回儀表板。
+
+- 回到 `Credentials` 標籤，點擊 `+ CREATE CREDENTIALS` 並選擇 `OAuth client ID`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/beef1982-55a3-4837-8e8c-20bad8d846ba)
+
+- 選擇 `Web application`（網頁應用程式）並為其命名。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/badde864-f6b5-468f-a72f-bac93326ffa5)
+
+- 配置 `Authorized JavaScript origins`（授權的 JavaScript 來源），您可以根據需求同時加入網域與 localhost：
+    - Localhost 範例：`http://localhost:3080`
+    - 網域範例：`https://example.com`
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/f7e3763a-5f74-4850-8638-44f81693b9ac)
+
+- 新增一個有效的 `Authorized redirect URIs`（授權的重新導向 URI）：
+    - Localhost 範例：`http://localhost:3080/oauth/google/callback`
+    - 網域範例：`https://example.com/oauth/google/callback`
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/0db34b19-d780-4651-9c2f-d33e24a74d55)
+
+## .env 配置
+
+- 點擊 `CREATE` 並複製您的 `Client ID` 與 `Client secret`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/fa8572bf-f482-457a-a285-aec7d41af76b)
+
+- 將它們新增至您的 `.env` 檔案中：
+
+```bash filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+GOOGLE_CLIENT_ID=您的_client_id
+GOOGLE_CLIENT_SECRET=您的_client_secret
+GOOGLE_CALLBACK_URL=/oauth/google/callback
+```
+
+- 儲存 `.env` 檔案。
+
+> 備註：如果使用 Docker，請執行 `docker compose up -d` 以套用 .env 配置變更。

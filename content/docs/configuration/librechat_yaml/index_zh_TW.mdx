@@ -1,0 +1,49 @@
+---
+title: 自定義配置 (Custom Config)
+icon: BookOpen
+description: 配置 `librechat.yaml` 檔案（即 LibreChat 配置檔案）的全面指南。本章節是您瞭解與自定義終端及其他整合功能的一站式資源。
+weight: -11
+---
+
+歡迎閱讀 LibreChat 的 **librechat.yaml** 檔案配置指南。
+
+此檔案支援整合自定義 AI 終端，讓您能連接任何符合 OpenAI API 標準的 AI 供應商。
+
+## 核心功能
+
+- **終端整合**：與各種符合 OpenAI API 標準的 AI 供應商無縫整合，包括 Mistral AI、反向代理等。
+- **進階自定義**：配置檔案處理、速率限制、使用者註冊以及介面元素，以符合您的偏好與需求。
+- **模型規範**：定義詳細的模型配置、預設設定（presets）與行為，以提供量身定制的 AI 體驗。
+- **Agents (智慧體)**：使用與供應商無關的無程式碼助手，並提供自定義功能的選項。
+- **MCP 伺服器**：整合 [模型上下文協定 (Model Context Protocol, MCP)](https://modelcontextprotocol.io/introduction) 以進行工具整合。
+- **Assistants 整合**：利用 OpenAI Assistants API 的強大功能，並提供自定義能力、輪詢間隔與超時設定的選項。
+- **Azure OpenAI 支援**：整合 Azure OpenAI 服務，支援存取多個部署、區域模型以及無伺服器推理終端。
+
+<div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/26336fa4-db61-438b-929c-0004aa4db56c" alt="modelmenu-light" style={{ width: "75%", height: "75%" }} />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/1e2fe33b-7073-4b4e-9ee1-7b7a99704bad" alt="modelmenu-dark" style={{ width: "75%", height: "75%" }} />
+  </div>
+</div>
+
+
+未來的更新將透過把部分設定從 [.env 檔案](/docs/configuration/dotenv_zh_TW) 遷移至 `librechat.yaml` 來進一步簡化配置。
+
+請關注持續推出的增強功能，以自定義您的 LibreChat 實例！
+
+**備註：** 若要驗證您的 YAML 配置，可以使用 [YAML 驗證器](/toolkit/yaml_checker_zh_TW) 或其他線上工具如 [yamlchecker.com](https://yamlchecker.com/)。
+
+<Callout type="error" title="配置驗證">
+**重要提示：** 如果 `librechat.yaml` 配置檔案包含驗證錯誤，LibreChat 將以錯誤（結束代碼 1）結束執行。這種「快速失敗」(fail-fast) 行為有助於儘早發現配置問題，並防止以非預期的預設設定執行。
+
+如果您需要暫時跳過驗證（例如在偵錯配置問題時），可以設定環境變數 `CONFIG_BYPASS_VALIDATION=true`。這將紀錄警告並繼續使用預設配置啟動，保留舊版行為。
+
+```bash filename=".env"
+CONFIG_BYPASS_VALIDATION=true
+```
+
+> ⚠️ **注意：** 不建議在生產環境中使用 `CONFIG_BYPASS_VALIDATION=true`。請務必修正配置錯誤。
+</Callout>

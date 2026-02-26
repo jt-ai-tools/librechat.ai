@@ -1,0 +1,33 @@
+---
+title: OpenRouter
+icon: OpenRouter
+description: OpenRouter 的配置範例
+---
+
+> OpenRouter API 金鑰：[openrouter.ai/keys](https://openrouter.ai/keys)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。建議啟用動態獲取模型列表 (fetching list of models)，因為當模型被獲取時，系統會使用 API 代幣費率與定價來計算代幣信用餘額。
+
+- `stop` 參數已不再作為預設參數包含在內，因此除非您想完全禁止使用者配置此欄位，否則不再需要將其加入 [`dropParams`](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#dropparams)。
+
+- **已知問題**：您不應使用 `OPENROUTER_API_KEY` 作為環境變數名稱，因為這會導致 `openAI` 終端也被覆寫為使用 OpenRouter。
+
+```yaml
+    - name: "OpenRouter"
+      # 對於 `apiKey` 與 `baseURL`，您可以使用自定義的環境變數。
+      # 建議使用的環境變數：
+      apiKey: "${OPENROUTER_KEY}" # 請勿使用 OPENROUTER_API_KEY
+      baseURL: "https://openrouter.ai/api/v1"
+      models:
+        default: ["meta-llama/llama-3-70b-instruct"]
+        fetch: true
+      titleConvo: true
+      titleModel: "meta-llama/llama-3-70b-instruct"
+      # 建議：從請求中刪除 stop 參數，因為 OpenRouter 模型使用多種不同的停止權杖 (stop tokens)。
+      dropParams: ["stop"]
+      modelDisplayLabel: "OpenRouter"
+```
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/c4a0415e-732c-46af-82a6-3598663b7f42)

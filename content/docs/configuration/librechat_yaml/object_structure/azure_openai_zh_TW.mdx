@@ -1,0 +1,251 @@
+---
+title: "Azure OpenAI 物件結構"
+icon: Braces
+---
+
+將 Azure OpenAI 服務整合至您的應用程式，讓您可以無縫利用由 Azure OpenAI 託管的多個部署與區域模型。本章節詳細說明如何根據您的需求配置 Azure OpenAI 終端。
+
+**[如需設定 Azure OpenAI 配置的詳細指南，請點擊此處](/docs/configuration/azure_zh_TW)**
+
+## 配置範例
+
+```yaml filename="Azure OpenAI 物件結構範例"
+endpoints:
+  azureOpenAI:
+    titleModel: "gpt-4-turbo"
+    groups:
+      - group: "my-westus" # 自定義名稱
+        apiKey: "${WESTUS_API_KEY}"
+        instanceName: "實際實例名稱" # 資源群組或實例的名稱
+        version: "2023-12-01-preview"
+        # baseURL: https://prod.example.com
+        # additionalHeaders:
+        #   X-Custom-Header: value
+        models:
+          gpt-4-vision-preview:
+            deploymentName: gpt-4-vision-preview
+            version: "2024-02-15-preview"
+          gpt-3.5-turbo:
+            deploymentName: gpt-35-turbo
+          gpt-3.5-turbo-1106:
+            deploymentName: gpt-35-turbo-1106
+          gpt-4:
+            deploymentName: gpt-4
+          gpt-4-1106-preview:
+            deploymentName: gpt-4-1106-preview
+      - group: "my-eastus"
+        apiKey: "${EASTUS_API_KEY}"
+        instanceName: "實際美國東部實例名稱"
+        deploymentName: gpt-4-turbo
+        version: "2024-02-15-preview"
+        baseURL: "https://gateway.ai.cloudflare.com/v1/cloudflareId/azure/azure-openai/${INSTANCE_NAME}/${DEPLOYMENT_NAME}" # 使用環境變數
+        additionalHeaders:
+          X-Custom-Header: value
+        models:
+          gpt-4-turbo: true
+```
+
+> **備註：** Azure OpenAI 終端支援所有[共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW)，包括 `streamRate`、`titleModel`、`titleMethod`、`titlePrompt`、`titlePromptTemplate` 與 `titleEndpoint`。
+
+## assistants
+
+**Key：**
+<OptionTable
+  options={[
+    ['assistants', '布林值', '為 Azure OpenAI 終端啟用或停用助手 (assistants)。設定為 `true` 時，會啟動與此終端關聯的助手。', '請擇一使用：官方 OpenAI API 或 Azure OpenAI API 助手，不可兩者同時使用。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / assistants"
+assistants: true
+```
+
+## groups (群組)
+
+**Key：**
+<OptionTable
+  options={[
+    ['groups', '陣列', '按地理位置或用途對模型進行的分組配置。`groups` 陣列中的每個項目都配置了一組特定分組下的模型，通常按地理區域或不同的配置來劃分。', ''],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**備註：** [參見上述範例。](#配置範例)
+
+
+## 群組物件結構 (Group Object Structure)
+
+`groups` 下的每個項目都是紀錄清單的一部分，每個項目包含下列欄位：
+
+### group
+
+**Key：**
+<OptionTable
+  options={[
+    ['group', '字串', '模型群組的識別碼。', ''],
+  ]}
+/>
+
+**必填：** 是
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / group"
+"group": "my-westus"
+```
+
+### apiKey
+
+**Key：**
+<OptionTable
+  options={[
+    ['apiKey', '字串', '用於存取 Azure OpenAI 服務的 API 金鑰。', '強烈建議對此欄位使用自定義環境變數引用，例如 `${YOUR_VARIABLE}`。'],
+  ]}
+/>
+
+**必填：** 是
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / apiKey"
+apiKey: "${WESTUS_API_KEY}"
+```
+
+### instanceName
+
+**Key：**
+<OptionTable
+  options={[
+    ['instanceName', '字串', 'Azure 實例的名稱。**支援兩種網域格式**：`.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）。您可以指定完整網域（例如：`my-instance.cognitiveservices.azure.com`）或僅指定實例名稱（例如：`my-instance`），以向下相容舊版的 `.openai.azure.com` 格式。', '建議對此欄位使用自定義環境變數引用，例如 `${YOUR_VARIABLE}`。'],
+  ]}
+/>
+
+**必填：** 是
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / instanceName"
+# 僅使用實例名稱（套用舊版格式）
+instanceName: "my-westus"
+# 或使用完整網域（新版格式）
+instanceName: "my-westus.cognitiveservices.azure.com"
+```
+
+
+### version (版本)
+
+**Key：**
+<OptionTable
+  options={[
+    ['version', '字串', 'API 版本。', '建議對此欄位使用自定義環境變數引用，例如 `${YOUR_VARIABLE}`。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / version"
+version: "2023-12-01-preview"
+```
+
+### baseURL
+
+**Key：**
+<OptionTable
+  options={[
+    ['baseURL', '字串', 'Azure OpenAI 服務的基礎 URL。', '建議對此欄位使用自定義環境變數引用，例如 `${YOUR_VARIABLE}`。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / baseURL"
+baseURL: "https://prod.example.com"
+```
+
+### additionalHeaders
+
+**Key：**
+<OptionTable
+  options={[
+    ['additionalHeaders', '字典 (Dictionary)', 'API 請求的額外標頭。', '建議對此欄位的數值使用自定義環境變數引用，如範例所示。`api-key` 標頭值會在每次請求時發送。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / additionalHeaders"
+additionalHeaders:
+  X-Custom-Header: ${YOUR_SECRET_CUSTOM_VARIABLE}
+```
+
+### serverless
+
+**Key：**
+<OptionTable
+  options={[
+    ['serverless', '布林值', '表示是否為 Azure OpenAI 聊天補全使用無伺服器推理終端。設定為 `true` 時，表示該群組配置為使用無伺服器推理終端，作為 Azure 的「模型即服務 (Models as a Service)」模型。', '更多資訊請參閱[此處](/docs/configuration/azure_zh_TW#無伺服器推理終端)。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / serverless"
+serverless: true
+```
+
+### addParams
+
+**Key：**
+<OptionTable
+  options={[
+    ['addParams', '物件/字典', '為請求新增額外參數。適用於指定特定 API 的選項。', ''],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / addParams"
+addParams:
+  safe_prompt: true
+```
+
+### dropParams
+
+**Key：**
+<OptionTable
+  options={[
+    ['dropParams', '字串陣列/清單', '從請求中移除 [預設參數](#預設參數)。排除指定的 [預設參數](#預設參數)。', '關於每次請求發送的預設參數清單，請參閱下方的「預設參數」章節。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / dropParams"
+dropParams: ["stop", "user", "frequency_penalty", "presence_penalty"]
+```
+
+### models (模型)
+
+**Key：**
+<OptionTable
+  options={[
+    ['models', '', '群組內個別模型的配置。配置每個模型的設定，包括部署名稱與版本。', '模型配置在設定為布林值（設為 `true`）時可繼承群組的部署名稱及/或版本，或設定為物件以進行這兩個欄位的詳細設定。'],
+  ]}
+/>
+
+**預設值：** 未指定
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / models"
+models:
+  gpt-4-vision-preview: 
+    deploymentName: "自定義部署名稱"
+    version: "2024-02-15-preview"
+```

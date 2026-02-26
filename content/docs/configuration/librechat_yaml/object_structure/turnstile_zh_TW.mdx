@@ -1,0 +1,70 @@
+---
+title: "Cloudflare Turnstile 配置"
+icon: Braces
+---
+
+## 範例
+
+```yaml filename="turnstile"
+turnstile:
+  siteKey: "在此輸入您的-site-key"
+  options:
+    language: "auto"    # "auto" 或 ISO 639-1 語言代碼（例如：zh-TW）
+    size: "normal"      # 選項："normal"、"compact"、"flexible" 或 "invisible"
+```
+
+## turnstile
+
+**Key：**
+<OptionTable
+  options={[
+    ['turnstile', '物件', 'Cloudflare Turnstile 配置，整合了 CAPTCHA 的替代方案，以保護您的應用程式免受自動化濫用。'],
+  ]}
+/>
+
+### 欄位說明
+
+<OptionTable
+  options={[
+    ['siteKey', '字串', '您唯一的 Cloudflare Turnstile 站點金鑰 (site key)。請向 Cloudflare 註冊您的網域以獲取此金鑰。', '您的-site-key'],
+    ['options', '物件', '用於自定義 Turnstile 組件額外設定的物件。'],
+  ]}
+/>
+
+#### siteKey
+
+- **類型：** `字串`
+- **說明：** 您唯一的 Cloudflare Turnstile 站點金鑰。請確保您已在 Cloudflare 註冊網域，並從 [Cloudflare Turnstile 快速入門](https://developers.cloudflare.com/turnstile/get-started/)指南中獲取此金鑰。
+- **範例：**
+```yaml
+turnstile:
+  siteKey: "在此輸入您的-site-key"
+```
+
+#### options (選項)
+
+- **類型：** `物件`
+- **說明：** 用於配置 Turnstile 組件額外設定的物件。
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['language', '字串', '指定 Turnstile 組件的語言。使用 `auto` 自動偵測使用者語言，或提供 ISO 639-1 語言代碼（例如：`zh-TW`）。', 'auto'],
+    ['size', '字串', '決定組件的顯示尺寸。有效選項包括 `normal` (正常)、`compact` (緊湊)、`flexible` (彈性) 或 `invisible` (不可見)。', 'normal'],
+    ]}
+/>
+
+```yaml
+turnstile:
+  options:
+    language: "auto"
+    size: "normal"
+```
+
+### 備註
+
+- **選填整合**：`turnstile` 配置區塊為選填。如果您選擇不使用 Cloudflare Turnstile，可以完全省略此區塊。
+- **儀表板一致性**：請確保此處配置的數值與您在 Cloudflare 儀表板中的設定一致。
+- **使用者體驗**：根據需求自定義 `options` 子鍵，以調整組件的行為與外觀，使其符合應用程式的要求。
+
+---

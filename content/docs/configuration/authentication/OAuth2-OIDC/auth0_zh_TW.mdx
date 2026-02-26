@@ -1,0 +1,211 @@
+---
+title: Auth0
+icon: Shield
+description: 為 LibreChat 配置 Auth0 作為 OpenID Connect 供應商
+---
+
+本指南將引導您配置 Auth0 作為 LibreChat 的 OpenID Connect 供應商。
+
+## 概覽
+
+Auth0 可作為 LibreChat 的 OpenID Connect 供應商。當使用 Auth0 並啟用權杖重複使用功能 (`OPENID_REUSE_TOKENS=true`) 時，您必須配置 `OPENID_AUDIENCE` 環境變數，以防止身份驗證問題。
+
+## 先決條件
+
+- 一個具備有效租戶 (tenant) 的 Auth0 帳號。
+- 具備在 Auth0 中建立應用程式與 API 的管理員權限。
+- 已準備好進行配置的 LibreChat 實例。
+
+## 配置步驟
+
+### 第一步：建立 Auth0 應用程式
+
+1. 前往 **Auth0 儀表板** → **Applications** → **Applications**。
+2. 點擊 **"Create Application"**。
+3. 配置應用程式：
+   - **Name (名稱)**：`LibreChat`（或您偏好的名稱）。
+   - **Application Type (應用程式類型)**：選擇 **"Single Page Application"**。
+4. 點擊 **"Create"**。
+
+### 第二步：配置應用程式設定
+
+<Callout type="warning" title="需要 HTTPS">
+Auth0 不允許在生產環境應用程式中使用 `http://localhost` URL。對於本地開發/測試，您需要使用 HTTPS。您可以使用如下服務：
+- **ngrok**：`ngrok http 3080`（提供前往 localhost 的 HTTPS 隧道）。
+- **Caddy**：本地 HTTPS 代理伺服器。
+- **localtunnel**：類似於 ngrok。
+
+使用 ngrok 的範例：
+```bash
+ngrok http 3080
+# 這將給您一個類似這樣的 URL：https://abc123.ngrok.io
+```
+</Callout>
+
+1. 在您的應用程式 **Settings** 標籤中：
+2. 設定 **Allowed Callback URLs (允許的回呼 URL)**： 
+   ```bash
+   https://您的網域.ngrok.io/oauth/openid/callback
+   ```
+   （測試時請使用您的 ngrok URL，生產環境則使用您的生產 HTTPS URL）。
+3. 設定 **Allowed Logout URLs (允許的登出 URL)**（若使用結束工作階段功能）：
+   ```bash
+   https://您的網域.ngrok.io
+   ```
+4. 設定 **Allowed Web Origins (允許的網頁來源)**：
+   ```bash
+   https://您的網域.ngrok.io
+   ```
+5. 儲存變更。
+
+### 第三步：建立 Auth0 API（權杖重複使用必填）
+
+<Callout type="warning" title="權杖重複使用重要事項">
+當使用 `OPENID_REUSE_TOKENS=true` 時，此步驟為 **必填**。若無此步驟，Auth0 將返回不透明權杖 (opaque tokens)，這類權杖無法被 LibreChat 驗證，進而導致無限重整迴圈。
+</Callout>
+
+1. **前往 Auth0 儀表板** → **Applications** → **APIs**。
+2. **點擊 "Create API"**。
+3. **配置 API：**
+   - **Name (名稱)**：`LibreChat API`（或您偏好的名稱）。
+   - **Identifier (識別碼)**：`https://api.librechat.ai`（或您偏好的識別碼）。
+     - **備註**：這只是一個唯一識別碼，並非真實 URL，無需可被存取。
+     - 常見模式：`https://api.yourdomain.com`、`https://librechat.yourdomain.com` 等。
+   - **Signing Algorithm (簽署演算法)**：RS256（推薦）。
+4. **點擊 "Create"**。
+
+### 第四步：配置離線存取 (Offline Access)
+
+1. **前往您的 API Settings** → **Access Settings**。
+2. 啟用 **"Allow Offline Access"**。
+3. 儲存變更。
+
+### 第五步：獲取配置數值
+
+在您的 Auth0 應用程式的 **Basic Information** 區段中，您可以找到：
+
+- **Domain (網域)**：顯示為 `dev-example.us.auth0.com`（您需要加上 `https://` 前綴）。
+- **Client ID**：一串長字母數字字串。
+- **Client Secret**：預設隱藏（點擊以顯示）。
+
+<Callout type="info" title="重要事項">
+Auth0 中顯示的 **Domain** 不包含 `https://` 前綴。配置 `OPENID_ISSUER` 時，您必須自行加上。
+
+範例：若 Auth0 顯示 `dev-abc123.us.auth0.com`，請使用 `https://dev-abc123.us.auth0.com`。
+</Callout>
+
+### 第六步：配置 LibreChat 環境變數
+
+將下列環境變數新增至您的 `.env` 檔案中：
+
+```bash
+# OpenID Connect 配置
+# 來自 Basic Information 的網域（需加上 https:// 前綴）
+OPENID_ISSUER=https://dev-abc123.us.auth0.com
+
+# 來自 Basic Information 的 Client ID
+OPENID_CLIENT_ID=您的_長字母數字_client_id
+
+# 來自 Basic Information 的 Client Secret（點擊以顯示）
+OPENID_CLIENT_SECRET=您的_來自_基本資訊的_client_secret
+
+# 回呼 URL（必須與 Auth0 中配置的完全一致）
+OPENID_CALLBACK_URL=/oauth/openid/callback
+
+# 權杖配置
+OPENID_REUSE_TOKENS=true
+OPENID_SCOPE=openid profile email offline_access
+
+# 重要：您的 Auth0 API 識別碼（來自第三步）
+OPENID_AUDIENCE=https://api.librechat.ai
+
+# 安全設定（推薦）
+OPENID_USE_PKCE=true
+
+# 工作階段配置（產生一個安全隨機字串）
+OPENID_SESSION_SECRET=您的_安全工作階段秘密_32字元或更多
+
+# 選填：自定義按鈕外觀
+OPENID_BUTTON_LABEL=使用 Auth0 繼續
+# OPENID_IMAGE_URL=https://前往-auth0-圖標的路徑.png
+
+# 若使用 ngrok 進行測試，也請更新：
+# DOMAIN_CLIENT=https://您的網域.ngrok.io
+# DOMAIN_SERVER=https://您的網域.ngrok.io
+```
+
+## 瞭解 OPENID_AUDIENCE
+
+### 問題背景
+
+當使用 Auth0 搭配 `OPENID_REUSE_TOKENS=true` 時：
+- Auth0 預設會返回 **不透明存取權杖 (opaque access tokens)**（JWE 格式）。
+- LibreChat 預期收到的是可被驗證的 **簽署 JWT 權杖**（JWS 格式）。
+- 若未正確配置，此不匹配會導致身份驗證失敗與無限重整迴圈。
+
+### 解決方案
+
+`OPENID_AUDIENCE` 環境變數：
+- 必須設定為您的 Auth0 API 識別碼（於第三步建立）。
+- 強制 Auth0 核發簽署的 JWT 存取權杖，而非不透明權杖。
+- 讓 LibreChat 能使用 Auth0 的 JWKS 終端來驗證權杖。
+
+### 運作原理
+
+配置 `OPENID_AUDIENCE` 後：
+1. LibreChat 在授權請求中會包含 `audience` 參數。
+2. Auth0 辨識出該 audience 為已註冊的 API。
+3. Auth0 核發可被驗證的 JWT 存取權杖。
+4. LibreChat 成功驗證權杖，身份驗證正常運作。
+
+## 環境變數參考
+
+<OptionTable
+  options={[
+    ['OPENID_AUDIENCE', '字串', 'Auth0 API 的識別碼。當 Auth0 搭配 OPENID_REUSE_TOKENS=true 使用時，為必填項，以防止不透明權杖問題。', 'OPENID_AUDIENCE=https://api.librechat.ai'],
+  ]}
+/>
+
+## 疑難排解
+
+### 無限重整迴圈 (Infinite Refresh Loop)
+
+**症狀**：點擊「使用 OpenID 繼續」後頁面不斷自動重新載入。
+
+**解決方案**： 
+1. 確保 `OPENID_AUDIENCE` 已設定為您的 Auth0 API 識別碼。
+2. 驗證該 API 已在 Auth0 中建立，且已啟用離線存取。
+3. 檢查 audience 數值是否完全一致。
+
+### 權杖無效錯誤 (Invalid Token Errors)
+
+**症狀**：身份驗證失敗，並出現權杖驗證錯誤。
+
+**解決方案**：
+1. 啟用偵錯日誌：`DEBUG_OPENID_REQUESTS=true`。
+2. 驗證 Auth0 返回的是 JWT 權杖（而非不透明權杖）。
+3. 檢查 JWKS 終端是否可被存取。
+
+### 缺少重新整理權杖 (Missing Refresh Token)
+
+**症狀**：身份驗證回應中沒有重新整理權杖。
+
+**解決方案**：
+1. 確保 `OPENID_SCOPE` 中包含了 `offline_access`。
+2. 驗證您的 Auth0 API 設定中已啟用 "Allow Offline Access"。
+
+## 最佳實踐
+
+1. **務必使用 HTTPS** - Auth0 要求所有回呼 URL 必須使用 HTTPS。
+2. **本地測試** - 使用 ngrok 或類似服務建立前往 localhost 的 HTTPS 隧道。
+3. **保護您的工作階段秘密** - 為 `OPENID_SESSION_SECRET` 使用強且隨機的數值。
+4. **啟用 PKCE** - 設定 `OPENID_USE_PKCE=true` 以增強安全性。
+5. **限制回呼 URL** - 在 Auth0 設定中僅允許您的實際網域。
+6. **監控日誌** - 在設定期間使用 `DEBUG_OPENID_REQUESTS=true`。
+7. **API 識別碼** - 請記住它只是一個識別碼，並非必須存在的真實終端。
+
+## 其他資源
+
+- [Auth0 官方文檔](https://auth0.com/docs)
+- [Auth0 存取權杖說明](https://auth0.com/docs/secure/tokens/access-tokens/get-access-tokens)
+- [LibreChat OpenID 權杖重複使用](/docs/configuration/authentication/OAuth2-OIDC/token-reuse_zh_TW)

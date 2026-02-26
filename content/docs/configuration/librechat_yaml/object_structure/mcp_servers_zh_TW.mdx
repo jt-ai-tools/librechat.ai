@@ -1,0 +1,655 @@
+---
+title: "MCP 伺服器物件結構"
+icon: Blocks
+---
+
+## 範例
+
+```yaml filename="MCP 伺服器物件結構"
+# MCP 伺服器物件結構範例
+mcpServers:
+  everything:
+    # type: sse # type 欄位可選擇性省略
+    url: http://localhost:3001/sse
+  googlesheets:
+    type: sse
+    url: https://mcp.composio.dev/googlesheets/some-endpoint
+    requiresOAuth: true
+    headers:
+      X-User-ID: "{{LIBRECHAT_USER_ID}}"
+      X-API-Key: "${SOME_API_KEY}"
+    serverInstructions: true  # 使用伺服器提供的指令
+  puppeteer:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-puppeteer"
+    serverInstructions: "請勿存取任何本地檔案或本地/內部 IP 位址"
+  filesystem:
+    # type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /home/user/LibreChat/
+    iconPath: /home/user/LibreChat/client/public/assets/logo.svg
+    # 若未提供圖標，則預設顯示「扳手」圖標。
+  mcp-obsidian:
+    command: npx
+    args:
+      - -y
+      - "mcp-obsidian"
+      - /path/to/obsidian/vault
+  streamable-http-server:
+    type: streamable-http
+    url: https://example.com/api/
+  per-user-credentials-example:
+    type: streamable-http
+    url: "https://example.com/api/"
+    headers:
+      X-Auth-Token: "{{MY_SERVICE_API_KEY}}"
+    customUserVars:
+      MY_SERVICE_API_KEY:
+        title: "我的服務 API 金鑰"
+        description: "輸入您在此服務的個人 API 金鑰。您可以在 <a href='https://myservice.example.com/developer/keys' target='_blank'>服務開發者入口網站</a> 產生一個。"
+  oauth-example:
+    type: streamable-http
+    url: https://api.example.com/mcp/
+    oauth:
+      authorization_url: https://example.com/oauth/authorize
+      token_url: https://example.com/oauth/token
+      client_id: your_client_id
+      client_secret: your_client_secret
+      redirect_uri: http://localhost:3080/api/mcp/oauth-example/oauth/callback
+      scope: "read execute"
+```
+
+## `<伺服器名稱>`
+
+**Key：**
+<OptionTable
+  options={[
+    ['<伺服器名稱>', '物件', '`mcpServers` 下的每個鍵代表一個個別的 MCP 伺服器配置，由唯一的名稱識別。此名稱用於在應用程式內引用該伺服器配置。', ''],
+  ]}
+/>
+
+### 子鍵 (Subkeys)
+
+<OptionTable
+  options={[
+    ['title', '字串', '（選填）MCP 伺服器在 UI 中的自定義顯示名稱。若未指定，則使用伺服器鍵名。', 'title: "我的自定義伺服器"'],
+    ['description', '字串', '（選填）MCP 伺服器的描述，顯示在 UI 中以協助使用者瞭解其用途。', 'description: "提供檔案系統存取權限"'],
+    ['type', '字串', '指定與 MCP 伺服器的連接類型。有效選項為 `"stdio"`、`"websocket"`、`"streamable-http"` 或 `"sse"`。若省略，將根據 `url` 或 `command` 的存在與格式設定預設值。', 'type: "stdio"'],
+    ['command', '字串', '（針對 `stdio` 類型）用於啟動 MCP 伺服器的命令或執行檔。', 'command: "npx"'],
+    ['args', '字串陣列', '（針對 `stdio` 類型）傳遞給 `command` 的命令列參數。', 'args: ["-y", "@modelcontextprotocol/server-puppeteer"]'],
+    ['url', '字串', '（針對 `websocket`、`streamable-http` 或 `sse` 類型）連接 MCP 伺服器的 URL。', 'url: "http://localhost:3001/sse"'],
+    ['headers', '物件', '（選填，針對 `sse` 與 `streamable-http` 類型）隨請求發送的自定義標頭。支援使用 `{{LIBRECHAT_USER_*}}` 預留位置進行動態使用者欄位替換，以及使用 `${ENV_VAR}` 引用環境變數。', 'headers:
+  X-User-ID: "{{LIBRECHAT_USER_ID}}"
+  X-API-Key: "${SOME_API_KEY}"'],
+    ['apiKey', '物件', '（選填，針對 `sse` 與 `streamable-http` 類型）MCP 伺服器的 API 金鑰身份驗證配置。', '參見下方 apiKey 章節'],
+    ['iconPath', '字串', '（選填）定義在工具選擇對話方塊中顯示的工具圖標。', 'iconPath: "/path/to/icon.svg"'],
+    ['chatMenu', '布林值', '（選填）設定為 `false` 時，將 MCP 伺服器從聊天區下拉選單 (MCPSelect) 中排除。預設值為 `true`。', 'chatMenu: false'],
+    ['serverInstructions', '布林值或字串', '（選填）控制如何將 MCP 伺服器指令注入智慧體上下文。伺服器指令為整個 MCP 伺服器提供高層級的使用指南，與個別工具的描述相輔相成。', 'serverInstructions: true
+# 或
+serverInstructions: "自定義指令"'],
+    ['timeout', '數字', '（選填）MCP 伺服器請求的超時時間（毫秒）。決定等待工具請求回應的時間。', 'timeout: 30000'],
+    ['initTimeout', '數字', '（選填）MCP 伺服器初始化的超時時間（毫秒）。決定等待伺服器初始化的時間。', 'initTimeout: 10000'],
+    ['env', '物件', '（選填，僅限 `stdio` 類型）產生程序時使用的環境變數。', 'env:
+  NODE_ENV: "production"'],
+    ['requiresOAuth', '布林值', '（選填，僅限 `sse` 類型）此伺服器是否需要 OAuth 身份驗證。若未指定，將在伺服器啟動期間自動偵測。雖然是選填，但若已知伺服器是否需要 OAuth，最好明確設定此值。', 'requiresOAuth: true'],
+    ['stderr', '字串、串流或數字', '（選填，僅限 `stdio` 類型）如何處理子程序的 `stderr`。預設值為 `"inherit"`。', 'stderr: "inherit"'],
+    ['customUserVars', '物件', '（選填）定義使用者可為此 MCP 伺服器設定的自定義變數，支援按使用者的憑證或配置（例如 API 金鑰）。這些變數可隨後在 `headers` 或 `env` 欄位中被引用。', 'customUserVars:
+  API_KEY:
+    title: "API 金鑰"
+    description: "您的個人 API 金鑰。"'],
+    ['oauth', '物件', '（選填）與 MCP 伺服器驗證所需的 OAuth2 配置。配置後，系統會提示使用者透過 OAuth 流程進行驗證。', 'oauth:
+  authorization_url: "https://example.com/oauth/authorize"
+  token_url: "https://example.com/oauth/token"'],
+    ['startup', '布林值', '（選填）設定為 false 時，此 MCP 伺服器不會在應用程式啟動時連接。', 'startup: false'],
+  ]}
+/>
+
+#### `title` (標題)
+
+- **類型：** 字串（選填）
+- **描述：** MCP 伺服器在 UI 中的自定義顯示名稱。若未指定，則使用伺服器鍵名。
+- **範例：**
+  ```yaml
+  my-server:
+    title: "檔案系統存取"
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem"]
+  ```
+
+#### `description` (描述)
+
+- **類型：** 字串（選填）
+- **描述：** MCP 伺服器的描述，顯示在 UI 中以協助使用者瞭解其用途與功能。
+- **範例：**
+  ```yaml
+  my-server:
+    title: "檔案系統存取"
+    description: "提供對本地檔案與目錄的讀寫權限"
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem"]
+  ```
+
+#### `type` (類型)
+
+- **類型：** 字串
+- **描述：** 指定與 MCP 伺服器的連接類型。有效選項為 `"stdio"`、`"websocket"`、`"streamable-http"` 或 `"sse"`。
+- **預設值：** 根據 `url` 或 `command` 的存在與格式決定。
+
+#### `command` (命令)
+
+- **類型：** 字串
+- **描述：** （針對 `stdio` 類型）用於啟動 MCP 伺服器的命令或執行檔。
+
+#### `args` (參數)
+
+- **類型：** 字串陣列
+- **描述：** （針對 `stdio` 類型）傳遞給 `command` 的命令列參數。
+
+#### `url`
+
+- **類型：** 字串
+- **描述：** （針對 `websocket`、`streamable-http` 或 `sse` 類型）連接 MCP 伺服器的 URL。支援動態使用者欄位預留位置 (`{{LIBRECHAT_USER_*}}`) 與環境變數替換 (`${ENV_VAR}`)。
+- **備註：**
+  - 對於 `sse` 類型，URL 必須以 `http://` 或 `https://` 開頭。
+  - 對於 `streamable-http` 類型，URL 必須以 `http://` 或 `https://` 開頭。
+  - 對於 `websocket` 類型，URL 必須以 `ws://` 或 `wss://` 開頭。
+
+#### `headers` (標頭)
+
+- **類型：** 物件（選填，針對 `sse` 與 `streamable-http` 類型）
+- **描述：** 隨請求發送的自定義標頭。支援多種預留位置類型進行動態值替換。
+- **預留位置支援：**
+  - `{{LIBRECHAT_USER_ID}}`：將被替換為當前使用者的 ID，支援多使用者環境。
+  - `{{LIBRECHAT_USER_*}}`：動態使用者欄位預留位置。將 `*` 替換為任何允許欄位的大寫形式。
+  - `{{CUSTOM_VARIABLE_NAME}}`：替換為使用者為 `customUserVars` 中定義的變數所提供的值（例如：`{{MY_API_KEY}}`）。
+  - `${ENV_VAR}`：將被替換為伺服器端環境變數 `{{ENV_VAR}}` 的值。
+
+**可用的使用者欄位預留位置：**
+
+| 預留位置 | 使用者欄位 | 類型 | 說明 |
+|------------|------------|------|-------------|
+| `{{LIBRECHAT_USER_NAME}}` | `name` | 字串 | 使用者的顯示名稱 |
+| `{{LIBRECHAT_USER_USERNAME}}` | `username` | 字串 | 使用者的使用者名稱 |
+| `{{LIBRECHAT_USER_EMAIL}}` | `email` | 字串 | 使用者的電子郵件地址 |
+| `{{LIBRECHAT_USER_PROVIDER}}` | `provider` | 字串 | 身份驗證供應商 (例如: "email", "google", "github") |
+| `{{LIBRECHAT_USER_ROLE}}` | `role` | 字串 | 使用者的角色 (例如: "user", "admin") |
+| `{{LIBRECHAT_USER_GOOGLEID}}` | `googleId` | 字串 | Google 帳號 ID |
+| `{{LIBRECHAT_USER_FACEBOOKID}}` | `facebookId` | 字串 | Facebook 帳號 ID |
+| `{{LIBRECHAT_USER_OPENIDID}}` | `openidId` | 字串 | OpenID 帳號 ID |
+| `{{LIBRECHAT_USER_SAMLID}}` | `samlId` | 字串 | SAML 帳號 ID |
+| `{{LIBRECHAT_USER_LDAPID}}` | `ldapId` | 字串 | LDAP 帳號 ID |
+| `{{LIBRECHAT_USER_GITHUBID}}` | `githubId` | 字串 | GitHub 帳號 ID |
+| `{{LIBRECHAT_USER_DISCORDID}}` | `discordId` | 字串 | Discord 帳號 ID |
+| `{{LIBRECHAT_USER_APPLEID}}` | `appleId` | 字串 | Apple 帳號 ID |
+| `{{LIBRECHAT_USER_EMAILVERIFIED}}` | `emailVerified` | 布林值 → 字串 | 電子郵件驗證狀態 ("true" 或 "false") |
+| `{{LIBRECHAT_USER_TWOFACTORENABLED}}` | `twoFactorEnabled` | 布林值 → 字串 | 兩步驟驗證狀態 ("true" 或 "false") |
+| `{{LIBRECHAT_USER_TERMSACCEPTED}}` | `termsAccepted` | 布林值 → 字串 | 服務條款接受狀態 ("true" 或 "false") |
+
+**備註：** 缺失的欄位將被替換為空字串。
+
+- **範例：**
+  ```yaml
+  headers:
+    X-User-ID: "{{LIBRECHAT_USER_ID}}"
+    X-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
+    X-User-Role: "{{LIBRECHAT_USER_ROLE}}"
+    X-API-Key: "${SOME_API_KEY}"
+    Authorization: "Bearer ${SOME_AUTH_TOKEN}"
+  ```
+
+#### `apiKey`
+
+- **類型：** 物件（選填，針對 `sse` 與 `streamable-http` 類型）
+- **描述：** MCP 伺服器的 API 金鑰身份驗證配置。提供結構化的方式來配置基於 API 金鑰的身份驗證。
+- **子鍵 (Sub-keys)：**
+  - `source`：字串 - API 金鑰的來源。選項：
+    - `"admin"`：API 金鑰由管理員配置（在環境變數或配置檔案中）。
+    - `"user"`：API 金鑰由使用者透過 UI 提供。
+  - `authorization_type`：字串 - API 金鑰在請求中發送的方式。選項：
+    - `"bearer"`：以 `Authorization: Bearer <金鑰>` 形式發送。
+    - `"basic"`：以 `Authorization: Basic <金鑰>` 形式發送。
+    - `"custom"`：在自定義標頭中發送（需要 `custom_header`）。
+  - `custom_header`：字串 - （當 `authorization_type` 為 `"custom"` 時必填）用於 API 金鑰的標頭名稱。
+- **範例：**
+  ```yaml
+  # 管理員提供的 API 金鑰，使用 Bearer 驗證
+  my-server:
+    type: streamable-http
+    url: https://api.example.com/mcp
+    apiKey:
+      source: "admin"
+      authorization_type: "bearer"
+
+  # 使用者提供的 API 金鑰，使用自定義標頭
+  another-server:
+    type: sse
+    url: https://api.example.com/sse
+    apiKey:
+      source: "user"
+      authorization_type: "custom"
+      custom_header: "X-API-Key"
+  ```
+
+#### `iconPath` (圖標路徑)
+
+- **類型：** 字串（選填）
+- **描述：** 定義在工具選擇對話方塊中顯示的工具顯示圖標。
+
+#### `chatMenu` (聊天選單)
+
+- **類型：** 布林值（選填）
+- **描述：** 設定為 `false` 時，將 MCP 伺服器從聊天區下拉選單 (MCPSelect) 中排除，以便快速存取。
+- **預設值：** `true`（MCP 伺服器將包含在聊天區下拉選單中）
+
+#### `serverInstructions` (伺服器指令)
+
+- **類型：** 布林值或字串（選填）
+- **描述：** 控制如何將 MCP 伺服器指令注入智慧體上下文。伺服器指令為整個 MCP 伺服器提供高層級的使用指南，與個別工具的描述相輔相成。
+- **選項：**
+  - **`undefined`**（預設）：不包含任何指令。
+  - **`true`**：使用伺服器提供的指令（若有） —— 適合具備詳盡說明且文件完善的伺服器。
+  - **`false`**：明確停用指令 —— 用於節省上下文代幣，或是工具本身已具備足夠說明時。
+  - **`字串`**：使用自定義指令（覆寫伺服器提供的內容） —— 最適合特定應用程式的工作流，或當伺服器指令不足時。
+- **預設值：** `undefined`（不包含指令）
+- **備註：**
+  - 當配置了 `serverInstructions` 且智慧體可以使用該伺服器的工具時，指令會自動注入。
+  - 多個伺服器可以各自向智慧體上下文貢獻指令。
+- **範例：**
+  ```yaml
+  # 使用伺服器提供的指令
+  serverInstructions: true
+  
+  # 使用自定義指令
+  serverInstructions: |
+    使用此檔案系統伺服器時：
+    1. 檔案操作請始終使用絕對路徑
+    2. 在嘗試寫入操作前請先檢查檔案權限
+  
+  # 明確停用指令
+  serverInstructions: false
+  ```
+
+#### `env`
+
+- **類型：** 物件（選填，僅限 `stdio` 類型）
+- **描述：** 產生程序時使用的環境變數。
+- **預留位置支援：**
+  - `{{LIBRECHAT_USER_ID}}`：替換為當前使用者的 ID。
+  - `{{LIBRECHAT_USER_*}}`：動態使用者欄位預留位置（例如：`{{LIBRECHAT_USER_EMAIL}}`）。
+  - `{{CUSTOM_VARIABLE_NAME}}`：替換為使用者為 `customUserVars` 中定義的變數所提供的值（例如：`{{MY_API_KEY}}`）。
+  - `${ENV_VAR}`：替換為伺服器端環境變數 `{{ENV_VAR}}` 的值。
+
+#### `timeout` (超時)
+
+- **類型：** 數字（選填）
+- **描述：** MCP 伺服器請求的超時時間（毫秒）。決定等待工具請求回應的時間。
+- **預設值：** `30000`（30 秒）
+
+#### `initTimeout` (初始化超時)
+
+- **類型：** 數字（選填）
+- **描述：** MCP 伺服器初始化的超時時間（毫秒）。決定等待伺服器初始化的時間。
+- **預設值：** `10000`（10 秒）
+
+#### `requiresOAuth` (需要 OAuth)
+
+- **類型：** 布林值（選填，僅限 `sse` 類型）
+- **描述：** 此伺服器是否需要 OAuth 身份驗證。若未指定，將在伺服器啟動期間自動偵測。雖然是選填，但若已知伺服器是否需要 OAuth，最好明確設定此值。
+- **預設值：** 若未指定則自動偵測。
+- **備註：**
+  - 僅適用於 `sse` 類型的 MCP 伺服器。
+  - 自動偵測發生於伺服器啟動期間，可能會增加初始化時間。
+  - 明確配置可透過跳過偵測來提升啟動效能。
+  - 與 MCP OAuth 環境變數 (`MCP_OAUTH_ON_AUTH_ERROR`, `MCP_OAUTH_DETECTION_TIMEOUT`) 搭配使用，可實現更強大的連接管理。
+
+#### `stderr`
+
+- **類型：** 字串、串流或數字（選填，僅限 `stdio` 類型）
+- **描述：** 如何處理子程序的 `stderr`。這符合 Node.js 的 [`child_process.spawn`](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options) 語義。
+- **預設值：** `"inherit"`（發送到 `stderr` 的訊息將列印到父程序的 `stderr`）。
+
+#### `customUserVars` (使用者自定義變數)
+
+- **類型：** 物件（選填）
+- **描述：** 定義使用者可為此 MCP 伺服器設定的自定義變數。這允許管理員指定每個使用者必須個別配置的變數（例如：API 金鑰、URL）。這些由使用者提供的值隨後可用於 `headers` 配置。
+- **結構：**
+  - `customUserVars` 物件包含多個鍵，每個鍵代表一個變數名稱（例如：`MY_API_KEY`）。此名稱將用於 `{{MY_API_KEY}}` 等預留位置。
+  - 每個變數名稱都是一個包含下列子鍵的物件：
+    - `title`：字串（必填） - 變數的使用者友善標題，顯示在配置 UI 中。
+    - `description`：字串（選填） - 變數的描述或說明，也顯示在 UI 中以引導使用者。此欄位支援 HTML（例如建立連結：`<a href="https://example.com" target="_blank">更多資訊</a>`）。
+- **在 `headers` 與 `env` 中的用法：**
+  - 一旦在 `customUserVars` 下定義，這些變數即可在 `headers`（適用於 `sse` 與 `streamable-http` 類型）或 `env`（適用於 `stdio` 類型）區段中使用 `{{VARIABLE_NAME}}` 語法引用。
+  - 使用者透過 UI 提供這些值。這些設定可透過兩種方式存取：
+    - **從助手聊天輸入框**：在為助手選擇 MCP 工具時，可配置的 MCP 伺服器旁邊會出現一個設定圖標。點擊此圖標可開啟對話方塊來管理該伺服器的憑證。
+    <img src="/images/mcp/mcp_per_user_vars_assistant.png" alt="MCP 按使用者變數配置 - 助手存取" width={600} />
+    <img src="/images/mcp/mcp_per_user_vars_assistant_dialog.png" alt="MCP 按使用者變數配置 - 助手對話方塊" width={800} />
+    - **從設定面板**：右側面板中專屬的 「MCP 設定」 區段列出了所有具有可定義自定義變數的 MCP 伺服器。使用者可以點擊伺服器來開啟配置對話方塊，設定或更新該特定 MCP 伺服器的憑證。
+    <img src="/images/mcp/mcp_per_user_vars_side_panel.png" alt="MCP 按使用者變數配置 - 設定面板存取" width={300} />
+  - 這些由使用者提供的值會安全地儲存，與個別使用者及特定 MCP 伺服器關聯，並在執行階段進行替換。
+- **範例：**
+  ```yaml
+  customUserVars:
+    MY_SERVICE_API_KEY:
+      title: "我的服務 API 金鑰"
+      description: "您在此服務的個人 API 存取金鑰。請在 <a href='https://myservice.example.com/settings/api' target='_blank'>我的服務 API 設定</a> 中尋找。"
+    SOME_OTHER_VAR:
+      title: "其他變數"
+      description: "其他配置的特定值（例如特定的路徑或識別碼）。"
+  ```
+  在 `headers` 中的用法：
+  ```yaml
+  headers:
+    X-Auth-Token: "{{MY_SERVICE_API_KEY}}"
+    X-Some-Other-Config: "{{SOME_OTHER_VAR}}"
+  ```
+
+#### `oauth`
+
+- **類型：** 物件（選填）
+- **描述：** 與 MCP 伺服器驗證所需的 OAuth2 配置。配置後，使用者在能夠使用該 MCP 伺服器前，系統會提示其透過 OAuth 流程進行驗證。若未提供 client id 與 client secret，將使用動態用戶端註冊 (Dynamic Client Registration, DCR)。
+- **必填子鍵：**
+  - `authorization_url`：字串 - OAuth 授權終端 URL
+  - `token_url`：字串 - OAuth 權杖終端 URL  
+  - `client_id`：字串 - OAuth 用戶端識別碼
+  - `client_secret`：字串 - OAuth 用戶端秘密
+  - `redirect_uri`：字串 - [OAuth 重新導向 URI](/docs/features/mcp_zh_TW#oauth-回呼-url)（例如：`http://localhost:3080/api/mcp/${serverName}/oauth/callback`）
+  - `scope`：字串 - OAuth 範圍（以空格分隔）
+- **選填子鍵：**
+  - `grant_types_supported`：字串陣列 - 支援的授權類型（預設為 `["authorization_code", "refresh_token"]`）
+  - `token_endpoint_auth_methods_supported`：字串陣列 - 支援的權杖終端驗證方法（預設為 `["client_secret_basic", "client_secret_post"]`）
+  - `response_types_supported`：字串陣列 - 支援的回應類型（預設為 `["code"]`）
+  - `code_challenge_methods_supported`：字串陣列 - 支援的 PKCE 代碼挑戰方法（預設為 `["S256", "plain"]`）
+  - `skip_code_challenge_check`：布林值 - 跳過檢查 OAuth 供應商是否宣告支援 PKCE。對於像 AWS Cognito 這樣支援 S256 但未在其元資料中宣告的供應商非常有用。（預設為 `false`）
+- **範例：**
+  ```yaml
+  oauth-api-server:
+    authorization_url: https://api.example.com/oauth/authorize
+    token_url: https://api.example.com/oauth/token
+    client_id: your_client_id
+    client_secret: your_client_secret
+    redirect_uri: http://localhost:3080/api/mcp/oauth-api-server/oauth/callback
+    scope: "read execute"
+    grant_types_supported: ["authorization_code", "refresh_token"]
+    token_endpoint_auth_methods_supported: ["client_secret_post"]
+    response_types_supported: ["code"]
+    code_challenge_methods_supported: ["S256", "plain"]
+  ```
+
+#### `startup` (啟動)
+
+- **類型：** 布林值（選填）
+- **描述：** 設定為 `false` 時，此 MCP 伺服器不會在應用程式啟動時連接。這對於需要使用者輸入或配置才能連接的伺服器，或您想控制伺服器初始化時機的情況非常有用。
+- **預設值：** `true`
+- **範例：**
+  ```yaml
+  mcpServers:
+    my-mcp-server:
+      type: streamable-http
+      url: "https://api.example.com/mcp/"
+      startup: false
+  ```
+
+### 備註
+
+- **類型推斷：**
+  - 若省略 `type`：
+    - 若指定了 `url` 且以 `http://` 或 `https://` 開頭，`type` 預設為 `sse`。
+    - 若指定了 `url` 且以 `ws://` 或 `wss://` 開頭，`type` 預設為 `websocket`。
+    - 若指定了 `command`，`type` 預設為 `stdio`。
+- **連接類型：**
+  - **`stdio`**：將 MCP 伺服器作為子程序啟動，並透過標準輸入/輸出進行通訊。
+  - **`websocket`**：透過 WebSocket 連接到外部 MCP 伺服器。
+  - **`sse`**：透過伺服器傳送事件 (SSE) 連接到外部 MCP 伺服器。
+  - **`streamable-http`**：透過 HTTP 連接到外部 MCP 伺服器，支援串流回應。
+- **內部/本地位址：**
+  - **重要提示**：使用內網 IP 位址（例如：`172.24.1.165`, `192.168.1.100`）或本地網域（例如：`mcp-server`, `host.docker.internal`）的 MCP 伺服器 **必須** 在 [`mcpSettings.allowedDomains`](/docs/configuration/librechat_yaml/object_structure/mcp_settings_zh_TW) 中明確被允許。
+  - 配置詳情請參閱 [MCP 設定](/docs/configuration/librechat_yaml/object_structure/mcp_settings_zh_TW)。
+
+## 範例
+
+### 包含內部位址的配置
+
+使用內部/本地 MCP 伺服器時，必須配置 `mcpSettings.allowedDomains`：
+
+```yaml filename="包含內部伺服器的完整 MCP 配置"
+# MCP 設定 - 內網/本地位址必填
+mcpSettings:
+  allowedDomains:
+    - "172.24.1.165"          # 內網 IP
+    - "mcp-prod"              # Docker 容器
+    - "host.docker.internal"  # Docker 宿主機
+
+# MCP 伺服器 - 個別配置
+mcpServers:
+  prod-mcp:
+    type: streamable-http
+    url: http://172.24.1.165:8000/mcp
+    timeout: 120000
+  
+  test-mcp:
+    type: streamable-http
+    url: http://mcp-prod:8001/mcp
+    timeout: 120000
+```
+
+### `stdio` MCP 伺服器
+
+```yaml filename="stdio MCP 伺服器"
+puppeteer:
+  type: stdio
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-puppeteer"
+  timeout: 30000
+  initTimeout: 10000
+  env:
+    NODE_ENV: "production"
+    USER_EMAIL: "{{LIBRECHAT_USER_EMAIL}}"
+    USER_ROLE: "{{LIBRECHAT_USER_ROLE}}"
+  stderr: inherit
+```
+
+### `sse` MCP 伺服器
+
+```yaml filename="sse MCP 伺服器"
+everything:
+  url: http://localhost:3001/sse
+  headers:
+    X-User-ID: "{{LIBRECHAT_USER_ID}}"
+    X-API-Key: "${SOME_API_KEY}"
+```
+
+### `websocket` MCP 伺服器
+
+```yaml filename="websocket MCP 伺服器"
+myWebSocketServer:
+  url: ws://localhost:8080
+```
+
+### `streamable-http` MCP 伺服器
+
+```yaml filename="streamable-http MCP 伺服器"
+streamable-http-server:
+  type: streamable-http
+  url: https://example.com/api/
+  headers:
+    X-User-ID: "{{LIBRECHAT_USER_ID}}"
+    X-API-Key: "${SOME_API_KEY}"
+```
+
+### 具備動態使用者欄位的 MCP 伺服器
+
+```yaml filename="包含使用者欄位的 MCP 伺服器"
+user-aware-server:
+  type: sse
+  url: https://api.example.com/users/{{LIBRECHAT_USER_USERNAME}}/stream
+  headers:
+    X-User-ID: "{{LIBRECHAT_USER_ID}}"
+    X-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
+    X-User-Role: "{{LIBRECHAT_USER_ROLE}}"
+    X-Email-Verified: "{{LIBRECHAT_USER_EMAILVERIFIED}}"
+    Authorization: "Bearer ${API_TOKEN}"
+```
+
+### 透過 `customUserVars` 使用按使用者憑證的 MCP 伺服器
+
+```yaml filename="包含 customUserVars 的 MCP 伺服器"
+my-mcp-server:
+  type: streamable-http
+  url: "https://api.example-service.com/api/" # 範例 URL
+  headers:
+    X-Auth-Token: "{{API_KEY}}" # 使用下方定義的 API_KEY
+  customUserVars:
+    API_KEY: # 此鍵將在標頭/URL 中被用作 {{API_KEY}}
+      title: "API 金鑰" # 輸入框上方顯示的標籤
+      description: "在 <a href='https://example.com/api-keys' target='_blank'>此處</a> 獲取您的 API 金鑰。" # 輸入框下方顯示的描述
+  startup: false # 此伺服器不會在應用程式啟動時連接，因為它需要使用者在 customUserVars 中提供的資訊。
+```
+
+ **備註：** 關於基於 UI 的伺服器初始化，請參閱 [MCP 伺服器初始化](/docs/features/mcp_zh_TW#伺服器初始化)。
+
+### 具備自定義圖標的 MCP 伺服器
+
+```yaml filename="包含圖標的 MCP 伺服器"
+filesystem:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-filesystem"
+    - /home/user/LibreChat/
+  iconPath: /home/user/LibreChat/client/public/assets/logo.svg
+  chatMenu: false  # 從聊天區下拉選單中排除
+```
+
+### 具備 OAuth 身份驗證的 MCP 伺服器
+
+```yaml filename="包含 OAuth 的 MCP 伺服器"
+oauth-api-server:
+  type: streamable-http
+  url: https://api.example.com/mcp/
+  oauth:
+    authorization_url: https://api.example.com/oauth/authorize
+    token_url: https://api.example.com/oauth/token
+    client_id: your_client_id
+    client_secret: your_client_secret
+    redirect_uri: http://localhost:3080/api/mcp/oauth-api-server/oauth/callback
+    scope: "read execute"
+```
+
+### 具備伺服器指令的 MCP 伺服器
+
+```yaml filename="包含指令的 MCP 伺服器"
+# 使用其自身提供指令的伺服器
+web-search:
+  type: streamable-http
+  url: https://example.com/mcp/search
+  serverInstructions: true
+
+# 明確停用指令的伺服器
+filesystem:
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-filesystem"
+    - /home/user/documents/
+  serverInstructions: false
+
+# 包含自定義指令的伺服器
+puppeteer:
+  type: stdio
+  command: npx
+  args:
+    - -y
+    - "@modelcontextprotocol/server-puppeteer"
+  serverInstructions: |
+      瀏覽器自動化安全性與最佳實踐：
+      1. 謹慎處理本地檔案存取與內網 IP 位址
+      2. 截圖以驗證頁面互動是否成功
+      3. 在與頁面元素互動前等待其載入
+      4. 使用特定的 CSS 選擇器以實現可靠的元素定位
+      5. 疑難排解時請檢查主控台日誌中的 JavaScript 錯誤
+```
+
+### 啟用了 OAuth 的 MCP 伺服器（舊版 requiresOAuth）
+
+```yaml filename="啟用 OAuth 的 MCP 伺服器"
+composio-googlesheets:
+  type: sse
+  url: https://mcp.composio.dev/googlesheets/sse-endpoint
+  requiresOAuth: true
+  headers:
+    X-User-ID: "{{LIBRECHAT_USER_ID}}"
+    X-API-Key: "${COMPOSIO_API_KEY}"
+  timeout: 45000
+  initTimeout: 15000
+```
+
+**相關環境變數（選填）：**
+```bash
+# MCP 伺服器的 OAuth 配置
+MCP_OAUTH_ON_AUTH_ERROR=true
+MCP_OAUTH_DETECTION_TIMEOUT=10000
+
+# 服務的 API 金鑰
+COMPOSIO_API_KEY=在此輸入您的_composio_api_金鑰
+```
+
+---
+
+**匯入 MCP 伺服器配置**
+
+`mcpServers` 配置讓 LibreChat 能與各種 MCP 伺服器進行動態互動，這些伺服器可執行專門任務或在應用程式內提供特定功能。這種模組化方法讓您只需新增或修改伺服器配置即可輕鬆擴充應用程式的能力。
+
+---
+
+## 額外資訊
+
+- **預設行為：**
+  - 初始化發生於啟動時，必須重啟應用程式才能使變更生效。
+  - 若同時指定了 `url` 與 `command`，必須明確定義 `type` 以避免歧義。
+- **多使用者支援：**
+  - MCPManager 現在支援區分使用者層級與應用程式層級的連接，實現按使用者的正確連接管理。
+  - 使用者連接會被個別追蹤與管理，並具備正確的建立與清理機制。
+  - 在標頭、URL 與環境變數中使用動態使用者欄位預留位置：
+    - `{{LIBRECHAT_USER_ID}}` - 使用者的唯一識別碼
+    - `{{LIBRECHAT_USER_EMAIL}}` - 使用者的電子郵件地址
+    - `{{LIBRECHAT_USER_USERNAME}}` - 使用者的使用者名稱
+    - `{{LIBRECHAT_USER_ROLE}}` - 使用者的角色 (例如: "user", "admin")
+    - 以及更多欄位 (參見標頭區段獲取完整清單)
+- **使用者閒置管理：**
+  - 使用者連接會受到活動監控，在閒置 15 分鐘後將自動斷開連接。
+- **環境變數：**
+  - **在 `env` 中 (針對 `stdio` 類型)：** 用於設定 MCP 伺服器程序所需的特定執行階段環境或配置。
+  - **在 `headers` 中 (針對 `sse` 與 `streamable-http` 類型)：** 使用 `${ENV_VAR}` 語法在標頭值中引用環境變數。
+- **動態使用者欄位：**
+  - 使用者欄位預留位置在執行階段會被替換為已驗證使用者的資訊。
+  - 僅提供非敏感欄位（排除密碼與其他敏感資料）。
+  - 缺失的欄位預設為空字串。
+  - 布林值欄位會轉換為字串表示（"true" 或 "false"）。
+- **錯誤處理 (`stderr`)：**
+  - 配置 `stderr` 讓您可以管理如何處理來自 MCP 伺服器程序的錯誤訊息。預設的 `"inherit"` 表示錯誤將列印到父程序的 `stderr`。
+- **伺服器指令：**
+  - 當使用 MCP 伺服器工具時，指令會自動注入智慧體的系統訊息中。
+  - 自定義指令（字串值）的優先權高於伺服器提供的指令。
+  - 多個 MCP 伺服器可以各自向智慧體上下文提供指令。
+  - 僅當智慧體確實可以使用對應 MCP 伺服器的工具時，才會納入該指令。
+- **OAuth 身份驗證：**
+  - 支援 OAuth2 流程與 MCP 伺服器進行安全驗證。
+  - 在使用 MCP 伺服器前，系統會提示使用者透過 OAuth 進行驗證。
+
+## 參考資料
+
+- [模型上下文協定 (MCP) 文檔](https://github.com/modelcontextprotocol)
+- [MCP 傳輸規範 (Transports Specification)](https://modelcontextprotocol.io/specification/draft/basic/transports)
+- [Node.js child_process.spawn](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options)
+
+---
+
+透過在 `librechat.yaml` 中正確配置 `mcpServers`，您可以增強 LibreChat 的功能並無縫整合自定義工具與服務。

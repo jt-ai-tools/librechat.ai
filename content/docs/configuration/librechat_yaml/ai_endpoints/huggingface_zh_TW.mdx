@@ -1,0 +1,94 @@
+---
+title: Huggingface
+icon: HuggingFace
+description: Huggingface 的配置範例
+---
+
+> HuggingFace 權杖 (Token)：[huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。
+
+- 提供的模型為免費使用，但有速率限制。
+
+  - 必須使用 [`dropParams`](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#dropparams) 來刪除 "top_p" 參數。
+  - 不支援動態獲取模型 (Fetching models)。
+  - 備註：目前某些模型的運作效果優於其他模型，且回答內容非常短（至少在進入免費層級時是如此）。
+
+- 範例中包含了一個模型清單，最後更新於 2024 年 5 月 9 日，供您參考。
+
+```yaml
+   - name: 'HuggingFace'
+      apiKey: '${HUGGINGFACE_TOKEN}'
+      baseURL: 'https://api-inference.huggingface.co/v1'
+      models:
+        default: [
+          "codellama/CodeLlama-34b-Instruct-hf",
+          "google/gemma-1.1-2b-it",
+          "google/gemma-1.1-7b-it",
+          "HuggingFaceH4/starchat2-15b-v0.1",
+          "HuggingFaceH4/zephyr-7b-beta",
+          "meta-llama/Meta-Llama-3-8B-Instruct",
+          "microsoft/Phi-3-mini-4k-instruct",
+          "mistralai/Mistral-7B-Instruct-v0.1",
+          "mistralai/Mistral-7B-Instruct-v0.2",
+          "mistralai/Mixtral-8x7B-Instruct-v0.1",
+          "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+        ]
+        fetch: true
+      titleConvo: true
+      titleModel: "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
+      dropParams: ["top_p"]
+      modelDisplayLabel: "HuggingFace"
+```
+
+<Callout type="warning" title="其他模型錯誤" collapsible>
+    以下是其他經過測試的模型清單及其對應的錯誤訊息：
+    
+    ```yaml
+      models:
+        default: [
+          "CohereForAI/c4ai-command-r-plus", # 模型需要 Pro 訂閱
+          "HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1", # 模型需要 Pro 訂閱
+          "meta-llama/Llama-2-7b-hf", # 模型需要 Pro 訂閱
+          "meta-llama/Meta-Llama-3-70B-Instruct", # 模型需要 Pro 訂閱
+          "meta-llama/Llama-2-13b-chat-hf", # 模型需要 Pro 訂閱
+          "meta-llama/Llama-2-13b-hf", # 模型需要 Pro 訂閱
+          "meta-llama/Llama-2-70b-chat-hf", # 模型需要 Pro 訂閱
+          "meta-llama/Llama-2-7b-chat-hf", # 模型需要 Pro 訂閱
+          "------",
+          "bigcode/octocoder", # 找不到模板 (template not found)
+          "bigcode/santacoder", # 找不到模板
+          "bigcode/starcoder2-15b", # 找不到模板
+          "bigcode/starcoder2-3b", # 找不到模板 
+          "codellama/CodeLlama-13b-hf", # 找不到模板
+          "codellama/CodeLlama-7b-hf", # 找不到模板
+          "google/gemma-2b", # 找不到模板
+          "google/gemma-7b", # 找不到模板
+          "HuggingFaceH4/starchat-beta", # 找不到模板
+          "HuggingFaceM4/idefics-80b-instruct", # 找不到模板
+          "HuggingFaceM4/idefics-9b-instruct", # 找不到模板
+          "HuggingFaceM4/idefics2-8b", # 找不到模板
+          "kashif/stack-llama-2", # 找不到模板
+          "lvwerra/starcoderbase-gsm8k", # 找不到模板
+          "tiiuae/falcon-7b", # 找不到模板
+          "timdettmers/guanaco-33b-merged", # 找不到模板
+          "------",
+          "bigscience/bloom", # 404 狀態碼（無本文內容）
+          "------",
+          "google/gemma-2b-it", # 此模型不支援串流 (stream) / 未知錯誤
+          "------",
+          "google/gemma-7b-it", # AI 回應錯誤，可能由 Google 審查/過濾機制引起
+          "------",
+          "bigcode/starcoder", # 服務不可用 (Service Unavailable)
+          "google/flan-t5-xxl", # 服務不可用
+          "HuggingFaceH4/zephyr-7b-alpha", # 服務不可用
+          "mistralai/Mistral-7B-v0.1", # 服務不可用
+          "OpenAssistant/oasst-sft-1-pythia-12b", # 服務不可用
+          "OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5", # 服務不可用
+        ]
+    ```
+</Callout>
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/191a3735-3acb-4ba7-917d-b930a933fc67)

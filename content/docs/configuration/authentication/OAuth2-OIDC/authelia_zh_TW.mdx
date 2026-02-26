@@ -1,0 +1,43 @@
+---
+title: Authelia
+icon: ShieldCheck
+description: 學習如何配置 LibreChat 使用 Authelia 進行使用者身份驗證。
+---
+
+- 使用下列指令產生用戶端密鑰 (client secret)：
+  ```
+  docker run --rm authelia/authelia:latest authelia crypto hash generate pbkdf2 --variant sha512 --random --random.length 72 --random.charset rfc3986
+  ```
+- 接著在您的 `configuration.yml` 檔案中的 oidc 區段加入以下內容：
+  ```bash filename="configuration.yml"
+    - client_id: 'librechat'
+      client_name: 'LibreChat'
+      client_secret: '$pbkdf2-在此處輸入產生的秘密金鑰'
+      public: false
+      authorization_policy: 'two_factor'
+      redirect_uris:
+        - 'https://您的_LIBRECHAT_URL/oauth/openid/callback'
+      scopes:
+        - 'openid'
+        - 'profile'
+        - 'email'
+      userinfo_signing_algorithm: 'none'
+  ```
+- 接著重啟 Authelia。
+
+# LibreChat
+
+- 開啟專案資料夾中的 `.env` 檔案，並新增下列變數：
+  ```bash filename=".env"
+  ALLOW_SOCIAL_LOGIN=true
+  OPENID_BUTTON_LABEL='使用 Authelia 登入'
+  OPENID_ISSUER=https://auth.example.com/.well-known/openid-configuration
+  OPENID_CLIENT_ID=librechat
+  OPENID_CLIENT_SECRET=實際產生的秘密金鑰
+  OPENID_SESSION_SECRET=任何隨機字串
+  OPENID_CALLBACK_URL=/oauth/openid/callback
+  OPENID_SCOPE="openid profile email"
+  OPENID_IMAGE_URL=https://www.authelia.com/images/branding/logo-cropped.png
+  # 選填：登出後將使用者重新導向至結束工作階段終端
+  OPENID_USE_END_SESSION_ENDPOINT=true 
+  ```

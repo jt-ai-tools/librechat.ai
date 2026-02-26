@@ -1,0 +1,96 @@
+---
+title: 交易 (Transactions)
+icon: Coins
+description: 在 LibreChat 中配置代幣使用量的交易紀錄功能
+---
+
+## 概覽
+
+`transactions` 物件控制了是否將代幣使用紀錄儲存到 LibreChat 的資料庫中。這允許管理員獨立於餘額系統來啟用或停用交易追蹤。
+
+**`transactions` 下的欄位：**
+
+- `enabled` (啟用)
+
+**備註：**
+
+- 交易紀錄對於追蹤歷史代幣使用量至關重要。
+- 當 `balance.enabled` 設定為 `true` 時，不論此項設定為何，交易追蹤都會自動啟用。
+- 預設值為 `true`，以確保預設情況下會追蹤代幣使用量。
+- 停用交易紀錄可以減少資料庫儲存需求，但將無法進行歷史使用量分析。
+
+## 範例
+
+```yaml filename="transactions"
+transactions:
+  enabled: false
+```
+
+## enabled (啟用)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['enabled', '布林值', '控制是否將交易紀錄儲存至資料庫。', '預設值：true。設定為 false 以停用交易紀錄（除非 balance.enabled 為 true）。'],
+    ]}
+/>
+
+**說明：**
+
+`enabled` 欄位決定了 LibreChat 是否為每次代幣使用事件儲存詳細的交易紀錄。這些紀錄包含：
+
+- 提示詞 (prompt) 與補全 (completion) 的代幣計數
+- 相關成本與費率
+- 使用者與對話識別碼
+- 每次交易的時間戳記
+
+**重要行為：**
+
+當餘額系統啟用時 (`balance.enabled: true`)，不論 `transactions.enabled` 設定為何，交易紀錄都會自動啟用。這確保了：
+
+1. 餘額追蹤能配合完整的稽核軌跡正常運作。
+2. 代幣使用量能被準確計算並從使用者餘額中扣除。
+3. 具備歷史數據以供餘額對帳之用。
+
+**使用情境：**
+
+- **啟用交易紀錄** (`true`)：當您需要追蹤使用模式、產生報表或維持稽核軌跡時。
+- **停用交易紀錄** (`false`)：當您想減少資料庫儲存空間且不需要歷史使用數據時（僅在同時停用餘額追蹤時有效）。
+
+## 與餘額系統的關係
+
+交易系統與餘額系統協同運作：
+
+```yaml filename="範例：交易紀錄搭配餘額系統"
+# 當餘額系統啟用時，交易紀錄始終啟用
+balance:
+  enabled: true
+  startBalance: 20000
+
+transactions:
+  enabled: false  # 此項將被覆寫為 true，因為 balance.enabled 為 true
+```
+
+```yaml filename="範例：獨立交易追蹤"
+# 僅追蹤交易而不進行餘額管理
+balance:
+  enabled: false
+
+transactions:
+  enabled: true  # 紀錄所有代幣使用情況，但不強制執行餘額限制
+```
+
+## 資料庫影響
+
+啟用交易紀錄後，每次消耗代幣的 API 呼叫都會在 「Transactions」 集合中建立一條包含下列資訊的紀錄：
+
+- 使用者 ID 與電子郵件
+- 對話 ID
+- 使用的模型
+- 代幣計數（提示詞與補全）
+- 代幣價值與費率
+- 時間戳記
+- 交易類型（存入或扣除）
+
+在大規模部署中啟用交易紀錄時，請考量其對儲存空間的影響。

@@ -1,0 +1,62 @@
+---
+title: MongoDB Atlas
+icon: Database
+description: 如何使用 MongoDB Atlas 為 LibreChat 設定線上 MongoDB 資料庫
+---
+
+## 1. 建立 MongoDB Atlas 帳號
+1. 在網頁瀏覽器中開啟新分頁，前往 [account.mongodb.com/account/register](https://account.mongodb.com/account/register)。
+2. 填寫必要資訊並建立您的帳號。
+
+## 2. 建立新專案
+1. 設定好帳號後，點擊 「New Project」 按鈕並為其命名（例如：「LibreChat」）。
+
+## 3. 建立資料庫
+1. 點擊 「Build a Database」 按鈕。
+
+## 4. 選擇免費層級 (Free Tier)
+1. 選擇 「Shared Clusters」 選項，這是免費層級。
+
+## 5. 為您的叢集命名
+1. 為您的叢集命名（例如：「LibreChat-Cluster」）並點擊 「Create Cluster」。
+
+## 6. 設定資料庫憑證
+1. 點擊側邊欄中的 「Database Access」 選項。
+2. 點擊 「Add New Database User」 按鈕。
+3. 輸入使用者名稱與一個安全的密碼，然後點擊 「Add User」。
+
+## 7. 配置網路存取
+1. 點擊側邊欄中的 「Network Access」 選項。
+2. 點擊 「Add IP Address」 按鈕。
+3. 選擇 「Allow Access from Anywhere」 並點擊 「Confirm」。
+
+## 8. 獲取您的連接字串 (Connection String)
+1. 點擊側邊欄中的 「Databases」 選項。
+2. 點擊 「Connect」 按鈕。
+3. 選擇 「Connect Your Application」。
+4. 複製提供的連接字串。
+5. 將連接字串中的 `<password>` 替換為您在第 6 步設定的密碼。請移除密碼周圍的 `<>` 字元。
+6. 從連接字串末端移除 `&w=majority`。
+7. 在連接字串的主機名稱後方加入您想要的資料庫名稱（例如：「LibreChat」）。
+
+您的最終連接字串應看起來如下所示：
+
+```sh filename="連接字串"
+mongodb+srv://username:password@cluster-url.mongodb.net/LibreChat?retryWrites=true
+```
+
+## 9. 更新 .env 檔案
+1. 在您的 LibreChat 專案中，開啟 `.env` 檔案。
+2. 找到 `MONGO_URI` 變數並貼上您的連接字串：
+
+```sh filename=".env"
+MONGO_URI=mongodb+srv://username:password@cluster-url.mongodb.net/LibreChat?retryWrites=true
+```
+
+大功告成！您現在已使用 MongoDB Atlas 為 LibreChat 設定好線上 MongoDB 資料庫，並已更新您的 LibreChat 應用程式以使用此資料庫連接。您的應用程式現在應該能成功連接到線上的 MongoDB 資料庫。
+
+## 關於 Docker 的注意事項
+
+<Callout type="note" title="Docker">
+**備註：** 如果您搭配 Docker 使用 LibreChat，您需要使用 `docker-compose.override.yml` 檔案。此覆寫檔案讓您可以防止安裝內含的 MongoDB 實例。取而代之的是，您的 LibreChat Docker 容器將會使用您剛設定好的線上 MongoDB Atlas 資料庫。如需更多關於使用覆寫檔案的資訊，請參閱我們的 [Docker 覆寫指南](/docs/configuration/docker_override_zh_TW)。
+</Callout>

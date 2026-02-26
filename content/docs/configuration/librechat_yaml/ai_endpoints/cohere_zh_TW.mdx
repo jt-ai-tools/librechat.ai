@@ -1,0 +1,36 @@
+---
+title: Cohere
+icon: Cohere
+description: Cohere 的配置範例
+---
+
+> Cohere API 金鑰：[dashboard.cohere.com](https://dashboard.cohere.com/)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。
+- 實驗性功能：不完全遵循 OpenAI 規範，使用新方法實現終端相容性，但在某些參數上具有相似之處。
+- 如需 Cohere 特定參數的完整清單，請參閱 [Cohere API 文檔](https://docs.cohere.com/reference/chat)。
+- 備註：以下是 OpenAI 與 Cohere 之間可辨識的參數。在下方的範例配置中，大部分參數已被移除，以優先使用 Cohere 的預設設定：
+    - `stop`：映射至 `stopSequences`
+    - `top_p`：映射至 `p`，具有不同的最小值/最大值。
+    - `frequency_penalty`：映射至 `frequencyPenalty`，具有不同的最小值/最大值。
+    - `presence_penalty`：映射至 `presencePenalty`，具有不同的最小值/最大值。
+    - `model`：共用，預設包含。
+    - `stream`：共用，預設包含。
+    - `max_tokens`：共用，映射至 `maxTokens`，預設不包含。
+
+
+```yaml filename="librechat.yaml"
+    - name: "cohere"
+      apiKey: "${COHERE_API_KEY}"
+      baseURL: "https://api.cohere.ai/v1"
+      models:
+        default: ["command-r","command-r-plus","command-light","command-light-nightly","command","command-nightly"]
+        fetch: false
+      modelDisplayLabel: "cohere"
+      titleModel: "command"
+      dropParams: ["stop", "user", "frequency_penalty", "presence_penalty", "temperature", "top_p"]
+```
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/03549e00-243c-4539-ac9a-0d782af7cd6c)

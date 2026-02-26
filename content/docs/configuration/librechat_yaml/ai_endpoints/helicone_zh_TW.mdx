@@ -1,0 +1,71 @@
+---
+title: Helicone
+icon: Helicone
+description: Helicone AI 閘道 (AI Gateway) 的配置範例
+---
+
+> Helicone API 金鑰：[https://us.helicone.ai/settings/api-keys](https://us.helicone.ai/settings/api-keys)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。建議啟用動態獲取模型列表 (fetching list of models)，因為 Helicone 提供了存取來自多個供應商的 100 多種 AI 模型的權限。
+
+- Helicone 是一個 AI 閘道供應商，讓您可以存取來自 OpenAI、Anthropic、Google、Meta、Mistral 等供應商的模型，並內建可觀測性與監控功能。
+
+- **核心功能：**
+  - 🚀 透過單一閘道存取 100 多種 AI 模型
+  - 📊 內建可觀測性與監控功能
+  - 🔄 支援多個供應商
+  - ⚡ 在 Helicone 儀表板中查看請求日誌與分析數據
+
+- **重要考量：**
+  - 請確保您的 Helicone 帳戶有足夠的信用額度以存取模型。
+  - 您可以在 [Helicone 模型庫](https://helicone.ai/models) 中找到所有支援的模型。
+  - 您可以在 Helicone 儀表板內自行設定速率限制與快取策略。
+
+```yaml
+    - name: "Helicone"
+      # 對於 `apiKey` 與 `baseURL`，您可以使用自定義的環境變數。
+      # 建議使用的環境變數：
+      apiKey: "${HELICONE_KEY}"
+      baseURL: "https://ai-gateway.helicone.ai"
+      headers:
+        x-librechat-body-parentmessageid: "{{LIBRECHAT_BODY_PARENTMESSAGEID}}"
+      models:
+        default: ["gpt-4o-mini", "claude-4.5-sonnet", "llama-3.1-8b-instruct", "gemini-2.5-flash-lite"]
+        fetch: true
+      titleConvo: true
+      titleModel: "gpt-4o-mini"
+      modelDisplayLabel: "Helicone"
+      iconURL: "https://marketing-assets-helicone.s3.us-west-2.amazonaws.com/helicone.png"
+```
+
+**配置細節：**
+
+- **apiKey**：使用環境變數 `HELICONE_KEY` 儲存您的 Helicone API 金鑰。
+- **baseURL**：Helicone AI 閘道終端位址：`https://ai-gateway.helicone.ai`
+- **headers**：`x-librechat-body-parentmessageid` 標頭對於訊息追蹤與對話連續性至關重要。
+- **models**：設定預設模型；然而，透過啟用 `fetch`，您將自動從 Helicone API 檢索所有可用的模型。
+- **fetch**：設定為 `true` 以自動從 Helicone API 檢索可用模型。
+
+**設定步驟：**
+1. 在 [helicone.ai](https://helicone.ai/) 註冊 Helicone 帳戶。
+2. 從 [Helicone 儀表板](https://us.helicone.ai/settings/api-keys) 產生您的 API 金鑰。
+3. 在您的 `.env` 檔案中設定 `HELICONE_KEY` 環境變數。
+4. 將範例配置複製到您的 `librechat.yaml` 檔案中。
+5. 如果使用 Docker 部署，請重新建置您的 Docker 容器。
+6. 重啟 LibreChat 以載入新配置。
+7. 從供應商下拉選單中選擇 Helicone 以進行測試。
+8. 前往 [Helicone 儀表板](https://us.helicone.ai/dashboard) 查看您的使用情況與設定。
+
+**潛在問題：**
+
+- **模型存取**：驗證您的 Helicone 帳戶是否有額度，以便能存取模型。
+- **速率限制**：您可以在 Helicone 儀表板內自行設定速率限制與快取策略。
+- **環境變數**：再次檢查 `HELICONE_KEY` 是否已正確設定且您的 LibreChat 實例可存取。
+
+**測試：**
+1. 配置完成後，從供應商下拉選單中選擇 Helicone。
+2. 驗證模型是否出現在模型選擇器中。
+3. 發送一則測試訊息，並確認它出現在您的 Helicone 儀表板中。
+4. 檢查具備父訊息 ID (parent message ID) 標頭的對話執行緒是否正常運作。

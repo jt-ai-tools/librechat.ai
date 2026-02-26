@@ -1,0 +1,144 @@
+---
+title: OpenID Connect 權杖重複使用
+icon: Fingerprint
+description: 如何為 LibreChat 配置 OpenID Connect 權杖重複使用功能
+---
+
+LibreChat 支援重複使用由您的 OpenID Connect 供應商（如 Azure Entra ID 或 Auth0）核發的存取權杖 (access tokens) 與重新整理權杖 (refresh tokens)，以管理使用者身份驗證狀態。啟用此功能後，以 cookie 形式傳遞給使用者的重新整理權杖將由您的 OpenID 供應商而非 LibreChat 核發，這允許 LibreChat 伺服器進行權杖重新整理並向您的供應商請求新的存取權杖。
+
+## 先決條件
+
+- 已配置好的 OpenID Connect 供應商（如 Azure Entra ID、Auth0 等）。
+- 已完成基礎的 OpenID Connect 設定。
+
+## 配置步驟
+
+1. 在環境變數中設定 `OPENID_REUSE_TOKENS=true`。
+
+## 供應商特定配置
+
+### Auth0 配置
+
+<Callout type="warning" title="Auth0 重要提示">
+當 Auth0 搭配權杖重複使用功能時，您 **必須** 配置 `OPENID_AUDIENCE` 環境變數。若無此配置，Auth0 會返回不透明權杖 (opaque tokens)，這類權杖無法被 LibreChat 驗證，進而導致無限重整迴圈。
+</Callout>
+
+針對 Auth0，您需要：
+
+1. 在 Auth0 中建立一個 API（JWT 存取權杖所需）：
+   - 前往 **Auth0 儀表板** → **Applications** → **APIs**。
+   - 點擊 **"Create API"**。
+   - 設定一個 **Identifier (識別碼)**（例如：`https://api.librechat.com`）。
+   - 在 API 設定中啟用 **"Allow Offline Access"**。
+
+2. 設定必要的環境變數：
+   ```bash filename=".env"
+   # Auth0 必填
+   OPENID_AUDIENCE=https://api.librechat.com  # 您在 Auth0 設定的 API 識別碼
+   OPENID_SCOPE=openid profile email offline_access
+   ```
+
+如需詳細的 Auth0 配置說明，請參閱：[Auth0 OpenID Connect 配置](/docs/configuration/authentication/OAuth2-OIDC/auth0_zh_TW)
+
+### Azure Entra ID 配置
+
+2. 配置您的 OpenID 供應商（以 Azure Entra ID 為例）：
+   - 前往 Azure 入口網站並導覽至您的應用程式註冊。
+   - 點擊左側選單中的 「Expose API (公開 API)」。
+   - 點擊 「Application ID URI」 旁邊的 「Add」。
+   - 輸入您的 API URI（例如：「api://librechat」）並儲存。
+
+![image](https://github.com/user-attachments/assets/95bcd3ef-ed54-4002-9c74-a98d15673e71)
+
+3. 建立 API 範圍 (scope)：
+   - 在 「Expose API」 區段中，點擊 「Add a scope」。
+   - 配置具備適當權限的範圍。
+   - 儲存範圍配置。
+
+![image](https://github.com/user-attachments/assets/6f7a7170-92cd-4816-a1a8-dcacb592c893)
+
+4. 配置 API 權限：
+   - 前往左側選單中的 「API permissions」。
+   - 點擊 「Add a permission」。
+   - 在 「APIs my organization uses (我組織使用的 API)」 下方搜尋您的應用程式。
+   - 選擇 「Delegated permissions (委派權限)」 並挑選適當的範圍（例如：「access_user」）。
+
+![image](https://github.com/user-attachments/assets/d0b23d65-ae39-4eb8-9f4d-97f18c627045)
+
+![image](https://github.com/user-attachments/assets/67d09375-5b80-45e2-89e6-3bd0a00288e4)
+
+![image](https://github.com/user-attachments/assets/1f85ae5e-4be2-4a68-b663-4152f32fa108)
+
+5. 在您的環境中設定必要的範圍：
+   ```bash filename=".env"
+   OPENID_SCOPE=api://librechat/.default openid profile email offline_access
+   ```
+   備註：必須包含 `offline_access` 範圍才能獲取可重複使用的重新整理權杖。
+
+6. 授與管理員同意 (Grant admin consent)：
+   - 前往 Azure 入口網站中的 「Enterprise Applications (企業應用程式)」。
+   - 尋找您的 LibreChat 應用程式。
+   - 導覽至 Security > Permissions。
+   - 點擊 「Grant admin consent」。
+
+![image](https://github.com/user-attachments/assets/d3a8b1f3-0f0a-4a90-92d9-9df91e665c8d)
+
+7. 在彈出視窗中接受請求的權限。
+
+![image](https://github.com/user-attachments/assets/cc3eb15a-994e-49fb-b212-f94260d787d3)
+
+8. 清除 LibreChat 快取並重啟服務。
+
+<Callout type="info" title="Microsoft Graph API 整合">
+當 Azure Entra ID 搭配權杖重複使用功能時，您還可以啟用 Microsoft Graph API 整合，以獲得增強的人員與群組搜尋功能。詳情請參閱 [Microsoft Graph API 整合](/docs/configuration/authentication/OAuth2-OIDC/azure_zh_TW#進階microsoft-graph-api-整合)。
+</Callout>
+
+## 環境變數
+
+```bash filename=".env"
+# OpenID 權杖重複使用配置
+OPENID_REUSE_TOKENS=true
+OPENID_SCOPE=api://librechat/.default openid profile email offline_access
+
+# Auth0 必填（使用您的 API 識別碼）
+# OPENID_AUDIENCE=https://api.librechat.com
+
+# 快取配置
+OPENID_JWKS_URL_CACHE_ENABLED=true
+OPENID_JWKS_URL_CACHE_TIME=600000  # 10 分鐘（毫秒）
+
+# Azure 特定配置
+OPENID_ON_BEHALF_FLOW_FOR_USERINFO_REQUIRED=true
+OPENID_ON_BEHALF_FLOW_USERINFO_SCOPE=user.read
+
+# 登出配置
+OPENID_USE_END_SESSION_ENDPOINT=true
+```
+
+## 其他配置選項
+
+- `OPENID_AUDIENCE`：授權請求的對象 (audience) 參數。**針對 Auth0 為必填**，以接收 JWT 存取權杖而非不透明權杖。
+- `OPENID_JWKS_URL_CACHE_ENABLED`：啟用簽署金鑰驗證結果的快取，以防止對 JWKS 終端產生過多的 HTTP 請求。
+- `OPENID_JWKS_URL_CACHE_TIME`：快取持續時間（毫秒，預設：600000 毫秒 / 10 分鐘）。
+- `OPENID_ON_BEHALF_FLOW_FOR_USERINFO_REQUIRED`：啟用使用者資訊的代理人流程 (on-behalf-of flow)（Azure 特定）。
+- `OPENID_ON_BEHALF_FLOW_USERINFO_SCOPE`：代理人流程中用於使用者資訊的範圍（Azure 特定）。
+- `OPENID_USE_END_SESSION_ENDPOINT`：啟用在登出時使用結束工作階段終端。
+
+## 安全性考量
+
+- 確保正確的權杖儲存與處理。
+- 實作適當的權杖重新整理機制。
+- 監控權杖使用情況，並在必要時實作速率限制。
+- 定期輪換用戶端金鑰 (client secrets)。
+- 為權杖儲存使用安全的 cookie 設定。
+
+## 疑難排解
+
+如果您在權杖重複使用過程中遇到問題：
+
+1. 驗證所有必要的範圍是否已正確配置。
+2. 檢查管理員同意是否已授與。
+3. 確保 API 權限已正確設定。
+4. 驗證權杖快取是否按預期運作。
+5. 檢查應用程式日誌以獲取任何身份驗證錯誤。
+6. 透過在環境變數中設定 `DEBUG_OPENID_REQUESTS=true` 啟用詳細的 OpenID 請求標頭日誌，除了 URL 之外還能查看請求標頭（敏感資料會被遮罩）。

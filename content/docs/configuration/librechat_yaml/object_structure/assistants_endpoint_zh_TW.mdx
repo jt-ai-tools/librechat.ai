@@ -1,0 +1,167 @@
+---
+title: "Assistants 終端物件結構"
+icon: Braces
+---
+
+此頁面適用於 `assistants` 與 `azureAssistants` 終端。
+
+**備註：** 要啟用 `azureAssistants`，請參閱 [Azure OpenAI 配置](/docs/configuration/azure_zh_TW#在-azure-中使用-assistants) 以獲取更多資訊。
+
+## 範例
+
+```yaml filename="Assistants 終端"
+endpoints:
+  # azureAssistants: # <-- Azure 特定配置與 `assistants` 結構相同
+    #  pollIntervalMs: 500
+    #  timeoutMs: 10000
+
+  assistants:
+    disableBuilder: false
+    # 使用 `supportedIds` 或 `excludedIds` 其中之一，不可兩者同時使用
+    supportedIds: ["asst_supportedAssistantId1", "asst_supportedAssistantId2"]
+    # excludedIds: ["asst_excludedAssistantId"]
+    # `privateAssistants` 不可與 `supportedIds` 或 `excludedIds` 同時使用
+    # privateAssistants: false
+    # (選填) 支援檢索 (retrieval) 的模型，預設為支援該功能的最新 OpenAI 已知模型
+    # retrievalModels: ["gpt-4-turbo-preview"]
+    # (選填) 開放給所有使用者的 Assistant 功能。省略您想排除的功能。預設清單如下。
+    # capabilities: ["code_interpreter", "retrieval", "actions", "tools", "image_vision"]
+```
+> 此配置啟用了助手的構建器介面，設定輪詢間隔為 500ms 以檢查執行更新，並為助手執行操作設定了 10 秒的超時時間。
+
+## disableBuilder
+
+**Key：**
+<OptionTable
+  options={[
+    ['disableBuilder', '布林值', '控制助手的構建器 (builder) 介面之可見性與使用。', '設定為 `true` 時，停用助手的構建器介面，限制直接的手動互動。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / assistants / disableBuilder"
+disableBuilder: false
+```
+
+## pollIntervalMs
+
+**Key：**
+<OptionTable
+  options={[
+    ['pollIntervalMs', '整數', '指定檢查執行 (run) 更新或助手執行狀態變更的輪詢間隔（以毫秒為單位）。', '指定檢查助手執行更新的輪詢間隔（以毫秒為單位）。'],
+  ]}
+/>
+
+**預設值：** `2000`
+
+**範例：**
+```yaml filename="endpoints / assistants / pollIntervalMs"
+pollIntervalMs: 2500
+```
+**備註：** 目前僅由 Azure Assistants 使用。對於 Azure Assistants，建議使用較高的數值以避免速率限制錯誤。
+
+## timeoutMs
+
+**Key：**
+<OptionTable
+  options={[
+    ['timeoutMs', '整數', '定義助手在請求被取消前可執行的最長時間（以毫秒為單位）。', '設定助手執行的超時時間（毫秒）。透過限制總執行操作時間來協助管理系統負載。'],
+  ]}
+/>
+
+**預設值：** `180000`
+
+**範例：**
+```yaml filename="endpoints / assistants / timeoutMs"
+timeoutMs: 10000
+```
+**備註：** 預設為 3 分鐘 (180,000 ms)。執行操作時間可能介於 50 秒到 2 分鐘之間，但也可能超過此範圍。若超過 `timeoutMs` 數值，該執行將被取消。
+
+## supportedIds
+
+**Key：**
+<OptionTable
+  options={[
+    ['supportedIds', '字串陣列/清單', '支援的助手 ID 清單', '使用此項或 `excludedIds` 其中之一，不可兩者同時使用（若兩者皆有，`excludedIds` 欄位將被忽略）。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="endpoints / assistants / supportedIds"
+supportedIds:
+  - "asst_supportedAssistantId1"
+  - "asst_supportedAssistantId2"
+```
+
+## excludedIds
+
+**Key：**
+<OptionTable
+  options={[
+    ['excludedIds', '字串陣列/清單', '排除的助手 ID 清單', '使用此項或 `supportedIds` 其中之一，不可兩者同時使用（若兩者皆有，`supportedIds` 欄位將被忽略）。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="endpoints / assistants / excludedIds"
+excludedIds:
+  - "asst_excludedAssistantId1"
+  - "asst_excludedAssistantId2"
+```
+
+## privateAssistants
+
+**Key：**
+<OptionTable
+  options={[
+    ['privateAssistants', '布林值', '控制助手是否僅對建立它們的使用者私有', '不可與 `supportedIds` 或 `excludedIds` 同時使用（若兩者皆有，`supportedIds` 與 `excludedIds` 將被忽略）。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / assistants / privateAssistants"
+privateAssistants: false
+```
+
+## retrievalModels
+
+**Key：**
+<OptionTable
+  options={[
+    ['retrievalModels', '字串陣列/清單', '為助手終端指定支援檢索 (retrieval) 的模型。', '定義助手終端中具備檢索能力的模型。預設情況下，使用支援官方檢索功能的最新 OpenAI 已知模型。'],
+  ]}
+/>
+
+**預設值：** `[]`（使用支援檢索功能的最新 OpenAI 已知模型）
+
+**範例：**
+```yaml filename="endpoints / assistants / retrievalModels"
+retrievalModels:
+  - "gpt-4-turbo-preview"
+```
+
+## capabilities
+
+**Key：**
+<OptionTable
+  options={[
+    ['capabilities', '字串陣列/清單', '為助手終端指定開放給所有使用者的助手功能。', '定義助手終端中開放給所有使用者的功能。您可以從清單中省略想要排除的功能。'],
+  ]}
+/>
+
+**預設值：** `["code_interpreter", "image_vision", "retrieval", "actions", "tools"]`
+
+**範例：**
+```yaml filename="endpoints / assistants / capabilities"
+capabilities:
+  - "code_interpreter"
+  - "retrieval"
+  - "actions"
+  - "tools"
+  - "image_vision"
+```
+**備註：** 此欄位為選填。若省略，預設行為將包含範例中列出的所有功能。

@@ -1,0 +1,48 @@
+---
+title: "註冊物件結構 (Registration Object Structure)"
+icon: Braces
+---
+
+## 範例
+
+```yaml filename="註冊物件結構"
+# 註冊物件結構範例
+registration:
+  socialLogins: ["google", "facebook", "github", "discord", "openid"]
+  allowedDomains:
+    - "gmail.com"
+    - "protonmail.com"
+```
+
+## socialLogins (社群登入)
+
+**Key：**
+<OptionTable
+  options={[
+    ['socialLogins', '字串陣列', '定義可用的社群登入供應商及其顯示順序。', '清單中供應商的順序決定了它們在登入/註冊頁面上的顯示順序。每個列出的供應商都必須在系統內正確配置才能啟動並供使用者使用。此配置允許自定義身份驗證體驗，為您的使用者群強調最相關或首選的社群登入選項。'],
+  ]}
+/>
+
+
+**範例：**
+```yaml filename="registration / socialLogins"
+socialLogins: ["google", "facebook", "github", "discord", "openid"]
+```
+
+## allowedDomains (允許網域)
+
+**Key：**
+<OptionTable
+  options={[
+    ['allowedDomains', '字串陣列', '指定允許註冊的電子郵件網域清單。', '電子郵件網域不在清單中的使用者將被限制註冊。'],
+  ]}
+/>
+
+**必填**
+
+**範例：**
+```yaml filename="registration / allowedDomains"
+allowedDomains:
+  - "gmail.com"
+  - "protonmail.com"
+```

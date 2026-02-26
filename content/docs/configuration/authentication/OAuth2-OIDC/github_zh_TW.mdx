@@ -1,0 +1,68 @@
+---
+title: GitHub
+icon: Github
+description: 學習如何配置 LibreChat 使用 GitHub 進行使用者身份驗證。
+---
+
+## 建立 GitHub 應用程式
+
+- 前往您的 **[GitHub 開發者設定](https://github.com/settings/apps)**。
+- 建立一個新的 GitHub 應用程式 (New GitHub App)。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/3a8b88e7-78f8-426e-bfc2-c5e3f8b21ccb)
+
+## GitHub 應用程式配置
+
+- 給予一個 `GitHub App name` 並設定您的 `Homepage URL`（首頁 URL）。
+    - Localhost 範例：`http://localhost:3080`
+    - 網域範例：`https://example.com`
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/f10d497d-460b-410f-9504-08735662648b)
+
+- 新增一個有效的 `Callback URL`（回呼 URL）：
+    - Localhost 範例：`http://localhost:3080/oauth/github/callback`
+    - 網域範例：`https://example.com/oauth/github/callback`
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/4e7e6dba-0afb-4ed8-94bf-4c61b0f29240)
+
+- 在 `Webhook` 區段中，取消勾選標記為 `Active` 的方塊。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/aaeb3ecb-2e76-4ea5-8264-edfbdd53de1a)
+
+- 向下捲動至 `Account permissions` 並將 `Email addresses` 設定為 `Access: Read-only`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/3e561aa4-1f9e-4cb7-ace8-dbba8f0c0d55)
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/7b5f99af-7bde-43ee-9b43-6d3ce79ee00a)
+
+- 點擊 `Create GitHub App`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/4cc48550-eac3-4970-939b-81a23fa9c7cf)
+
+## .env 配置
+
+- 點擊 `Generate a new client secret`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/484c7851-71dd-4167-a59e-9a56c4e08c36)
+
+- 將 `Client ID` 與 `Client Secret` 複製到 `.env` 檔案中。
+
+![image](https://github.com/danny-avila/LibreChat/assets/138638445/aaf78840-48a9-44e1-9625-4109ed91d965)
+
+```bash filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+GITHUB_CLIENT_ID=您的_client_id
+GITHUB_CLIENT_SECRET=您的_client_secret
+GITHUB_CALLBACK_URL=/oauth/github/callback
+
+# GitHub Enterprise (選填)
+# 如果您使用 GitHub Enterprise 進行身份驗證，請取消註釋並配置以下內容
+# GITHUB_ENTERPRISE_BASE_URL=https://your-ghe-instance.com
+# GITHUB_ENTERPRISE_USER_AGENT=YourEnterpriseAppName
+```
+
+- 儲存 `.env` 檔案。
+
+> **備註：** 如果使用 Docker，請執行 `docker compose up -d` 以套用 .env 配置變更。

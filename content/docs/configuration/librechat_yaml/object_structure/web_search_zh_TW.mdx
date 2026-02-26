@@ -1,0 +1,424 @@
+---
+title: "網頁搜尋配置"
+icon: Search
+---
+
+`webSearch` 配置讓您可以自定義 LibreChat 內的網頁搜尋功能，包括搜尋供應商、內容爬蟲 (scrapers) 與結果重新排序器 (rerankers)。
+
+## 概覽
+
+網頁搜尋功能由三個主要組件組成：
+
+1. **搜尋供應商 (Search Providers)**：執行初始網頁搜尋的服務。
+2. **爬蟲 (Scrapers)**：從網頁中提取內容的服務。
+3. **重新排序器 (Rerankers)**：對搜尋結果進行重新排序以提高相關性的服務。
+
+## 範例
+
+```yaml filename="webSearch"
+webSearch:
+  # 搜尋供應商配置
+  serperApiKey: "${SERPER_API_KEY}"
+  searxngInstanceUrl: "${SEARXNG_INSTANCE_URL}"
+  searxngApiKey: "${SEARXNG_API_KEY}"
+  searchProvider: "serper" # 選項："serper"、"searxng"
+
+  # 爬蟲配置
+  firecrawlApiKey: "${FIRECRAWL_API_KEY}"
+  firecrawlApiUrl: "${FIRECRAWL_API_URL}"
+  firecrawlVersion: "${FIRECRAWL_VERSION}"
+  scraperProvider: "firecrawl" # 選項："firecrawl"、"serper"
+
+  # 重新排序器配置
+  jinaApiKey: "${JINA_API_KEY}"
+  jinaApiUrl: "${JINA_API_URL}"
+  cohereApiKey: "${COHERE_API_KEY}"
+  rerankerType: "jina" # 選項："jina"、"cohere"
+
+  # 一般設定
+  scraperTimeout: 7500 # 爬蟲請求的超時時間（毫秒，預設：7500）
+  safeSearch: 1 # 選項：0 (關閉), 1 (中等 - 預設), 2 (嚴格)
+```
+
+## 搜尋供應商 (Search Providers)
+
+### searchProvider
+
+<OptionTable
+  options={[
+    ['searchProvider', '字串', '指定要使用的搜尋供應商。', '選項："serper"、"searxng"'],
+  ]}
+/>
+
+### serperApiKey
+
+<OptionTable
+  options={[
+    ['serperApiKey', '字串', 'Serper API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${SERPER_API_KEY}'],
+  ]}
+/>
+
+**備註：** 請從 [Serper.dev](https://serper.dev/api-keys) 獲取您的 API 金鑰。
+
+
+### searxngInstanceUrl
+
+<OptionTable
+  options={[
+    ['searxngInstanceUrl', '字串', 'SearXNG 實例 URL 的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${SEARXNG_INSTANCE_URL}'],
+  ]}
+/>
+
+### searxngApiKey
+
+<OptionTable
+  options={[
+    ['searxngApiKey', '字串', 'SearXNG API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${SEARXNG_API_KEY}'],
+  ]}
+/>
+
+**備註：** 此項為選填，僅在您的 SearXNG 實例需要身份驗證時才需要。
+
+
+## 爬蟲 (Scrapers)
+
+### firecrawlApiKey
+
+<OptionTable
+  options={[
+    ['firecrawlApiKey', '字串', 'Firecrawl API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${FIRECRAWL_API_KEY}'],
+  ]}
+/>
+
+**備註：** 請從 [Firecrawl.dev](https://docs.firecrawl.dev/introduction#api-key) 獲取您的 API 金鑰。
+
+### firecrawlApiUrl
+
+<OptionTable
+  options={[
+    ['firecrawlApiUrl', '字串', 'Firecrawl API URL 的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${FIRECRAWL_API_URL}'],
+  ]}
+/>
+
+**備註：** 此項為選填，僅在您使用自定義 Firecrawl 實例時才需要。
+
+### firecrawlVersion
+
+<OptionTable
+  options={[
+    ['firecrawlVersion', '字串', 'Firecrawl API 版本的環境變數名稱 (v0 或 v1)。', '${FIRECRAWL_VERSION}'],
+  ]}
+/>
+
+### scraperProviderider (應為 scraperProvider)
+
+<OptionTable
+  options={[
+    ['scraperProvider', '字串', '指定要使用的爬蟲服務。', '選項："firecrawl"、"serper"'],
+  ]}
+/>
+
+### firecrawlOptions
+
+<OptionTable
+  options={[
+    ['firecrawlOptions', '物件', 'Firecrawl 爬蟲的進階配置選項。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+
+#### formats (格式)
+
+<OptionTable
+  options={[
+    ['formats', '字串陣列', '輸出中要包含的格式。', ''],
+  ]}
+/>
+
+#### includeTags (包含標籤)
+
+<OptionTable
+  options={[
+    ['includeTags', '字串陣列', '輸出中要包含的 HTML 標籤。', ''],
+  ]}
+/>
+
+#### excludeTags (排除標籤)
+
+<OptionTable
+  options={[
+    ['excludeTags', '字串陣列', '從輸出中排除的 HTML 標籤。', ''],
+  ]}
+/>
+
+#### headers (標頭)
+
+<OptionTable
+  options={[
+    ['headers', '物件', '隨請求發送的標頭。可用於發送 cookies、user-agent 等。', ''],
+  ]}
+/>
+
+#### waitFor (等待)
+
+<OptionTable
+  options={[
+    ['waitFor', '數字', '指定獲取內容前的延遲時間（毫秒），以便頁面有足夠時間載入。', ''],
+  ]}
+/>
+
+#### timeout (超時)
+
+<OptionTable
+  options={[
+    ['timeout', '數字', '爬取請求的超時時間（毫秒）。', '預設值：7500'],
+  ]}
+/>
+
+#### maxAge (最大快取時間)
+
+<OptionTable
+  options={[
+    ['maxAge', '數字', '若快取版本的頁面早於此時間（毫秒），則返回快取內容。若快取已過期，則重新爬取頁面。', ''],
+  ]}
+/>
+
+**備註：** 如果您不需要極度即時的數據，啟用此項可讓爬取速度提升達 500%。
+
+#### mobile (行動裝置模擬)
+
+<OptionTable
+  options={[
+    ['mobile', '布林值', '模擬從行動裝置進行爬取。', ''],
+  ]}
+/>
+
+#### skipTlsVerification
+
+<OptionTable
+  options={[
+    ['skipTlsVerification', '布林值', '發送請求時跳過 TLS 憑證驗證。', ''],
+  ]}
+/>
+
+#### blockAds (阻擋廣告)
+
+<OptionTable
+  options={[
+    ['blockAds', '布林值', '啟用廣告阻擋與 Cookie 彈窗阻擋。', ''],
+  ]}
+/>
+
+#### removeBase64Images (移除 Base64 圖片)
+
+<OptionTable
+  options={[
+    ['removeBase64Images', '布林值', '從輸出中移除所有 Base64 編碼的圖片，這類圖片可能會讓輸出內容過長。圖片的 alt 文字會保留，但 URL 會被替換為預留位置。', ''],
+  ]}
+/>
+
+#### parsePDF (解析 PDF)
+
+<OptionTable
+  options={[
+    ['parsePDF', '布林值', '控制爬取過程中如何處理 PDF 檔案。', ''],
+  ]}
+/>
+
+#### storeInCache (存入快取)
+
+<OptionTable
+  options={[
+    ['storeInCache', '布林值', '若為 true，頁面將儲存在 Firecrawl 的索引與快取中。若您的爬取活動涉及數據保護考量，將此項設為 false 會很有用。使用某些與敏感爬取相關的參數（如 headers）時，會強制將此參數設為 false。', ''],
+  ]}
+/>
+
+#### zeroDataRetention (零數據保留)
+
+<OptionTable
+  options={[
+    ['zeroDataRetention', '布林值', '若為 true，將為此爬取啟用零數據保留（需要先在 Firecrawl 進行設定）。', ''],
+  ]}
+/>
+
+#### location (地點)
+
+<OptionTable
+  options={[
+    ['location', '物件', '爬取時的地理位置與語言設定。', ''],
+  ]}
+/>
+
+#### onlyMainContent (僅主體內容)
+
+<OptionTable
+  options={[
+    ['onlyMainContent', '布林值', '僅返回頁面的主要內容，排除標頭、導覽列、頁尾等。', ''],
+  ]}
+/>
+
+#### changeTrackingOptions (變動追蹤選項)
+
+<OptionTable
+  options={[
+    ['changeTrackingOptions', '物件', '用於追蹤爬取內容變動的配置。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="webSearch"
+webSearch:
+  firecrawlApiKey: "${FIRECRAWL_API_KEY}"
+  firecrawlOptions:
+    formats: ["markdown", "rawHtml"]
+    includeTags: ["main", "article", ".content"]
+    excludeTags: ["nav", "footer", ".ads"]
+    waitFor: 2000
+    timeout: 10000
+    mobile: false
+    blockAds: true
+    onlyMainContent: true
+    location:
+      country: "US"
+      languages: ["en"]
+```
+
+**備註：** 如需 Firecrawl 爬蟲選項與預設值的詳細資訊，請參閱 [Firecrawl API 文檔](https://docs.firecrawl.dev/api-reference/endpoint/scrape)。
+
+## 重新排序器 (Rerankers)
+
+### jinaApiKey
+
+<OptionTable
+  options={[
+    ['jinaApiKey', '字串', 'Jina API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${JINA_API_KEY}'],
+  ]}
+/>
+
+**備註：** 請從 [Jina.ai](https://jina.ai/api-dashboard/) 獲取您的 API 金鑰。
+
+### jinaApiUrl
+
+<OptionTable
+  options={[
+    ['jinaApiUrl', '字串', 'Jina API URL 的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${JINA_API_URL}'],
+  ]}
+/>
+
+**備註：** 此項為選填，僅在您使用自定義 Jina 實例時才需要。
+
+### cohereApiKey
+
+<OptionTable
+  options={[
+    ['cohereApiKey', '字串', 'Cohere API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', '${COHERE_API_KEY}'],
+  ]}
+/>
+
+**備註：** 請從 [Cohere 儀表板](https://dashboard.cohere.com/welcome/login) 獲取您的 API 金鑰。
+
+### rerankerType
+
+<OptionTable
+  options={[
+    ['rerankerType', '字串', '指定要使用的重新排序器服務。', '選項："jina"、"cohere"'],
+  ]}
+/>
+
+## 一般設定
+
+### scraperTimeout (爬蟲超時)
+
+<OptionTable
+  options={[
+    ['scraperTimeout', '數字', '爬蟲請求的超時時間（毫秒）。', '預設值：7500'],
+  ]}
+/>
+
+### safeSearch (安全搜尋)
+
+<OptionTable
+  options={[
+    ['safeSearch', '數字', '安全搜尋過濾等級。0 = 關閉 (不進行過濾), 1 = 中等 (預設), 2 = 嚴格 (最大程度過濾)。', '預設值：1 (中等)'],
+  ]}
+/>
+
+**備註：** 安全搜尋等級與標準搜尋 API 慣例一致。預設啟用「中等」過濾，以在維持搜尋有效性的同時提供合理的內容過濾。
+
+## 備註
+
+- API 金鑰可透過兩種方式配置：
+  1. 設定 YAML 配置中指定的環境變數。
+  2. 若未設定環境變數，系統會提示使用者透過 UI 提供 API 金鑰。
+- 配置支援為每個組件（供應商、爬蟲、重新排序器）設定多個服務。
+- 若未指定特定的服務類型，系統將嘗試該類別下所有可用的服務。
+- 安全搜尋提供三個等級的內容過濾：關閉 (0)、中等 (1) 與嚴格 (2)。
+- **切勿**將實際的 API 金鑰放入 YAML 配置中 —— 僅能使用環境變數名稱。
+
+## 設定 SearXNG
+
+SearXNG 是一款專注於隱私、可自行代管的元搜尋引擎。
+更多資訊請參閱 [SearXNG 官方文檔](https://docs.searxng.org/)。
+
+以下是為 LibreChat 設定自有的 SearXNG 實例的步驟：
+
+### 使用 Docker Desktop
+
+1. **搜尋官方 SearXNG 映像**
+   - 開啟 Docker Desktop
+   - 在 **Images** 標籤中搜尋 `searxng/searxng`
+   - 點擊官方映像上的 **Run** 以自動下載並執行該映像的容器
+
+2. **執行容器**
+   - 下載完成後，在出現的面板中展開 **Optional Settings** 下拉選單
+   - 設定您想要的配置細節（連接埠號、容器名稱等）
+   - 點擊 **Run** 啟動容器
+
+3. **為 LibreChat 配置 SearXNG**
+   - 導覽至 Docker Desktop 中的 `Files` 標籤
+   - 前往 `/etc/searxng/settings.yaml`
+   - 開啟檔案編輯器
+   - 導覽至 `formats` 區段
+   - 加入 `json` 作為可接受的格式，以便 LibreChat 能與您的實例通訊
+   - 儲存檔案
+
+4. **重啟容器**
+   - 重啟容器以使變更生效
+
+#### 影片指南：
+
+這是一段引導您從頭到尾完成設定的影片，大約只需一分鐘：
+
+     <video
+       muted
+       controls
+     >
+       <source src="/videos/min_searxng_docker_setup_hq.mp4" />
+     </video>
+
+**備註：** 在此範例中，實例 URL 為 http://localhost:55011（連接埠號可在影片結尾左上角的容器名稱下方找到）。
+
+### 配置 LibreChat 使用 SearXNG
+
+您可以在 LibreChat 的 UI 內或透過 `librechat.yaml` 配置 SearXNG。
+
+#### UI 配置
+
+1. **開啟聊天輸入列中的工具下拉選單**
+![工具配置按鈕](/images/web-search/tools_highlight.png)
+
+2. **點擊「網頁搜尋 (Web Search)」旁邊的齒輪圖標**
+![工具配置區段](/images/web-search/tools_config_highlight.png)
+
+3. **從搜尋供應商下拉選單中選擇 SearXNG**
+![SearXNG 下拉選單選取](/images/web-search/searxng_dropdown_highlight.png)
+
+4. **輸入您的配置細節（例如實例 URL、爬蟲類型等）並點擊儲存**
+![儲存網頁搜尋配置](/images/web-search/web_search_save.png)
+
+5. **點擊工具下拉選單中的「網頁搜尋」選項**
+![聊天介面中的網頁搜尋標籤](/images/web-search/websearch_highlight.png)
+
+6. **「網頁搜尋」標籤現在應已啟用，這代表您的查詢現在可以使用網頁搜尋功能了**
+![網頁搜尋標籤確認](/images/web-search/search_badge_confirm.png)

@@ -1,0 +1,314 @@
+---
+title: "語音配置結構"
+icon: Mic
+---
+
+## 概覽
+
+`speech` 物件讓您可以直接在 `librechat.yaml` 配置檔案中配置語音轉文字 (TTS) 與文字轉語音 (STT) 供應商。這啟用了伺服器端語音服務，無需使用者個別配置其 API 金鑰。
+
+**`speech` 下的欄位：**
+
+- `tts` - 文字轉語音供應商配置
+- `stt` - 語音轉文字供應商配置
+- `speechTab` - 語音功能的預設 UI 設定
+
+**備註：**
+
+- 可同時配置多個供應商。
+- 使用者可從可用選項中選擇其偏好的供應商。
+- 出於安全考量，配置檔案中的 API 金鑰應使用環境變數引用。
+
+## 範例
+
+```yaml filename="speech"
+speech:
+  tts:
+    openai:
+      apiKey: "${TTS_API_KEY}"
+      model: "tts-1"
+      voices: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+    elevenlabs:
+      apiKey: "${ELEVENLABS_API_KEY}"
+      model: "eleven_multilingual_v2"
+      voices: ["voice-id-1", "voice-id-2"]
+  stt:
+    openai:
+      apiKey: "${STT_API_KEY}"
+      model: "whisper-1"
+  speechTab:
+    conversationMode: true
+    advancedMode: false
+    speechToText: true
+    textToSpeech: true
+```
+
+---
+
+## tts (文字轉語音)
+
+`tts` 物件用於配置文字轉語音供應商。可配置多個供應商供使用者選擇。
+
+### openai
+
+使用 `tts-1` 或 `tts-1-hd` 等模型的 OpenAI TTS 配置。
+
+<OptionTable
+  options={[
+    ['url', '字串', '自定義 API URL（選填）。用於與 OpenAI 相容的終端。', ''],
+    ['apiKey', '字串', 'OpenAI API 金鑰。請引用環境變數。', '必填'],
+    ['model', '字串', '使用的 TTS 模型（例如："tts-1", "tts-1-hd"）。', '必填'],
+    ['voices', '字串陣列', '供使用者選擇的可用語音選項。', '必填'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / tts / openai"
+tts:
+  openai:
+    apiKey: "${TTS_API_KEY}"
+    model: "tts-1"
+    voices: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+```
+
+### azureOpenAI
+
+Azure OpenAI TTS 配置。
+
+<OptionTable
+  options={[
+    ['instanceName', '字串', 'Azure OpenAI 實例名稱。', '必填'],
+    ['apiKey', '字串', 'Azure OpenAI API 金鑰。', '必填'],
+    ['deploymentName', '字串', 'TTS 模型的部署名稱。', '必填'],
+    ['apiVersion', '字串', 'Azure OpenAI API 版本。', '必填'],
+    ['model', '字串', 'TTS 模型識別碼。', '必填'],
+    ['voices', '字串陣列', '可用語音選項。', '必填'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / tts / azureOpenAI"
+tts:
+  azureOpenAI:
+    instanceName: "您的-azure-實例"
+    apiKey: "${AZURE_TTS_API_KEY}"
+    deploymentName: "tts-deployment"
+    apiVersion: "2024-02-15-preview"
+    model: "tts-1"
+    voices: ["alloy", "echo", "nova"]
+```
+
+### elevenlabs
+
+ElevenLabs TTS 配置，提供高品質語音合成。
+
+<OptionTable
+  options={[
+    ['url', '字串', '自定義 API URL（選填）。', ''],
+    ['websocketUrl', '字串', '串流用的 WebSocket URL（選填）。', ''],
+    ['apiKey', '字串', 'ElevenLabs API 金鑰。', '必填'],
+    ['model', '字串', 'ElevenLabs 模型（例如："eleven_multilingual_v2"）。', '必填'],
+    ['voices', '字串陣列', '供選擇的語音 ID。', '必填'],
+    ['voice_settings', '物件', '語音自定義設定（選填）。', ''],
+    ['pronunciation_dictionary_locators', '字串陣列', '發音詞典 ID（選填）。', ''],
+  ]}
+/>
+
+**voice_settings 子鍵：**
+<OptionTable
+  options={[
+    ['similarity_boost', '數字', '語音相似度增強 (0-1)。', ''],
+    ['stability', '數字', '語音穩定度 (0-1)。', ''],
+    ['style', '數字', '風格誇張度 (0-1)。', ''],
+    ['use_speaker_boost', '布林值', '啟用講者增強。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / tts / elevenlabs"
+tts:
+  elevenlabs:
+    apiKey: "${ELEVENLABS_API_KEY}"
+    model: "eleven_multilingual_v2"
+    voices: ["21m00Tcm4TlvDq8ikWAM", "AZnzlk1XvdvUeBnXmlld"]
+    voice_settings:
+      stability: 0.5
+      similarity_boost: 0.75
+      use_speaker_boost: true
+```
+
+### localai
+
+LocalAI TTS 配置，用於自行代管的語音合成。
+
+<OptionTable
+  options={[
+    ['url', '字串', 'LocalAI 伺服器 URL。', '必填'],
+    ['apiKey', '字串', '若啟用了身份驗證則需 API 金鑰（選填）。', ''],
+    ['voices', '字串陣列', '可用語音模型。', '必填'],
+    ['backend', '字串', '使用的 TTS 後端（例如："piper"）。', '必填'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / tts / localai"
+tts:
+  localai:
+    url: "http://localhost:8080"
+    voices: ["en-us-amy-low", "en-us-danny-low"]
+    backend: "piper"
+```
+
+---
+
+## stt (語音轉文字)
+
+`stt` 物件用於配置語音轉文字供應商。
+
+### openai
+
+OpenAI Whisper STT 配置。
+
+<OptionTable
+  options={[
+    ['url', '字串', '自定義 API URL（選填）。用於與 OpenAI 相容的終端。', ''],
+    ['apiKey', '字串', 'OpenAI API 金鑰。請引用環境變數。', '必填'],
+    ['model', '字串', '使用的 STT 模型（例如："whisper-1"）。', '必填'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / stt / openai"
+stt:
+  openai:
+    apiKey: "${STT_API_KEY}"
+    model: "whisper-1"
+```
+
+### azureOpenAI
+
+Azure OpenAI Whisper STT 配置。
+
+<OptionTable
+  options={[
+    ['instanceName', '字串', 'Azure OpenAI 實例名稱。', '必填'],
+    ['apiKey', '字串', 'Azure OpenAI API 金鑰。', '必填'],
+    ['deploymentName', '字串', 'Whisper 模型的部署名稱。', '必填'],
+    ['apiVersion', '字串', 'Azure OpenAI API 版本。', '必填'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / stt / azureOpenAI"
+stt:
+  azureOpenAI:
+    instanceName: "您的-azure-實例"
+    apiKey: "${AZURE_STT_API_KEY}"
+    deploymentName: "whisper-deployment"
+    apiVersion: "2024-02-15-preview"
+```
+
+---
+
+## speechTab (語音分頁設定)
+
+`speechTab` 物件用於配置語音功能的預設 UI 設定。這些設定控制了使用者在語音設定面板中預設看到的內容。
+
+<OptionTable
+  options={[
+    ['conversationMode', '布林值', '預設啟用對話模式。', 'false'],
+    ['advancedMode', '布林值', '預設顯示進階語音設定。', 'false'],
+    ['speechToText', '布林值或物件', '預設啟用 STT，或配置詳細的 STT 設定。', 'false'],
+    ['textToSpeech', '布林值或物件', '預設啟用 TTS，或配置詳細的 TTS 設定。', 'false'],
+  ]}
+/>
+
+### speechToText (物件格式)
+
+當使用物件而非布林值時：
+
+<OptionTable
+  options={[
+    ['engineSTT', '字串', '預設 STT 引擎。', ''],
+    ['languageSTT', '字串', 'STT 預設語言。', ''],
+    ['autoTranscribeAudio', '布林值', '自動轉錄音訊訊息。', ''],
+    ['decibelValue', '數字', '語音偵測的分貝閾值。', ''],
+    ['autoSendText', '數字', '自動發送轉錄文字前的延遲毫秒數（0 代表停用）。', ''],
+  ]}
+/>
+
+### textToSpeech (物件格式)
+
+當使用物件而非布林值時：
+
+<OptionTable
+  options={[
+    ['engineTTS', '字串', '預設 TTS 引擎。', ''],
+    ['voice', '字串', '預設語音選擇。', ''],
+    ['languageTTS', '字串', 'TTS 預設語言。', ''],
+    ['automaticPlayback', '布林值', '自動播放 TTS 回應。', ''],
+    ['playbackRate', '數字', '預設播放速度 (1.0 = 正常)。', ''],
+    ['cacheTTS', '布林值', '快取 TTS 音訊以便重覆播放。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="speech / speechTab"
+speechTab:
+  conversationMode: false
+  advancedMode: false
+  speechToText:
+    engineSTT: "openai"
+    autoTranscribeAudio: true
+    decibelValue: -45
+  textToSpeech:
+    engineTTS: "openai"
+    voice: "nova"
+    automaticPlayback: false
+    playbackRate: 1.0
+    cacheTTS: true
+```
+
+---
+
+## 完整範例
+
+```yaml filename="librechat.yaml"
+version: 1.2.9
+cache: true
+
+speech:
+  tts:
+    openai:
+      apiKey: "${TTS_API_KEY}"
+      model: "tts-1-hd"
+      voices: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+    elevenlabs:
+      apiKey: "${ELEVENLABS_API_KEY}"
+      model: "eleven_multilingual_v2"
+      voices: ["21m00Tcm4TlvDq8ikWAM", "AZnzlk1XvdvUeBnXmlld"]
+      voice_settings:
+        stability: 0.5
+        similarity_boost: 0.75
+  stt:
+    openai:
+      apiKey: "${STT_API_KEY}"
+      model: "whisper-1"
+  speechTab:
+    conversationMode: false
+    advancedMode: false
+    speechToText: true
+    textToSpeech:
+      engineTTS: "openai"
+      voice: "nova"
+      automaticPlayback: false
+```
+
+---
+
+## 備註
+
+- 配置檔案中的 API 金鑰請務必使用環境變數引用（例如：`${API_KEY}`）。
+- 可配置多個 TTS 供應商；使用者可在 UI 中選擇偏好的選項。
+- `speechTab` 設定定義了預設值，使用者可在其個人設定中進行覆寫。
+- 如需詳細功能說明，請參閱[語音轉文字與文字轉語音設定](/docs/configuration/stt_tts_zh_TW)。

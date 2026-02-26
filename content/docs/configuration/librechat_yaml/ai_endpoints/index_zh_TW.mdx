@@ -1,0 +1,35 @@
+---
+title: AI 終端 (AI Endpoints)
+icon: BookOpen
+description: 本章節列出了已知且相容的 AI 終端，並提供適用於 `librechat.yaml`（即 LibreChat 自定義配置檔案）的設定範例。
+---
+
+## 簡介
+
+- 本章節列出了已知且相容的 AI 終端（亦稱為「自定義終端」），並提供適用於 `librechat.yaml` 檔案（即 [自定義配置](/docs/configuration/librechat_yaml/index_zh_TW) 檔案）的設定範例。
+
+- 在所有的範例中，我們都定義了自定義的環境變數名稱，但您可以根據需求使用任何名稱。此外，您可以將數值更改為 `user_provided`，以允許使用者透過網頁介面提交自己的 API 金鑰。
+
+<Callout type="warning" title="重要：「user_provided」金鑰設定">
+將 API 金鑰設定為 「user_provided」時，這將允許使用者透過網頁介面輸入自己的 API 金鑰。這與 .env 檔案中預先配置的終端（例如您會設定 `OPENAI_API_KEY=user_provided`）不同。
+
+對於 `librechat.yaml` 中的自定義終端，您應如下使用：
+```yaml
+endpoints:
+  custom:
+    - name: "您的終端名稱"
+      apiKey: "user_provided"  # 此處無需使用 ${} 語法
+```
+
+而對於 .env 檔案中的環境變數，您應如下使用：
+```bash
+OPENAI_API_KEY=user_provided
+```
+</Callout>
+
+- 部分終端被標記為 **已知 (Known)**，這意味著它們在應用程式中可能已經具備特殊處理邏輯及/或預設圖標。
+
+### 備註
+
+- 在開始以下範例之前，建議您先參考 [自定義終端快速入門指南](/docs/quick_start/custom_endpoints_zh_TW)。
+- 重要提示：請確保您正確設定了 `librechat.yaml` 檔案：**[設定文檔](/docs/configuration/librechat_yaml/setup_zh_TW)**。

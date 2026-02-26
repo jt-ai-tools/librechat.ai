@@ -1,0 +1,53 @@
+---
+title: 指標 (Metrics)
+icon: BarChart3
+description: 本文件說明如何為 LibreChat 新增 Prometheus 指標導出器 (exporter)。
+---
+
+### 一般
+
+![LibreChat 中的活躍使用者](/images/metrics/librechat-metrics-active-users.png)
+
+您可以使用 Prometheus 或任何其他與 OpenMetrics 相容的監控工具，獲取關於 LibreChat 活躍使用情況的指標。
+這包括技術資訊，例如代幣 (token) 使用量，
+也包含終端使用者資訊，例如總使用者數或活躍使用者數。
+
+指標導出器 (metrics exporter) 可在 [virtUOS/librechat_exporter](https://github.com/virtUOS/librechat_exporter) 獲取。
+這是一個獨立的工具，您需要將其與 LibreChat 併列部署。
+
+### 設定
+
+要部署導出器，只需將必要的容器新增至您的 Docker Compose 配置中，如下所示：
+
+```yaml
+  metrics:
+    image: ghcr.io/virtuos/librechat_exporter:main
+    depends_on:
+      - mongodb
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+```
+
+您也可以選擇性配置導出器。
+但通常情況下，預設值即可正常運作。
+```yaml
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - LOGGING_LEVEL=info
+```
+
+### 使用方法
+
+您現在可以將導出器新增至您的 Prometheus 抓取 (scrape) 配置中：
+```yaml
+- job_name: librechat
+  static_configs:
+    - targets:
+        - 'librechat.example.com:8000'
+```
+
+指標抓取開始後，請尋找 `librechat_*` 指標（例如：`librechat_registered_users`）。
+此導出器提供了多項指標。
+
+祝您在建立 Grafana 儀表板時玩得愉快！

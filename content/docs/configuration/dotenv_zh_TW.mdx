@@ -1,0 +1,1471 @@
+---
+title: 環境變數
+icon: Variable
+description: 透過 `.env` 檔案配置應用程式環境的全面指南。本文件是您瞭解與自定義環境變數的一站式資源，這些變數將決定應用程式在不同情境下的行為。
+---
+
+歡迎閱讀透過 `.env` 檔案配置應用程式環境的全面指南。本文件是您瞭解與自定義環境變數的一站式資源，這些變數將決定應用程式在不同情境下的行為。
+
+雖然預設設定為標準的 `docker` 安裝提供了堅實的基礎，但深入研讀本指南將揭示 LibreChat 的全部潛力。本指南賦予您根據精確需求客製化 LibreChat 的能力。瞭解如何調整語言模型的可用性、整合社群登入、管理自動審核系統等等。這一切都是為了讓您能夠微調 LibreChat，以獲得最佳的使用者體驗。
+
+> **提醒：變更配置後，請重啟 LibreChat 以使設定生效**
+
+或者，您可以在與 LibreChat 主 `docker-compose.yml` 檔案相同的目錄中建立一個名為 `docker-compose.override.yml` 的新檔案。在該檔案的 `environment` 欄位下，您可以根據需要設定 .env 變數，或修改主 `docker-compose.yml` 提供的預設配置，而無需直接編輯或複製整個原始檔案。
+
+如需更多資訊，請參閱：
+
+- 我們的快速指南：
+    - **[Docker 覆寫 (Docker Override)](/docs/configuration/docker_override_zh_TW)**
+
+- Docker 官方文件：
+    - **[docker docs -瞭解多個 compose 檔案](https://docs.docker.com/compose/multiple-compose-files/extends/#understanding-multiple-compose-files)**
+    - **[docker docs - 合併 compose 檔案](https://docs.docker.com/compose/multiple-compose-files/merge/#merge-compose-files)**
+    - **[docker docs - 指定多個 compose 檔案](https://docs.docker.com/compose/reference/#specifying-multiple-compose-files)**
+
+- 您也可以在 LibreChat 資料夾或 GitHub 上查看 LibreChat 的覆寫檔案範例：
+    - **[docker-compose.override.example](https://github.com/danny-avila/LibreChat/blob/main/docker-compose.override.yml.example)**
+
+---
+
+## 伺服器配置 (Server Configuration)
+
+### 連接埠 (Port)
+
+- 伺服器在特定連接埠上監聽。
+- `PORT` 環境變數設定伺服器監聽的連接埠。預設值為 `3080`。
+
+
+<OptionTable
+  options={[
+    ['HOST', 'string', '指定主機名稱。', 'HOST=localhost'],
+    ['PORT', 'number', '指定連接埠。', 'PORT=3080'],
+  ]}
+/>
+
+### 信任代理 (Trust proxy)
+使用距離 Express 應用程式最多 n 個躍點（hops）的位址。
+req.socket.remoteAddress 是第一個躍點，其餘躍點則從 X-Forwarded-For 標頭中由右至左搜尋。
+數值為 0 代表第一個不被信任的位址將是 req.socket.remoteAddress，即沒有反向代理。
+`TRUST_PROXY` 環境變數的預設值為 `1`。
+
+如需更多資訊，請參閱 [Express.js - trust proxy](https://expressjs.com/en/guide/behind-proxies.html)。
+
+<OptionTable
+  options={[
+    ['TRUST_PROXY', 'number', '指定躍點數量。', 'TRUST_PROXY=1'],
+  ]}
+/>
+
+### 認證配置 (Credentials Configuration)
+
+為了安全地存取憑證，您需要固定的金鑰 (Key) 與初始向量 (IV)。您可以在此處針對生產與開發環境進行設定。
+
+<OptionTable
+  options={[
+    ['CREDS_KEY', 'string', '用於安全儲存憑證的 32 位元組金鑰（64 位十六進位字元）。應用程式啟動時為必填。', 'CREDS_KEY=f34be427ebb29de8d88c107a71546019685ed8b241d8f2ed00c3df97ad2566f0'],
+    ['CREDS_IV', 'string', '用於安全儲存憑證的 16 位元組 IV（32 位十六進位字元）。應用程式啟動時為必填。', 'CREDS_IV=e2341419ec3dd3d19b13a1a87fafcbfb'],
+  ]}
+/>
+
+<Callout type="warning" title="警告">
+**警告：** 如果您未設定 `CREDS_KEY` 與 `CREDS_IV`，應用程式啟動時會崩潰。
+- 您可以使用此 [金鑰產生器](/toolkit/creds_generator_zh_TW) 快速產生它們。
+</Callout>
+
+### 靜態檔案處理 (Static File Handling)
+
+<OptionTable
+  options={[
+    ['STATIC_CACHE_MAX_AGE', 'string', 'Cache-Control max-age（秒）','STATIC_CACHE_MAX_AGE=172800'],
+    ['STATIC_CACHE_S_MAX_AGE', 'string', '共享快取（CDN 與代理）的 Cache-Control s-maxage（秒）','STATIC_CACHE_S_MAX_AGE="86400"'],
+    ['DISABLE_COMPRESSION', 'boolean', '停用靜態檔案的壓縮。','DISABLE_COMPRESSION=false'],
+    ['ENABLE_IMAGE_OUTPUT_GZIP_SCAN', 'boolean', '如果同一資料夾中存在上傳圖片的 gzipped 版本，則啟用對其的提供。','ENABLE_IMAGE_OUTPUT_GZIP_SCAN=true'],
+  ]}
+/>
+
+**行為說明：**
+
+設定靜態檔案的 [Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) 標頭。這些配置僅在 `NODE_ENV` 設定為 `production` 時觸發。
+
+* 取消註釋 `STATIC_CACHE_MAX_AGE` 可更改靜態檔案的本地 `max-age`。預設為 2 天（172800 秒）。
+* 取消註釋 `STATIC_CACHE_S_MAX_AGE` 可設定共享快取（CDN 與代理）的 `s-maxage`。預設為 1 天（86400 秒）。
+* 取消註釋 `DISABLE_COMPRESSION` 可停用靜態檔案壓縮。預設為啟用壓縮。
+* 取消註釋 `ENABLE_IMAGE_OUTPUT_GZIP_SCAN` 可啟用掃描並提供圖片的 gzipped 版本（前提是它們已預先壓縮在同一資料夾中，具有相同名稱且帶有 .gz 副檔名）。預設情況下，停用上傳圖片的 gzip 掃描。
+
+<Callout type="warning" title="警告">
+- 這僅影響由 API 伺服器提供的靜態檔案，不適用於 _Firebase_、_NGINX_ 或任何其他配置。
+</Callout>
+
+### Index HTML 快取控制
+
+<OptionTable
+  options={[
+    ['INDEX_CACHE_CONTROL', 'string', 'index.html 的 Cache-Control 標頭','INDEX_CACHE_CONTROL=no-cache, no-store, must-revalidate'],
+    ['INDEX_PRAGMA', 'string', 'index.html 的 Pragma 標頭','INDEX_PRAGMA=no-cache'],
+    ['INDEX_EXPIRES', 'string', 'index.html 的 Expires 標頭','INDEX_EXPIRES=0'],
+  ]}
+/>
+
+**行為說明：**
+
+專門控制 index.html 回應的快取標頭。預設情況下，這些設定會防止快取，以確保使用者始終獲得最新版本的應用程式。
+
+<Callout type="note" title="備註">
+與為了性能而快取的靜態資產不同，index.html 檔案的快取標頭是單獨配置的，以確保使用者始終獲得最新的應用程式外殼 (shell)。
+</Callout>
+
+### MongoDB 資料庫
+
+<OptionTable
+  options={[
+    ['MONGO_URI', 'string', '指定 MongoDB URI。','MONGO_URI=mongodb://127.0.0.1:27017/LibreChat'],
+  ]}
+/>
+
+如果不同，請將此更改為您的 MongoDB URI。您應該在 URI 中加入 `LibreChat` 或您自己的 `APP_TITLE` 作為資料庫名稱。
+
+如果您使用線上資料庫，URI 格式為 `mongodb+srv://<使用者名稱>:<密碼>@<主機>/<資料庫>?<選項>`。您的 `MONGO_URI` 應該看起來像這樣：
+* `mongodb+srv://username:password@host.mongodb.net/LibreChat?retryWrites=true` （在使用線上資料庫時，`retryWrites` 是您唯一需要的選項。）
+
+#### MongoDB 連接池 (Connection Pool) 配置
+
+<OptionTable
+  options={[
+    ['MONGO_MAX_POOL_SIZE', 'number', '連接池中的最大連接數。', '# MONGO_MAX_POOL_SIZE='],
+    ['MONGO_MIN_POOL_SIZE', 'number', '連接池中的最小連接數。', '# MONGO_MIN_POOL_SIZE='],
+    ['MONGO_MAX_CONNECTING', 'number', '連接池可同時建立連接的最大數量。', '# MONGO_MAX_CONNECTING='],
+    ['MONGO_MAX_IDLE_TIME_MS', 'number', '連接在被移除並關閉前，可在池中保持閒置的最大毫秒數。', '# MONGO_MAX_IDLE_TIME_MS='],
+    ['MONGO_WAIT_QUEUE_TIMEOUT_MS', 'number', '執行緒等待可用連接的最長時間（毫秒）。', '# MONGO_WAIT_QUEUE_TIMEOUT_MS='],
+  ]}
+/>
+
+#### MongoDB 模式 (Schema) 配置
+
+<OptionTable
+  options={[
+    ['MONGO_AUTO_INDEX', 'boolean', '設定為 false 可停用此連接關聯的所有模型的自動索引建立。省略時使用 Mongoose 預設行為。', '# MONGO_AUTO_INDEX='],
+    ['MONGO_AUTO_CREATE', 'boolean', '設定為 false 可停用 Mongoose 在此連接建立的每個模型上自動呼叫 createCollection()。省略時使用 Mongoose 預設行為。', '# MONGO_AUTO_CREATE='],
+  ]}
+/>
+
+或者，您可以使用模擬 `mongoDb` 的 `documentDb`，但它：
+
+* 不支援 `retryWrites` - 請使用 `retryWrites=false`
+* 需要 TLS 連接，因此請使用參數 `tls=true` 啟用 TLS，並使用 `tlsCAFile=/path-to-ca/bundle.pem` 指向 AWS 提供的 CA 組合檔案
+
+`documentDb` 的 URI 將如下所示：
+* `mongodb+srv://username:password@domain/dbname?retryWrites=false&tls=true&tlsCAFile=/path-to-ca/bundle.pem`
+
+另請參閱：
+
+* [MongoDB Atlas](/docs/configuration/mongodb/mongodb_atlas_zh_TW)：關於如何建立線上 MongoDB Atlas 資料庫的說明（適用於不使用 Docker 的情況）
+* [MongoDB 社群伺服器 (Community Server)](/docs/configuration/mongodb/mongodb_community_zh_TW)：關於如何建立本地 MongoDB 資料庫的說明（不使用 Docker）
+* [MongoDB 身份驗證](/docs/configuration/mongodb/mongodb_auth_zh_TW)：在 Docker 中啟用 MongoDB 的明確身份驗證。
+* [使用 Mongo Express 管理您的資料庫](/blog/2023-11-30_mongoexpress_zh_TW)：安全地存取您的 Docker MongoDB 資料庫
+
+### 應用程式網域 (Application Domains)
+
+要為本地使用或自定義網域部署配置 LibreChat，請設定以下環境變數：
+
+<OptionTable
+  options={[
+    ['DOMAIN_CLIENT', 'string', '指定用戶端網域。', 'DOMAIN_CLIENT=http://localhost:3080'],
+    ['DOMAIN_SERVER', 'string', '指定伺服器端網域。', 'DOMAIN_SERVER=http://localhost:3080'],
+  ]}
+/>
+
+將 LibreChat 部署到自定義網域時，請將 `http://localhost:3080` 替換為您的部署 URL
+- 例如 `https://librechat.example.com`。
+
+### 防止公開搜尋引擎索引 (Prevent Public Search Engines Indexing)
+
+預設情況下，您的網站不會被公開搜尋引擎（如 Google、Bing 等）索引。這意味著人們無法透過這些搜尋引擎找到您的網站。如果您希望提高網站的能見度與可搜尋性，可以將以下設定更改為 `false`。
+
+<OptionTable
+  options={[
+    ['NO_INDEX', 'boolean', '防止公開搜尋引擎索引您的網站。', 'NO_INDEX=true'],
+  ]}
+/>
+
+❗**注意：** 此方法並不保證對所有搜尋引擎都有效，某些搜尋引擎可能仍會為了快取或存檔等其他目的索引您的網站或網頁。因此，您不應僅依賴此方法來保護網站或網頁上的敏感或機密資訊。
+
+### 日誌紀錄 (Logging)
+
+LibreChat 內建中央日誌系統，詳情請參閱 [日誌系統](/docs/configuration/logging_zh_TW)。
+
+#### 日誌檔案
+
+* 預設啟用偵錯 (Debug) 日誌，這對開發至關重要。
+* 如需回報問題，請重現錯誤並從 `./api/logs/debug-%DATE%.log` 提交日誌至：**[LibreChat GitHub Issues](https://github.com/danny-avila/LibreChat/issues)**
+* 錯誤日誌也儲存在同一位置。
+
+#### 環境變數
+
+<OptionTable
+  options={[
+    ['DEBUG_LOGGING', 'boolean', '保持偵錯日誌啟動。','DEBUG_LOGGING=true'],
+    ['DEBUG_CONSOLE', 'boolean', '啟用詳細的主控台/標準輸出 (stdout) 日誌，格式與檔案偵錯日誌相同。', 'DEBUG_CONSOLE=false'],
+    ['CONSOLE_JSON', 'boolean', '啟用詳細的 JSON 主控台/標準輸出日誌，適用於 GCP/AWS 等雲端部署。', 'CONSOLE_JSON=false'],
+    ['CONSOLE_JSON_STRING_LENGTH', 'number', '配置主控台/標準輸出日誌的截斷大小，預設為 255。', 'CONSOLE_JSON_STRING_LENGTH=1000'],
+    ['LIBRECHAT_LOG_DIR', 'string', '日誌檔案的自定義目錄。預設為 /app/logs (Docker) 或 api/logs (本地開發)。', '# LIBRECHAT_LOG_DIR=/custom/log/path'],
+  ]}
+/>
+
+備註：
+* `DEBUG_LOGGING` 可與 `DEBUG_CONSOLE` 或 `CONSOLE_JSON` 搭配使用，但不能同時使用兩者。
+* `DEBUG_CONSOLE` 與 `CONSOLE_JSON` 互斥。
+* `CONSOLE_JSON`：在雲端部署（如 GCP 或 AWS）中處理主控台日誌時，啟用此項將以 UTC 時間戳記輸出日誌並將其格式化為 JSON。
+  * 參閱：[feat: Add CONSOLE_JSON](https://github.com/danny-avila/LibreChat/pull/2146)
+
+注意：不建議使用 `DEBUG_CONSOLE`，因為輸出內容可能非常冗長，因此預設為停用。
+
+### 權限 (Permission)
+> UID 與 GID 是 Linux 分配給系統上每個使用者與群組的數字。如果您遇到權限問題，請在此處設定執行 Docker Compose 命令的使用者的 UID 與 GID。容器中的應用程式將以這些 UID/GID 執行。
+
+<OptionTable
+  options={[
+    ['UID', 'number', '使用者 ID。', '# UID=1000'],
+    ['GID', 'number', '群組 ID。', '# GID=1000'],
+  ]}
+/>
+
+### 配置路徑 - `librechat.yaml`
+指定 LibreChat 配置檔案的替代位置。
+您可以指定 **絕對路徑**、**相對路徑** 或 **URL**。路徑中的檔案名稱是靈活的，不一定要是 `librechat.yaml`；任何有效的配置檔案都可以運作。
+
+> **備註**：如果您希望 LibreChat 在根目錄中搜尋配置檔案（這是預設行為），只需將此選項保持註釋狀態即可。
+
+<OptionTable
+  options={[
+    ['CONFIG_PATH', 'string', 'LibreChat 配置檔案的替代位置。', '# CONFIG_PATH=https://raw.githubusercontent.com/danny-avila/LibreChat/main/librechat.example.yaml'],
+  ]}
+/>
+
+### 配置驗證 (Configuration Validation)
+
+預設情況下，如果 `librechat.yaml` 配置檔案包含驗證錯誤，LibreChat 將以錯誤（結束代碼 1）結束執行。這種「快速失敗」(fail-fast) 行為有助於在部署階段儘早發現配置問題，並防止以非預期的預設設定執行。
+
+<OptionTable
+  options={[
+    ['CONFIG_BYPASS_VALIDATION', 'boolean', '設定為 `true` 時，即使 `librechat.yaml` 有驗證錯誤，伺服器仍會紀錄警告並繼續以預設配置啟動。這保留了舊版行為。', '# CONFIG_BYPASS_VALIDATION=true'],
+  ]}
+/>
+
+<Callout type="warning" title="警告">
+不建議在生產環境中使用 `CONFIG_BYPASS_VALIDATION=true`。這僅用於在偵錯配置問題時作為臨時解決方案。請務必修正配置檔案中的驗證錯誤。
+</Callout>
+
+### 未捕獲異常處理 (Uncaught Exception Handling)
+
+預設情況下，當發生未捕獲的異常時，LibreChat 會結束程序，這是標準的 Node.js 行為。您可以覆寫此設定，讓應用程式在發生未捕獲異常後繼續運行。
+
+<OptionTable
+  options={[
+    ['CONTINUE_ON_UNCAUGHT_EXCEPTION', 'boolean', '設定為 `true` 時，應用程式在遇到未捕獲異常後將繼續運行，而不是結束程序。', '# CONTINUE_ON_UNCAUGHT_EXCEPTION=false'],
+  ]}
+/>
+
+<Callout type="warning" title="警告">
+除非必要，否則不建議在生產環境中使用。未捕獲的異常可能會使應用程式處於不可預測的狀態。
+</Callout>
+
+## 終端 (Endpoints)
+在此章節中，您可以配置終端與模型選擇、它們的 API 金鑰，以及支援這些功能的終端的代理 (proxy) 與反向代理設定。
+
+### 一般配置 (General Config)
+取消註釋 `ENDPOINTS` 以自定義 LibreChat 中可用的終端。
+
+<OptionTable
+  options={[
+    ['ENDPOINTS', 'string', '可用終端的逗號分隔列表。', '# ENDPOINTS=openAI,agents,assistants,gptPlugins,azureOpenAI,google,anthropic,bingAI,custom'],
+    ['PROXY', 'string', '所有終端的代理設定。', 'PROXY='],
+    ['TITLE_CONVO', 'boolean', '為所有終端啟用標題功能。', 'TITLE_CONVO=true'],
+  ]}
+/>
+
+### 已知終端 - `librechat.yaml`
+- 另請參閱：[自定義終端與配置](/docs/configuration/librechat_yaml_zh_TW)
+
+<OptionTable
+  options={[
+    ['ANYSCALE_API_KEY', 'string', 'Anyscale API 金鑰。', '# ANYSCALE_API_KEY='],
+    ['APIPIE_API_KEY', 'string', 'Apipie API 金鑰。', '# APIPIE_API_KEY='],
+    ['COHERE_API_KEY', 'string', 'Cohere API 金鑰。', '# COHERE_API_KEY='],
+    ['FIREWORKS_API_KEY', 'string', 'Fireworks API 金鑰。', '# FIREWORKS_API_KEY='],
+    ['GROQ_API_KEY', 'string', 'Groq API 金鑰。', '# GROQ_API_KEY='],
+    ['MISTRAL_API_KEY', 'string', 'Mistral API 金鑰。', '# MISTRAL_API_KEY='],
+    ['OPENROUTER_KEY', 'string', 'OpenRouter API 金鑰。', '# OPENROUTER_KEY='],
+    ['PERPLEXITY_API_KEY', 'string', 'Perplexity API 金鑰。', '# PERPLEXITY_API_KEY='],
+    ['SHUTTLEAI_API_KEY', 'string', 'ShuttleAI API 金鑰。', '# SHUTTLEAI_API_KEY='],
+    ['TOGETHERAI_API_KEY', 'string', 'TogetherAI API 金鑰。', '# TOGETHERAI_API_KEY='],
+    ['DEEPSEEK_API_KEY', 'string', 'Deepseek API 金鑰。', '# DEEPSEEK_API_KEY='],
+  ]}
+/>
+
+### 網頁搜尋 (Web Search)
+
+網頁搜尋功能讓 LibreChat 具備網路搜尋能力。
+
+**重要提示**：下方顯示的環境變數名稱是預設引用，您可以透過 `librechat.yaml` 配置檔案自定義為您偏好的任何變數名稱。
+
+如需詳細配置與自定義選項，請參閱：[網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW)
+
+<OptionTable
+  options={[
+    ['SERPER_API_KEY', 'string', 'Serper 搜尋供應商的 API 金鑰。從 https://serper.dev/api-key 獲取您的金鑰。', '# SERPER_API_KEY='],
+    ['FIRECRAWL_API_KEY', 'string', 'Firecrawl 爬蟲服務的 API 金鑰。從 https://docs.firecrawl.dev/introduction#api-key 獲取您的金鑰。', '# FIRECRAWL_API_KEY='],
+    ['FIRECRAWL_API_URL', 'string', '自定義 Firecrawl API URL（選填）。僅自定義 Firecrawl 實例需要。', '# FIRECRAWL_API_URL='],
+    ['FIRECRAWL_VERSION', 'string', 'Firecrawl API 版本 (v0 或 v1)。', '# FIRECRAWL_VERSION=v1'],
+    ['JINA_API_KEY', 'string', 'Jina reranker 服務的 API 金鑰。從 https://jina.ai/api-dashboard/ 獲取您的金鑰。', '# JINA_API_KEY='],
+    ['JINA_API_URL', 'string', '自定義 Jina API URL（選填）。僅自定義 Jina 實例需要。', '# JINA_API_URL='],
+    ['COHERE_API_KEY', 'string', 'Cohere reranker 服務的 API 金鑰。從 https://dashboard.cohere.com/welcome/login 獲取您的金鑰。', '# COHERE_API_KEY='],
+  ]}
+/>
+
+**備註**：這些變數名稱可以在您的 `librechat.yaml` 配置檔案中自定義。例如，您可以透過網頁搜尋設定將其配置為使用 `CUSTOM_SERPER_KEY` 而非 `SERPER_API_KEY`。詳情請參閱 [網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW) 文件。
+
+### Anthropic
+參見：[Anthropic 終端](/docs/configuration/pre_configured_ai/anthropic_zh_TW)
+- 您可以從 https://console.anthropic.com/ 申請存取金鑰。
+- 將 `ANTHROPIC_API_KEY=` 保持空白以停用此終端。
+- 將 `ANTHROPIC_API_KEY=` 設定為 "user_provided" 以允許使用者從網頁介面提供自己的 API 金鑰。
+- 如果您有 `Anthropic` 的反向代理存取權限，可以透過 `ANTHROPIC_REVERSE_PROXY=` 設定。
+    - 保持空白或將其註釋掉以使用預設的基礎 URL。
+
+<OptionTable
+  options={[
+    ['ANTHROPIC_API_KEY', 'string', 'Anthropic API 金鑰，或設定為 "user_provided" 讓使用者提供自己的金鑰。', '預設為空字串。'],
+    ['ANTHROPIC_MODELS', 'string', '要使用的 Anthropic 模型逗號分隔清單。', '# ANTHROPIC_MODELS=claude-3-opus-20240229,claude-3-sonnet-20240229,claude-3-haiku-20240307,claude-2.1,claude-2,claude-1.2,claude-1,claude-1-100k,claude-instant-1,claude-instant-1-100k'],
+    ['ANTHROPIC_REVERSE_PROXY', 'string', 'Anthropic 的反向代理。', '# ANTHROPIC_REVERSE_PROXY='],
+    ['ANTHROPIC_TITLE_MODEL', 'string', '已棄用：用於 Anthropic 標題產生的模型。', '# ANTHROPIC_TITLE_MODEL=claude-3-haiku-20240307'],
+  ]}
+/>
+
+- `ANTHROPIC_TITLE_MODEL` 現在已棄用，並將在未來版本中移除。請改在 `librechat.yaml` 配置中使用 [`titleModel` 終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW#titlemodel)。
+
+> **備註：** 必須與 Anthropic 終端相容。此外，Claude 2 與 Claude 3 模型在此任務上表現最佳，其中 `claude-3-haiku` 模型最便宜。
+
+#### 透過 Vertex AI 使用 Anthropic
+
+您也可以透過 Google Cloud Vertex AI 使用 Anthropic Claude 模型。如需詳細的 YAML 配置選項，請參閱：[Anthropic Vertex AI 配置](/docs/configuration/librechat_yaml/object_structure/anthropic_vertex_zh_TW)
+
+<OptionTable
+  options={[
+    ['ANTHROPIC_USE_VERTEX', 'boolean', '設定為 true 以透過 Google Vertex AI 而非直接透過 API 使用 Anthropic 模型。', 'ANTHROPIC_USE_VERTEX=true'],
+    ['ANTHROPIC_VERTEX_REGION', 'string', 'Vertex AI 的 Google Cloud 區域。預設值：us-east5。', 'ANTHROPIC_VERTEX_REGION=us-east5'],
+  ]}
+/>
+
+> **備註：** 使用 Vertex AI 時，您還必須配置 `GOOGLE_SERVICE_KEY_FILE`（參見 [Google 配置](#google)），並使用具備 `Vertex AI User` 角色的服務帳戶。
+
+### AWS Bedrock
+
+參見：[AWS Bedrock 設定](/docs/configuration/pre_configured_ai/bedrock_zh_TW)
+
+<OptionTable
+  options={[
+    ['BEDROCK_AWS_DEFAULT_REGION', 'string', '必須為 Bedrock 提供預設的 AWS 區域。', 'BEDROCK_AWS_DEFAULT_REGION=us-east-1'],
+    ['BEDROCK_AWS_ACCESS_KEY_ID', 'string', 'Bedrock 的 AWS 存取金鑰 ID。如果使用預設 AWS 憑證鏈，則為選填。', '# BEDROCK_AWS_ACCESS_KEY_ID=your_access_key_id'],
+    ['BEDROCK_AWS_SECRET_ACCESS_KEY', 'string', 'Bedrock 的 AWS 秘密存取金鑰。如果使用預設 AWS 憑證鏈，則為選填。', '# BEDROCK_AWS_SECRET_ACCESS_KEY=your_secret_access_key'],
+    ['BEDROCK_AWS_SESSION_TOKEN', 'string', '用於臨時憑證的 AWS 工作階段權杖。選填。', '# BEDROCK_AWS_SESSION_TOKEN=your_session_token'],
+    ['BEDROCK_AWS_MODELS', 'string', 'Bedrock 模型 ID 的逗號分隔清單。如果省略，則包含所有已知支援的模型。', '# BEDROCK_AWS_MODELS=anthropic.claude-3-5-sonnet-20240620-v1:0,meta.llama3-1-8b-instruct-v1:0'],
+  ]}
+/>
+
+> **備註：** 您可以省略存取金鑰，以使用預設的 AWS 憑證鏈（環境變數、SSO 憑證、共享憑證檔案或 EC2/ECS 實例元數據服務）。詳情請參閱 [AWS Bedrock 設定](/docs/configuration/pre_configured_ai/bedrock_zh_TW)。
+
+### BingAI
+Bing，也用於 Sydney、越獄 (jailbreak) 與 Bing Image Creator
+
+<OptionTable
+  options={[
+    ['BINGAI_TOKEN', 'string', 'Bing 存取權杖。留空以停用。可設定為 "user_provided" 讓使用者從網頁介面提供自己的權杖。', 'BINGAI_TOKEN=user_provided'],
+    ['BINGAI_HOST', 'string', 'Bing 主機 URL。保持註釋狀態以使用預設伺服器。', '# BINGAI_HOST=https://cn.bing.com'],
+  ]}
+/>
+
+備註：建議保持為 "user_provided" 並由使用者在網頁介面提供權杖。
+
+### Google
+
+按照這些說明設定 [Google 終端](/docs/configuration/pre_configured_ai/google_zh_TW)
+
+<OptionTable
+  options={[
+    ['GOOGLE_KEY', 'string', 'Google API 金鑰。設定為 "user_provided" 讓使用者從網頁介面提供。', 'GOOGLE_KEY=user_provided'],
+    ['GOOGLE_SERVICE_KEY_FILE', 'string', 'Google 服務帳戶 JSON 金鑰檔案路徑、獲取它的 URL 或字串化 JSON。用於 Vertex AI 身份驗證（例如：OCR 功能）。', 'GOOGLE_SERVICE_KEY_FILE=/path/to/auth.json'],
+    ['GOOGLE_REVERSE_PROXY', 'string', 'Google 反向代理 URL。', 'GOOGLE_REVERSE_PROXY='],
+    ['GOOGLE_AUTH_HEADER', 'boolean', '使用 Authorization 標頭而非 X-goog-api-key。某些反向代理需要此設定。', '# GOOGLE_AUTH_HEADER=true'],
+    ['GOOGLE_MODELS', 'string', '可用的 Gemini API Google 模型，以逗號分隔。', 'GOOGLE_MODELS=gemini-1.0-pro,gemini-1.0-pro-001,gemini-1.0-pro-latest,gemini-1.0-pro-vision-latest,gemini-1.5-pro-latest,gemini-pro,gemini-pro-vision'],
+    ['GOOGLE_MODELS', 'string', '可用的 Vertex AI Google 模型，以逗號分隔。', 'GOOGLE_MODELS=gemini-1.5-pro-preview-0409,gemini-1.0-pro-vision-001,gemini-pro,gemini-pro-vision,chat-bison,chat-bison-32k,codechat-bison,codechat-bison-32k,text-bison,text-bison-32k,text-unicorn,code-gecko,code-bison,code-bison-32k'],
+    ['GOOGLE_TITLE_MODEL', 'string', '已棄用：用於 Google 標題產生的模型。', 'GOOGLE_TITLE_MODEL=gemini-pro'],
+    ['GOOGLE_LOC', 'string', '指定處理 API 請求的 Google Cloud 地點', 'GOOGLE_LOC=us-central1'],
+    ['GOOGLE_CLOUD_LOCATION', 'string', 'Gemini 影像產生的替代區域（例如：global）。', '# GOOGLE_CLOUD_LOCATION=global'],
+    ['GOOGLE_EXCLUDE_SAFETY_SETTINGS', 'string', '完全省略預設包含的安全設定，這將使用供應商的預設值', 'GOOGLE_EXCLUDE_SAFETY_SETTINGS=true'],
+    ['GOOGLE_SAFETY_SEXUALLY_EXPLICIT', 'string', '性顯露內容的安全設定。選項有 BLOCK_ALL, BLOCK_ONLY_HIGH, WARN_ONLY 與 OFF。', 'GOOGLE_SAFETY_SEXUALLY_EXPLICIT=BLOCK_ONLY_HIGH'],
+    ['GOOGLE_SAFETY_HATE_SPEECH', 'string', '仇恨言論內容的安全設定。選項有 BLOCK_ALL, BLOCK_ONLY_HIGH, WARN_ONLY 與 OFF。', 'GOOGLE_SAFETY_HATE_SPEECH=BLOCK_ONLY_HIGH'],
+    ['GOOGLE_SAFETY_HARASSMENT', 'string', '騷擾內容的安全設定。選項有 BLOCK_ALL, BLOCK_ONLY_HIGH, WARN_ONLY 與 OFF。', 'GOOGLE_SAFETY_HARASSMENT=BLOCK_ONLY_HIGH'],
+    ['GOOGLE_SAFETY_DANGEROUS_CONTENT', 'string', '危險內容的安全設定。選項有 BLOCK_ALL, BLOCK_ONLY_HIGH, WARN_ONLY 與 OFF。', 'GOOGLE_SAFETY_DANGEROUS_CONTENT=BLOCK_ONLY_HIGH'],
+    ['GOOGLE_SAFETY_CIVIC_INTEGRITY', 'string', '公民正直內容的安全設定。選項有 BLOCK_ALL, BLOCK_ONLY_HIGH, WARN_ONLY 與 OFF。', '# GOOGLE_SAFETY_CIVIC_INTEGRITY=BLOCK_ONLY_HIGH'],
+  ]}
+/>
+
+自定義可用模型清單，以逗號分隔，**不含空格**。第一個將作為預設值。保持空白或註釋狀態以使用內部設定。
+
+- `GOOGLE_TITLE_MODEL` 現在已棄用，並將在未來版本中移除。請改在 `librechat.yaml` 配置中使用 [`titleModel` 終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW#titlemodel)。
+
+**備註：** 對於 Vertex AI 的 `GOOGLE_SAFETY` 變數，您預設無法使用 `BLOCK_NONE` 設定。要使用此受限的 `HarmBlockThreshold` 設定，您需要執行以下其中一項：
+- (a) 透過您的 Google 帳戶團隊獲取白名單存取權限
+- (b) 按照此說明將帳戶類型切換為每月發票結算：
+    https://cloud.google.com/billing/docs/how-to/invoiced-billing
+
+#### Gemini 影像產生
+
+Gemini 影像產生是一個支援 Gemini API 與 Vertex AI 的 Agent 工具。參見：[Gemini 影像產生](/docs/configuration/tools/gemini_image_gen_zh_TW)
+
+<OptionTable
+  options={[
+    ['GEMINI_API_KEY', 'string', '專用於影像產生的 Gemini API 金鑰。如果未設定，將退而使用 GOOGLE_KEY。', '# GEMINI_API_KEY=your_gemini_api_key'],
+    ['GEMINI_IMAGE_MODEL', 'string', '用於影像產生的 Gemini 模型。預設值：gemini-2.5-flash-image。', '# GEMINI_IMAGE_MODEL=gemini-2.5-flash-image'],
+  ]}
+/>
+
+> **備註：** 未配置 API 金鑰時，該工具會自動退而使用來自 `GOOGLE_SERVICE_KEY_FILE` 的服務帳戶透過 Vertex AI 進行。該服務帳戶必須具備 `Vertex AI User` 角色。
+
+### OpenAI
+
+參見：[OpenAI 設定](/docs/configuration/pre_configured_ai/openai_zh_TW)
+
+<OptionTable
+  options={[
+    ['OPENAI_API_KEY', 'string', '您的 OpenAI API 金鑰。保持空白以停用此終端，或設定為 "user_provided" 讓使用者從網頁介面提供。', 'OPENAI_API_KEY=user_provided'],
+    ['OPENAI_MODELS', 'string', '自定義可用模型，以逗號分隔，不含空格。第一個將為預設值。保持註釋狀態以使用內部設定。', '# OPENAI_MODELS=gpt-3.5-turbo-0125,gpt-3.5-turbo-0301,gpt-3.5-turbo,gpt-4,gpt-4-0613,gpt-4-vision-preview,gpt-3.5-turbo-0613,gpt-3.5-turbo-16k-0613,gpt-4-0125-preview,gpt-4-turbo-preview,gpt-4-1106-preview,gpt-3.5-turbo-1106,gpt-3.5-turbo-instruct,gpt-3.5-turbo-instruct-0914,gpt-3.5-turbo-16k'],
+    ['DEBUG_OPENAI', 'boolean', '為 OpenAI 終端啟用偵錯模式。', 'DEBUG_OPENAI=false'],
+    ['OPENAI_SUMMARIZE', 'boolean', '啟用訊息摘要。預設為 false。', '# OPENAI_SUMMARIZE=true'],
+    ['OPENAI_SUMMARY_MODEL', 'string', '用於 OpenAI 摘要的模型。', '# OPENAI_SUMMARY_MODEL=gpt-3.5-turbo'],
+    ['OPENAI_FORCE_PROMPT', 'boolean', '強制使用 prompt 負載而非 messages 負載呼叫 API。', '# OPENAI_FORCE_PROMPT=false'],
+    ['OPENAI_ORGANIZATION', 'string', '指定每次向 OpenAI 發送 API 請求時使用的組織 ID。選填。', '# OPENAI_ORGANIZATION='],
+    ['OPENAI_REVERSE_PROXY', 'string', '已棄用：OpenAI 的反向代理設定。', '# OPENAI_REVERSE_PROXY='],
+    ['OPENAI_TITLE_MODEL', 'string', '已棄用：用於 OpenAI 標題產生的模型。', '# OPENAI_TITLE_MODEL=gpt-3.5-turbo'],
+  ]}
+/>
+
+- `OPENAI_TITLE_MODEL` 現在已棄用，並將在未來版本中移除。請改在 `librechat.yaml` 配置中使用 [`titleModel` 終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW#titlemodel)。
+- `OPENAI_REVERSE_PROXY` 現在已棄用，並將在未來版本中移除。請改用 [自定義終端](/docs/quick_start/custom_endpoints_zh_TW)。
+
+### Assistants
+
+參見：[Assistants 設定](/docs/configuration/pre_configured_ai/assistants_zh_TW)
+
+<OptionTable
+  options={[
+    ['ASSISTANTS_API_KEY', 'string', '您的 Assistants API 專用 OpenAI API 金鑰。保持空白以停用此終端，或設定為 "user_provided" 讓使用者從網頁介面提供。', 'ASSISTANTS_API_KEY=user_provided'],
+    ['ASSISTANTS_MODELS', 'string', '自定義可用模型，以逗號分隔，不含空格。第一個將為預設值。保持空白以使用內部設定。', '# ASSISTANTS_MODELS=gpt-3.5-turbo-0125,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-16k,gpt-3.5-turbo,gpt-4,gpt-4-0314,gpt-4-32k-0314,gpt-4-0613,gpt-3.5-turbo-0613,gpt-3.5-turbo-1106,gpt-4-0125-preview,gpt-4-turbo-preview,gpt-4-1106-preview'],
+    ['ASSISTANTS_BASE_URL', 'string', 'Assistants API 的替代基礎 URL。', '# ASSISTANTS_BASE_URL='],
+  ]}
+/>
+
+備註：您可以自定義可用模型，以逗號分隔，不含空格。第一個將作為預設值。保持空白或註釋狀態以使用內部設定。
+
+### Tavily
+
+在此獲取您的 API 金鑰：**[https://tavily.com/#api](https://tavily.com/#api)**
+
+**環境變數：**
+
+<OptionTable
+  options={[    ['TAVILY_API_KEY', 'string', 'Tavily API 金鑰。','TAVILY_API_KEY='],
+  ]}
+/>
+
+### Traversaal
+
+**說明：** LLM 增強的搜尋工具。
+
+在此獲取 API 金鑰：**https://api.traversaal.ai/dashboard**
+
+**環境變數：**
+
+<OptionTable
+  options={[
+    ['TRAVERSAAL_API_KEY', 'string', 'Traversaal API 金鑰。','TRAVERSAAL_API_KEY='],
+  ]}
+/>
+
+### WolframAlpha
+
+參閱此處的詳細說明：**[Wolfram Alpha](/docs/configuration/tools/wolfram_zh_TW)**
+
+**環境變數：**
+
+<OptionTable
+  options={[
+    ['WOLFRAM_APP_ID', 'string', 'Wolfram Alpha App ID。','WOLFRAM_APP_ID='],
+  ]}
+/>
+
+### Zapier
+
+**說明：** - 您需要一個 Zapier 帳戶。從此處獲取 API 金鑰：**[Zapier](https://nla.zapier.com/credentials/)**
+- 建立允許的操作 - 按照 Zapier 快速入門指南中的步驟 3 進行操作。
+
+**備註：** 已知 Zapier 在某些操作上較難處理。撰寫電子郵件草稿可能是它最好的用途。
+
+**環境變數：**
+
+<OptionTable
+  options={[
+    ['ZAPIER_NLA_API_KEY', 'string', 'Zapier NLA API 金鑰。','ZAPIER_NLA_API_KEY='],
+  ]}
+/>
+
+### OpenWeather
+
+參閱此處的詳細說明：**[OpenWeather](/docs/configuration/tools/openweather_zh_TW)**
+
+<OptionTable
+  options={[
+    ['OPENWEATHER_API_KEY', 'string', '用於 One Call API 3.0 的 OpenWeather API 金鑰。','OPENWEATHER_API_KEY='],
+  ]}
+/>
+
+## 代碼解釋器 (Code Interpreter)
+
+Code Interpreter API 提供一個安全的環境來執行代碼並管理檔案。參見：[Code Interpreter API](/docs/features/code_interpreter_zh_TW)
+
+<OptionTable
+  options={[
+    ['LIBRECHAT_CODE_API_KEY', 'string', 'Code Interpreter 服務的 API 金鑰。全域設定後，將提供給所有使用者使用。', 'LIBRECHAT_CODE_API_KEY=your-api-key'],
+    ['LIBRECHAT_CODE_BASEURL', 'string', 'Code Interpreter API 的自定義基礎 URL（僅限企業版）。', '# LIBRECHAT_CODE_BASEURL=https://your-custom-domain.com'],
+  ]}
+/>
+
+## 神奇組件 (Artifacts)
+
+Artifacts 利用 CodeSandbox 函式庫來安全地呈現 HTML/JS 代碼。預設情況下，使用由 CodeSandbox 託管的公開 CDN。
+
+幸運的是，對於有內部網路需求的使用者，您可以[自行託管編譯器 (bundler)](https://sandpack.codesandbox.io/docs/guides/hosting-the-bundler) 來編譯前端代碼，並為 Sandpack 指定自定義的編譯器 URL。
+
+如需更多資訊，包括移除了指標請求的自行託管預製容器映像，請參閱：https://github.com/LibreChat-AI/codesandbox-client
+
+<OptionTable
+  options={[
+    ['SANDPACK_BUNDLER_URL', 'string', '為 Sandpack 指定自定義編譯器 URL，供 Artifacts 使用', 'SANDPACK_BUNDLER_URL=your-bundler-url'],
+  ]}
+/>
+
+## 搜尋 (Meilisearch)
+
+在訊息與對話中啟用搜尋功能：
+
+<OptionTable
+  options={[
+    ['SEARCH', 'boolean', '在訊息與對話中啟用搜尋。','SEARCH=true'],
+  ]}
+/>
+
+> 備註：如果您不使用 Docker，則需要安裝免費的自行託管版 Meilisearch 或使用付費的遠端方案。
+
+若要停用 MeiliSearch 的匿名遙測分析以維護絕對隱私，請將其設定為 true：
+
+<OptionTable
+  options={[
+    ['MEILI_NO_ANALYTICS', 'boolean', '停用 MeiliSearch 的匿名遙測分析。','MEILI_NO_ANALYTICS=true'],
+  ]}
+/>
+
+供 API 伺服器連接搜尋伺服器。如果使用 docker-compose 執行 MeiliSearch，請將 '0.0.0.0' 替換為 'meilisearch'。
+
+<OptionTable
+  options={[
+    ['MEILI_HOST', 'string', 'API 伺服器連接搜尋伺服器的位址。','MEILI_HOST=http://0.0.0.0:7700'],
+  ]}
+/>
+
+此主金鑰 (Master Key) 必須至少 16 位元組，並由有效的 UTF-8 字元組成。如果未提供主金鑰或長度不足 16 位元組，MeiliSearch 將報錯並拒絕啟動。MeiliSearch 會建議一個安全且自動產生的主金鑰。這是為 docker-compose 準備好的安全金鑰，您可以替換為自己的。
+
+<OptionTable
+  options={[
+    ['MEILI_MASTER_KEY', 'string', 'MeiliSearch 的主金鑰。','MEILI_MASTER_KEY=DrhYf7zENyR6AlUCKmnz0eYASOQdl6zxH7s7MKFSfFCt'],
+  ]}
+/>
+
+為了防止 LibreChat 嘗試與 Meilisearch 進行資料庫索引同步，您可以將以下環境變數設定為 `true`。這在 Node 叢集或多節點設定中非常有用，因為在此類環境中，應該只有一個實例負責索引工作。
+
+<OptionTable
+  options={[
+    ['MEILI_NO_SYNC', 'string', '切換停用 Meilisearch 索引同步','MEILI_NO_SYNC=true'],
+  ]}
+/>
+
+## RAG API
+
+配置檢索增強生成 (Retrieval-Augmented Generation)，用於文件索引與上下文感知回應。參見：**[RAG API 配置](/docs/configuration/rag_api_zh_TW)**
+
+<OptionTable
+  options={[
+    ['RAG_API_URL', 'string', 'RAG API 服務的 URL。', 'RAG_API_URL=http://host.docker.internal:8000'],
+    ['RAG_OPENAI_API_KEY', 'string', '用於 RAG 嵌入 (embeddings) 的 OpenAI API 金鑰。這將覆寫用於 RAG 的 OPENAI_API_KEY。', '# RAG_OPENAI_API_KEY=sk-your-openai-api-key'],
+    ['RAG_OPENAI_BASEURL', 'string', '用於 RAG 嵌入的自定義 OpenAI 基礎 URL。', '# RAG_OPENAI_BASEURL='],
+    ['RAG_USE_FULL_CONTEXT', 'boolean', '獲取整個檔案上下文而非僅前 4 個結果。預設值：false。', '# RAG_USE_FULL_CONTEXT=true'],
+    ['EMBEDDINGS_PROVIDER', 'string', '嵌入供應商：openai, azure, huggingface, huggingfacetei 或 ollama。預設值：openai。', '# EMBEDDINGS_PROVIDER=openai'],
+    ['EMBEDDINGS_MODEL', 'string', '要使用的嵌入模型。預設值取決於供應商。', '# EMBEDDINGS_MODEL=text-embedding-3-small'],
+  ]}
+/>
+
+> **備註：** 使用預設 Docker 設定時，`.env` 檔案是由 LibreChat 與 RAG API 共享的。如需完整的配置選項，請參閱 [RAG API 文件](/docs/configuration/rag_api_zh_TW)。
+
+## 語音轉文字 (STT) 與文字轉語音 (TTS)
+
+配置語音轉文字 (STT) 與文字轉語音 (TTS) 服務。參見：**[語音設定](/docs/configuration/stt_tts_zh_TW)**
+
+<OptionTable
+  options={[
+    ['STT_API_KEY', 'string', '語音轉文字服務（例如：OpenAI Whisper）的 API 金鑰。', '# STT_API_KEY='],
+    ['TTS_API_KEY', 'string', '文字轉語音服務（例如：OpenAI TTS）的 API 金鑰。', '# TTS_API_KEY='],
+  ]}
+/>
+
+> **備註：** STT 與 TTS 主要透過 `librechat.yaml` 中的 `speech:` 章節進行配置。這些環境變數會在該配置中被引用。請參閱 [語音設定](/docs/configuration/stt_tts_zh_TW) 以獲取完整的 YAML 配置選項。
+
+## 共享連結 (Shared Links)
+
+配置對話共享連結功能。
+
+<OptionTable
+  options={[
+    ['ALLOW_SHARED_LINKS', 'boolean', '啟用或停用對話共享連結。預設值：true。', 'ALLOW_SHARED_LINKS=true'],
+    ['ALLOW_SHARED_LINKS_PUBLIC', 'boolean', '允許共享連結被公開存取。預設值：true。', 'ALLOW_SHARED_LINKS_PUBLIC=true'],
+  ]}
+/>
+
+## 使用者系統 (User System)
+此章節包含以下內容的配置：
+
+  - [自動審核系統](#自動審核)
+  - [餘額/代幣使用](#餘額)
+  - [註冊與社群登入](#註冊與登入)
+  - [電子郵件密碼重設](#電子郵件密碼重設)
+
+### 自動審核 (Moderation)
+自動審核系統使用評分機制來追蹤使用者的違規行為。當使用者執行如頻繁登入、註冊或傳送訊息等操作時，會累積違規分數。一旦達到設定的閾值，該使用者及其相關 IP 將被暫時封鎖。此系統透過監測並懲罰快速或可疑的活動來確保平台安全。
+
+參見：**[自動審核](/docs/configuration/mod_system_zh_TW)**
+
+#### 基礎審核設定
+<OptionTable
+  options={[
+    ['OPENAI_MODERATION', 'boolean', '是否在 **OpenAI** 與 **Plugins** 終端啟用 OpenAI 審核。','OPENAI_MODERATION=false'],
+    ['OPENAI_MODERATION_API_KEY', 'string', '您的 OpenAI API 金鑰。','OPENAI_MODERATION_API_KEY='],
+    ['OPENAI_MODERATION_REVERSE_PROXY', 'string', '注意：預設為註釋狀態，這不適用於所有反向代理。','# OPENAI_MODERATION_REVERSE_PROXY='],
+  ]}
+/>
+
+#### 封鎖設定
+<OptionTable
+  options={[
+    ['BAN_VIOLATIONS', 'boolean', '是否啟用因違規而封鎖使用者的功能（違規行為仍會被紀錄）。','BAN_VIOLATIONS=true'],
+    ['BAN_DURATION', 'integer', '使用者與相關 IP 被封鎖的時間長度（以毫秒為單位）。','BAN_DURATION=1000 * 60 * 60 * 2'],
+    ['BAN_INTERVAL', 'integer', '每當使用者的分數達到或跨越間隔閾值時，使用者將被封鎖。','BAN_INTERVAL=20'],
+  ]}
+/>
+
+#### 登入與註冊速率限制
+
+透過限制登入嘗試與新帳號註冊次數，防止暴力破解攻擊與垃圾郵件註冊。
+
+<OptionTable
+  options={[
+    ['LOGIN_MAX', 'integer', '在 LOGIN_WINDOW 時間內，每個 IP 允許的最大登入次數。','LOGIN_MAX=7'],
+    ['LOGIN_WINDOW', 'integer', '以分鐘為單位，決定 LOGIN_MAX 登入的時間窗口。','LOGIN_WINDOW=5'],
+    ['REGISTER_MAX', 'integer', '在 REGISTER_WINDOW 時間內，每個 IP 允許的最大註冊次數。','REGISTER_MAX=5'],
+    ['REGISTER_WINDOW', 'integer', '以分鐘為單位，決定 REGISTER_MAX 註冊的時間窗口。','REGISTER_WINDOW=60'],
+  ]}
+/>
+
+#### 各項違規分數
+<OptionTable
+  options={[
+    ['LOGIN_VIOLATION_SCORE', 'integer', '登入違規的分數。','LOGIN_VIOLATION_SCORE=1'],
+    ['REGISTRATION_VIOLATION_SCORE', 'integer', '註冊違規的分數。','REGISTRATION_VIOLATION_SCORE=1'],
+    ['CONCURRENT_VIOLATION_SCORE', 'integer', '並行請求違規的分數。','CONCURRENT_VIOLATION_SCORE=1'],
+    ['MESSAGE_VIOLATION_SCORE', 'integer', '訊息違規的分數。','MESSAGE_VIOLATION_SCORE=1'],
+    ['NON_BROWSER_VIOLATION_SCORE', 'integer', '非瀏覽器存取違規的分數。','NON_BROWSER_VIOLATION_SCORE=20'],
+    ['ILLEGAL_MODEL_REQ_SCORE', 'integer', '非法模型請求的分數。','ILLEGAL_MODEL_REQ_SCORE=5'],
+    ['IMPORT_VIOLATION_SCORE', 'integer', '匯入對話違規的分數。','IMPORT_VIOLATION_SCORE=1'],
+    ['FORK_VIOLATION_SCORE', 'integer', '對話分叉違規的分數。','FORK_VIOLATION_SCORE=1'],
+    ['TTS_VIOLATION_SCORE', 'integer', '文字轉語音違規的分數。','TTS_VIOLATION_SCORE=0'],
+    ['STT_VIOLATION_SCORE', 'integer', '語音轉文字違規的分數。','STT_VIOLATION_SCORE=0'],
+    ['FILE_UPLOAD_VIOLATION_SCORE', 'integer', '檔案上傳違規的分數。','FILE_UPLOAD_VIOLATION_SCORE=0'],
+    ['RESET_PASSWORD_VIOLATION_SCORE', 'integer', '密碼重設違規的分數。','RESET_PASSWORD_VIOLATION_SCORE=0'],
+    ['VERIFY_EMAIL_VIOLATION_SCORE', 'integer', '郵件驗證違規的分數。','VERIFY_EMAIL_VIOLATION_SCORE=0'],
+    ['TOOL_CALL_VIOLATION_SCORE', 'integer', '工具呼叫違規的分數。','TOOL_CALL_VIOLATION_SCORE=0'],
+    ['CONVO_ACCESS_VIOLATION_SCORE', 'integer', '對話存取違規的分數。','CONVO_ACCESS_VIOLATION_SCORE=0'],
+  ]}
+/>
+
+> 備註：非瀏覽器存取與非法模型請求幾乎總是惡意的，因為這意味著第三方正嘗試透過自動化腳本存取伺服器。
+
+
+#### 訊息速率限制（針對每位使用者與 IP）
+
+<OptionTable
+  options={[
+    ['LIMIT_CONCURRENT_MESSAGES', 'boolean', '是否限制使用者在每次請求中可傳送的訊息量。','LIMIT_CONCURRENT_MESSAGES=true'],
+    ['CONCURRENT_MESSAGE_MAX', 'integer', '使用者每次請求可傳送的最大訊息量。','CONCURRENT_MESSAGE_MAX=2'],
+  ]}
+/>
+
+#### 限制器 (Limiters)
+
+> 備註：您可以同時使用兩種限制器，但預設僅按 IP 進行限制。
+
+##### IP 限制器：
+
+<OptionTable
+  options={[
+    ['LIMIT_MESSAGE_IP', 'boolean', '是否限制一個 IP 在 `MESSAGE_IP_WINDOW` 內可傳送的訊息量。','LIMIT_MESSAGE_IP=true'],
+    ['MESSAGE_IP_MAX', 'integer', '一個 IP 在 `MESSAGE_IP_WINDOW` 內可傳送的最大訊息量。','MESSAGE_IP_MAX=40'],
+    ['MESSAGE_IP_WINDOW', 'integer', '以分鐘為單位，決定 `MESSAGE_IP_MAX` 訊息的時間窗口。','MESSAGE_IP_WINDOW=1'],
+  ]}
+/>
+
+##### 使用者限制器：
+
+<OptionTable
+  options={[
+    ['LIMIT_MESSAGE_USER', 'boolean', '是否限制一位使用者在 `MESSAGE_USER_WINDOW` 內可傳送的訊息量。','LIMIT_MESSAGE_USER=false'],
+    ['MESSAGE_USER_MAX', 'integer', '一位使用者在 `MESSAGE_USER_WINDOW` 內可傳送的最大訊息量。','MESSAGE_USER_MAX=40'],
+    ['MESSAGE_USER_WINDOW', 'integer', '以分鐘為單位，決定 `MESSAGE_USER_MAX` 訊息的時間窗口。','MESSAGE_USER_WINDOW=1'],
+  ]}
+/>
+
+#### 匯入對話速率限制
+
+限制使用者匯入對話的頻率，以防止濫用。
+
+> 備註：您可以同時使用兩種限制器，但預設僅按 IP 進行限制。
+
+##### IP 限制器：
+
+<OptionTable
+  options={[
+    ['LIMIT_IMPORT_IP', 'boolean', '是否限制一個 IP 在 `IMPORT_IP_WINDOW` 內可執行的對話匯入次數。','LIMIT_IMPORT_IP=true'],
+    ['IMPORT_IP_MAX', 'integer', '一個 IP 在 `IMPORT_IP_WINDOW` 內可執行的最大對話匯入次數。','IMPORT_IP_MAX=100'],
+    ['IMPORT_IP_WINDOW', 'integer', '以分鐘為單位，決定 `IMPORT_IP_MAX` 匯入的時間窗口。','IMPORT_IP_WINDOW=1'],
+  ]}
+/>
+
+##### 使用者限制器：
+
+<OptionTable
+  options={[
+    ['LIMIT_IMPORT_USER', 'boolean', '是否限制一位使用者在 `IMPORT_USER_WINDOW` 內可執行的對話匯入次數。','LIMIT_IMPORT_USER=false'],
+    ['IMPORT_USER_MAX', 'integer', '一位使用者在 `IMPORT_USER_WINDOW` 內可執行的最大對話匯入次數。','IMPORT_USER_MAX=50'],
+    ['IMPORT_USER_WINDOW', 'integer', '以分鐘為單位，決定 `IMPORT_USER_MAX` 匯入的時間窗口。','IMPORT_USER_WINDOW=1'],
+  ]}
+/>
+
+#### 對話分叉 (Forking) 速率限制
+
+限制使用者分叉（建立副本）對話的頻率，以防止濫用。
+
+> 備註：您可以同時使用兩種限制器，但預設僅按 IP 進行限制。
+
+##### IP 限制器：
+
+<OptionTable
+  options={[
+    ['LIMIT_FORK_IP', 'boolean', '是否限制一個 IP 在 `FORK_IP_WINDOW` 內可建立的對話分叉次數。','LIMIT_FORK_IP=true'],
+    ['FORK_IP_MAX', 'integer', '一個 IP 在 `FORK_IP_WINDOW` 內可建立的最大對話分叉次數。','FORK_IP_MAX=30'],
+    ['FORK_IP_WINDOW', 'integer', '以分鐘為單位，決定 `FORK_IP_MAX` 分叉的時間窗口。','FORK_IP_WINDOW=1'],
+  ]}
+/>
+
+##### 使用者限制器：
+
+<OptionTable
+  options={[
+    ['LIMIT_FORK_USER', 'boolean', '是否限制一位使用者在 `FORK_USER_WINDOW` 內可建立的對話分叉次數。','LIMIT_FORK_USER=false'],
+    ['FORK_USER_MAX', 'integer', '一位使用者在 `FORK_USER_WINDOW` 內可建立的最大對話分叉次數。','FORK_USER_MAX=7'],
+    ['FORK_USER_WINDOW', 'integer', '以分鐘為單位，決定 `FORK_USER_MAX` 分叉的時間窗口。','FORK_USER_WINDOW=1'],
+  ]}
+/>
+
+#### 檔案上傳速率限制
+
+限制使用者上傳檔案的頻率，以防止濫用。
+
+> 備註：這些也可以透過 `librechat.yaml` 的 `rateLimits.fileUploads` 章節進行配置。
+
+##### IP 限制器：
+
+<OptionTable
+  options={[
+    ['FILE_UPLOAD_IP_MAX', 'integer', '每個 IP 在 `FILE_UPLOAD_IP_WINDOW` 內的最大檔案上傳次數。預設值：100。','# FILE_UPLOAD_IP_MAX=100'],
+    ['FILE_UPLOAD_IP_WINDOW', 'integer', '以分鐘為單位，決定 `FILE_UPLOAD_IP_MAX` 的時間窗口。預設值：15。','# FILE_UPLOAD_IP_WINDOW=15'],
+  ]}
+/>
+
+##### 使用者限制器：
+
+<OptionTable
+  options={[
+    ['FILE_UPLOAD_USER_MAX', 'integer', '每位使用者在 `FILE_UPLOAD_USER_WINDOW` 內的最大檔案上傳次數。預設值：50。','# FILE_UPLOAD_USER_MAX=50'],
+    ['FILE_UPLOAD_USER_WINDOW', 'integer', '以分鐘為單位，決定 `FILE_UPLOAD_USER_MAX` 的時間窗口。預設值：15。','# FILE_UPLOAD_USER_WINDOW=15'],
+  ]}
+/>
+
+#### 文字轉語音 (TTS) 速率限制
+
+限制使用者使用文字轉語音功能的頻率，以防止濫用。
+
+> 備註：這些也可以透過 `librechat.yaml` 的 `rateLimits.tts` 章節進行配置。
+
+##### IP 限制器：
+
+<OptionTable
+  options={[
+    ['TTS_IP_MAX', 'integer', '每個 IP 在 `TTS_IP_WINDOW` 內的最大 TTS 請求次數。預設值：100。','# TTS_IP_MAX=100'],
+    ['TTS_IP_WINDOW', 'integer', '以分鐘為單位，決定 `TTS_IP_MAX` 的時間窗口。預設值：1。','# TTS_IP_WINDOW=1'],
+  ]}
+/>
+
+##### 使用者限制器：
+
+<OptionTable
+  options={[
+    ['TTS_USER_MAX', 'integer', '每位使用者在 `TTS_USER_WINDOW` 內的最大 TTS 請求次數。預設值：50。','# TTS_USER_MAX=50'],
+    ['TTS_USER_WINDOW', 'integer', '以分鐘為單位，決定 `TTS_USER_MAX` 的時間窗口。預設值：1。','# TTS_USER_WINDOW=1'],
+  ]}
+/>
+
+#### 語音轉文字 (STT) 速率限制
+
+限制使用者使用語音轉文字功能的頻率，以防止濫用。
+
+> 備註：這些也可以透過 `librechat.yaml` 的 `rateLimits.stt` 章節進行配置。
+
+##### IP 限制器：
+
+<OptionTable
+  options={[
+    ['STT_IP_MAX', 'integer', '每個 IP 在 `STT_IP_WINDOW` 內的最大 STT 請求次數。預設值：100。','# STT_IP_MAX=100'],
+    ['STT_IP_WINDOW', 'integer', '以分鐘為單位，決定 `STT_IP_MAX` 的時間窗口。預設值：1。','# STT_IP_WINDOW=1'],
+  ]}
+/>
+
+##### 使用者限制器：
+
+<OptionTable
+  options={[
+    ['STT_USER_MAX', 'integer', '每位使用者在 `STT_USER_WINDOW` 內的最大 STT 請求次數。預設值：50。','# STT_USER_MAX=50'],
+    ['STT_USER_WINDOW', 'integer', '以分鐘為單位，決定 `STT_USER_MAX` 的時間窗口。預設值：1。','# STT_USER_WINDOW=1'],
+  ]}
+/>
+
+### 餘額 (Balance)
+
+以下功能允許在系統終端內管理使用者餘額。您可以選擇手動加入餘額，或是實作一個為使用者自動累積餘額的系統。如果在配置中定義了特定的初始餘額，系統將在使用者註冊時自動將代幣匯入其餘額中。
+
+參見：**[代幣使用量 (Token Usage)](/docs/configuration/token_usage_zh_TW)**
+
+<OptionTable
+  options={[
+    ['CHECK_BALANCE', 'boolean', '為 OpenAI/Plugins 終端啟用代幣信用餘額。','CHECK_BALANCE=false'],
+    ['START_BALANCE', 'integer', '如果設定了此值，代幣將在使用者註冊後存入其餘額。', 'START_BALANCE=20000']
+  ]}
+/>
+
+#### 管理餘額
+
+- 執行 `npm run add-balance` 以手動加入餘額。
+    - 您也可以指定電子郵件與要加入的代幣信用量，例如：`npm run add-balance example@example.com 1000`
+- 執行 `npm run set-balance` 以手動設定餘額，用法與 `add-balance` 類似。
+- 執行 `npm run list-balances` 以列出所有使用者的餘額。
+
+> **備註：** 1000 信用點 = $0.001 (1 毫美金)
+
+
+### 註冊與登入 (Registration and Login)
+參見：**[身份驗證系統](/docs/configuration/authentication_zh_TW)**
+
+<div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/4c51dc25-31d3-4c51-8c2a-0cdfb5a25033" style={{ width: "75%", height: "75%" }} alt="Image for Light Theme" />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/3bc5371d-e51d-4e91-ac68-56db6e85bb2c" style={{ width: "75%", height: "75%" }} alt="Image for Dark Theme" />
+  </div>
+</div>
+
+<Callout type="info" title="配置檔案說明">
+本章節中所有的身份驗證設定都應在您的 `.env` 檔案中配置，而非在 `librechat.yaml` 檔案或 `docker-compose.override.yml` 中。`docker-compose.override.yml` 僅用於掛載磁碟卷並為 Docker 設定環境變數，而 `librechat.yaml` 則用於自定義終端及其他應用程式設定。
+</Callout>
+
+- 一般設定：
+
+<OptionTable
+  options={[
+    ['ALLOW_EMAIL_LOGIN', 'boolean', '啟用或停用「僅限電子郵件」登入。','ALLOW_EMAIL_LOGIN=true'],
+    ['ALLOW_REGISTRATION', 'boolean', '啟用或停用新使用者的電子郵件註冊。','ALLOW_REGISTRATION=true'],
+    ['ALLOW_SOCIAL_LOGIN', 'boolean', '允許使用者透過各種社群網路連接至 LibreChat。','ALLOW_SOCIAL_LOGIN=false'],
+    ['ALLOW_SOCIAL_REGISTRATION', 'boolean', '啟用或停用透過社群網路進行新使用者註冊。','ALLOW_SOCIAL_REGISTRATION=false'],
+    ['ALLOW_PASSWORD_RESET', 'boolean', '啟用或停用使用者自行重設密碼的功能。','ALLOW_PASSWORD_RESET=false'],
+    ['ALLOW_ACCOUNT_DELETION', 'boolean', '啟用或停用使用者自行刪除帳號的功能。如果省略或註釋，預設為啟用。','ALLOW_ACCOUNT_DELETION=true'],
+    ['ALLOW_UNVERIFIED_EMAIL_LOGIN', 'boolean', '設定為 true 允許使用者在不驗證電子郵件地址的情況下登入。若為 false，使用者必須先驗證郵件才能登入。', 'ALLOW_UNVERIFIED_EMAIL_LOGIN=true'],
+    ['MIN_PASSWORD_LENGTH', 'number', '使用者身份驗證的密碼最小長度。使用 LDAP 驗證時，您可能希望將其設定為 1 以跳過本地密碼驗證，因為 LDAP 伺服器會處理自己的密碼原則。', 'MIN_PASSWORD_LENGTH=8'],
+  ]}
+/>
+
+> **快速小撇步：** 即使停用了註冊功能，仍可使用 `npm run create-user` 直接將使用者加入資料庫。
+> **快速小撇步：** 在停用註冊的情況下，您可以使用 `npm run delete-user email@domain.com` 刪除使用者。
+
+- 工作階段與重新整理權杖 (Refresh Token) 設定：
+
+<OptionTable
+  options={[
+    ['SESSION_EXPIRY', 'integer (milliseconds)', '工作階段過期時間。','SESSION_EXPIRY=1000 * 60 * 15'],
+    ['REFRESH_TOKEN_EXPIRY', 'integer (milliseconds)', '重新整理權杖過期時間。','REFRESH_TOKEN_EXPIRY=(1000 * 60 * 60 * 24) * 7'],
+  ]}
+/>
+
+- 如需更多資訊：**[Refresh Token](https://github.com/danny-avila/LibreChat/pull/927)**
+
+- JWT 設定：
+
+您應使用新的安全數值。給出的範例是 32 位元組的金鑰（64 位十六進位字元）。
+使用此 replit 快速產生一些：**[JWT 金鑰](/toolkit/creds_generator_zh_TW)**
+
+<OptionTable
+  options={[
+    ['JWT_SECRET', 'string (hex)', 'JWT 秘密金鑰。','JWT_SECRET=16f8c0ef4a5d391b26034086c628469d3f9f497f08163ab9b40137092f2909ef'],
+    ['JWT_REFRESH_SECRET', 'string (hex)', 'JWT 重新整理秘密金鑰。','JWT_REFRESH_SECRET=eaa5191f2914e30b9387fd84e254e4ba6fc51b4654968a9b0803b456a54b8418'],
+  ]}
+/>
+
+### 社群登入 (Social Logins)
+更多詳情：[OAuth2-OIDC](/docs/configuration/authentication/OAuth2-OIDC_zh_TW)
+
+#### Apple 身份驗證
+
+更多資訊：**[Apple 身份驗證](/docs/configuration/authentication/OAuth2-OIDC/apple_zh_TW)**
+
+<OptionTable
+  options={[
+    ['APPLE_CLIENT_ID', 'string', '您的 Apple Services ID (例如：com.yourdomain.librechat.services)。', 'APPLE_CLIENT_ID=com.yourdomain.librechat.services'],
+    ['APPLE_TEAM_ID', 'string', '您的 Apple Developer Team ID。', 'APPLE_TEAM_ID=YOUR_TEAM_ID'],
+    ['APPLE_KEY_ID', 'string', '來自下載金鑰的 Apple Key ID。', 'APPLE_KEY_ID=YOUR_KEY_ID'],
+    ['APPLE_PRIVATE_KEY_PATH', 'string', '下載的 .p8 檔案之絕對路徑。', 'APPLE_PRIVATE_KEY_PATH=/path/to/AuthKey.p8'],
+    ['APPLE_CALLBACK_URL', 'string', 'Apple 身份驗證的回呼 (callback) URL。', 'APPLE_CALLBACK_URL=/oauth/apple/callback'],
+  ]}
+/>
+
+
+#### Discord 身份驗證
+
+更多資訊：**[Discord](/docs/configuration/authentication/OAuth2-OIDC/discord_zh_TW)**
+
+<OptionTable
+  options={[
+    ['DISCORD_CLIENT_ID', 'string', '您的 Discord client ID。','DISCORD_CLIENT_ID='],
+    ['DISCORD_CLIENT_SECRET', 'string', '您的 Discord client secret。','DISCORD_CLIENT_SECRET='],
+    ['DISCORD_CALLBACK_URL', 'string', 'Discord 身份驗證的回呼 URL。','DISCORD_CALLBACK_URL=/oauth/discord/callback'],
+  ]}
+/>
+
+#### Facebook 身份驗證
+
+更多資訊：**[Facebook 身份驗證](/docs/configuration/authentication/OAuth2-OIDC/facebook_zh_TW)**
+
+<OptionTable
+  options={[
+    ['FACEBOOK_CLIENT_ID', 'string', '您的 Facebook client ID。','FACEBOOK_CLIENT_ID='],
+    ['FACEBOOK_CLIENT_SECRET', 'string', '您的 Facebook client secret。','FACEBOOK_CLIENT_SECRET='],
+    ['FACEBOOK_CALLBACK_URL', 'string', 'Facebook 身份驗證的回呼 URL。','FACEBOOK_CALLBACK_URL=/oauth/facebook/callback'],
+  ]}
+/>
+
+#### GitHub 身份驗證
+
+更多資訊：**[GitHub 身份驗證](/docs/configuration/authentication/OAuth2-OIDC/github_zh_TW)**
+
+<OptionTable
+  options={[
+    ['GITHUB_CLIENT_ID', 'string', '您的 GitHub client ID。','GITHUB_CLIENT_ID='],
+    ['GITHUB_CLIENT_SECRET', 'string', '您的 GitHub client secret。','GITHUB_CLIENT_SECRET='],
+    ['GITHUB_CALLBACK_URL', 'string', 'GitHub 身份驗證的回呼 URL。','GITHUB_CALLBACK_URL=/oauth/github/callback'],
+    ['GITHUB_ENTERPRISE_BASE_URL', 'string', '選填：GitHub Enterprise 實例的基礎 URL。', 'GITHUB_ENTERPRISE_BASE_URL='],
+    ['GITHUB_ENTERPRISE_USER_AGENT', 'string', '選填：GitHub Enterprise 請求的 User Agent。', 'GITHUB_ENTERPRISE_USER_AGENT='],
+  ]}
+/>
+
+#### Google 身份驗證
+
+更多資訊：**[Google 身份驗證](/docs/configuration/authentication/OAuth2-OIDC/google_zh_TW)**
+
+<OptionTable
+  options={[
+    ['GOOGLE_CLIENT_ID', 'string', '您的 Google client ID。','GOOGLE_CLIENT_ID='],
+    ['GOOGLE_CLIENT_SECRET', 'string', '您的 Google client secret。','GOOGLE_CLIENT_SECRET='],
+    ['GOOGLE_CALLBACK_URL', 'string', 'Google 身份驗證的回呼 URL。','GOOGLE_CALLBACK_URL=/oauth/google/callback'],
+  ]}
+/>
+
+#### OpenID Connect
+
+更多資訊：
+  - [Auth0](/docs/configuration/authentication/OAuth2-OIDC/auth0_zh_TW)
+  - [AWS Cognito](/docs/configuration/authentication/OAuth2-OIDC/aws_zh_TW)
+  - [Azure Entra/AD](/docs/configuration/authentication/OAuth2-OIDC/azure_zh_TW)
+  - [Keycloak](/docs/configuration/authentication/OAuth2-OIDC/keycloak_zh_TW)
+
+<OptionTable
+  options={[
+    ['OPENID_CLIENT_ID', 'string', '您的 OpenID client ID。','OPENID_CLIENT_ID='],
+    ['OPENID_CLIENT_SECRET', 'string', '您的 OpenID client secret。','OPENID_CLIENT_SECRET='],
+    ['OPENID_ISSUER', 'string', 'OpenID 發行者 (issuer) URL。','OPENID_ISSUER='],
+    ['OPENID_SESSION_SECRET', 'string', 'OpenID 工作階段儲存的秘密。','OPENID_SESSION_SECRET='],
+    ['OPENID_SCOPE', 'string', 'OpenID 範圍 (scope)。', 'OPENID_SCOPE="openid profile email"'],
+    ['OPENID_CALLBACK_URL', 'string', 'OpenID 身份驗證的回呼 URL。','OPENID_CALLBACK_URL=/oauth/openid/callback'],
+    ['OPENID_AUDIENCE', 'string', '授權請求的對象 (audience) 參數。在使用 OPENID_REUSE_TOKENS=true 時，Auth0 必須設定此項以接收 JWT 存取權杖而非 opaque 權杖。','OPENID_AUDIENCE=https://api.librechat.com'],
+    ['OPENID_REQUIRED_ROLE', 'string', '驗證所需的角色。支援單一角色或多個以逗號分隔的角色。指定多個角色時，使用者僅需具備其中任一角色（OR 邏輯）。','OPENID_REQUIRED_ROLE=admin 或 OPENID_REQUIRED_ROLE=role1,role2,admin'],
+    ['OPENID_REQUIRED_ROLE_TOKEN_KIND', 'string', '所需角色驗證的權杖種類。','OPENID_REQUIRED_ROLE_TOKEN_KIND='],
+    ['OPENID_REQUIRED_ROLE_PARAMETER_PATH', 'string', '所需角色驗證的參數路徑。','OPENID_REQUIRED_ROLE_PARAMETER_PATH='],
+    ['OPENID_ADMIN_ROLE', 'string', '使用者在 LibreChat 中擔任管理員所需的角色。','OPENID_ADMIN_ROLE='],
+    ['OPENID_ADMIN_ROLE_TOKEN_KIND', 'string', '管理員角色驗證的資訊來源。可能值為：access, id 或 userinfo。','OPENID_ADMIN_ROLE_TOKEN_KIND='],
+    ['OPENID_ADMIN_ROLE_PARAMETER_PATH', 'string', '所需角色驗證的參數路徑。','OPENID_ADMIN_ROLE_PARAMETER_PATH='],
+    ['OPENID_BUTTON_LABEL', 'string', 'OpenID 登入按鈕的標籤。','OPENID_BUTTON_LABEL='],
+    ['OPENID_IMAGE_URL', 'string', 'OpenID 登入按鈕圖標的 URL。','OPENID_IMAGE_URL='],
+    ['OPENID_USE_END_SESSION_ENDPOINT', 'string', '是否使用發行者的結束工作階段終端作為登出重新導向','OPENID_USE_END_SESSION_ENDPOINT=TRUE'],
+    ['OPENID_AUTO_REDIRECT', 'boolean', '是否自動重新導向至 OpenID 供應商。','OPENID_AUTO_REDIRECT=true'],
+    ['OPENID_USE_PKCE', 'boolean', '為 OpenID 身份驗證使用 PKCE (Proof Key for Code Exchange)。','# OPENID_USE_PKCE=true'],
+    ['OPENID_POST_LOGOUT_REDIRECT_URI', 'string', 'OpenID 登出後的重新導向 URI。預設為 ${DOMAIN_CLIENT}/login。','# OPENID_POST_LOGOUT_REDIRECT_URI='],
+    ['OPENID_CLOCK_TOLERANCE', 'number', '權杖驗證的時鐘容差（秒）。預設值：300。','# OPENID_CLOCK_TOLERANCE=300'],
+    ['OPENID_GENERATE_NONCE', 'boolean', '強制 OpenID 用戶端產生 nonce 參數。AWS Cognito（特別是聯邦身份）與 Authentik 等身份供應商需要此設定。','OPENID_GENERATE_NONCE=true'],
+    ['DEBUG_OPENID_REQUESTS', 'boolean', '啟用 OpenID 請求標頭的詳細日誌紀錄。停用時（預設），僅在偵錯層級紀錄請求 URL。啟用時，也會紀錄請求標頭（已遮罩敏感資料），以便深入排查身份驗證問題。','DEBUG_OPENID_REQUESTS=false'],
+  ]}
+/>
+                                                                                                                               
+##### OpenID Connect 權杖重複使用 (Token Reuse)
+
+LibreChat 支援重複使用由您的 OpenID Connect 供應商（如 Azure Entra ID 或 Auth0）核發的存取權杖與重新整理權杖，以管理使用者身份驗證狀態。啟用此功能後，以 cookie 形式傳遞給使用者的重新整理權杖將由您的 OpenID 供應商而非 LibreChat 核發。
+
+<OptionTable
+  options={[
+    ['OPENID_REUSE_TOKENS', 'boolean', '啟用重複使用 OpenID 供應商權杖進行工作階段管理。', 'OPENID_REUSE_TOKENS=false'],
+    ['OPENID_SCOPE', 'string', '以空格分隔的 OpenID 範圍列表。重複使用權杖必須包含 offline_access。', 'OPENID_SCOPE=api://librechat/.default openid profile email offline_access'],
+    ['OPENID_AUDIENCE', 'string', '授權請求的對象參數。OPENID_REUSE_TOKENS=true 時 Auth0 必須設定。請參閱上方 OpenID 主章節中的備註。', 'OPENID_AUDIENCE=https://api.librechat.com'],
+    ['OPENID_JWKS_URL_CACHE_ENABLED', 'boolean', '啟用簽署金鑰驗證結果的快取。', 'OPENID_JWKS_URL_CACHE_ENABLED=true'],
+    ['OPENID_JWKS_URL_CACHE_TIME', 'number', '快取持續時間（毫秒，預設：600000 毫秒 / 10 分鐘）。', 'OPENID_JWKS_URL_CACHE_TIME=600000'],
+    ['OPENID_ON_BEHALF_FLOW_FOR_USERINFO_REQUIRED', 'boolean', '為使用者資訊啟用代理人 (on-behalf-of) 流程。', 'OPENID_ON_BEHALF_FLOW_FOR_USERINFO_REQUIRED=true'],
+    ['OPENID_ON_BEHALF_FLOW_USERINFO_SCOPE', 'string', '代理人流程中使用者資訊的範圍。', 'OPENID_ON_BEHALF_FLOW_USERINFO_SCOPE=user.read'],
+    ['OPENID_USE_END_SESSION_ENDPOINT', 'boolean', '啟用使用結束工作階段終端進行登出。', 'OPENID_USE_END_SESSION_ENDPOINT=true'],
+  ]}
+/>
+
+<Callout type="note" title="備註">
+如需詳細配置步驟與先決條件，請參閱 [重複使用 OpenID 權杖進行登入工作階段](/docs/configuration/authentication/OAuth2-OIDC/token-reuse_zh_TW)。
+</Callout>
+
+##### Microsoft Graph API / Entra ID 整合
+
+當使用 Azure Entra ID（前身為 Azure AD）作為您的 OpenID 供應商時，您可以啟用額外的 Microsoft Graph API 功能，以在權限與共享系統中獲得增強的人員與群組搜尋能力。
+
+<OptionTable
+  options={[
+    ['USE_ENTRA_ID_FOR_PEOPLE_SEARCH', 'boolean', '在權限/共享系統中啟用 Entra ID 人員搜尋整合。啟用後，人員選擇器將同時搜尋本地資料庫與 Entra ID。', 'USE_ENTRA_ID_FOR_PEOPLE_SEARCH=false'],
+    ['ENTRA_ID_INCLUDE_OWNERS_AS_MEMBERS', 'boolean', '啟用後，Entra ID 群組擁有者將被視為群組成員。', 'ENTRA_ID_INCLUDE_OWNERS_AS_MEMBERS=false'],
+    ['OPENID_GRAPH_SCOPES', 'string', '人員/群組搜尋所需的 Microsoft Graph API 範圍。預設範圍提供存取使用者個人資料與群組成員身份的權限。', 'OPENID_GRAPH_SCOPES=User.Read,People.Read,GroupMember.Read.All,User.ReadBasic.All'],
+  ]}
+/>
+
+<Callout type="warning" title="重要先決條件">
+- 您必須已將 Azure Entra ID 配置為您的 OpenID 供應商。
+- **必須啟用 OpenID 權杖重複使用** (`OPENID_REUSE_TOKENS=true`) —— 若不啟用，此功能將無法運作。
+- 您的 Azure 應用程式註冊必須具備適當的 Microsoft Graph API 權限。
+- 對於群組搜尋功能，某些 Graph API 範圍可能需要管理員同意。
+</Callout>
+
+##### SharePoint 整合
+
+LibreChat 支援與 SharePoint Online 與 OneDrive for Business 直接整合，允許使用者直接在對話中從其 SharePoint 庫選擇並附加檔案。此企業級功能利用了現有的 Azure Entra ID 身份驗證。
+
+<OptionTable
+  options={[
+    ['ENABLE_SHAREPOINT_FILEPICKER', 'boolean', '在聊天與 Agent 面板中啟用 SharePoint 檔案選擇器。啟用後，會在檔案附件選單中加入「來自 SharePoint」選項。', 'ENABLE_SHAREPOINT_FILEPICKER=true'],
+    ['SHAREPOINT_BASE_URL', 'string', 'SharePoint 租戶 (tenant) 基礎 URL。啟用 SharePoint 整合時為必填。', 'SHAREPOINT_BASE_URL=https://yourtenant.sharepoint.com'],
+    ['SHAREPOINT_PICKER_SHAREPOINT_SCOPE', 'string', '檔案選擇器的 SharePoint 特定 OAuth 範圍。用於開啟 SharePoint 檔案選擇器介面時的身份驗證。', 'SHAREPOINT_PICKER_SHAREPOINT_SCOPE=https://yourtenant.sharepoint.com/AllSites.Read'],
+    ['SHAREPOINT_PICKER_GRAPH_SCOPE', 'string', '檔案下載的 Microsoft Graph API 範圍。用於選擇後從 SharePoint 下載檔案。', 'SHAREPOINT_PICKER_GRAPH_SCOPE=Files.Read.All'],
+  ]}
+/>
+
+<Callout type="error" title="關鍵要求">
+**必須配置以下所有項，SharePoint 整合才能運作：**
+- Azure Entra ID 身份驗證必須已完整配置。
+- **`OPENID_REUSE_TOKENS=true`** 為強制要求（使用代理人權杖流程）。
+- 您的 Azure 應用程式註冊必須具備 SharePoint 與 Graph API 權限。
+- 必須設定所有四個 SharePoint 環境變數。
+- 在生產環境中必須使用 HTTPS。
+</Callout>
+
+<Callout type="info" title="功能說明">
+啟用後，使用者可以：
+- 存取來自 SharePoint 文件庫與 OneDrive for Business 的檔案。
+- 一次選擇多個檔案（預設上限：10 個檔案）。
+- 查看即時下載進度。
+- 檔案下載後會像一般上傳一樣附加到對話中。
+</Callout>
+
+如需詳細的 SharePoint 配置說明，請參閱：[SharePoint 整合指南](/docs/configuration/sharepoint_zh_TW)
+
+#### SAML
+
+更多資訊：
+  - [Auth0](/docs/configuration/authentication/SAML/auth0_zh_TW)
+
+<Callout type="warning" title="OpenID 與 SAML 互斥">
+如果啟用了 OpenID，SAML 身份驗證將自動停用。
+
+同一時間僅能啟動一種身份驗證方法。
+</Callout>
+
+<OptionTable
+  options={[
+    ['SAML_ENTRY_POINT', 'string', 'SAML 身份供應商 (IdP) 入口網址。', 'SAML_ENTRY_POINT='],
+    ['SAML_ISSUER', 'string', 'SAML 服務供應商 (SP) 實體 ID。', 'SAML_ISSUER='],
+    ['SAML_CERT', 'string', 'SAML 簽署憑證，可以檔案路徑或單行 PEM 字串形式提供。', 'SAML_CERT='],
+    ['SAML_CALLBACK_URL', 'string', 'SAML 身份驗證的回呼 URL。','SAML_CALLBACK_URL=/oauth/saml/callback'],
+    ['SAML_SESSION_SECRET', 'string', 'SAML 工作階段儲存的秘密。','SAML_SESSION_SECRET='],
+    ['SAML_EMAIL_CLAIM', 'string', '<選填>：SAML 斷言中包含使用者電子郵件的屬性（預設：email）。','SAML_EMAIL_CLAIM='],
+    ['SAML_USERNAME_CLAIM', 'string', '<選填>：SAML 斷言中包含使用者名稱的屬性（預設：username）。','SAML_USERNAME_CLAIM='],
+    ['SAML_GIVEN_NAME_CLAIM', 'string', '<選填>：SAML 斷言中包含名字 (given name) 的屬性（預設：given_name）。','SAML_GIVEN_NAME_CLAIM='],
+    ['SAML_FAMILY_NAME_CLAIM', 'string', '<選填>：SAML 斷言中包含姓氏 (family name) 的屬性（預設：family_name）。','SAML_FAMILY_NAME_CLAIM='],
+    ['SAML_PICTURE_CLAIM', 'string', '<選填>：SAML 斷言中包含個人資料圖片 URL 的屬性（預設：picture）。','SAML_PICTURE_CLAIM='],
+    ['SAML_NAME_CLAIM', 'string', '<選填>：SAML 斷言中包含全名的屬性。','SAML_NAME_CLAIM='],
+    ['SAML_BUTTON_LABEL', 'string', '<選填>：SAML 登入按鈕的標籤。','SAML_BUTTON_LABEL='],
+    ['SAML_IMAGE_URL', 'string', '<選填>：SAML 登入按鈕圖標的 URL。','SAML_IMAGE_URL='],
+    ['SAML_USE_AUTHN_RESPONSE_SIGNED', 'boolean', '<選填>：若為 "true"，則簽署整個 SAML 回應。否則僅簽署 Assertion（預設）。', 'SAML_USE_AUTHN_RESPONSE_SIGNED=']
+  ]}
+/>
+
+#### LDAP/AD 身份驗證
+
+更多資訊：**[LDAP/AD 身份驗證](/docs/configuration/authentication/ldap_zh_TW)**
+
+<OptionTable
+    options={[
+        ['LDAP_URL', 'string', 'LDAP 伺服器 URL。', 'LDAP_URL=ldap://localhost:389'],
+        ['LDAP_BIND_DN', 'string', '繫結 DN (Bind DN)', 'LDAP_BIND_DN=cn=root'],
+        ['LDAP_BIND_CREDENTIALS', 'string', '繫結 DN 的密碼', 'LDAP_BIND_CREDENTIALS=password'],
+        [
+            'LDAP_USER_SEARCH_BASE',
+            'string',
+            'LDAP 使用者搜尋基準',
+            'LDAP_USER_SEARCH_BASE=o=users,o=example.com',
+        ],
+        ['LDAP_SEARCH_FILTER', 'string', 'LDAP 搜尋篩選條件', 'LDAP_SEARCH_FILTER=mail={{username}}'],
+        [
+            'LDAP_CA_CERT_PATH',
+            'string',
+            'CA 憑證路徑。',
+            'LDAP_CA_CERT_PATH=/path/to/root_ca_cert.crt',
+        ],
+        [
+            'LDAP_TLS_REJECT_UNAUTHORIZED',
+            'string',
+            'LDAP TLS 驗證',
+            'LDAP_TLS_REJECT_UNAUTHORIZED=true',
+        ],
+        [
+            'LDAP_STARTTLS',
+            'string',
+            '啟用 LDAP StartTLS 以將連線升級至 TLS。設定為 true 以啟用此功能。',
+            'LDAP_STARTTLS=true',
+        ],
+        [
+            'LDAP_LOGIN_USES_USERNAME',
+            'boolean',
+            '使用使用者名稱而非電子郵件進行 LDAP 登入。',
+            '# LDAP_LOGIN_USES_USERNAME=true',
+        ],
+        [
+            'LDAP_ID',
+            'string',
+            '唯一使用者 ID 的 LDAP 屬性。預設：uid 或 sAMAccountName, mail。',
+            '# LDAP_ID=uid',
+        ],
+        [
+            'LDAP_USERNAME',
+            'string',
+            '使用者名稱的 LDAP 屬性。預設：givenName 或 mail。',
+            '# LDAP_USERNAME=givenName',
+        ],
+        [
+            'LDAP_EMAIL',
+            'string',
+            '電子郵件的 LDAP 屬性。預設：mail。',
+            '# LDAP_EMAIL=userPrincipalName',
+        ],
+        [
+            'LDAP_FULL_NAME',
+            'string',
+            '全名的 LDAP 屬性。可以逗號分隔。預設：givenName + surname。',
+            '# LDAP_FULL_NAME=givenName,surname',
+        ],
+    ]}
+/>
+
+### 密碼重設 (Password Reset)
+
+電子郵件用於帳號驗證與密碼重設。LibreChat 支援 Mailgun API 與傳統的 SMTP 服務。參見：**[電子郵件設定](/docs/configuration/authentication/email_zh_TW)**
+
+**重要備註**：您必須配置 Mailgun（推薦用於封鎖 SMTP 的伺服器）或 SMTP，電子郵件功能才能運作。
+
+> **警告**：若未為 Mailgun 或 SMTP 設定有效數值，LibreChat 將使用不安全的密碼重設方式！
+
+#### Mailgun 配置（推薦）
+
+Mailgun 特別適用於部署在封鎖 SMTP 連接埠的伺服器上。當同時設定 `MAILGUN_API_KEY` 與 `MAILGUN_DOMAIN` 時，LibreChat 將優先使用 Mailgun 而非 SMTP。
+
+<OptionTable
+  options={[
+    ['MAILGUN_API_KEY', 'string', '您的 Mailgun API 金鑰（Mailgun 必填）。','MAILGUN_API_KEY='],
+    ['MAILGUN_DOMAIN', 'string', '您的 Mailgun 網域（Mailgun 必填）。','MAILGUN_DOMAIN=mg.yourdomain.com'],
+    ['MAILGUN_HOST', 'string', '自定義 Mailgun API 主機（選填）。歐盟地區請使用 https://api.eu.mailgun.net。','MAILGUN_HOST=https://api.mailgun.net'],
+    ['EMAIL_FROM', 'string', '寄件者電子郵件地址。必填。','EMAIL_FROM=noreply@librechat.ai'],
+    ['EMAIL_FROM_NAME', 'string', '寄件者名稱（若未設定則預設為 APP_TITLE）。','EMAIL_FROM_NAME='],
+  ]}
+/>
+
+#### SMTP 配置
+
+如果未配置 Mailgun，LibreChat 將退而使用 SMTP 設定。
+
+> **警告**：如果使用 `EMAIL_SERVICE`，**請勿**設定進階連接參數：
+> HOST, PORT, ENCRYPTION, ENCRYPTION_HOSTNAME, ALLOW_SELFSIGNED。
+
+參見：**[nodemailer 已知服務清單](https://community.nodemailer.com/2-0-0-beta/setup-smtp/well-known-services/)**
+
+<OptionTable
+  options={[
+    ['EMAIL_SERVICE', 'string', '電子郵件服務（例如：Gmail, Outlook）。','EMAIL_SERVICE='],
+    ['EMAIL_HOST', 'string', '郵件伺服器主機。','EMAIL_HOST='],
+    ['EMAIL_PORT', 'number', '郵件伺服器連接埠。','EMAIL_PORT=25'],
+    ['EMAIL_ENCRYPTION', 'string', '加密方法（starttls, tls 等）。','EMAIL_ENCRYPTION='],
+    ['EMAIL_ENCRYPTION_HOSTNAME', 'string', '加密用的主機名稱。','EMAIL_ENCRYPTION_HOSTNAME='],
+    ['EMAIL_ALLOW_SELFSIGNED', 'boolean', '允許自我簽署憑證。','EMAIL_ALLOW_SELFSIGNED='],
+    ['EMAIL_USERNAME', 'string', '驗證用的使用者名稱。','EMAIL_USERNAME='],
+    ['EMAIL_PASSWORD', 'string', '驗證用的密碼。','EMAIL_PASSWORD='],
+    ['EMAIL_FROM_NAME', 'string', '寄件者名稱。','EMAIL_FROM_NAME='],
+    ['EMAIL_FROM', 'string', '寄件者電子郵件地址。必填。','EMAIL_FROM=noreply@librechat.ai'],
+  ]}
+/>
+
+### Firebase CDN
+
+參見：**[Firebase CDN 配置](/docs/configuration/cdn/firebase_zh_TW)**
+
+<Callout type="warning" title="重要">
+- 如果您使用 Firebase 作為檔案儲存策略，請務必在 `librechat.yaml` 配置檔案中將 `file_strategy` 選項設定為 `firebase`。 - 關於配置 `librechat.yaml` 檔案的更多資訊，請參閱 YAML 配置指南：[自定義終端與配置](/docs/configuration/librechat_yaml_zh_TW)
+</Callout>
+
+<OptionTable
+  options={[
+    ['FIREBASE_API_KEY', 'string', 'Firebase 專案的 API 金鑰。', 'FIREBASE_API_KEY='],
+    ['FIREBASE_AUTH_DOMAIN', 'string', '專案的 Firebase Auth 網域。', 'FIREBASE_AUTH_DOMAIN='],
+    ['FIREBASE_PROJECT_ID', 'string', 'Firebase 專案的 ID。', 'FIREBASE_PROJECT_ID='],
+    ['FIREBASE_STORAGE_BUCKET', 'string', '專案的 Firebase Storage 儲存桶。', 'FIREBASE_STORAGE_BUCKET='],
+    ['FIREBASE_MESSAGING_SENDER_ID', 'string', 'Firebase Cloud Messaging 寄件者 ID。', 'FIREBASE_MESSAGING_SENDER_ID='],
+    ['FIREBASE_APP_ID', 'string', '專案的 Firebase App ID。', 'FIREBASE_APP_ID='],
+  ]}
+/>
+
+### Amazon S3 CDN
+
+參見：**[Amazon S3 CDN 配置](/docs/configuration/cdn/s3_zh_TW)**
+
+<Callout type="warning" title="重要">
+如果您使用 S3 作為檔案儲存策略，請務必在 `librechat.yaml` 配置檔案中將 `file_strategy` 選項設定為 `s3`。
+</Callout>
+
+<OptionTable
+  options={[
+    ['AWS_ACCESS_KEY_ID', 'string', '您的 IAM 使用者存取金鑰 ID。若使用 IRSA 則為選填。', 'AWS_ACCESS_KEY_ID=your_access_key_id'],
+    ['AWS_SECRET_ACCESS_KEY', 'string', '您的 IAM 使用者秘密存取金鑰。若使用 IRSA 則為選填。', 'AWS_SECRET_ACCESS_KEY=your_secret_access_key'],
+    ['AWS_REGION', 'string', 'S3 儲存桶所在的 AWS 區域。', 'AWS_REGION=us-east-1'],
+    ['AWS_BUCKET_NAME', 'string', '用於檔案儲存的 S3 儲存桶名稱。', 'AWS_BUCKET_NAME=your_bucket_name'],
+    ['AWS_ENDPOINT_URL', 'string', '自定義 AWS 終端 URL（選填）。適用於相容 S3 的服務。', '# AWS_ENDPOINT_URL='],
+    ['AWS_FORCE_PATH_STYLE', 'boolean', '對於需要路徑樣式 URL 的 S3 相容供應商（如 MinIO, Hetzner, Backblaze B2），請設定為 true。AWS S3 不需要。預設值：false。', '# AWS_FORCE_PATH_STYLE=false'],
+  ]}
+/>
+
+> **備註：** 對於 Kubernetes 部署（例如在 EKS 上），您可以使用 IRSA (IAM Roles for Service Accounts) 而非提供明確憑證。在這種情況下，僅需 `AWS_REGION` 與 `AWS_BUCKET_NAME`。
+
+### Azure Blob Storage CDN
+
+參見：**[Azure Blob Storage CDN 配置](/docs/configuration/cdn/azure_zh_TW)**
+
+<Callout type="warning" title="重要">
+如果您使用 Azure Blob Storage 作為檔案儲存策略，請務必在 `librechat.yaml` 配置檔案中將 `file_strategy` 選項設定為 `azure_blob`。
+</Callout>
+
+<OptionTable
+  options={[
+    ['AZURE_STORAGE_CONNECTION_STRING', 'string', 'Azure Blob Storage 連接字串。使用此項或搭配受控識別 (Managed Identity) 使用 AZURE_STORAGE_ACCOUNT_NAME。', 'AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=...'],
+    ['AZURE_STORAGE_ACCOUNT_NAME', 'string', 'Azure 儲存帳號名稱。用於受控識別驗證（不要設定連接字串）。', '# AZURE_STORAGE_ACCOUNT_NAME=yourAccountName'],
+    ['AZURE_STORAGE_PUBLIC_ACCESS', 'boolean', '啟用 Blob 的公開存取。預設值：false。', 'AZURE_STORAGE_PUBLIC_ACCESS=false'],
+    ['AZURE_CONTAINER_NAME', 'string', '檔案儲存的容器名稱。預設值：files。', 'AZURE_CONTAINER_NAME=files'],
+  ]}
+/>
+
+> **備註：** 請使用 `AZURE_STORAGE_CONNECTION_STRING`（選項 A）或 `AZURE_STORAGE_ACCOUNT_NAME` 搭配受控識別（選項 B），兩者擇其一。
+
+### 使用者介面 (UI)
+
+#### 說明與常見問題按鈕 (Help and FAQ Button)
+
+<OptionTable
+  options={[
+    ['HELP_AND_FAQ_URL', 'string', '說明與常見問題 URL。若為空或註釋狀態，則按鈕為啟用。若要停用此按鈕，請設定為 "/"。','HELP_AND_FAQ_URL=https://librechat.ai'],
+  ]}
+/>
+
+**行為說明：**
+
+設定靜態檔案的 [Cache-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) 標頭。這些配置僅在 `NODE_ENV` 設定為 `production` 時觸發。
+
+正確設定快取標頭對於優化網頁應用程式的性能與效率至關重要。透過控制瀏覽器與 CDN 儲存靜態檔案副本的時間，您可以顯著減少伺服器負載、縮短頁面載入時間並改善整體使用者體驗。
+
+* 取消註釋 `STATIC_CACHE_MAX_AGE` 可更改靜態檔案的 `max-age`。預設為 4 週。
+* 取消註釋 `STATIC_CACHE_S_MAX_AGE` 可更改靜態檔案的 `s-maxage`。預設為 1 週。
+  - 此項針對 _共享快取_，供 CDN 與代理使用。
+
+#### 應用程式標題與頁尾 (App Title and Footer)
+
+<OptionTable
+  options={[
+    ['APP_TITLE', 'string', '應用程式標題。','APP_TITLE=LibreChat'],
+    ['CUSTOM_FOOTER', 'string', '自定義頁尾。','# CUSTOM_FOOTER="我的自定義頁尾"'],
+    ['TEMP_CHAT_RETENTION_HOURS', 'number', '**已棄用：** 請改用 librechat.yaml 中的 `interface.temporaryChatRetention`。暫時對話保留小時數。預設值：720（30 天）。','# TEMP_CHAT_RETENTION_HOURS=168'],
+  ]}
+/>
+
+**行為說明：**
+
+ * 取消註釋 `CUSTOM_FOOTER` 可加入自定義頁尾。
+ * 取消註釋並讓 `CUSTOM_FOOTER` 保持空白可移除頁尾。
+ * 您現在可以在 `CUSTOM_FOOTER` 數值中使用以下格式加入一個或多個連結：`[連結文字](URL)`。多個連結應以垂直線 (`|`) 分隔。
+
+ > **Markdown 範例：** `CUSTOM_FOOTER=[連結 1](http://example1.com) | [連結 2](http://example2.com)`
+
+#### 生日帽 (Birthday Hat)
+
+<OptionTable
+  options={[
+    ['SHOW_BIRTHDAY_ICON', 'boolean', '顯示生日帽圖標。','# SHOW_BIRTHDAY_ICON=true'],
+  ]}
+/>
+
+**行為說明：**
+
+* 生日帽圖標會在 2 月 11 日（LibreChat 的生日）自動顯示。
+* 將 `SHOW_BIRTHDAY_ICON` 設定為 `false` 可停用生日帽。
+* 將 `SHOW_BIRTHDAY_ICON` 設定為 `true` 則可讓生日帽始終顯示。
+
+
+### 分析 (Analytics)
+
+#### Google 代碼管理工具 (Google Tag Manager)
+
+LibreChat 支援使用 Google 代碼管理工具進行分析。您需要一個 Google 代碼管理工具 ID 才能在 LibreChat 中啟用它。請按照 [此指南](https://support.google.com/tagmanager/answer/9442095?sjid=10155093630524971297-EU) 產生 Google 代碼管理工具 ID 並配置 Google Analytics。接著將 `ANALYTICS_GTM_ID` 環境變數設定為您的 Google 代碼管理工具 ID。
+
+**備註：** 如果未設定 `ANALYTICS_GTM_ID`，則不會啟用 Google 代碼管理工具。如果設定錯誤，您將看到對 `gtm.js` 的請求失敗。
+
+<OptionTable
+  options={[
+    ['ANALYTICS_GTM_ID', 'string', 'Google 代碼管理工具 ID。','ANALYTICS_GTM_ID='],
+  ]}
+/>
+
+#### 對話匯入
+
+配置對話檔案匯入的限制，以防止記憶體問題。
+
+<OptionTable
+  options={[
+    ['CONVERSATION_IMPORT_MAX_FILE_SIZE_BYTES', 'number', '對話匯入的最大檔案大小（位元組）。預設值：0（不強制限制）。範例：262144000 (250 MiB)。','# CONVERSATION_IMPORT_MAX_FILE_SIZE_BYTES=262144000'],
+  ]}
+/>
+
+### MCP (模型上下文協定)
+
+配置模型上下文協定 (Model Context Protocol) 設定，以實現增強的伺服器管理與 OAuth 支援。
+
+#### MCP 伺服器配置
+
+<OptionTable
+  options={[
+    ['MCP_OAUTH_ON_AUTH_ERROR', 'boolean', '在未發現 OAuth 元資料時，將 401/403 回應視為需要 OAuth。', 'MCP_OAUTH_ON_AUTH_ERROR=true'],
+    ['MCP_OAUTH_DETECTION_TIMEOUT', 'number', 'OAuth 偵測請求的超時時間（毫秒）。', 'MCP_OAUTH_DETECTION_TIMEOUT=5000'],
+    ['MCP_CONNECTION_CHECK_TTL', 'number', '將連接狀態檢查快取指定的毫秒數，以避免昂貴的驗證過程。', 'MCP_CONNECTION_CHECK_TTL=30000'],
+    ['MCP_SKIP_CODE_CHALLENGE_CHECK', 'boolean', '跳過代碼挑戰 (code challenge) 方法驗證。設定為 true 時，即使 `.well-known/openid-configuration` 中未宣告，也會強制使用 S256 代碼挑戰。', 'MCP_SKIP_CODE_CHALLENGE_CHECK=false'],
+  ]}
+/>
+
+### 其他 (Other)
+
+#### Redis
+
+Redis 為 LibreChat 提供了顯著的性能提升，並支援水平擴充能力。
+
+**備註：** Redis 支援目前處於實驗性階段，使用時可能會遇到一些問題。
+
+**重要提示：** 如果使用 Redis，在更改任何 LibreChat 設定後，應重新整理快取。
+
+如需詳細配置與範例，請參閱：**[Redis 配置指南](/docs/configuration/redis_zh_TW)**
+
+<OptionTable
+  options={[
+    ['USE_REDIS', 'boolean', '啟用 Redis 用於快取與工作階段儲存。若為 true，則必須提供 REDIS_URI。', 'USE_REDIS=true'],
+    ['USE_REDIS_STREAMS', 'boolean', '為可恢復的 LLM 串流啟用 Redis。若未設定，預設為 USE_REDIS 的值。設定為 false 則使用記憶體儲存串流。', '# USE_REDIS_STREAMS=true'],
+    ['REDIS_URI', 'string', 'Redis 連接 URI。單一實例：redis://host:port；叢集：逗號分隔的 URI 清單。', 'REDIS_URI=redis://127.0.0.1:6379'],
+    ['USE_REDIS_CLUSTER', 'boolean', '使用單一 URI 時啟用 Redis 叢集模式。', '# USE_REDIS_CLUSTER="true"'],
+    ['REDIS_USERNAME', 'string', 'Redis 驗證使用者名稱。若與 URI 同時提供，將覆寫 URI 中的使用者名稱。', '# REDIS_USERNAME=your_redis_username'],
+    ['REDIS_PASSWORD', 'string', 'Redis 驗證密碼。若與 URI 同時提供，將覆寫 URI 中的密碼。', '# REDIS_PASSWORD=your_redis_password'],
+    ['REDIS_CA', 'string', '使用 rediss:// 協定時，用於 TLS 驗證的 CA 憑證路徑。', '# REDIS_CA=/path/to/ca-cert.pem'],
+    ['REDIS_KEY_PREFIX', 'string', '所有 Redis 金鑰的靜態前綴，以防止跨部署污染。', '# REDIS_KEY_PREFIX=librechat-prod-v2'],
+    ['REDIS_KEY_PREFIX_VAR', 'string', '包含動態前綴的環境變數名稱（例如：Cloud Run 的 K_REVISION）。不可與 REDIS_KEY_PREFIX 同時使用。', '# REDIS_KEY_PREFIX_VAR=K_REVISION'],
+    ['REDIS_MAX_LISTENERS', 'number', '每個 Redis 用戶端的最大事件監聽器數量，防止記憶體洩漏。預設值：40。', '# REDIS_MAX_LISTENERS=40'],
+    ['REDIS_PING_INTERVAL', 'number', '維持連線的 Ping 間隔（秒）。預設值：0（停用）。僅在遇到超時問題時設定。', '# REDIS_PING_INTERVAL=300'],
+    ['FORCED_IN_MEMORY_CACHE_NAMESPACES', 'string', '即使啟用了 Redis，仍強制使用記憶體儲存的快取金鑰清單（逗號分隔）。', '# FORCED_IN_MEMORY_CACHE_NAMESPACES=ROLES,MESSAGES'],
+    ['REDIS_USE_ALTERNATIVE_DNS_LOOKUP', 'boolean', '為 AWS Elasticache 的 TLS 連線啟用備用 dnsLookup。具備 TLS 的 Elasticache 叢集必填。', '# REDIS_USE_ALTERNATIVE_DNS_LOOKUP=true'],
+  ]}
+/>
+
+備註：
+- 當 `USE_REDIS=true` 時，必須提供 `REDIS_URI`，否則應用程式會報錯。
+- 對於 Redis 叢集模式，請提供多個 URI：`redis://node1:7001,redis://node2:7002,redis://node3:7003`（叢集模式會自動偵測）。
+- 對於 TLS 連線請使用 `rediss://` 協定，若您的 CA 不被公開信任，請設定 `REDIS_CA`。
+- `REDIS_KEY_PREFIX_VAR` 與 `REDIS_KEY_PREFIX` 互斥。
+- **具備 TLS 的 AWS Elasticache**：Elasticache 可能需要為 TLS 連線使用備用 dnsLookup。若使用具備 TLS 的 Elasticache，請設定 `REDIS_USE_ALTERNATIVE_DNS_LOOKUP=true`。詳情請參閱 [ioredis 文件](https://www.npmjs.com/package/ioredis)。
+
+#### 領導者選舉 (Leader Election)
+
+為使用 Redis 的多實例部署配置分散式領導者選舉。領導者選舉可確保僅有一個實例執行特定操作（如排程任務）。
+
+<OptionTable
+  options={[
+    ['LEADER_LEASE_DURATION', 'number', '領導者租約在過期前的有效持續時間（秒）。預設值：25。', 'LEADER_LEASE_DURATION=25'],
+    ['LEADER_RENEW_INTERVAL', 'number', '領導者續訂租約的間隔時間（秒）。預設值：10。', 'LEADER_RENEW_INTERVAL=10'],
+    ['LEADER_RENEW_ATTEMPTS', 'number', '租約續訂失敗時的最大重試次數。預設值：3。', 'LEADER_RENEW_ATTEMPTS=3'],
+    ['LEADER_RENEW_RETRY_DELAY', 'number', '租約續訂失敗時，重試嘗試之間的延遲時間（秒）。預設值：0.5。', 'LEADER_RENEW_RETRY_DELAY=0.5'],
+  ]}
+/>
+
+備註：
+- 領導者選舉需要啟用 Redis (`USE_REDIS=true`)。
+- 這些設定僅與多實例部署相關。
+- 領導者租約必須在過期前續訂以維持領導地位。
+- 若在達到最大嘗試次數後仍續訂失敗，該實例將放棄領導地位。

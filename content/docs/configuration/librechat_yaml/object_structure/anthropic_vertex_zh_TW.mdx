@@ -1,0 +1,317 @@
+---
+title: "Anthropic Vertex AI 物件結構"
+icon: Braces
+---
+
+LibreChat 支援透過 **Google Cloud Vertex AI** 執行 Anthropic Claude 模型。這讓您可以利用現有的 Google Cloud 基礎設施、計費系統與憑證來使用 Claude 模型。
+
+**[若要使用環境變數進行快速設定，請參閱 Anthropic 配置指南](/docs/configuration/pre_configured_ai/anthropic_zh_TW#透過-vertex-ai-使用-anthropic)**
+
+## 優點
+
+- **統一計費**：使用您現有的 Google Cloud 計費帳號。
+- **企業級功能**：存取 Google Cloud 的企業級安全與合規功能。
+- **區域合規性**：部署於特定區域以符合資料落地要求。
+- **現有基礎設施**：利用您目前的 GCP 服務帳號與 IAM 原則。
+
+## 先決條件
+
+在配置 Anthropic Vertex AI 之前，請確保您具備：
+
+1. **Google Cloud 專案** 並已啟用 Vertex AI API。
+2. **服務帳號 (Service Account)** 具備 `Vertex AI User` 角色 (`roles/aiplatform.user`)。
+3. **Claude 模型** 已在您的 [Vertex AI Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中啟用。
+4. 已下載 **服務帳號金鑰** (JSON 檔案) 且可供 LibreChat 存取。
+
+## 配置範例
+
+```yaml filename="Anthropic Vertex AI 配置範例"
+endpoints:
+  anthropic:
+    streamRate: 20
+    titleModel: "claude-3.5-haiku"  # 使用顯示的模型名稱（來自 models 配置的鍵）
+
+    vertex:
+      region: "us-east5"
+      # serviceKeyFile: "/path/to/service-account.json"  # 選填，預設為 api/data/auth.json
+      # projectId: "${VERTEX_PROJECT_ID}"  # 選填，自動從服務帳號金鑰偵測
+
+      # 模型映射：顯示名稱 -> Vertex AI 部署名稱
+      models:
+        claude-opus-4.5:
+          deploymentName: claude-opus-4-5@20251101
+        claude-sonnet-4:
+          deploymentName: claude-sonnet-4-20250514
+        claude-3.7-sonnet:
+          deploymentName: claude-3-7-sonnet-20250219
+        claude-3.5-sonnet:
+          deploymentName: claude-3-5-sonnet-v2@20241022
+        claude-3.5-haiku:
+          deploymentName: claude-3-5-haiku@20241022
+```
+
+> **備註：** Anthropic 終端支援所有[共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW)，包括 `streamRate`、`titleModel`、`titleMethod`、`titlePrompt`、`titlePromptTemplate` 與 `titleEndpoint`。
+
+---
+
+## vertex
+
+`vertex` 物件包含所有 Vertex AI 特有的配置選項。
+
+### region (區域)
+
+**Key：**
+<OptionTable
+  options={[
+    ['region', '字串', '部署 Vertex AI 終端的 Google Cloud 區域。', '必須是 Claude 模型在 Vertex AI 上可用的區域。'],
+  ]}
+/>
+
+**預設值：** `us-east5`
+
+**可用區域：**
+- `global`（推薦用於大多數情境）
+- `us-east5`
+- `us-central1`
+- `europe-west1`
+- `europe-west4`
+- `asia-southeast1`
+
+> **提示：** 推薦使用 `global` 區域，因為它會自動路由至最近的可用區域。僅在有資料落地要求時才使用特定區域。
+
+**範例：**
+```yaml filename="endpoints / anthropic / vertex / region"
+region: "global"
+```
+
+### projectId (專案 ID)
+
+**Key：**
+<OptionTable
+  options={[
+    ['projectId', '字串', 'Google Cloud 專案 ID。支援環境變數引用。', '選填。若未指定，將自動從服務帳號金鑰檔案中偵測。'],
+  ]}
+/>
+
+**預設值：** 從服務帳號金鑰檔案自動偵測
+
+**範例：**
+```yaml filename="endpoints / anthropic / vertex / projectId"
+projectId: "${GOOGLE_PROJECT_ID}"
+```
+
+### serviceKeyFile (服務帳號金鑰檔案)
+
+**Key：**
+<OptionTable
+  options={[
+    ['serviceKeyFile', '字串', 'Google Cloud 服務帳號金鑰 JSON 檔案的路徑。', '可以是絕對路徑，或是相對於 LibreChat 根目錄的相對路徑。'],
+  ]}
+/>
+
+**預設值：** `api/data/auth.json`（或 `GOOGLE_SERVICE_KEY_FILE` 環境變數）
+
+**範例：**
+```yaml filename="endpoints / anthropic / vertex / serviceKeyFile"
+serviceKeyFile: "/etc/secrets/gcp-service-account.json"
+```
+
+---
+
+## models (模型)
+
+`models` 欄位定義了可用的 Claude 模型，並將使用者友善的名稱映射至 Vertex AI 部署 ID。其運作方式與 [Azure OpenAI 模型映射](/docs/configuration/librechat_yaml/object_structure/azure_openai_zh_TW#群組物件結構) 類似。
+
+### 格式選項
+
+您可以透過三種方式配置模型：
+
+#### 選項 1：簡單陣列
+
+直接使用實際的 Vertex AI 模型 ID。這些名稱將按原樣顯示在 UI 中：
+
+```yaml filename="簡單陣列格式"
+models:
+  - "claude-sonnet-4-20250514"
+  - "claude-3-7-sonnet-20250219"
+  - "claude-3-5-haiku@20241022"
+```
+
+#### 選項 2：包含自定義名稱的物件（推薦）
+
+將使用者友善的名稱映射至 Vertex AI 部署名稱：
+
+```yaml filename="自定義名稱的物件格式"
+models:
+  claude-opus-4.5:           # UI 中顯示的名稱
+    deploymentName: claude-opus-4-5@20251101  # 實際的 Vertex AI 模型 ID
+  claude-sonnet-4:
+    deploymentName: claude-sonnet-4-20250514
+  claude-3.5-haiku:
+    deploymentName: claude-3-5-haiku@20241022
+```
+
+#### 選項 3：帶有預設值的混合格式
+
+設定預設的部署名稱，並對繼承該設定的模型使用布林值：
+
+```yaml filename="混合格式"
+deploymentName: claude-sonnet-4-20250514  # 預設部署
+models:
+  claude-sonnet-4: true  # 使用預設的 deploymentName
+  claude-3.5-haiku:
+    deploymentName: claude-3-5-haiku@20241022  # 為此模型覆寫設定
+```
+
+### 模型物件屬性
+
+<OptionTable
+  options={[
+    ['deploymentName', '字串', '用於 API 呼叫的實際 Vertex AI 模型 ID。', '每個模型均為必填，除非在群組層級已有預設值且該模型設定為布林值 `true`。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="具備 deploymentName 的模型"
+models:
+  claude-sonnet-4:
+    deploymentName: claude-sonnet-4-20250514
+```
+
+---
+
+## 環境變數替代方案
+
+針對較簡單的設定，您可以使用環境變數而非 YAML 來配置 Vertex AI：
+
+```bash filename=".env"
+# 啟用 Vertex AI 模式
+ANTHROPIC_USE_VERTEX=true
+
+# Vertex AI 區域（選填，預設為 us-east5）
+ANTHROPIC_VERTEX_REGION=global
+
+# 服務帳號金鑰路徑（選填，預設為 api/data/auth.json）
+GOOGLE_SERVICE_KEY_FILE=/path/to/service-account.json
+```
+
+> **備註：** 使用環境變數時，無法進行模型映射。所有已知的 Claude 模型將會自動被包含。
+
+---
+
+## 完整範例
+
+### 基礎設定
+
+使用預設值的最小配置（`vertex` 區段的存在即代表啟用 Vertex AI）：
+
+```yaml filename="基礎 Vertex AI 設定"
+endpoints:
+  anthropic:
+    vertex:
+      region: us-east5
+```
+
+此設定使用：
+- 區域：`us-east5`
+- 服務金鑰：`api/data/auth.json`（或 `GOOGLE_SERVICE_KEY_FILE` 環境變數）
+- 專案 ID：從服務金鑰自動偵測
+- 模型：所有已知的 Claude 模型
+
+### 包含模型映射的生產環境設定
+
+包含自定義模型名稱與標題的完整配置：
+
+```yaml filename="生產環境 Vertex AI 設定"
+endpoints:
+  anthropic:
+    streamRate: 20
+    titleModel: "haiku"
+    titleMethod: "completion"
+
+    vertex:
+      region: "global"
+      serviceKeyFile: "${GOOGLE_SERVICE_KEY_FILE}"
+
+      models:
+        opus:
+          deploymentName: claude-opus-4-5@20251101
+        sonnet:
+          deploymentName: claude-sonnet-4-20250514
+        haiku:
+          deploymentName: claude-3-5-haiku@20241022
+```
+
+### 多區域設定
+
+每次部署僅能配置一個區域。若有多區域需求，請考慮使用獨立的 LibreChat 實例或自定義終端。
+
+---
+
+## 疑難排解
+
+### 常見錯誤
+
+**"Could not load the default credentials" (無法載入預設憑證)**
+- 確保服務帳號金鑰檔案存在於指定路徑。
+- 檢查檔案權限（LibreChat 程序必須具備讀取權限）。
+- 驗證 JSON 檔案格式正確且未損壞。
+
+**"Permission denied" (權限被拒絕) 或 "403 Forbidden"**
+- 驗證服務帳號具備 `Vertex AI User` 角色。
+- 確保 Claude 模型已在您的 Vertex AI Model Garden 中啟用。
+- 檢查服務帳號是否屬於正確的專案。
+
+**"Model not found" (找不到模型)**
+- 檢查 `deploymentName` 中的模型 ID 是否正確。
+- 驗證模型在您選擇的區域中是否可用。
+- 確保模型已在您的 Vertex AI Model Garden 中啟用。
+
+### 區域問題
+
+**"Invalid region" (無效區域) 或 "Region not supported" (區域不支援)**
+- 使用上方列出的支援區域之一。
+- 嘗試使用 `global` 區域以提供自動路由。
+- 查看 [Google Cloud 官方文檔](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude#regions) 以獲取 Claude 可用區域的最新清單。
+
+**"Model not available in region" (該區域不提供此模型)**
+- 並非所有 Claude 模型在所有區域都可用。
+- 嘗試切換至 `global` 區域以自動路由至可用區域。
+- 查看 [Vertex AI Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 以確認您區域中的可用模型。
+- 考慮使用具備較廣泛模型可用性的區域（例如：`us-east5`）。
+
+**延遲問題**
+- 如果您遇到高延遲，請嘗試使用地理位置較接近使用者的區域。
+- `global` 區域會自動路由至最近的可用區域。
+- 對於有嚴格延遲要求的生產環境工作負載，請測試不同區域並選擇效能最佳的區域。
+
+### 驗證設定
+
+1. 確保您的服務帳號金鑰有效：
+   ```bash
+   gcloud auth activate-service-account --key-file=/path/to/key.json
+   gcloud auth list
+   ```
+
+2. 測試 Vertex AI 存取權：
+   ```bash
+   gcloud ai models list --region=us-east5
+   ```
+
+3. 驗證 Claude 模型存取權：
+   ```bash
+   curl -X POST 
+     -H "Authorization: Bearer $(gcloud auth print-access-token)" 
+     -H "Content-Type: application/json" 
+     "https://us-east5-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT/locations/us-east5/publishers/anthropic/models/claude-3-5-haiku@20241022:rawPredict" 
+     -d '{"anthropic_version": "vertex-2023-10-16", "max_tokens": 100, "messages": [{"role": "user", "content": "Hello"}]}'
+   ```
+
+---
+
+## 備註
+
+- Vertex AI 與直接使用 Anthropic API 是互斥的。當存在 `vertex` 配置區段時，環境變數 `ANTHROPIC_API_KEY` 會被忽略。
+- Vertex AI 完整支援網頁搜尋功能。
+- 為了 Vertex AI 的相容性，透過自動標頭過濾支援提示詞快取 (Prompt caching)。
+- 函式呼叫與工具使用的方式與直接使用 Anthropic API 相同。

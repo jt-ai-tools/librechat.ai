@@ -1,0 +1,57 @@
+---
+title: Portkey AI
+icon: Portkey
+description: Portkey AI 的配置範例
+---
+
+> Portkey API 金鑰：[app.portkey.ai](https://app.portkey.ai/)
+
+
+**備註：**
+- LibreChat 要求必須存在 `API key` 欄位。雖然 Portkey 整合本身不需要它，但我們可以傳入一個 「dummy」字串。
+- Portkey 與 LibreChat 整合後，可提供可觀測性、50 多種護欄 (guardrails)、快取，以及具備備援 (fallbacks) 與重試機制的條件式路由，實現可靠且達生產等級的部署。
+- Portkey 支援 250 多種模型，您可以在 [Portkey 文檔](https://docs.portkey.ai/docs/integrations/llms) 中找到供應商列表。
+- 您可以透過兩種方式使用 Portkey —— [虛擬金鑰 (Virtual Keys)](https://docs.portkey.ai/docs/product/ai-gateway/virtual-keys) 或 [配置檔 (Configs)](https://docs.portkey.ai/docs/product/ai-gateway/configs)。
+- 使用 Portkey 配置檔時，您可以設定 `top_p`、`max Tokens` 等模型特定參數。[瞭解更多](https://docs.portkey.ai/docs/product/ai-gateway/configs#configs)
+
+
+## 搭配虛擬金鑰 (Virtual Keys) 使用 Portkey AI
+```yaml filename="librechat.yaml"
+      - name: "Portkey"
+        apiKey: "dummy"  
+        baseURL: ${PORTKEY_GATEWAY_URL}
+        headers:
+            x-portkey-api-key: "${PORTKEY_API_KEY}"
+            x-portkey-virtual-key: "PORTKEY_OPENAI_VIRTUAL_KEY"
+        models:
+            default: ["gpt-4o-mini"]
+            fetch: true
+        titleConvo: true
+        titleModel: "current_model"
+        summarize: false
+        summaryModel: "current_model"
+        modelDisplayLabel: "Portkey:OpenAI"
+        iconURL: https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/rjqy7ghvjoiu4cd1xjbf
+```
+
+
+## 搭配配置檔 (Configs) 使用 Portkey AI
+```yaml filename="librechat.yaml"
+    - name: "Portkey"
+      apikey: "dummy"
+      baseURL: ${PORTKEY_GATEWAY_URL}
+      headers:
+        x-portkey-api-key: "${PORTKEY_API_KEY}"
+        x-portkey-config: "pc-libre-xxx"
+      models:
+        default: ["llama-3.2"]
+        fetch: true
+      titleConvo: true
+      titleModel: "current_model"
+      summarize: false
+      summaryModel: "current_model"
+      modelDisplayLabel: "Portkey:Llama"
+      iconURL: https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/rjqy7ghvjoiu4cd1xjbf
+```
+
+![image](https://raw.githubusercontent.com/siddharthsambharia-portkey/Portkey-Product-Images/refs/heads/main/portkey-librechat.png)

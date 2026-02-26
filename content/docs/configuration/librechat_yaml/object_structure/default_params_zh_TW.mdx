@@ -1,0 +1,31 @@
+---
+title: "預設參數 (Default Parameters)"
+icon: Braces
+---
+
+**備註** 
+- 本部分文件的目的是協助理解 `addParams` 與 `dropParams` 的作用。您 **無法** 在全域範圍內配置 LibreChat 預設發送的參數及其數值，這些設定僅能在個別終端內進行配置。
+
+自定義終端與 OpenAI 終端共用邏輯，因此其預設參數是針對 OpenAI API 量身打造的。
+
+```yaml filename="預設參數"
+{
+  "model": "您選擇的模型",
+  "user": "LibreChat_使用者_ID",
+  "stream": true,
+  "messages": [
+    {
+      "role": "user",
+      "content": "嗨，你好嗎",
+    },
+  ],
+}
+```
+
+### 解析
+- `model`：從模型清單中選擇的模型。
+- `user`：代表您終端使用者的唯一識別碼，這可以協助 OpenAI [監控並偵測濫用行為](https://platform.openai.com/docs/api-reference/chat/create#chat-create-user)。
+- `stream`：若設定為 true，系統會像 ChatGPT 一樣發送部分訊息增量 (deltas)。否則，僅在產生完成後才提供完整內容。
+- `messages`：[OpenAI 格式的訊息](https://platform.openai.com/docs/api-reference/chat/create#chat-create-messages)；當透過預設 (preset) 指定了自定義名稱時，`name` 欄位會被加入到具備 `system` 與 `assistant` 角色的訊息中。
+
+**備註：** 預設情況下不會發送 `max_tokens` 欄位，以便使用可用的最大代幣量，這是 OpenAI API 的預設行為。然而，某些替代 API 需要此欄位，或者它們的預設值可能非常低，導致您的回應看起來被截斷；在這種情況下，您應將其加入 `addParams` 欄位，如[自定義終端物件結構](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW)所示。

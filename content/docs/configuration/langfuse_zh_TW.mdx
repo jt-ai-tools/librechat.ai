@@ -1,0 +1,62 @@
+---
+title: Langfuse 追蹤 (Tracing)
+icon: Activity
+description: 本文件說明如何將 Langfuse 追蹤整合至 LibreChat，以獲得 AI 對話的完整可觀測性。
+---
+
+[Langfuse](https://langfuse.com) 是一個開源的 LLM 可觀測性 (observability) 平台，可協助您追蹤、監控並偵錯您的 LLM 應用程式。透過將 Langfuse 與 LibreChat 整合，您可以獲得 AI 對話的完整能見度。
+
+## 先決條件
+
+在開始之前，請確保您具備：
+
+1. 一個正在執行的 LibreChat 實例（參見 [快速入門](/docs/quick_start/index_zh_TW)）。
+2. 一個 Langfuse 帳號（[免費註冊](https://cloud.langfuse.com)）。
+3. 來自您專案設定的 Langfuse API 金鑰。
+
+## 設定
+
+在 LibreChat 安裝目錄下的 `.env` 檔案中新增下列與 Langfuse 相關的環境變數：
+
+<OptionTable
+  options={[
+    ['LANGFUSE_PUBLIC_KEY', '字串', '您的 Langfuse 公開金鑰。', 'LANGFUSE_PUBLIC_KEY=pk-lf-***'],
+    ['LANGFUSE_SECRET_KEY', '字串', '您的 Langfuse 秘密金鑰。', 'LANGFUSE_SECRET_KEY=sk-lf-***'],
+    ['LANGFUSE_BASE_URL', '字串', 'Langfuse API 基礎 URL。', 'LANGFUSE_BASE_URL=https://cloud.langfuse.com'],
+  ]}
+/>
+
+### 配置範例
+
+```sh filename=".env"
+# Langfuse 配置
+LANGFUSE_PUBLIC_KEY=pk-lf-***
+LANGFUSE_SECRET_KEY=sk-lf-***
+
+# 🇪🇺 歐盟資料區域
+LANGFUSE_BASE_URL=https://cloud.langfuse.com
+
+# 🇺🇸 美國資料區域
+# LANGFUSE_BASE_URL=https://us.cloud.langfuse.com
+```
+
+<Callout type="note" title="自行代管 Langfuse">
+對於自行代管的 Langfuse 實例，請將 `LANGFUSE_BASE_URL` 設定為您的自定義 URL（例如本地開發時設定為 `http://localhost:3000`）。
+</Callout>
+
+## 重啟 LibreChat
+
+新增環境變數後，重啟您的 LibreChat 實例以套用變更：
+
+```sh
+docker compose down
+docker compose up -d
+```
+
+## 在 Langfuse 中查看追蹤記錄 (Traces)
+
+LibreChat 在配置好 Langfuse 並重啟後，您將在 Langfuse UI 中看到每一則聊天訊息回應的新追蹤記錄：
+
+![LibreChat 追蹤範例](https://langfuse.com/images/cookbook/integration_librechat/librechat-example-trace.png)
+
+[在 Langfuse UI 中查看追蹤記錄的連結](https://cloud.langfuse.com/project/cloramnkj0002jz088vzn1ja4/traces/57b4aa20a258a2e9e2d1ce2e4eacb21c?observation=06f5341a68d723b1&timestamp=2026-02-04T13%3A02%3A54.248Z&traceId=57b4aa20a258a2e9e2d1ce2e4eacb21c)

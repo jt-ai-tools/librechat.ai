@@ -1,0 +1,587 @@
+---
+title: Azure OpenAI
+icon: Cloud
+description: 透過 `librechat.yaml` 檔案（即 LibreChat 配置檔案）配置 Azure OpenAI 的全面指南。本文件是您瞭解與自定義 Azure 設定及模型的一站式資源。
+---
+
+**LibreChat 的 Azure OpenAI 整合**
+
+LibreChat 具備與 Azure OpenAI API 服務的相容性，並將此終端視為首選。為了在 LibreChat 中正確使用 Azure OpenAI，根據您的具體需求配置 [`librechat.yaml` 檔案](/docs/configuration/librechat_yaml/object_structure/azure_openai_zh_TW) 至關重要。本指南將引導您完成必要的設定程序，讓您能根據需求靈活地使用多個部署與模型。
+
+## 範例
+
+以下是一個全面配置的快速快照，包含了下文討論的多項選項與功能。
+
+```yaml filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+    # 終端層級 (Endpoint-level) 配置
+    titleModel: "llama-70b-chat"
+    plugins: true
+    assistants: true
+    groups:
+    # 群組層級 (Group-level) 配置
+    - group: "my-resource-westus"
+      apiKey: "${WESTUS_API_KEY}"
+      instanceName: "my-resource-westus"
+      version: "2024-03-01-preview"
+      # 模型層級 (Model-level) 配置
+      models:
+        gpt-4-vision-preview:
+          deploymentName: gpt-4-vision-preview
+          version: "2024-03-01-preview"
+        gpt-3.5-turbo:
+          deploymentName: gpt-35-turbo
+        gpt-4-1106-preview:
+          deploymentName: gpt-4-1106-preview
+    # 群組層級 配置
+    - group: "mistral-inference"
+      apiKey: "${AZURE_MISTRAL_API_KEY}"
+      baseURL: "https://Mistral-large-vnpet-serverless.region.inference.ai.azure.com/v1/chat/completions"
+      serverless: true
+      # 模型層級 配置
+      models:
+        mistral-large: true
+    # 群組層級 配置
+    - group: "my-resource-sweden"
+      apiKey: "${SWEDEN_API_KEY}"
+      instanceName: "my-resource-sweden"
+      deploymentName: gpt-4-1106-preview
+      version: "2024-03-01-preview"
+      assistants: true
+      # 模型層級 配置
+      models:
+        gpt-4-turbo: true
+```
+
+這是另一個根據 [Azure OpenAI 終端配置文檔](/docs/configuration/librechat_yaml/object_structure/azure_openai_zh_TW) 規範配置的實作範例：
+
+各個層級的配置在對應章節中有詳細說明：
+
+1. [終端層級配置](#終端層級配置)
+
+2. [群組層級配置](#群組層級配置)
+
+3. [模型層級配置](#模型層級配置)
+
+## 設定步驟
+
+1. **開啟 `librechat.yaml` 進行編輯**：使用您偏好的文字編輯器或 IDE 開啟並編輯 `librechat.yaml` 檔案。
+
+    - 選用：使用以下環境變數來指定遠端或自定義檔案路徑：
+
+    ```sh filename=".env"
+    CONFIG_PATH="/alternative/path/to/librechat.yaml"
+    ```
+
+2. **配置 Azure OpenAI 設定**：按照下文概述的詳細結構適當地填充您的 Azure OpenAI 設定。這包括指定 API 金鑰、實例名稱、模型群組以及其他基本配置。
+
+3. **務必移除舊版設定**：如果您正在使用任何 [舊版設定](#legacy-setup)，請確保將其移除。LibreChat 伺服器也會偵測到這些設定並提醒您。
+
+4. **儲存變更**：準確輸入設定後，儲存 `librechat.yaml` 檔案。
+
+5. **重啟 LibreChat**：為了讓變更生效，請重啟您的 LibreChat 應用程式。這能確保更新後的配置被載入並使用。
+
+## 必要欄位
+
+為了正確將 Azure OpenAI 與 LibreChat 整合，必須在您的 `librechat.yaml` 檔案中準確配置特定欄位。這些欄位透過自定義變數與環境變數的組合進行驗證，以確保設定正確。以下是基於驗證程序的詳細要求：
+
+## 終端層級配置
+
+以下是將提供的設定轉換為新選項表格式的結果：
+
+#### 全域 Azure 設定：
+
+**標題與對話設定：**
+<OptionTable
+  options={[
+    ['titleModel', 'string', '指定用於產生對話標題的模型。如果未提供，預設模型為 `gpt-3.5-turbo`。若缺乏此模型，則不會產生標題。您也可以將其設定為 `current_model` 以動態使用當前模型。', 'titleModel:'],
+    ['plugins', 'boolean', '啟用透過 Azure 使用外掛程式。設定為 `true` 以啟動 Azure 配置中的 Plugins 終端支援。預設值：`false`。', 'plugins:false'],
+    ['assistants', 'boolean', '啟用透過 Azure 使用 Assistants。設定為 `true` 以啟動 Azure 配置中的 Assistants 終端。預設值：`false`。注意：這需要支援 Assistants 的區域。', 'assistants:false'],
+    ['summarize', 'boolean', '為所有 Azure 模型啟用對話摘要功能。設定為 `true` 以啟動摘要。預設值：`false`。', 'summarize:false'],
+    ['summaryModel', 'string', '指定用於產生對話摘要的模型。如果未提供，預設行為是使用第一個群組中 `default` 陣列的第一個模型。', 'summaryModel:'],
+    ['titleConvo', 'boolean', '為所有 Azure 模型啟用對話標題產生功能。設定為 `true` 以啟動標題產生。預設值：`false`。', 'titleConvo:false'],
+    ['titleMethod', 'string', '控制產生對話標題的方法。有效值："completion" (預設), "structured", "functions" ("structured" 的舊版別名)。', 'titleMethod:completion'],
+    ['titlePrompt', 'string', '用於標題產生的自定義提示詞。必須包含 {convo} 佔位符以代表對話內容。', '參閱文檔以獲取預設提示詞'],
+    ['titlePromptTemplate', 'string', '格式化對話內容的模板。必須包含 {input} 與 {output} 佔位符。預設值："User: {input}
+AI: {output}"', 'titlePromptTemplate:'],
+    ['titleEndpoint', 'string', '用於產生標題的替代終端。接受值：openAI, azureOpenAI, google, anthropic, bedrock 或自定義終端名稱。', 'titleEndpoint:'],
+  ]}
+/>
+
+**群組配置：**
+<OptionTable
+  options={[
+    ['groups', 'array', '指定 Azure OpenAI 模型群組列表。每個群組代表一組共享配置的模型。groups 欄位是一個物件陣列，每個物件定義特定群組的設定。這是終端層級的必填欄位，且必須至少定義一個群組。群組層級的配置在「群組層級配置」章節中有詳細說明。', '# groups:[]'],
+  ]}
+/>
+
+**自定義排序（選用）：**
+<OptionTable
+  options={[
+    ['customOrder', 'number', '允許您在使用者介面中指定 Azure 終端的自定義排序。數字越大，在清單中的位置越靠下。如果未提供，預設順序由終端在 `librechat.yaml` 檔案中定義的順序決定。', 'customOrder:'],
+  ]}
+/>
+
+請注意，`customOrder` 選項已被註釋掉，因為在原始文本中提到它是選用的。
+
+以下是如何在您的 `librechat.yaml` 檔案中配置這些終端層級設定的範例：
+
+```yaml filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+    titleModel: "gpt-3.5-turbo-1106"
+    plugins: true
+    assistants: true
+    summarize: true
+    summaryModel: "gpt-3.5-turbo-1106"
+    titleConvo: true
+    titleMethod: "functions"
+    groups:
+      # ... (群組層級與模型層級配置)
+```
+
+## 群組層級配置
+
+這是針對自定義配置 (`librechat.yaml`) 檔案中可定義欄位的解析。如需各欄位的更多資訊，請參閱 [自定義配置文檔中的 Azure OpenAI 章節](./librechat_yaml/object_structure/azure_openai_zh_TW)。
+
+群組層級配置：
+群組識別：
+<OptionTable
+options={[
+['group', 'string', '模型群組的唯一識別名稱。不允許重複的群組名稱，否則會導致驗證錯誤。', 'group: default'],
+]}
+/>
+
+身份驗證：
+<OptionTable
+options={[
+['apiKey', 'string', '必須是 Azure OpenAI 服務的有效 API 金鑰。可以是直接的金鑰字串或環境變數引用（例如：${WESTUS_API_KEY}）。', 'apiKey: ${AZURE_API_KEY}'],
+]}
+/>
+
+Azure OpenAI 實例：
+<OptionTable
+options={[
+['instanceName', 'string', 'Azure OpenAI 實例的名稱。此欄位也支援環境變數引用。**支援兩種網域格式**：`.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）。您可以指定完整網域（例如：`my-instance.cognitiveservices.azure.com`）或僅指定實例名稱（例如：`my-instance`），以向下相容舊版的 `.openai.azure.com` 格式。', 'instanceName: ${AZURE_OPENAI_INSTANCE}'],
+]}
+/>
+
+部署配置：
+<OptionTable
+options={[
+['deploymentName', 'string', '群組層級的部署名稱是選填的，但如果群組中任何模型設定為 true，則為必填。', 'deploymentName: my-deployment'],
+['version', 'string', '群組層級的 Azure OpenAI API 版本是選填的，但如果群組中任何模型設定為 true，則為必填。', 'version: 2023-03-15-preview'],
+]}
+/>
+
+進階設定：
+<OptionTable
+options={[
+['baseURL', 'string', 'Azure OpenAI API 請求的自定義基礎 URL。支援環境變數引用。這是選填的，可用於進階路由場景。', 'baseURL: https://my-custom-base-url.com'],
+['additionalHeaders', 'object', '以鍵值對（key-value pairs）形式指定 Azure OpenAI API 請求的任何額外標頭（headers）。環境變數引用可作為數值包含在內。', 'additionalHeaders: {Authorization: ${AUTH_HEADER}}'],
+['serverless', 'boolean', '指定群組是否為來自 Azure 模型目錄的無伺服器推理（serverless inference）對話補全終端，此類終端僅需要模型識別碼、baseURL 與 apiKey。更多資訊請參閱「無伺服器推理終端」。', 'serverless: true'],
+['addParams', 'object', '為 Azure OpenAI API 請求加入或覆寫額外參數。適用於以鍵值對形式指定 API 特有的選項。', 'addParams: {temperature: 0.7}'],
+['dropParams', 'array', '允許從 Azure OpenAI API 請求中排除某些預設參數。適用於不接受或無法識別特定參數的 API。應指定為字串列表。', 'dropParams: [top_p, stop]'],
+]}
+/>
+
+模型配置：
+<OptionTable
+options={[
+['models', 'object', '指定模型識別碼與其在群組內配置的對照。鍵（keys）代表模型識別碼，必須與對應的 OpenAI 模型名稱匹配。值可以是布林值（true）或包含模型特定設定的物件。如果模型設定為 true，它將繼承群組層級的 deploymentName 與 version。如果模型配置為物件，則可以擁有自己的 deploymentName 與 version。此欄位為必填，且每個群組內必須至少定義一個模型。更多資訊請點此', 'models: {gpt-3.5-turbo: true, text-davinci-003: {}}'],
+]}
+/>
+
+以下是 librechat.yaml 檔案中群組層級配置的範例：
+
+```yaml  filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+    # ... (終端層級配置)
+    groups:
+      - group: "my-resource-group"
+        apiKey: "${AZURE_API_KEY}"
+        instanceName: "my-instance"
+        deploymentName: "gpt-35-turbo"
+        version: "2023-03-15-preview"
+        baseURL: "https://my-instance.openai.azure.com/"
+        additionalHeaders:
+          CustomHeader: "HeaderValue"
+        addParams:
+          max_tokens: 2048
+          temperature: 0.7
+        dropParams:
+          - "frequency_penalty"
+          - "presence_penalty"
+        models:
+        # ... (模型層級配置)
+```
+
+## 模型層級配置
+
+在每個群組中，`models` 欄位包含模型識別碼與其配置的映射：
+
+模型識別：
+<OptionTable
+options={[
+['模型識別碼', 'string', '必須與對應的 OpenAI 模型名稱匹配。可以是部分匹配。', 'gpt-3.5-turbo: true'],
+]}
+/>
+
+模型配置：
+<OptionTable
+options={[
+['模型配置', 'boolean/object', '布林值 true：使用群組層級的 deploymentName 與 version。物件：指定模型特定的 deploymentName 與 version。如果未提供，則繼承自群組。', 'text-davinci-003: {deploymentName: my-model-deployment, version: 2023-03-15-preview}'],
+['deploymentName', 'string', '此特定模型的部署名稱。', 'deploymentName: my-model-deployment'],
+['version', 'string', '此特定模型的 Azure OpenAI API 版本。', 'version: 2023-03-15-preview'],
+]}
+/>
+
+無伺服器推理終端 (Serverless Inference Endpoints)：
+<OptionTable
+options={[
+['無伺服器推理終端', '備註', '對於無伺服器模型，將模型設定為 true。', 'gpt-4: true'],
+]}
+/>
+
+- **模型識別碼必須與其對應的 OpenAI 模型名稱匹配**，以便正確反映其已知的上下文限制，及/或在視覺功能（vision）情況下正常運作。例如，如果您打算使用 gpt-4-vision，必須如下配置：
+
+```yaml filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+    # ... (終端層級配置)
+    groups:
+    # ... (群組層級配置)
+    - group: "example_group"
+    models:
+     # 模型識別碼必須與 OpenAI 模型名稱匹配（可以是部分匹配）
+      gpt-4-vision-preview:
+      # 物件設定：必須至少包含 "deploymentName" 及/或 "version"
+        deploymentName: "arbitrary-deployment-name"
+        version: "2024-02-15-preview" # 版本可以是任何支援視覺功能的版本
+      # 布林值設定，必須為 "true"
+      gpt-4-turbo: true
+```
+
+- 參閱 [模型部署](#模型部署) 以獲取更多範例。
+
+- 如果模型設定為 `true`，則意味著此模型使用群組層級的 `deploymentName` 與 `version`。在這種情況下，兩者都必須在群組層級定義。
+
+- 如果模型配置為物件，它可以指定自己的 `deploymentName` 與 `version`。如果未提供，模型將繼承群組的 `deploymentName` 與 `version`。
+
+- 如果群組代表一個 [無伺服器推理終端](#無伺服器推理終端)，則應將單一模型設定為 `true` 以將其加入模型清單。
+
+### 特殊考量
+
+1. **唯一名稱**：模型名稱與群組名稱在整個配置中必須是唯一的。重複的名稱會導致驗證失敗。
+
+2. **缺少必填欄位**：如果群組層級（針對布林值標記的模型）或模型配置內（如果未繼承或明確指定）缺少必填的 `deploymentName` 或 `version`，將導致驗證錯誤，除非群組代表 [無伺服器推理終端](#無伺服器推理終端)。
+
+3. **環境變數引用**：配置支援環境變數引用（例如：`${VARIABLE_NAME}`）。請確保所有引用的變數都存在於您的環境中，以避免執行階段錯誤。配置中引用的環境變數若缺失將導致錯誤。`${INSTANCE_NAME}` 與 `${DEPLOYMENT_NAME}` 是特殊的佔位符，它們不對應環境變數，而是對應當前選擇模型的實例與部署名稱。不建議您將 `INSTANCE_NAME` 與 `DEPLOYMENT_NAME` 作為環境變數名稱，以避免任何潛在衝突。
+
+4. **錯誤處理**：配置中的任何問題，如重複名稱、未定義的環境變數或缺少必填欄位，都將使設定失效，並產生旨在快速解決問題的描述性錯誤訊息。您將無法使用無效配置執行伺服器。
+
+5. **模型識別碼**：專案未知的模型也可以作為模型識別碼使用，但它必須匹配已知模型才能反映其已知的上下文長度，這對訊息/代幣（token）處理至關重要；例如，`gpt-7000` 是有效的，但會預設為 4k 的代幣限制，而 `gpt-4-turbo` 則會被識別為具有 128k 的上下文限制。
+
+周全地套用這些設定要求將確保透過 `librechat.yaml` 配置正確且高效地整合 Azure OpenAI 服務。請務必根據最新的模式（schema）定義與指南驗證您的配置，以維持相容性與功能性。
+
+
+### 模型部署
+
+可供使用者使用的模型清單由您的 [`azureOpenAI` 終端配置](/docs/configuration/librechat_yaml/object_structure/azure_openai_zh_TW) 中指定的模型分組決定。
+
+範例：
+
+```yaml filename="librechat.yaml"
+# Azure OpenAI 物件結構範例
+endpoints:
+  azureOpenAI:
+    groups:
+      - group: "my-westus" # 自定義名稱
+        apiKey: "${WESTUS_API_KEY}"
+        instanceName: "actual-instance-name" # 資源群組或實例的名稱
+        version: "2023-12-01-preview"
+        models:
+          gpt-4-vision-preview:
+            deploymentName: gpt-4-vision-preview
+            version: "2024-02-15-preview"
+          gpt-3.5-turbo: true
+      - group: "my-eastus"
+        apiKey: "${EASTUS_API_KEY}"
+        instanceName: "actual-eastus-instance-name"
+        deploymentName: gpt-4-turbo
+        version: "2024-02-15-preview"
+        models:
+          gpt-4-turbo: true
+```
+
+上述配置將依定義順序為您的使用者啟用 `gpt-4-vision-preview`、`gpt-3.5-turbo` 與 `gpt-4-turbo`。
+
+### 在 Azure 中使用 Assistants
+
+要在 Azure OpenAI 中啟用 Assistants 的使用，有兩個主要步驟。
+
+1) 在 `azureOpenAI` 終端 **下方**，即 [終端層級](#終端層級配置)，將 `assistants` 欄位設定為 `true`，如下所示：
+
+```yaml filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+  # 啟用在 Azure 中使用 Assistants
+    assistants: true
+```
+
+2) 將 `assistants` 欄位加入至與 Azure 的 Assistants API 整合相容的群組。
+
+- 您的群組配置中必須至少有一個是相容的。
+- 您可以[在此處的 Azure 文檔中查看相容的區域與模型](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models#assistants-preview)。
+- 版本必須為 "2024-02-15-preview" 或更高版本，建議使用更新版本以獲取最新功能。
+
+```yaml filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+    assistants: true
+    groups:
+      - group: "my-sweden-group"
+        apiKey: "${SWEDEN_API_KEY}"
+        instanceName: "actual-instance-name"
+      # 將此群組標記為 Assistants 相容
+        assistants: true
+      # 版本必須為 "2024-02-15-preview" 或更高
+        version: "2024-03-01-preview"
+        models:
+          # ... (模型層級配置)
+```
+
+**注意事項：**
+
+- 對於憑證，請依賴於每個 Assistants 相容群組配置中指定的自定義環境變數。
+- 如果您將多個區域標記為 Assistants 相容，您建立的 Assistants 將跨區域彙總到主 Assistants 選擇清單中。
+- 您上傳到 Azure OpenAI 的檔案（不論是在訊息層級還是 Assistant 層級）僅在當前 Assistant 模型所屬的區域中可用。
+    - 因此，建議您僅使用一個區域或資源群組來處理 Azure OpenAI Assistants，否則會發生錯誤。
+    - 上傳至 "OpenAI" 是官方 `code_interpreter` 與 `retrieval` 功能的預設行為。
+- 下載 Assistants 產生的檔案功能即將推出。
+- 截至 2024 年 5 月 19 日，Azure OpenAI 尚不支援檢索（retrieval）與串流（streaming）。
+    - 為了避免在尚不支援檢索時發生任何錯誤，建議透過 `azureAssistants` 終端配置完全停用此功能：
+
+    ```yaml filename="librechat.yaml"
+    endpoints:
+      azureOpenAI:
+        # ...其餘設定
+
+      azureAssistants:
+      # 省略 "retrieval"。
+        capabilities: ["code_interpreter", "actions", "tools"]
+    ```
+
+    - 預設情況下，除了檢索之外的所有功能均已啟用。
+
+### 在 Azure 中使用外掛程式 (Plugins)
+
+要將 Plugins 終端與 Azure OpenAI 配合使用，您需要一個支援 **[函式呼叫 (function calling)](https://techcommunity.microsoft.com/t5/azure-ai-services-blog/function-calling-is-now-available-in-azure-openai-service/ba-p/3879241)** 的部署。否則，您需要在 Agent 設定中關閉 "Functions"。當您不使用 "functions" 模式時，建議同時關閉 "skip completion"，這是一個審核 Agent 產生內容的步驟。
+
+要將 Azure 與 Plugins 終端配合使用，請確保在您的 Azure OpenAI 終端配置中將 `plugins` 欄位設定為 `true`：
+
+```yaml filename="librechat.yaml"
+# Azure OpenAI 物件結構範例
+endpoints:
+  azureOpenAI:
+    plugins: true # <------- 設定此項
+    groups:
+    # 為了簡潔省略其餘內容
+```
+
+配置 `plugins` 欄位將使 Plugins 使用 Azure 模型。
+
+**注意**：目前透過 `librechat.yaml` 進行的配置會使用您在前端為 Plugin 使用所選的主模型，這通常與非 Azure 情況不同（後者使用 "Agent" 模型）。在使用 Azure 的 Plugins 時，可以忽略 Agent 模型設定。
+
+### 在 Azure 中使用指定的基礎 URL (Base URL)
+
+Azure OpenAI API 請求的基礎 URL 可以動態配置。這對於代理服務（如 [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/providers/azureopenai/)）非常有用，或者當您希望明確覆寫應用程式的 baseURL 處理邏輯時。
+
+LibreChat 將為您的 Azure 模型分組使用 baseURL 欄位，其中可以包含 Azure OpenAI API 實例與部署名稱的佔位符。
+
+<Callout type="info" title="Azure 終端網域格式支援">
+Azure OpenAI 現在支援兩種終端網域格式：
+- **新格式**：`.cognitiveservices.azure.com`
+- **舊格式**：`.openai.azure.com`
+
+當使用不含完整網域的 `instanceName` 時，預設套用舊版的 `.openai.azure.com` 格式。如果您提供完整網域（例如：`my-instance.cognitiveservices.azure.com`），它將被直接使用。這同樣適用於 `instanceName` 欄位與 `baseURL` 配置。
+</Callout>
+
+在配置中，基礎 URL 可以如下進行自定義：
+
+```yaml filename="librechat.yaml"
+# librechat.yaml 檔案，位於 Azure 群組下方：
+endpoints:
+  azureOpenAI:
+    groups:
+      - group: "group-with-custom-base-url"
+      baseURL: "https://example.azure-api.net/${INSTANCE_NAME}/${DEPLOYMENT_NAME}"
+
+# 舊格式 (.openai.azure.com)
+      baseURL: "https://${INSTANCE_NAME}.openai.azure.com/openai/deployments/${DEPLOYMENT_NAME}"
+
+# 新格式 (.cognitiveservices.azure.com)
+      baseURL: "https://${INSTANCE_NAME}.cognitiveservices.azure.com/openai/deployments/${DEPLOYMENT_NAME}"
+
+# Cloudflare 範例
+      baseURL: "https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/azure-openai/${INSTANCE_NAME}/${DEPLOYMENT_NAME}"
+```
+
+**注意**：`${INSTANCE_NAME}` 與 `${DEPLOYMENT_NAME}` 是特殊的佔位符，它們不對應環境變數，而是對應當前選擇模型的實例與部署名稱。不建議您將 INSTANCE_NAME 與 DEPLOYMENT_NAME 作為環境變數名稱，以避免任何潛在衝突。
+
+**您也可以完全省略佔位符，直接使用您的憑證構建 baseURL：**
+
+```yaml filename="librechat.yaml"
+      baseURL: "https://gateway.ai.cloudflare.com/v1/ACCOUNT_TAG/GATEWAY/azure-openai/my-secret-instance/my-deployment"
+```
+**最後，您可以透過自定義環境變數指定完整的 baseURL：**
+
+```yaml filename="librechat.yaml"
+      baseURL: "${MY_CUSTOM_BASEURL}"
+```
+
+
+### 在 Azure 中啟用自動產生標題
+
+要在 Azure 中啟用標題功能，請將 `titleConvo` 設定為 `true`。
+
+```yaml filename="librechat.yaml"
+# Azure OpenAI 物件結構範例
+endpoints:
+  azureOpenAI:
+    titleConvo: true # <------- 設定此項
+    groups:
+    # 為了簡潔省略其餘內容
+```
+
+**您也可以透過 `titleModel` 指定用於產生標題的模型**，前提是您已在群組中配置了該模型。
+
+```yaml filename="titleModel"
+    titleModel: "gpt-3.5-turbo"
+```
+
+**注意**："gpt-3.5-turbo" 是預設值，因此如果您想使用此特定模型且已配置，則可以省略它。如果未配置且 `titleConvo` 設定為 `true`，則標題產生過程將發生錯誤且不會產生標題。您也可以將其設定為 `current_model` 以動態使用當前模型。
+
+```yaml filename="titleModel"
+    titleModel: "current_model"
+```
+
+### 在 Azure 中使用 GPT-4 Vision
+
+要在 Azure OpenAI 中使用 Vision（影像分析），您需要確保 `gpt-4-vision-preview` 已在 [您的其中一個分組](#模型部署) 中被指定為模型。
+
+這將與 [OpenAI 終端](/docs/configuration/pre_configured_ai/openai_zh_TW) 一樣順暢運作（無需手動選擇視覺模型，系統會在幕後自動切換）。
+
+### 使用 Azure OpenAI 服務 (DALL-E) 產生影像
+
+| 模型 ID | 功能可用性 | 最大請求長度（字元） |
+|----------|----------------------|-------------------------|
+| dalle2   | 美國東部 (East US)   | 1000                    |
+| dalle3   | 瑞典中部 (Sweden Central) | 4000                    |
+
+- 首先，您需要建立一個託管 DALL-E 的 Azure 資源。
+    - 截至撰寫本文時，dall-e-3 可在 `SwedenCentral` 區域使用，dall-e-2 可在 `EastUS` 區域使用。
+- 接著，您需要在上述其中一個區域部署影像產生模型。
+    - 參閱 [Azure OpenAI 影像產生快速入門指南](https://learn.microsoft.com/en-us/azure/ai-services/openai/dall-e-quickstart) 以獲取進一步協助。
+- 根據 Azure 憑證配置您的環境變數：
+
+以下是更新後的 DALL-E 配置選項佈局：
+
+#### DALL-E：
+
+**API 金鑰：**
+<OptionTable
+  options={[
+    ['DALLE_API_KEY', 'string', '用於 DALL-E 2 與 DALL-E 3 服務的 OpenAI API 金鑰。','# DALLE_API_KEY='],
+  ]}
+/>
+
+**API 金鑰（特定版本）：**
+<OptionTable
+  options={[
+    ['DALLE3_API_KEY', 'string', 'DALL-E 3 的 OpenAI API 金鑰。','# DALLE3_API_KEY='],
+    ['DALLE2_API_KEY', 'string', 'DALL-E 2 的 OpenAI API 金鑰。','# DALLE2_API_KEY='],
+  ]}
+/>
+
+**系統提示詞 (System Prompts)：**
+<OptionTable
+  options={[
+    ['DALLE3_SYSTEM_PROMPT', 'string', 'DALL-E 3 的系統提示詞。','# DALLE3_SYSTEM_PROMPT="在此輸入您的 DALL-E-3 系統提示詞"'],
+    ['DALLE2_SYSTEM_PROMPT', 'string', 'DALL-E 2 的系統提示詞。','# DALLE2_SYSTEM_PROMPT="在此輸入您的 DALL-E-2 系統提示詞"'],
+  ]}
+/>
+
+**反向代理設定：**
+<OptionTable
+  options={[
+    ['DALLE_REVERSE_PROXY', 'string', '用於 DALL-E API 請求的反向代理 URL。','# DALLE_REVERSE_PROXY='],
+  ]}
+/>
+
+**基礎 URL (Base URLs)：**
+<OptionTable
+  options={[
+    ['DALLE3_BASEURL', 'string', 'DALL-E 3 API 終端的基礎 URL。支援 `.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）網域格式。','# DALLE3_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.openai.azure.com/openai/deployments/<DALLE3_部署名稱>/
+# 或
+# DALLE3_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.cognitiveservices.azure.com/openai/deployments/<DALLE3_部署名稱>/'],
+    ['DALLE2_BASEURL', 'string', 'DALL-E 2 API 終端的基礎 URL。支援 `.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）網域格式。','# DALLE2_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.openai.azure.com/openai/deployments/<DALLE2_部署名稱>/
+# 或
+# DALLE2_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.cognitiveservices.azure.com/openai/deployments/<DALLE2_部署名稱>/'],
+  ]}
+/>
+
+**Azure OpenAI 整合（選用）：**
+<OptionTable
+  options={[
+    ['DALLE3_AZURE_API_VERSION', 'string', '搭配 Azure OpenAI 服務使用的 DALL-E 3 API 版本。','# DALLE3_AZURE_API_VERSION=api版本 # 例如：2023-12-01-preview'],
+    ['DALLE2_AZURE_API_VERSION', 'string', '搭配 Azure OpenAI 服務使用的 DALL-E 2 API 版本。','# DALLE2_AZURE_API_VERSION=api版本 # 例如：2023-12-01-preview'],
+  ]}
+/>
+
+請記住將佔位符文本替換為實際的提示詞或指令，如果您選擇直接在檔案中包含 API 金鑰，請提供您的實際金鑰（儘管在代碼庫之外管理敏感金鑰是最佳實踐）。在軟體中嵌入 API 金鑰時，請務必查看並遵守 OpenAI 的使用政策。
+
+> 注意：如果您設定了 PROXY，它也將被用於 DALL-E 呼叫，這對於應用程式來說是通用的。
+
+### 無伺服器推理終端 (Serverless Inference Endpoints)
+
+透過 `librechat.yaml` 檔案，您可以配置 Azure AI Studio 無伺服器推理終端，以存取來自 [Azure AI Foundry](https://ai.azure.com/explore) 的模型。僅需要模型識別碼、`baseURL` 與 `apiKey`，並搭配 `serverless` 欄位來指示這些終端需要的特殊處理。
+
+- 您需要按照相容模型卡中的說明，在 Azure AI Studio 上設定 **MaaS**（"模型即服務"）存取。
+
+    - 參考資料，以下是一些已知相容的模型卡：
+
+    - [Mistral-large](https://aka.ms/aistudio/landing/mistral-large) | [Meta-Llama-3.1-8B-Instruct](https://ai.azure.com/explore/models/Meta-Llama-3.1-8B-Instruct/version/4/) | [Phi-3-medium-128k-instruct](https://ai.azure.com/explore/models/Phi-3-medium-128k-instruct/version/1/registry/azureml)
+
+- 您也可以查看 [針對 "Mistral-large" 模型發佈的技術部落格](https://techcommunity.microsoft.com/t5/ai-machine-learning-blog/mistral-large-mistral-ai-s-flagship-llm-debuts-on-azure-ai/ba-p/4066996) 以獲取更多資訊。
+
+- 接著，您需要將它們加入到 librechat.yaml 檔案中的 `azureOpenAI` 配置。
+
+- 以下是 `Meta-Llama-3.1-8B-Instruct` 的配置範例：
+
+```yaml filename="librechat.yaml"
+endpoints:
+  azureOpenAI:
+    groups:
+    - group: "serverless-example"
+      apiKey: "${LLAMA318B_API_KEY}"  # 自定義環境變數名稱
+      baseURL: "https://example.services.ai.azure.com/models/"
+      version: "2024-05-01-preview" # 選填：指定 API 版本
+      serverless: true
+      models:
+        # 必須匹配模型的部署名稱
+        Meta-Llama-3.1-8B-Instruct: true
+```
+
+**注意事項**：
+
+- Azure AI Foundry 模型現在為無伺服器推理在 `/models/chat/completions?api-version=version` 下提供終端。
+  - `baseURL` 欄位應設定為終端的根目錄，不包含 `/models/` 之後的任何內容，即 `/chat/completions` 路徑。
+  - 範例：針對 `https://example.services.ai.azure.com/models/chat/completions?api-version=2024-05-01-preview`，應設定為 `https://example.services.ai.azure.com/models/`。
+  - `version` 查詢參數是選填的，也可以在 `baseURL` 欄位中指定。
+- `models` 欄位中使用的模型名稱必須與 Azure AI Foundry 中該模型的部署名稱匹配。
+- 與 LibreChat 的相容性依賴於與 OpenAI API 規範的對等性。在撰寫本文時，通常是 Azure AI Studio 上的 **"隨用隨付 (Pay-as-you-go)"** 或 "模型即服務" (MaaS) 部署，它們與 OpenAI SDK 相容，支援 `v1/completions` 或 `models/chat/completions` 終端處理。
+- 來自 Azure 模型目錄的所有提供無伺服器部署（"無伺服器 API"）的模型均相容。您可以透過部署選項下的 "無伺服器 API" 與推理任務下的 "對話補全" 進行篩選以查看完整清單；然而，即時終端模型尚未經過測試。
+- 這些無伺服器推理終端/模型可能支援也可能不支援根據 OpenAI API 規範的函式呼叫，這決定了它們是否能與 Agents 配合使用。

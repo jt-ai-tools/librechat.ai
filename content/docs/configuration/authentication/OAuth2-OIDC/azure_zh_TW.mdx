@@ -1,0 +1,177 @@
+---
+title: Azure Entra
+icon: Building2
+description: 學習如何配置 LibreChat 使用 Azure Entra 進行使用者身份驗證。
+---
+
+1. 前往 [Azure 入口網站 (Azure Portal)](https://portal.azure.com/) 並使用您的帳號登入。
+2. 在搜尋框中輸入 「Azure Entra」 並點擊它。
+3. 在左側選單中，點擊 「App registrations (應用程式註冊)」，接著點擊 「New registration (新註冊)」。
+4. 為您的應用程式命名，並選擇 「Web」 作為平台類型。
+5. 在 「Redirect URI (重新導向 URI)」 欄位中，輸入 `http://localhost:3080/oauth/openid/callback` 並點擊 「Register (註冊)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/6623884/2b1aabce-850e-4165-bf76-3c1984f10b6c)
+
+6. 您會看到一個 「Overview (概覽)」 頁面，其中包含應用程式的資訊。複製 「Application (client) ID (應用程式用戶端 ID)」 與 「Directory (tenant) ID (目錄租戶 ID)」 並將其儲存在安全的地方。
+
+![image](https://github.com/danny-avila/LibreChat/assets/6623884/e67d5e97-e26d-48a5-aa6e-50de4450b1fd)
+
+7. 在左側選單中，點擊 「Authentication (身份驗證)」，並勾選 「Implicit grant and hybrid flows (隱含授權與混合流程)」 下方的 「Access tokens」 與 「ID tokens」 方塊。
+
+![image](https://github.com/danny-avila/LibreChat/assets/6623884/88a16cbc-ff68-4b3a-ba7b-b380cc3d2366)
+
+8. 在左側選單中，點擊 「Certificates & Secrets (憑證與秘密)」，接著點擊 「New client secret (新用戶端密碼)」。為您的秘密命名並設定過期日期，然後點擊 「Add (新增)」。您會在 「Value (值)」 欄位看到您的秘密。請複製並妥善儲存，切勿與他人分享！
+
+![image](https://github.com/danny-avila/LibreChat/assets/6623884/31aa6cee-5402-4ce0-a950-1b7e147aafc8)
+
+9. 如果您想根據群組限制存取權限，應在權杖中加入群組聲明 (groups claim)。前往 「Token configuration (權杖配置)」 並點擊 「Add group claim」。選擇您想包含在權杖中的群組，然後點擊 「Add」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/6623884/c9d353f5-2cb2-4f00-b4f0-493cfec8fe9a)
+
+10. 開啟專案資料夾中的 `.env` 檔案，並新增下列變數及其對應數值：
+
+```bash filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+# 啟用社群登入，否則登入頁面不會出現 OpenID 按鈕
+ALLOW_SOCIAL_LOGIN=true
+
+OPENID_CLIENT_ID=您的應用程式(用戶端)ID
+OPENID_CLIENT_SECRET=您的用戶端秘密
+OPENID_ISSUER=https://login.microsoftonline.com/您的目錄(租戶ID)/v2.0/
+OPENID_SESSION_SECRET=任何隨機字串
+OPENID_SCOPE=openid profile email #請勿更動此項
+OPENID_CALLBACK_URL=/oauth/openid/callback # 這項設定對所有人應一致
+
+OPENID_REQUIRED_ROLE_TOKEN_KIND=id
+
+# 如果您想根據群組限制存取權限
+OPENID_REQUIRED_ROLE_PARAMETER_PATH="roles"
+OPENID_REQUIRED_ROLE="您的群組名稱" # 單一角色或以逗號分隔的多個角色 (例如：Group1,Group2,Admin)
+
+# 選填：登出後將使用者重新導向至結束工作階段終端
+OPENID_USE_END_SESSION_ENDPOINT=true 
+```
+11. 儲存 .env 檔案。
+
+> 備註：如果使用 Docker，請執行 `docker compose up -d` 以套用 .env 配置變更。
+
+## 進階：權杖重複使用 (Token Reuse)
+
+LibreChat 支援針對工作階段管理重複使用 Azure Entra ID 權杖，這能提供與您的 Azure 環境更好的整合。此功能允許 LibreChat 使用 Azure 的重新整理權杖，而非管理自己的工作階段權杖。
+
+要瞭解更多關於此功能及其配置方式，請參閱 [重複使用 OpenID 權杖進行登入工作階段](/docs/configuration/authentication/OAuth2-OIDC/token-reuse_zh_TW)。
+
+## 進階：Microsoft Graph API 整合
+
+當使用 Azure Entra ID 作為您的 OpenID 供應商時，您可以啟用 Microsoft Graph API 整合，透過人員與群組搜尋功能來增強權限與共享系統。
+
+### 先決條件
+
+1. 您的 Azure 應用程式註冊必須具備適當的 Microsoft Graph API 權限。
+2. 某些 Graph API 範圍（如 `GroupMember.Read.All`）可能需要管理員同意。
+
+### 新增 Graph API 權限
+
+1. 在您的 Azure 應用程式註冊中，前往 **API permissions**（API 權限）。
+2. 點擊 **Add a permission**（新增權限） > **Microsoft Graph** > **Delegated permissions**（委派權限）。
+3. 新增以下權限：
+   - `User.Read` - 登入並讀取使用者個人資料
+   - `People.Read` - 讀取使用者聯絡人
+   - `GroupMember.Read.All` - 讀取所有群組成員身份
+   - `User.ReadBasic.All` - 讀取所有使用者的基本資料
+4. 如果需要，點擊 **Grant admin consent**（授與管理員同意，您需要具備管理員權限）。
+
+### 配置
+
+<Callout type="error" title="必要：啟用權杖重複使用">
+**重要提示：** 您必須啟用 OpenID 權杖重複使用，此功能才能運作：
+```bash filename=".env"
+OPENID_REUSE_TOKENS=true
+```
+詳情請參閱上方的[權杖重複使用配置](#進階權杖重複使用)。
+</Callout>
+
+將下列環境變數新增至您的 `.env` 檔案中：
+
+```bash filename=".env"
+# 在權限/共享功能中啟用 Entra ID 人員搜尋
+USE_ENTRA_ID_FOR_PEOPLE_SEARCH=true
+
+# 搜尋群組時將群組擁有者納入成員
+ENTRA_ID_INCLUDE_OWNERS_AS_MEMBERS=true
+
+# Microsoft Graph API 範圍（這些會自動包含在 OpenID 範圍中）
+OPENID_GRAPH_SCOPES=User.Read,People.Read,GroupMember.Read.All,User.ReadBasic.All
+```
+
+啟用後，權限與共享對話方塊中的人員選擇器將會：
+- 同時搜尋本地 LibreChat 使用者與 Azure Entra ID 使用者。
+- 顯示來自您組織的使用者名稱與電子郵件。
+- 允許搜尋並選擇 Azure Entra ID 群組。
+- 根據您的 Graph API 權限顯示群組成員。
+
+### 備註
+
+- **必須啟用權杖重複使用 (`OPENID_REUSE_TOKENS=true`)**，此功能才能正常運作。
+- 在身份驗證期間，`OPENID_GRAPH_SCOPES` 會自動附加到您現有的 `OPENID_SCOPE` 中。
+- 群組搜尋需要 `GroupMember.Read.All` 權限，這通常需要管理員同意。
+- 使用者搜尋則適用於基本的 `User.Read`、`People.Read` 與 `User.ReadBasic.All` 權限。
+
+## 進階：SharePoint 整合
+
+LibreChat 可以與 SharePoint Online 與 OneDrive for Business 整合，允許使用者直接從其 SharePoint 庫瀏覽並附加檔案。
+
+### 先決條件
+
+1. 必須滿足[權杖重複使用](#進階權杖重複使用)的所有要求。
+2. 您的 Azure 應用程式註冊需要額外的 SharePoint 權限。
+
+### 新增 SharePoint 權限
+
+1. 在您的 Azure 應用程式註冊中，前往 **API permissions**（API 權限）。
+2. 點擊 **Add a permission**（新增權限）。
+
+#### 針對 SharePoint 存取：
+3. 選擇 **SharePoint**（不是 Microsoft Graph）。
+4. 選擇 **Delegated permissions**（委派權限）。
+5. 新增：`AllSites.Read` - 讀取所有網站集合中的項目。
+
+#### 針對檔案下載：
+6. 再次點擊 **Add a permission**。
+7. 選擇 **Microsoft Graph**。
+8. 選擇 **Delegated permissions**。
+9. 新增：`Files.Read.All` - 讀取使用者可存取的所有檔案。
+
+10. 為這兩項權限點擊 **Grant admin consent**（授與管理員同意）。
+
+### 配置
+
+```bash filename=".env"
+# 啟用 SharePoint 檔案選擇器
+ENABLE_SHAREPOINT_FILEPICKER=true
+
+# 您的 SharePoint 租戶 (tenant) URL
+SHAREPOINT_BASE_URL=https://您的租戶.sharepoint.com
+
+# 檔案選擇器的 SharePoint 專用範圍（將 '您的租戶' 替換為實際名稱）
+SHAREPOINT_PICKER_SHAREPOINT_SCOPE=https://您的租戶.sharepoint.com/AllSites.Read
+
+# 用於下載檔案的 Graph API 範圍
+SHAREPOINT_PICKER_GRAPH_SCOPE=Files.Read.All
+```
+
+### 使用方式
+
+正確配置後：
+1. 使用者將在檔案附件選單中看到「來自 SharePoint (From SharePoint)」選項。
+2. 點擊它會開啟原生的 SharePoint 檔案選擇器。
+3. 使用者可以瀏覽並選擇他們有權存取的任何 SharePoint 網站或 OneDrive 檔案。
+4. 選擇的檔案將被下載並附加到對話中。
+
+<Callout type="warning" title="安全性備註">
+SharePoint 整合遵循所有現有的 SharePoint 權限。使用者僅能存取他們在 SharePoint/OneDrive 中已有權限檢視的檔案。
+</Callout>
+
+如需詳細的疑難排解與進階配置，請參閱：[SharePoint 整合指南](/docs/configuration/sharepoint_zh_TW)

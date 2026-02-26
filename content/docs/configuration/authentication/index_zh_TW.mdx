@@ -1,0 +1,141 @@
+---
+title: 身份驗證系統
+icon: BookOpen
+description: 本指南說明如何使用 LibreChat 的使用者身份驗證系統，該系統提供安全且簡便的電子郵件與社群登入功能。您將學習如何設定註冊、登入、密碼重設等功能。
+---
+
+## 一般設定
+
+如需快速概覽，請參閱此處提供的使用者指南：[身份驗證](/docs/features/authentication_zh_TW)
+
+以下是一般配置的概覽。
+
+<OptionTable
+  options={[
+    ['ALLOW_EMAIL_LOGIN', 'boolean', '啟用或停用「僅限電子郵件」登入。','ALLOW_EMAIL_LOGIN=true'],
+    ['ALLOW_REGISTRATION', 'boolean', '啟用或停用新使用者的電子郵件註冊。','ALLOW_REGISTRATION=true'],
+    ['ALLOW_SOCIAL_LOGIN', 'boolean', '允許使用者透過各種社群網路連接至 LibreChat。','ALLOW_SOCIAL_LOGIN=false'],
+    ['ALLOW_SOCIAL_REGISTRATION', 'boolean', '啟用或停用透過社群網路進行新使用者註冊。','ALLOW_SOCIAL_REGISTRATION=false'],
+  ]}
+/>
+
+> **注意：** OpenID 與 SAML 不支援單獨停用註冊的功能。
+
+快速小撇步：
+
+- 即使停用了註冊功能，您仍可使用下方詳細說明的 [create-user 腳本](#建立使用者腳本) 直接將使用者加入資料庫。
+- 若要刪除使用者，您可以使用同樣在下方詳細說明的 [delete-user 腳本](#刪除使用者腳本)。
+
+
+<div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    ![register-light](https://github.com/danny-avila/LibreChat/assets/32828263/4c51dc25-31d3-4c51-8c2a-0cdfb5a25033)
+  </div>
+
+  <div className="image-dark-theme">
+    ![register](https://github.com/danny-avila/LibreChat/assets/32828263/3bc5371d-e51d-4e91-ac68-56db6e85bb2c)
+  </div>
+</div>
+
+
+## 工作階段過期與重新整理權杖 (Refresh Token)
+
+- 預設值：工作階段過期：15 分鐘，重新整理權杖過期：7 天
+  - 如需更多資訊：**[GitHub PR #927 - Refresh Token](https://github.com/danny-avila/LibreChat/pull/927)**
+
+<OptionTable
+  options={[
+    ['SESSION_EXPIRY', '整數 (毫秒)', '工作階段過期時間。','SESSION_EXPIRY=1000 * 60 * 15'],
+    ['REFRESH_TOKEN_EXPIRY', '整數 (毫秒)', '重新整理權杖過期時間。','REFRESH_TOKEN_EXPIRY=(1000 * 60 * 60 * 24) * 7'],
+  ]}
+/>
+
+``` mermaid
+sequenceDiagram
+    Client->>Server: 帶有憑證的登入請求
+    Server->>Passport: 使用驗證策略 (例如 'local', 'google' 等)
+    Passport-->>Server: 使用者物件或 false/錯誤
+    Note over Server: 若為有效使用者...
+    Server->>Server: 產生存取權杖 (access token) 與重新整理權杖
+    Server->>Database: 儲存雜湊後的重新整理權杖
+    Server-->>Client: 存取權杖與重新整理權杖
+    Client->>Client: 將存取權杖儲存於 HTTP 標頭，重新整理權杖儲存於 HttpOnly cookie
+    Client->>Server: 帶有來自 HTTP 標頭存取權杖的請求
+    Server-->>Client: 請求的資料
+    Note over Client,Server: 存取權杖過期
+    Client->>Server: 帶有過期存取權杖的請求
+    Server-->>Client: 未經授權 (Unauthorized)
+    Client->>Server: 帶有來自 HttpOnly cookie 重新整理權杖的請求
+    Server->>Database: 檢索雜湊後的重新整理權杖
+    Server->>Server: 比對提供的重新整理權杖雜湊值與儲存的雜湊值
+    Note over Server: 若雜湊值相符...
+    Server-->>Client: 新的存取權杖與重新整理權杖
+    Client->>Server: 使用新的存取權杖重試請求
+    Server-->>Client: 請求的資料
+```
+
+## JWT 秘密 (Secret) 與重新整理秘密 (Refresh Secret)
+
+- 您應使用新的安全數值。給出的範例是 32 位元組的金鑰（64 位十六進位字元）。
+  - 使用此工具快速產生：**[JWT 金鑰](/toolkit/creds_generator_zh_TW)**
+
+<OptionTable
+  options={[
+    ['JWT_SECRET', '字串 (十六進位)', 'JWT 秘密金鑰。','JWT_SECRET=16f8c0ef4a5d391b26034086c628469d3f9f497f08163ab9b40137092f2909ef'],
+    ['JWT_REFRESH_SECRET', '字串 (十六進位)', 'JWT 重新整理秘密金鑰。','JWT_REFRESH_SECRET=eaa5191f2914e30b9387fd84e254e4ba6fc51b4654968a9b0803b456a54b8418'],
+  ]}
+/>
+
+---
+
+## 自動審核系統 (選填)
+
+自動審核系統預設為啟用。它使用評分機制來追蹤使用者違規行為。當使用者執行如過度登入、註冊或傳送訊息等操作時，會累積違規分數。一旦達到設定的閾值，該使用者及其相關 IP 將被暫時封鎖。此系統透過監測並懲罰快速或可疑的活動來確保平台安全。
+
+要設定審核系統，請參閱 [設定指南](/docs/configuration/mod_system_zh_TW)。
+
+> *請注意：若您想讓此功能在開發模式下運作，您需要在根目錄建立一個名為 `.env.development` 的檔案，並將 `DOMAIN_CLIENT` 設定為 `http://localhost:3090`，或設定為執行 `npm run frontend-dev` 時由 vite 提供的任何連接埠。*
+
+## 使用者管理腳本
+
+### 建立使用者腳本
+
+建立使用者 (create-user) 腳本讓您可以直接將使用者加入資料庫，即使已停用註冊功能。使用方法如下：
+
+1. 使用預設的 `docker-compose.yml` 時（若您使用 `docker compose up` 啟動應用程式）：
+   ```bash
+   docker-compose exec api npm run create-user
+   ```
+
+2. 使用 `deploy-compose.yml` 時（若您參考 [Ubuntu Docker 指南](/docs/remote/docker_linux_zh_TW)）：
+   ```bash
+   docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run create-user"
+   ```
+
+3. 用於本地開發時（在專案根目錄執行）：
+   ```bash
+   npm run create-user
+   ```
+
+按照提示輸入新使用者的電子郵件與密碼。
+
+### 刪除使用者腳本
+
+若要刪除使用者，您可以使用刪除使用者 (delete-user) 腳本：
+
+1. 使用預設的 `docker-compose.yml` 時（若您使用 `docker compose up` 啟動應用程式）：
+   ```bash
+   docker-compose exec api npm run delete-user email@domain.com
+   ```
+
+2. 使用 `deploy-compose.yml` 時（若您參考 [Ubuntu Docker 指南](/docs/remote/docker_linux_zh_TW)）：
+   ```bash
+   docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run delete-user email@domain.com"
+   ```
+
+3. 用於本地開發時（在專案根目錄執行）：
+   ```bash
+   npm run delete-user email@domain.com
+   ```
+
+將 `email@domain.com` 替換為您想要刪除的使用者電子郵件。

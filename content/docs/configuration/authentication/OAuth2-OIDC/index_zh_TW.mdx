@@ -1,0 +1,44 @@
+---
+title: 概覽
+icon: BookOpen
+description: 如何為 LibreChat 配置社群身份驗證
+---
+
+本章節將說明如何為 LibreChat 配置 OAuth2 與 OpenID Connect。
+
+<div style={{ padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/786fa525-73c4-4640-b4cf-91925ad8802e" style={{ width: "75%", height: "75%" }} alt="Image for Light Theme" />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/dddc34c6-9602-4177-89e8-4c0db01b0eac" style={{ width: "75%", height: "75%" }} alt="Image for Dark Theme" />
+  </div>
+</div>
+
+## OAuth2
+
+- [Apple](/docs/configuration/authentication/OAuth2-OIDC/apple_zh_TW)
+- [Discord](/docs/configuration/authentication/OAuth2-OIDC/discord_zh_TW)
+- [Facebook](/docs/configuration/authentication/OAuth2-OIDC/facebook_zh_TW)
+- [GitHub](/docs/configuration/authentication/OAuth2-OIDC/github_zh_TW)
+- [Google](/docs/configuration/authentication/OAuth2-OIDC/google_zh_TW)
+
+## OpenID Connect
+
+- [Auth0](/docs/configuration/authentication/OAuth2-OIDC/auth0_zh_TW)
+- [AWS Cognito](/docs/configuration/authentication/OAuth2-OIDC/aws_zh_TW)
+- [Azure Entra/AD](/docs/configuration/authentication/OAuth2-OIDC/azure_zh_TW)
+- [Keycloak](/docs/configuration/authentication/OAuth2-OIDC/keycloak_zh_TW)
+- [重複使用 OpenID 權杖進行登入工作階段](/docs/configuration/authentication/OAuth2-OIDC/token-reuse_zh_TW)
+
+## OpenID Connect 疑難排解
+
+如果您在 OpenID Connect 身份驗證中遇到問題：
+
+1. **啟用標頭偵錯日誌**：在環境變數中設定 `DEBUG_OPENID_REQUESTS=true`，除了請求 URL 外，還會紀錄請求標頭（敏感資料會被遮罩）。備註：請求 URL 始終會在偵錯 (debug) 層級紀錄。
+2. **檢查重新導向 URI**：確保您的回呼 (callback) URL 在供應商設定與 LibreChat 配置中完全一致。
+3. **驗證範圍 (Scopes)**：確保所有必要的範圍均已正確配置。
+4. **檢閱供應商日誌**：檢查您的身份供應商日誌以獲取身份驗證錯誤資訊。
+5. **驗證權杖 (Tokens)**：確保您的供應商核發的權杖有效且包含預期的聲明 (claims)。
+6. **確保產生 _nonce_**：部分身份供應商若在請求中缺少 `nonce` URL 參數會自行產生。設定 `OPENID_GENERATE_NONCE=true` 以強制 openid-client 產生該參數。

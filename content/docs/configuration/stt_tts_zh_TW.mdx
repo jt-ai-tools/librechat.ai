@@ -1,0 +1,275 @@
+---
+title: 語音設定
+icon: Mic
+description: 語音轉文字 (STT) 與文字轉語音 (TTS) 功能的配置
+---
+
+<Callout type="info" title="即將推出的 STT/TTS 增強功能" collapsible>
+Google Cloud STT/TTS 與 Deepgram 服務正計畫於未來整合。
+</Callout>
+
+## 語音功能簡介
+
+語音配置包含在統一的 `speech:` 區段下的語音轉文字 (STT) 與文字轉語音 (TTS) 設定。此外，還有一個新的 `speechTab` 選單用於使用者特定的設定。
+
+> **另請參閱：** 關於詳細的 YAML 配置架構與所有可用選項，請參閱 [語音物件結構](/docs/configuration/librechat_yaml/object_structure/speech_zh_TW) 文件。
+
+### 環境變數
+
+使用雲端 STT/TTS 服務時，您需要在 `.env` 檔案中設定 API 金鑰：
+
+```bash filename=".env"
+# 語音轉文字 API 金鑰（例如：OpenAI Whisper）
+STT_API_KEY=您的-stt-api-key
+
+# 文字轉語音 API 金鑰（例如：OpenAI TTS, ElevenLabs）
+TTS_API_KEY=您的-tts-api-key
+```
+
+這些金鑰隨後會在您的 `librechat.yaml` 配置中使用 `${STT_API_KEY}` 與 `${TTS_API_KEY}` 進行引用。
+
+## 語音分頁 (Speech Tab)（選填）
+
+`speechTab` 選單提供對話模式與進階模式的可自定義選項，以及 STT 與 TTS 的詳細設定。這將為使用者設定預設值。
+
+範例：
+
+```yaml
+speech:
+  speechTab:
+    conversationMode: true
+    advancedMode: false
+    speechToText:
+      engineSTT: "external"
+      languageSTT: "繁體中文 (台灣)"
+      autoTranscribeAudio: true
+      decibelValue: -45
+      autoSendText: 0
+    textToSpeech:
+      engineTTS: "external"
+      voice: "alloy"
+      languageTTS: "zh"
+      automaticPlayback: true
+      playbackRate: 1.0
+      cacheTTS: true
+```
+
+## STT (語音轉文字)
+
+語音轉文字 (STT) 功能可將口說文字轉換為書面文字。要啟用 STT，請點擊 STT 按鈕（位於發送按鈕旁）或使用組合鍵 ++Ctrl+Alt+L++ 開始轉錄。
+
+### 可用的 STT 服務
+
+- **本地 STT**
+  - 基於瀏覽器 (Browser-based)
+  - Whisper（已在 LocalAI 測試過）
+- **雲端 STT**
+  - OpenAI Whisper
+  - Azure Whisper
+  - 其他與 OpenAI 相容的 STT 服務
+
+### 配置本地 STT
+
+- #### 基於瀏覽器
+  無需額外設定。確保語音設定分頁中的 「Speech To Text」 開關已啟用，且引擎下拉選單中已選擇 「Browser」。
+
+- #### 本地 Whisper
+  需要一個本地運行的 Whisper 實例。
+
+```yaml
+speech:
+  stt:
+    openai:
+      url: 'http://host.docker.internal:8080/v1/audio/transcriptions'
+      model: 'whisper'
+```
+
+### 配置雲端 STT
+
+- #### OpenAI Whisper
+
+```yaml
+speech:
+  stt:
+    openai:
+      apiKey: '${STT_API_KEY}'
+      model: 'whisper-1'
+```
+
+- #### Azure Whisper
+
+```yaml
+speech:
+  stt:
+    azureOpenAI:
+      instanceName: '您的實例名稱'
+      apiKey: '${STT_API_KEY}'
+      deploymentName: '您的部署名稱'
+      apiVersion: 'apiVersion'
+```
+
+<Callout type="info" title="Azure 終端網域支援">
+`instanceName` 欄位支援兩種 Azure OpenAI 網域格式：
+- **新格式**：`.cognitiveservices.azure.com`（例如：`my-instance.cognitiveservices.azure.com`）
+- **舊格式**：`.openai.azure.com`（例如：`my-instance.openai.azure.com`）
+
+您可以指定完整網域或僅指定實例名稱。如果您提供包含 `.azure.com` 的完整網域，系統將直接使用。否則，系統將套用舊版的 `.openai.azure.com` 格式以維持向下相容性。
+</Callout>
+
+- #### OpenAI 相容服務
+
+參考 OpenAI Whisper 章節，並根據需求調整 `url` 與 `model`。
+
+範例：
+  
+```yaml
+speech:
+  stt:
+    openai:
+      url: 'http://host.docker.internal:8080/v1/audio/transcriptions'
+      model: 'whisper'
+  ```
+
+
+## TTS (文字轉語音)
+
+文字轉語音 (TTS) 功能可將書面文字轉換為口說音訊。有多種 TTS 服務可供選用：
+
+### 可用的 TTS 服務
+
+- **本地 TTS**
+  - 基於瀏覽器 (Browser-based)
+  - Piper（已在 LocalAI 測試過）
+  - Coqui（已在 LocalAI 測試過）
+- **雲端 TTS**
+  - OpenAI TTS
+  - Azure OpenAI
+  - ElevenLabs
+  - 其他與 OpenAI/ElevenLabs 相容的 TTS 服務
+
+### 配置本地 TTS
+
+- #### 基於瀏覽器
+
+無需額外設定。確保語音設定分頁中的 「Text To Speech」 開關已啟用，且引擎下拉選單中已選擇 「Browser」。
+
+- #### Piper
+
+需要一個本地運行的 Piper 實例。
+
+```yaml
+speech:
+  tts:
+    localai:
+      url: "http://host.docker.internal:8080/tts"
+      apiKey: "EMPTY"
+      voices: [
+        "en-us-amy-low.onnx",
+        "en-us-danny-low.onnx",
+        "en-us-libritts-high.onnx",
+        "en-us-ryan-high.onnx",
+      ]
+      backend: "piper"
+```
+
+- #### Coqui
+
+需要一個本地運行的 Coqui 實例。
+
+```yaml
+speech:
+  tts:
+    localai:
+      url: 'http://localhost:8080/v1/audio/synthesize'
+      voices: ['tts_models/en/ljspeech/glow-tts', 'tts_models/en/ljspeech/tacotron2', 'tts_models/en/ljspeech/waveglow']
+      backend: 'coqui'
+```
+
+### 配置雲端 TTS
+
+- #### OpenAI TTS
+
+```yaml
+speech:
+  tts:
+    openai:
+      apiKey: '${TTS_API_KEY}'
+      model: 'tts-1'
+      voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+```
+
+- #### Azure OpenAI
+
+```yaml
+speech:
+  tts:
+    azureOpenAI:
+      instanceName: ''
+      apiKey: '${TTS_API_KEY}'
+      deploymentName: ''
+      apiVersion: ''
+      model: 'tts-1'
+      voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+```
+
+<Callout type="info" title="Azure 終端網域支援">
+`instanceName` 欄位支援兩種 Azure OpenAI 網域格式：
+- **新格式**：`.cognitiveservices.azure.com`（例如：`my-instance.cognitiveservices.azure.com`）
+- **舊格式**：`.openai.azure.com`（例如：`my-instance.openai.azure.com`）
+
+您可以指定完整網域或僅指定實例名稱。如果您提供包含 `.azure.com` 的完整網域，系統將直接使用。否則，系統將套用舊版的 `.openai.azure.com` 格式以維持向下相容性。
+</Callout>
+
+- #### ElevenLabs
+
+```yaml
+speech:
+  tts:
+    elevenlabs:
+      apiKey: '${TTS_API_KEY}'
+      model: 'eleven_multilingual_v2'
+      voices: ['202898wioas09d2', 'addwqr324tesfsf', '3asdasr3qrq44w', 'adsadsa']
+```
+
+您可以如下加入額外的 ElevenLabs 特定參數：
+
+```yaml
+      voice_settings:
+        similarity_boost: '' # 數字
+        stability: '' # 數字
+        style: '' # 數字
+        use_speaker_boost: # 布林值
+      pronunciation_dictionary_locators: [''] # 字串清單 (陣列)
+```
+
+- #### OpenAI 相容服務
+
+參考 OpenAI TTS 章節，並根據需求調整 `url` 變數。
+
+範例：
+
+```yaml
+speech:
+  tts:
+    openai:
+      url: 'http://host.docker.internal:8080/v1/audio/synthesize'
+      apiKey: '${TTS_API_KEY}'
+      model: 'tts-1'
+      voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+```
+
+- #### ElevenLabs 相容服務
+
+參考 ElevenLabs 章節，並根據需求調整 `url` 變數。
+
+範例：
+
+```yaml
+speech:
+  tts:
+    elevenlabs:
+      url: 'http://host.docker.internal:8080/v1/audio/synthesize'
+      apiKey: '${TTS_API_KEY}'
+      model: 'eleven_multilingual_v2'
+      voices: ['202898wioas09d2', 'addwqr324tesfsf', '3asdasr3qrq44w', 'adsadsa']
+```

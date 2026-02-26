@@ -1,0 +1,192 @@
+---
+title: Apple
+icon: Apple
+description: 學習如何配置 LibreChat 使用 Apple 進行使用者身份驗證。
+---
+
+
+## 先決條件
+
+在開始之前，請確保您具備以下條件：
+
+- **Apple Developer 帳號**：如果您還沒有，請前往[此處](https://developer.apple.com/programs/enroll/)註冊。
+
+---
+
+## 建立新的 App ID
+
+### 1. 登入 Apple Developer Console
+
+- **操作**：
+- 造訪 [Apple Developer](https://developer.apple.com/) 並使用您的 Apple ID 登入。
+
+
+### 2. 導覽至 Identifiers (識別碼)
+
+- 前往 **Certificates, Identifiers & Profiles**。
+- 點擊側邊欄中的 **Identifiers**。
+
+
+### 3. 建立新的 App ID
+
+1. 點擊 **"+"** 按鈕以新增識別碼。
+2. 選擇 **App IDs** 並點擊 **Continue**。
+3. 選擇 **App** 並點擊 **Continue**。
+4. 輸入 App ID 的 **Description**（描述，例如：`LibreChat App ID`）。
+5. 設定 **Bundle ID**（例如：`com.yourdomain.librechat`）。
+6. 點擊 **Continue**，接著點擊 **Register**。
+
+- **圖片參考：**
+- ![建立 App ID](https://user-images.githubusercontent.com/5569219/59017558-6d643600-8861-11e9-927b-a4952b56f34e.png)
+*圖 1：建立新的 App ID*
+
+- ![選擇 App](https://github.com/user-attachments/assets/7b67c1bb-dea0-4475-ad45-e3c13ad514d5)
+*圖 2：選擇 App 識別碼*
+
+### 4. 啟用 「Sign in with Apple」 (使用 Apple 登入)
+
+1. 建立 App ID 後，點擊它進行編輯。
+2. 在 **Capabilities**（能力）下方，尋找並勾選 **Sign in with Apple**。
+3. 點擊 **Save**。
+
+- **圖片參考：**
+- ![啟用使用 Apple 登入](https://user-images.githubusercontent.com/5569219/59017720-dea3e900-8861-11e9-898e-f486c093edd8.png)
+*圖 3：啟用「使用 Apple 登入」*
+
+---
+
+## 建立 Services ID
+
+### 1. 導覽至 Identifiers
+
+- 在 **Certificates, Identifiers & Profiles** 區段，點擊 **Identifiers**。
+
+### 2. 建立新的 Services ID
+
+1. 點擊 **"+"** 按鈕。
+2. 選擇 **Services IDs** 並點擊 **Continue**。
+3. 輸入 **Description**（例如：`LibreChat Services ID`）。
+4. 輸入 **Identifier**（識別碼，例如：`com.yourdomain.librechat.services`）。
+5. 點擊 **Continue**，接著點擊 **Register**。
+
+- **圖片參考：**
+- ![選擇 Services ID](https://user-images.githubusercontent.com/5569219/59017808-16ab2c00-8862-11e9-8beb-4da7bb509b0c.png)
+*圖 4：選擇 Services ID*
+
+- ![建立 Services ID](https://github.com/user-attachments/assets/cac99e43-a6d7-4fb8-890d-eabd87a60e7d)
+*圖 5：建立 Services ID*
+
+### 3. 配置 「Sign in with Apple」
+
+1. 點擊剛建立的 Services ID。
+2. 在 **Capabilities** 下方，點擊 **Sign in with Apple** 旁邊的 **Configure**。
+3. 輸入您的 **Domains**（網域，例如：`your-domain.com`）與 **Return URLs**（返回 URL，例如：`https://your-domain.com/oauth/apple/callback`）。
+4. 點擊 **Next**，接著點擊 **Register**。
+
+- **圖片參考：**
+- ![配置使用 Apple 登入](https://github.com/user-attachments/assets/9309e1c1-6f98-49fc-a87d-bb5f46e200f7)
+*圖 6：為 Services ID 配置「使用 Apple 登入」*
+
+- ![網頁驗證配置](https://github.com/user-attachments/assets/d1ca9ad2-e555-4083-a974-b26239c9694f)
+*圖 7：網頁驗證配置*
+
+- ![儲存 Services ID 配置](https://github.com/user-attachments/assets/8facac9e-002f-458b-8049-63c91afc30de)
+*圖 8：儲存編輯後的 Services ID 配置*
+
+
+---
+
+## 建立 Key (金鑰)
+
+### 1. 導覽至 Keys
+
+- 在 **Certificates, Identifiers & Profiles** 區段，點擊 **Keys**。
+
+### 2. 建立新的 Key
+
+1. 點擊 **"+"** 按鈕以新增金鑰。
+2. 輸入 **Key Name**（例如：`LibreChatSignInWithApple`）。
+3. 在 **Capabilities** 下方勾選 **Sign in with Apple**。
+4. 點擊 **Configure** 並選擇建立的 App ID（例如：`com.yourdomain.librechat`），然後點擊 **Save**。
+5. 點擊 **Continue**，接著點擊 **Register**。
+
+- **圖片參考：**
+- ![建立金鑰](https://github.com/user-attachments/assets/6db095dd-79dd-485d-a57a-8b1ea523b67f)
+*圖 8：建立新的金鑰*
+
+- ![配置金鑰](https://github.com/user-attachments/assets/30b593ab-b8f3-4d94-b56d-1eeac1900a1f)
+*圖 9：為金鑰配置 App ID*
+
+- ![註冊新金鑰](https://github.com/user-attachments/assets/91aa4d6e-9b5c-4f7c-bb1a-5980015ee15d)
+*圖 10：註冊金鑰*
+
+### 3. 下載私密金鑰 (Private Key)
+
+1. 建立金鑰後，點擊 **Download**。
+2. **重要提示**：請妥善儲存該 `.p8` 檔案。您將無法再次下載。
+3. 記下 **Key ID**；您在設定 `.env` 檔案時會需要它。
+
+- **圖片參考：**
+- ![下載您的金鑰](https://github.com/user-attachments/assets/79e5aefa-9797-4fa7-bdf9-cb4b526ab3dd)
+*圖 11：下載私密金鑰*
+
+---
+
+## 配置 LibreChat
+
+### 1. 更新 `.env` 配置
+
+將下列 Apple OAuth2 配置新增至您的 `.env` 檔案：
+
+```env filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+# Apple
+APPLE_CLIENT_ID=com.yourdomain.librechat.services
+APPLE_TEAM_ID=您的_TEAM_ID
+APPLE_KEY_ID=您的_KEY_ID
+APPLE_PRIVATE_KEY_PATH=/path/to/AuthKey.p8 # 下載的 .p8 檔案之絕對路徑
+APPLE_CALLBACK_URL=/oauth/apple/callback
+```
+
+> **備註：** 
+> - 將 `com.yourdomain.librechat.services` 替換為您實際的 Services ID。
+> - 將 `您的_TEAM_ID` 與 `您的_KEY_ID` 替換為您 Apple Developer 帳號中的對應數值。
+> - 如果使用 Docker，請確保 `.p8` 檔案在 Docker 容器內可被存取，並相應地更新 `APPLE_PRIVATE_KEY_PATH`。
+
+### 2. 重啟 LibreChat
+
+更新 `.env` 檔案後，重啟 LibreChat 以套用變更。
+
+- **如果使用 Docker：**
+
+```bash
+docker compose up -d
+  ```
+
+---
+
+## 疑難排解
+
+如果您在設定過程中遇到問題，請考慮下列解決方案：
+
+- **無效的重新導向 URI (Invalid Redirect URI)**：
+    - 確保 Apple Developer Console 中的重新導向 URI (`https://your-domain.com/oauth/apple/callback`) 與您的 `.env` 檔案中指定的 `APPLE_CALLBACK_URL` 完全一致。
+
+- **私密金鑰問題**：
+    - 驗證您的 `.p8` 檔案路徑 (`APPLE_PRIVATE_KEY_PATH`) 是否正確。
+    - 確保 LibreChat 具備該 `.p8` 檔案的讀取權限。
+
+- **Team ID 與 Key ID 錯誤**：
+    - 再次確認您 `.env` 檔案中的 `APPLE_TEAM_ID` 與 `APPLE_KEY_ID` 是否與您 Apple Developer 帳號中的資訊相符。
+
+- **網域驗證失敗**：
+    - 確保驗證檔案已正確上傳至您網域的根目錄。
+    - 驗證配置時輸入的網域名稱是否有誤植。
+
+- **Docker 配置問題**：
+    - 如果使用 Docker，請確認 `.p8` 檔案已正確掛載 (mounted)，且 `APPLE_PRIVATE_KEY_PATH` 指定的路徑在容器內可被存取。
+
+- **檢查日誌**：
+    - 查看 LibreChat 日誌，尋找任何與 Apple 驗證相關的錯誤訊息。這可以針對錯誤原因提供具體的洞察。

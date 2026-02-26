@@ -1,0 +1,270 @@
+---
+title: "記憶配置 (Memory Configuration)"
+icon: Brain
+---
+
+## 概覽
+
+`memory` 物件讓您可以為應用程式配置對話記憶與個人化功能。此配置控制了系統如何記憶與個人化對話，包括代幣 (token) 限制、訊息上下文窗口以及基於智慧體的記憶處理。
+
+## 範例
+
+```yaml filename="memory"
+memory:
+  disabled: false
+  validKeys: ["user_preferences", "conversation_context", "personal_info"]
+  tokenLimit: 2000
+  charLimit: 10000
+  personalize: true
+  messageWindowSize: 5
+  agent:
+    provider: "openAI"
+    model: "gpt-4"
+    instructions: "您是一位得力的助手，負責記住使用者的偏好與對話上下文。"
+    model_parameters:
+      temperature: 0.7
+      max_tokens: 1000
+```
+
+## disabled (停用)
+
+<OptionTable
+  options={[
+    ['disabled', '布林值', '設定為 true 時停用記憶功能。停用後，系統將不會儲存或使用對話記憶。', 'disabled: false'],
+  ]}
+/>
+
+**預設值：** `false`
+
+```yaml filename="memory / disabled"
+memory:
+  disabled: true
+```
+
+## validKeys (有效鍵)
+
+<OptionTable
+  options={[
+    ['validKeys', '字串陣列', '指定記憶儲存中哪些鍵是有效的。這有助於控制哪些類型的資訊可以被存入記憶。', 'validKeys: ["user_name", "preferences", "context"]'],
+  ]}
+/>
+
+**預設值：** 無限制（所有鍵皆有效）
+
+```yaml filename="memory / validKeys"
+memory:
+  validKeys:
+    - "user_preferences" 
+    - "conversation_context"
+    - "personal_information"
+    - "learned_facts"
+```
+
+## tokenLimit (代幣限制)
+
+<OptionTable
+  options={[
+    ['tokenLimit', '數字', '設定用於記憶儲存與處理的最大代幣數量。', 'tokenLimit: 2000'],
+  ]}
+/>
+
+**預設值：** 無限制
+
+```yaml filename="memory / tokenLimit"
+memory:
+  tokenLimit: 2000
+```
+
+## charLimit (字元限制)
+
+<OptionTable
+  options={[
+    ['charLimit', '數字', '設定個別記憶項目的最大字元數限制。這能防止過大的記憶負載影響效能或超過 API 限制。', 'charLimit: 10000'],
+  ]}
+/>
+
+**預設值：** `10000`
+
+```yaml filename="memory / charLimit"
+memory:
+  charLimit: 10000
+```
+
+## personalize (個人化)
+
+<OptionTable
+  options={[
+    ['personalize', '布林值', '設定為 true 時，賦予使用者選擇是否啟用記憶功能的權利。使用者可以在聊天介面切換記憶開關。設定為 false 時，記憶功能將完全停用。', 'personalize: true'],
+  ]}
+/>
+
+**預設值：** `true`
+
+```yaml filename="memory / personalize"
+memory:
+  personalize: false
+```
+
+## messageWindowSize (訊息窗口大小)
+
+<OptionTable
+  options={[
+    ['messageWindowSize', '數字', '指定納入記憶上下文窗口的近期訊息數量。', 'messageWindowSize: 5'],
+  ]}
+/>
+
+**預設值：** `5`
+
+```yaml filename="memory / messageWindowSize"
+memory:
+  messageWindowSize: 10
+```
+
+## agent (智慧體)
+
+<OptionTable
+  options={[
+    ['agent', '物件 | Union', '配置負責處理記憶的智慧體。可以是現有智慧體 ID 的引用，或是完整的智慧體配置。', 'agent: { provider: "openAI", model: "gpt-4" }'],
+  ]}
+/>
+
+`agent` 欄位支援兩種不同的配置格式：
+
+### 依 ID 指定智慧體
+
+如果您已有預先配置好的智慧體，可以透過其 ID 進行引用：
+
+```yaml filename="memory / agent (依 ID)"
+memory:
+  agent:
+    id: "memory-agent-001"
+```
+
+### 自定義智慧體配置
+
+若需更多控制，您可以定義完整的智慧體配置：
+
+```yaml filename="memory / agent (自定義)"
+memory:
+  agent:
+    provider: "openAI"
+    model: "gpt-4"
+    instructions: "您是一位記憶助手，協助維護對話上下文與使用者偏好。"
+    model_parameters:
+      temperature: 0.3
+      max_tokens: 1500
+      top_p: 0.9
+```
+
+#### 智慧體配置欄位
+
+使用自定義智慧體配置時，可使用下列欄位：
+
+**provider (供應商)**（必填）
+<OptionTable
+  options={[
+    ['provider', '字串', '指定記憶智慧體的 AI 供應商。可以是內建供應商（例如："openAI"、"anthropic"、"google"）或自定義終端名稱。', 'provider: "openAI"'],
+  ]}
+/>
+
+**model (模型)**（必填）
+<OptionTable
+  options={[
+    ['model', '字串', '指定用於記憶處理的模型。', 'model: "gpt-4"'],
+  ]}
+/>
+
+**instructions (指令)**（選填）
+<OptionTable
+  options={[
+    ['instructions', '字串', '自定義指令，用於取代何時設定及/或刪除記憶的預設指令。主要應在需要特定資訊處理邏輯的 validKeys 時使用。', 'instructions: "僅在明確提及時才儲存使用者偏好與事實。"'],
+  ]}
+/>
+
+**model_parameters (模型參數)**（選填）
+<OptionTable
+  options={[
+    ['model_parameters', '物件', '傳遞給模型的額外參數，用於微調其行為。', 'model_parameters: { temperature: 0.7 }'],
+  ]}
+/>
+
+## 完整配置範例
+
+以下是顯示所有記憶配置選項的完整範例：
+
+```yaml filename="librechat.yaml"
+version: 1.3.4
+cache: true
+
+memory:
+  disabled: false
+  validKeys:
+    - "user_preferences"
+    - "conversation_context" 
+    - "learned_facts"
+    - "personal_information"
+  tokenLimit: 3000
+  charLimit: 10000
+  personalize: true
+  messageWindowSize: 8
+  agent:
+    provider: "openAI"
+    model: "gpt-4"
+    instructions: |
+      僅使用指定的有效鍵 (validKeys) 儲存記憶。針對 user_preferences：儲存
+      明確說明的關於通訊風格、感興趣的主題或工作流偏好。針對 conversation_context：
+      儲存提及的重要事實或進行中的專案。針對 learned_facts：儲存關於使用者的
+      客觀資訊。針對 personal_information：僅儲存使用者明確分享的關於其個人的資訊。
+      請及時刪除過期或錯誤的資訊。
+    model_parameters:
+      temperature: 0.2
+      max_tokens: 2000
+      top_p: 0.8
+      frequency_penalty: 0.1
+```
+
+## 使用自定義終端
+
+記憶功能支援自定義終端。使用自定義終端時，`provider` 欄位應與自定義終端的 `name` 完全一致。包含環境變數與使用者預留位置的自定義標頭將被正確解析。
+
+```yaml filename="包含記憶用自定義終端的 librechat.yaml"
+
+endpoints:
+    custom:
+        - name: 'Custom Memory Endpoint'
+           apiKey: 'dummy'
+           baseURL: 'https://api.gateway.ai/v1'
+           headers:
+             x-gateway-api-key: '${GATEWAY_API_KEY}'
+             x-gateway-virtual-key: '${GATEWAY_OPENAI_VIRTUAL_KEY}'
+             X-User-Identifier: '{{LIBRECHAT_USER_EMAIL}}'
+             X-Application-Identifier: 'LibreChat - Test'
+             api-key: '${TEST_CUSTOM_API_KEY}' 
+           models:
+             default:
+               - 'gpt-4o-mini'
+               - 'gpt-4o'
+             fetch: false
+  
+memory:
+  disabled: false
+  tokenLimit: 3000
+  personalize: true
+  messageWindowSize: 10
+  agent:
+    provider: 'Custom Memory Endpoint'
+    model: 'gpt-4o-mini'
+```
+
+- 關於所有可用的預留位置，請參閱[自定義終端標頭](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#headers)。
+
+## 備註
+
+- 記憶功能可增強對話連貫性與個人化體驗。
+- 當 `personalize` 為 true 時，使用者可在其聊天介面中看到一個切換開關來控制記憶的使用。
+- 代幣限制有助於控制記憶使用量與處理成本。
+- 有效鍵提供對哪些資訊可被儲存的細粒度控制。
+- 自定義 `instructions` 取代了預設的記憶處理指令，應與 `validKeys` 配合使用。
+- 智慧體配置允許自定義記憶處理行為。
+- 設定為停用後，所有記憶功能都將關閉，不論其他設定為何。
+- 訊息窗口大小會影響在更新記憶時考量的近期上下文份量。

@@ -1,0 +1,91 @@
+---
+title: "Actions 物件結構"
+icon: Braces
+---
+
+Actions 可用於從 OpenAPI 規範動態建立工具。`actions` 物件結構允許您為智慧體 (agent)/助手 (assistant) 的 actions 指定允許的網域。
+
+更多資訊：[智慧體 (Agents) - Actions](/docs/features/agents_zh_TW#actions)
+
+## 範例
+
+```yaml filename="Actions 物件結構"
+# Actions 物件結構範例
+actions:
+  allowedDomains:
+    - "swapi.dev"
+    - "librechat.ai"
+    - "google.com"
+    - "https://api.example.com:8443"  # 包含通訊協定與連接埠
+```
+
+## allowedDomains
+
+**Key：**
+<OptionTable
+  options={[
+    ['allowedDomains', '字串陣列', '指定智慧體/助手 actions 允許網域的清單。', '配置後，僅允許清單中的網域。若未配置，SSRF 目標會被封鎖，但允許所有其他網域。'],
+  ]}
+/>
+
+**選填**
+
+### 安全情境 (SSRF 防護)
+
+LibreChat 內建 SSRF (伺服器端請求偽造) 防護，行為如下：
+
+**當未配置 `allowedDomains` 時：**
+- 易受 SSRF 攻擊的目標預設為 **封鎖**。
+- 所有其他外部網域均為 **允許**。
+
+**當已配置 `allowedDomains` 時：**
+- **僅** 允許清單中的網域。
+- 若要允許內部/SSRF 目標，必須將其明確加入清單中。
+
+**被封鎖的 SSRF 目標包括：**
+- **Localhost** 位址 (`localhost`, `127.0.0.1`, `::1`)。
+- **私有 IP 範圍** (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`)。
+- **連結本地位址 (Link-local addresses)** (`169.254.0.0/16`, 包含雲端元數據 IP)。
+- **內部頂級網域 (Internal TLDs)** (`.internal`, `.local`, `.localhost`)。
+- **常見內部服務名稱** (`redis`, `mongodb`, `postgres`, `api` 等)。
+
+如果您的 actions 需要存取內部服務，您 **必須明確將其加入** `allowedDomains`。
+
+### 模式格式
+
+`allowedDomains` 陣列支援多種格式：
+
+1. **僅網域** - 允許所有通訊協定與連接埠：
+   ```yaml
+   allowedDomains:
+     - "api.example.com"
+   ```
+
+2. **包含通訊協定** - 限制為特定通訊協定：
+   ```yaml
+   allowedDomains:
+     - "https://api.example.com"
+   ```
+
+3. **包含通訊協定與連接埠** - 限制為特定通訊協定與連接埠：
+   ```yaml
+   allowedDomains:
+     - "https://api.example.com:8443"
+   ```
+
+4. **內部位址**（必須明確允許）：
+   ```yaml
+   allowedDomains:
+     - "192.168.1.100"
+     - "internal-api.local"
+   ```
+
+**範例：**
+```yaml filename="actions / allowedDomains"
+allowedDomains:
+  - "swapi.dev"
+  - "librechat.ai"
+  - "google.com"
+  - "https://secure-api.example.com:443"
+  - "192.168.1.50"  # 內部服務（明確允許）
+```

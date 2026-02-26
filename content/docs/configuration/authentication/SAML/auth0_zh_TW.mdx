@@ -1,0 +1,83 @@
+---
+title: Auth0
+icon: Shield
+description: 學習如何配置 LibreChat 使用 Auth0 進行使用者身份驗證。
+---
+
+## 第一步：在 Auth0 中建立 SAML 應用程式
+
+1. 登入您的 Auth0 儀表板。
+2. 導覽至 `Applications > Applications`。
+3. 點擊 `Create Application`（建立應用程式）。
+4. 輸入應用程式名稱（例如：`LibreChat`）並選擇 `Regular Web Application`。
+5. 點擊 `Create`。
+
+![auth0-1](/images/docs/configuration/authentication/SAML/auth0/1.png)
+
+
+## 第二步：配置 SAML 附加元件 (Add-On)
+
+1. 在 Auth0 中開啟剛建立的應用程式。
+2. 前往 `Addons`（附加元件）標籤。
+3. 點擊滑塊以啟用 `SAML2 Web App`。
+4. 點擊 `SAML2 Web App` 面板。
+5. 配置以下設定：
+   - **Application Callback URL (應用程式回呼 URL)**：設定為您的 LibreChat SAML 回呼 URL：
+   `https://您的網域/oauth/saml/callback`
+   - **Settings (JSON 格式)**：使用下列配置：
+        ```json
+        {
+            "mappings": {
+                "email": "email",
+                "name": "username"
+            }
+        }
+        ```
+        <Callout type="note" title="備註">
+        如果您的應用程式需要額外屬性，如 `given_name`、`family_name`、`username` 或 `picture`（圖片），請確保這些映射在 Auth0 SAML 設定中已正確配置。
+        </Callout>
+6. 點擊 `Save`。
+
+
+![auth0-2](/images/docs/configuration/authentication/SAML/auth0/2.png)
+![auth0-3](/images/docs/configuration/authentication/SAML/auth0/3.png)
+
+## 第三步：獲取 Auth0 SAML 元資料 (Metadata)
+
+1. 啟用 SAML 後，回到 `SAML2 Web App` 設定。
+2. 前往 `Usage` 標籤。
+3. 點擊 `Identity Provider Certificate: Download Auth0 certificate`（下載 Auth0 憑證）。
+4. 將 `Issuer`（發行者）用於 `SAML_ISSUER`。
+5. 將 `Identity Provider Login URL`（身份供應商登入 URL）用於 `SAML_ENTRY_POINT`。
+6. 將下載的憑證檔案複製到您的專案資料夾中。
+
+![auth0-4](/images/docs/configuration/authentication/SAML/auth0/4a.png)
+
+## 第四步：使用 SAML 配置 LibreChat
+
+開啟專案資料夾中的 `.env` 檔案，並新增下列變數：
+
+  ```bash filename=".env"
+  SAML_ENTRY_POINT=https://dev-xxxxx.us.auth0.com/samlp/aaaaaa
+  SAML_ISSUER=urn:dev-xxxxx.us.auth0.com
+  SAML_CERT=dev-xxxxx.pem
+  SAML_CALLBACK_URL=/oauth/saml/callback
+  SAML_SESSION_SECRET=[請產生一個隨機工作階段秘密]
+
+  # 屬性映射 (Attribute mappings)（選填）
+  SAML_EMAIL_CLAIM=
+  SAML_USERNAME_CLAIM=
+  SAML_GIVEN_NAME_CLAIM=
+  SAML_FAMILY_NAME_CLAIM=
+  SAML_PICTURE_CLAIM=
+  SAML_NAME_CLAIM=
+
+  # 登入按鈕設定（選填）
+  SAML_BUTTON_LABEL=
+  SAML_IMAGE_URL=
+
+  # 是否應簽署 SAML 回應 (SAML Response)
+  # - 若為 "true"，將簽署整個 `SAML Response`。
+  # - 若為 "false" 或未設定，僅簽署 `SAML Assertion`（預設行為）。
+  # SAML_USE_AUTHN_RESPONSE_SIGNED=
+  ```

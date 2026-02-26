@@ -1,0 +1,1189 @@
+---
+title: "模型規範物件結構 (Model Specs Object Structure)"
+icon: Braces
+---
+
+## **概覽**
+
+`modelSpecs` 物件協助您為應用程式內的 AI 模型提供更簡約的 UI 體驗。
+
+`modelSpecs` 下包含 4 個主要欄位：
+
+  - `enforce` (選填；預設值：false)
+  - `prioritize` (選填；預設值：true)
+  - `list` (必填)
+  - `addedEndpoints` (選填)
+
+**備註：**
+
+- 若將 `enforce` 設定為 true，模型規範可能會與 `modelSelect`、`presets` 與 `parameters` 等介面設定發生衝突。
+- `list` 陣列包含每個模型的詳細配置，包括決定特定行為、外觀與能力的預設設定 (presets)。
+- 若配置中未指定 [interface](interface_zh_TW.mdx) 欄位，擁有模型規範清單將會停用下列介面元素：
+    - `modelSelect` (模型選擇)
+    - `parameters` (參數設定)
+    - `presets` (預設設定)
+- 如果您希望在啟用模型規範的同時保留這些介面元素，可以在 `interface` 物件中將它們設定為 `true`。
+
+## 範例
+
+```yaml filename="modelSpecs"
+modelSpecs:
+  enforce: true
+  prioritize: true
+  list:
+    - name: "meeting-notes-gpt4"
+      label: "會議紀錄助手 (GPT4)"
+      default: true
+      description: "只需貼上 Teams 錄音的逐字稿，即可產生會議紀錄。"
+      iconURL: "https://example.com/icon.png"
+      preset:
+        endpoint: "azureOpenAI"
+        model: "gpt-4-turbo-1106-preview"
+        maxContextTokens: 128000 # 最大上下文代幣
+        max_tokens: 4096 # 最大輸出代幣
+        temperature: 0.2
+        modelLabel: "會議摘要器"
+        greeting: |
+          此助手會根據 Teams 錄音的逐字稿建立會議紀錄。
+          要開始使用，只需將逐字稿貼入聊天框即可。
+        promptPrefix: |
+          請根據逐字稿為商務會議建立連貫的會議紀錄。請包含下列章節：
+          - 日期與與會者
+          - 議程
+          - 會議過程
+          - 待辦事項
+
+          重點放在討論及/或解決了哪些項目。列出所有開啟的待辦事項。
+          格式應為按時間順序排列的高層級主題列點清單，然後是一句或多則精簡的句子來說明詳情。
+          每個高層級主題應至少列出兩個子主題，但可根據需要增加子主題以支持高層級主題。
+
+          - 每個項目的開頭請勿使用相同的詞彙。
+
+          請深呼吸並確保按部就班地思考。
+```
+
+---
+
+## **頂層欄位**
+
+### enforce (強制執行)
+
+<OptionTable
+  options={[
+    ['enforce', '布林值', '決定模型規範是否應嚴格覆寫其他配置設定。', '若未妥善管理，將此項設定為 `true` 可能導致與介面選項的衝突。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="modelSpecs / enforce"
+modelSpecs:
+  enforce: true
+```
+
+---
+
+### prioritize (優先採用)
+
+<OptionTable
+  options={[
+    ['prioritize', '布林值', '指定當模型規範與預設配置皆適用時，是否應優先採用模型規範。', '設定為 `true` 時，可確保 UI 中始終選中一個 modelSpec。這樣做可能會阻止使用者為選定的規範選擇不同的終端。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="modelSpecs / prioritize"
+modelSpecs:
+  prioritize: false
+```
+
+---
+
+### addedEndpoints (新增終端)
+
+<OptionTable
+  options={[
+    ['addedEndpoints', '字串陣列', '允許在 UI 中將特定終端（例如 "openAI"、"google"）與定義的模型規範併列供使用者選取。', '需要 `interface.modelSelect` 為 `true`。若使用此欄位且未明確設定 `interface.modelSelect`，則 `modelSelect` 預設為 `true`。'],
+  ]}
+/>
+
+**預設值：** `[]`（空清單）
+
+**備註：** 必須為下列之一：
+- `openAI, azureOpenAI, google, anthropic, assistants, azureAssistants, bedrock`
+
+**範例：**
+```yaml filename="modelSpecs / addedEndpoints"
+modelSpecs:
+  # ... 其他 modelSpecs 欄位
+  addedEndpoints:
+    - openAI
+    - google
+```
+
+---
+
+### list (清單)
+
+**必填**
+
+<OptionTable
+  options={[
+    ['list', '物件陣列', '包含個別模型規範的清單，詳細列出各項配置與行為。', '清單中的每個物件詳述了特定模型的配置，包括與應用程式功能相關的行為、外觀與能力。'],
+  ]}
+/>
+
+## **模型規範項目 (List Item)**
+
+在每個 **模型規範 (Model Spec)** 或 **list** 項目中，您可以配置下列欄位：
+
+---
+
+### name (名稱)
+
+<OptionTable
+  options={[
+    ['name', '字串', '模型的唯一識別碼。', '無預設值。必須指定。'],
+  ]}
+/>
+
+**說明：**  
+模型的唯一識別碼。
+
+---
+
+### label (標籤)
+
+<OptionTable
+  options={[
+    ['label', '字串', '模型的使用者友善名稱或標籤，顯示在頂端下拉選單中。', '無預設值。選填。'],
+  ]}
+/>
+
+**說明：**  
+模型的使用者友善名稱或標籤，顯示在頂端下拉選單中。
+
+---
+
+### default (預設)
+
+<OptionTable
+  options={[
+    ['default', '布林值', '指定此模型規範是否為預設選項，在每次開啟新對話時自動選取。', ''],
+  ]}
+/>
+
+**說明：**  
+指定此模型規範是否為預設選項，在每次開啟新對話時自動選取。
+
+---
+
+### iconURL (圖標 URL)
+
+<OptionTable
+  options={[
+    ['iconURL', '字串', '模型圖標的 URL 或預定義的終端名稱。', '無預設值。選填。'],
+  ]}
+/>
+
+**說明：**  
+模型圖標的 URL 或預定義的終端名稱。
+
+---
+
+### description (描述)
+
+<OptionTable
+  options={[
+    ['description', '字串', '對模型及其預定用途或角色的簡短描述，顯示在頂端下拉選單中。', '無預設值。選填。'],
+  ]}
+/>
+
+**說明：**
+對模型及其預定用途或角色的簡短描述，顯示在頂端下拉選單中。
+
+---
+
+### group (群組)
+
+<OptionTable
+  options={[
+    ['group', '字串', '選填的群組名稱，用於在 UI 選擇器中組織模型規範。控制規範在選單階層中的位置。', '無預設值。選填。'],
+    ['groupIcon', '字串', '選填的自定義群組圖標。可以是 URL 或內建終端鍵（例如 "openAI"、"groq"）。僅每個群組中第一個帶有 groupIcon 的規範會被使用。', '無預設值。選填。'],
+  ]}
+/>
+
+**說明：**
+選填的群組名稱，用於在 UI 選擇器中組織模型規範。`group` 欄位提供了如何組織模型規範的靈活性：
+
+- **若 `group` 匹配終端名稱**（例如：`"openAI"`、`"groq"`）：模型規範將嵌套在選擇器選單的該終端下方。
+- **若 `group` 為自定義名稱**（不匹配任何終端）：會建立一個以此名稱命名的獨立可摺疊區段。您可以選擇使用 `groupIcon` 為該區段設定自定義圖標（URL 或內建鍵如 `"openAI"`）。
+- **若省略 `group`**：模型規範將作為獨立項目出現在頂層。
+
+當您想為模型加入描述而不希望失去選擇器選單的組織結構時，此功能特別有用。
+
+**範例：**
+
+```yaml filename="包含 group 欄位的 modelSpecs 範例"
+modelSpecs:
+  list:
+    # 範例 1：嵌套在終端下方
+    # 當 group 匹配終端名稱時，規範會出現在該終端下方
+    - name: "gpt-4o-optimized"
+      label: "GPT-4 優化版"
+      description: "最具能力的 GPT-4 模型，支援多模態"
+      group: "openAI"  # 出現在 OpenAI 終端下方
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+
+    # 範例 2：具備圖標的自定義群組區段
+    # 當 group 為自定義名稱時，會建立一個獨立的可摺疊區段
+    - name: "coding-assistant"
+      label: "程式碼助手"
+      description: "專精於程式撰寫任務"
+      group: "我的助手清單"
+      groupIcon: "https://example.com/icons/assistants.png"  # 群組的自定義圖標
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+
+    # 具有相同群組名稱的多個規範會被歸類在一起
+    - name: "writing-assistant"
+      label: "寫作助手"
+      description: "專精於創意寫作"
+      group: "我的助手清單"  # 與 coding-assistant 歸為同組，使用其圖標
+      preset:
+        endpoint: "anthropic"
+        model: "claude-sonnet-4"
+
+    # 範例 3：使用內建圖標的自定義群組
+    - name: "fast-model"
+      label: "快速模型"
+      group: "極速模型區"
+      groupIcon: "groq"  # 使用內建的 Groq 圖標
+      preset:
+        endpoint: "groq"
+        model: "llama3-8b-8192"
+
+    # 範例 4：獨立顯示（不分組）
+    # 若省略 group 欄位，規範將出現在頂層
+    - name: "general-assistant"
+      label: "通用助手"
+      description: "一般用途助手"
+      # 無 group 欄位 - 作為獨立項目出現在頂層
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o-mini"
+```
+
+---
+
+### showIconInMenu (選單中顯示圖標)
+
+<OptionTable
+  options={[
+    ['showIconInMenu', '布林值', '控制模型的圖標是否顯示在頂端下拉選單中。', ''],
+  ]}
+/>
+
+**說明：**  
+控制模型的圖標是否顯示在頂端下拉選單中。預設值為 `true`。
+
+---
+
+### showIconInHeader (標頭中顯示圖標)
+
+<OptionTable
+  options={[
+    ['showIconInHeader', '布林值', '控制模型的圖標是否顯示在頂端下拉選單按鈕的名稱左側。', ''],
+  ]}
+/>
+
+**說明：**  
+控制模型的圖標是否顯示在頂端下拉選單按鈕的名稱左側。預設值為 `true`。
+
+---
+
+### authType (驗證類型)
+
+<OptionTable
+  options={[
+    ['authType', '字串', '模型規範要求的驗證類型。', '選填。可能值："override_auth"、"user_provided"、"system_defined"'],
+  ]}
+/>
+
+**說明：**  
+模型規範要求的驗證類型。決定驗證是由系統定義、由使用者提供，還是被覆寫。
+
+---
+
+### webSearch (網頁搜尋)
+
+<OptionTable
+  options={[
+    ['webSearch', '布林值', '為此模型規範啟用網頁搜尋能力。', '為 true 時，模型可執行網頁搜尋。'],
+  ]}
+/>
+
+**說明：**  
+為此模型規範啟用網頁搜尋能力。設定為 `true` 時，模型可以執行網頁搜尋以檢索最新資訊。
+
+**範例：**
+```yaml filename="modelSpecs / webSearch"
+modelSpecs:
+  list:
+    - name: "research-assistant"
+      label: "研究助手"
+      webSearch: true
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+```
+
+---
+
+### fileSearch (檔案搜尋)
+
+<OptionTable
+  options={[
+    ['fileSearch', '布林值', '為此模型規範啟用檔案搜尋能力。', '為 true 時，模型可以搜尋上傳的檔案。'],
+  ]}
+/>
+
+**說明：**  
+為此模型規範啟用檔案搜尋能力。設定為 `true` 時，模型可以搜尋並引用上傳的檔案。
+
+**範例：**
+```yaml filename="modelSpecs / fileSearch"
+modelSpecs:
+  list:
+    - name: "document-analyst"
+      label: "文件分析師"
+      fileSearch: true
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+```
+
+---
+
+### executeCode (執行程式碼)
+
+<OptionTable
+  options={[
+    ['executeCode', '布林值', '為此模型規範啟用程式碼執行能力。', '為 true 時，模型可以執行程式碼。'],
+  ]}
+/>
+
+**說明：**  
+為此模型規範啟用程式碼執行能力。設定為 `true` 時，模型可以在沙盒環境中執行程式碼。
+
+**範例：**
+```yaml filename="modelSpecs / executeCode"
+modelSpecs:
+  list:
+    - name: "code-assistant"
+      label: "程式碼助手"
+      executeCode: true
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+```
+
+---
+
+### mcpServers
+
+<OptionTable
+  options={[
+    ['mcpServers', '字串陣列', '為此模型規範啟用模型上下文協定 (MCP) 伺服器名稱清單。', '每個字串應匹配已配置的 MCP 伺服器名稱。'],
+  ]}
+/>
+
+**說明：**  
+為此模型規範啟用模型上下文協定 (MCP) 伺服器名稱清單。MCP 伺服器透過自定義工具與資源擴充模型的能力。
+
+**範例：**
+```yaml filename="modelSpecs / mcpServers"
+modelSpecs:
+  list:
+    - name: "enhanced-assistant"
+      label: "增強型助手"
+      mcpServers:
+        - "filesystem"
+        - "sequential-thinking"
+        - "fetch"
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+```
+
+---
+
+### artifacts (組件)
+
+<OptionTable
+  options={[
+    ['artifacts', '字串 | 布林值', '為此模型規範啟用 Artifacts 能力，並可選擇性設定組件模式。', '設定為 `true` 以啟用預設模式，`false` 或省略則停用，或是設定特定模式字串（例如 `"default"`）以該模式啟用。'],
+  ]}
+/>
+
+**說明：**  
+為此模型規範啟用 Artifacts 能力，允許模型產生並顯示互動式組件，如 React 元件、HTML 與 Mermaid 圖表。設定為 `true` 時使用預設模式。您也可以直接指定模式字串。
+
+**範例：**
+```yaml filename="modelSpecs / artifacts"
+modelSpecs:
+  list:
+    - name: "artifact-assistant"
+      label: "組件助手"
+      artifacts: true
+      preset:
+        endpoint: "openAI"
+        model: "gpt-4o"
+```
+
+---
+
+### preset (預設設定)
+
+<OptionTable
+  options={[
+    ['preset', '物件', '定義模型行為與能力的詳細預設配置。', '詳見下方的「預設設定物件結構」。'],
+  ]}
+/>
+
+**說明：**  
+定義模型行為與能力的詳細預設配置（參見下方的預設設定物件結構）。
+
+---
+
+## 預設設定欄位 (Preset Fields)
+
+`modelSpecs.list` 項目的 `preset` 欄位由系統內 AI 模型的完整配置藍圖組成。它旨在指定 AI 模型的運作設定，量身打造其行為、輸出以及與其他系統組件和終端的互動。
+
+### 系統選項
+
+#### endpoint (終端)
+
+**必填**
+
+**接受的值：**
+- `openAI`
+- `azureOpenAI`
+- `google`
+- `anthropic`
+- `assistants`
+- `azureAssistants`
+- `bedrock`
+- `agents`
+
+**備註：** 若使用自定義終端，`endpoint` 數值必須與定義的[自定義終端名稱](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#name)完全一致。
+
+<OptionTable
+  options={[
+    ['endpoint', '列舉 (EModelEndpoint) 或字串 (nullable)', '指定模型用來執行操作的通訊終端。此設定決定了模型介接的外部或內部服務。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / endpoint"
+preset:
+  endpoint: "openAI"
+```
+
+---
+
+#### modelLabel (模型標籤)
+
+<OptionTable
+  options={[
+    ['modelLabel', '字串 (nullable)', '在使用者介面或日誌中用來識別模型的標籤。它提供了一個可讀的模型名稱，該名稱會顯示在 UI 中，也會告知 AI。', '無'],
+  ]}
+/>
+
+**預設值：** `無`
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / modelLabel"
+preset:
+  modelLabel: "客戶支援機器人"
+```
+
+---
+
+#### greeting (問候語)
+
+<OptionTable
+  options={[
+    ['greeting', '字串', '在新對話開始前顯示在 UI 中的預定義訊息。這是向使用者提供說明或讓介面顯得更親切友善的好方法。', ''],
+  ]}
+/>
+
+**預設值：** `無`
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / greeting"
+preset:
+  greeting: "此助手會根據 Teams 錄音的逐字稿建立會議紀錄。要開始使用，只需將逐字稿貼入聊天框即可。"
+```
+
+---
+
+#### promptPrefix (提示詞前綴)
+
+<OptionTable
+  options={[
+    ['promptPrefix', '字串 (nullable)', '附加在發送給模型之每則提示詞前的靜態文字，為回應設定一致的上下文。', '當使用 "assistants" 為終端時，此項會變為 OpenAI 的 `additional_instructions` 欄位。'],
+  ]}
+/>
+
+**預設值：** `無`
+
+**範例 1：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / promptPrefix"
+preset:
+  promptPrefix: "作為一名財務顧問，..."
+```
+
+**範例 2：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / promptPrefix"
+preset:
+  promptPrefix: |
+    請根據逐字稿為商務會議建立連貫的會議紀錄。請包含下列章節：
+    - 日期與與會者
+    - 議程
+    - 會議過程
+    - 待辦事項
+
+    重點放在討論及/或解決了哪些項目。列出所有開啟的待辦事項。
+    格式應為按時間順序排列的高層級主題列點清單，然後是一句或多則精簡的句子來說明詳情。
+    每個高層級主題應至少列出兩個子主題，但可根據需要增加子主題以支持高層級主題。
+
+    - 每個項目的開頭請勿使用相同的詞彙。
+
+    請深呼吸並確保按部就班地思考。
+```
+
+---
+
+#### resendFiles (重新發送檔案)
+
+<OptionTable
+  options={[
+    ['resendFiles', '布林值', '指示在未維持持久工作階段的情境下，是否應重新發送檔案。', ''],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / resendFiles"
+preset:
+  resendFiles: true
+```
+
+---
+
+#### imageDetail (圖片細節)
+
+**接受的值：**
+- low (低)
+- auto (自動)
+- high (高)
+
+<OptionTable
+  options={[
+    ['imageDetail', '列舉 (eImageDetailSchema)', '指定圖片分析任務所需的細節等級，適用於具備視覺能力的模型（OpenAI 規範）。', ''],
+  ]}
+/>
+
+**預設值：** `"auto"`
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / imageDetail"
+preset:
+  imageDetail: "high"
+```
+
+---
+
+#### maxContextTokens (最大上下文代幣)
+
+<OptionTable
+  options={[
+    ['maxContextTokens', '數字', '提供給模型的最大上下文代幣數。', '若您想限制此預設設定的最大上下文，此項非常有用。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / maxContextTokens"
+preset:
+  maxContextTokens: 4096
+```
+
+---
+
+### 智慧體選項 (Agent Options)
+
+請注意，這些選項僅在使用 `agents` 終端時適用。
+
+您應排除任何模型選項，並遵循 UI 中定義的智慧體配置。
+
+<Callout type="info" title="智慧體存取過濾 (v0.8.0+)">
+從 v0.8.0 版本起，LibreChat 為智慧體使用了基於 ACL（存取控制清單）的權限系統。當模型規範配置為使用智慧體時，使用者無權存取的任何智慧體都會被自動過濾掉，即使它們已在模型規範中配置。這確保了使用者僅能看到並使用具備適當權限的智慧體。
+
+如需更多關於 ACL 權限系統的資訊，請參閱 [智慧體文檔](/docs/features/agents_zh_TW#migration-required-v080-rc3)。
+</Callout>
+
+---
+
+#### agent_id
+
+<OptionTable
+  options={[
+    ['agent_id', '字串', '智慧體的識別碼。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / agent_id"
+preset:
+  agent_id: "agent_某唯一ID"
+```
+
+---
+
+### 助手選項 (Assistant Options)
+
+請注意，這些選項僅在使用 `assistants` 或 `azureAssistants` 終端時適用。
+
+與[智慧體](#智慧體選項)類似，您應排除任何模型選項並遵循助手的配置。
+
+---
+
+#### assistant_id
+
+<OptionTable
+  options={[
+    ['assistant_id', '字串', '助手的識別碼。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / assistant_id"
+preset:
+  assistant_id: "asst_某唯一ID"
+```
+
+---
+
+#### instructions (指令)
+
+**備註：** 此項與 [`promptPrefix`](#promptPrefix) 不同，因為此項會覆寫當前執行 (runs) 中現有的助手指令。
+
+僅在您想覆寫助手的核心指令時才使用此項。
+
+針對 `additional_instructions`，請使用 [`promptPrefix`](#promptPrefix)。
+
+更多資訊：
+
+- https://platform.openai.com/docs/api-reference/models#runs-createrun-instructions
+- https://platform.openai.com/docs/api-reference/runs/createRun#runs-createrun-additional_instructions
+
+<OptionTable
+  options={[
+    ['instructions', '字串', '覆寫助手的預設指令。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / instructions"
+preset:
+  instructions: "請處理關於訂單狀態的客戶查詢。"
+```
+
+---
+
+#### append_current_datetime
+
+為每次執行將當前日期與時間加入到由 `promptPrefix` 定義的 `additional_instructions` 中。不會覆寫 `promptPrefix`，而是附加在後。
+
+<OptionTable
+  options={[
+    ['append_current_datetime', '布林值', '將當前日期與時間加入到由 `promptPrefix` 定義的 `additional_instructions` 中。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="modelSpecs / list / {spec_item} / preset / append_current_datetime"
+preset:
+  append_current_datetime: true
+```
+
+---
+
+### 模型選項 (Model Options)
+
+> **備註：** 下方每個參數都註明了支援該參數的終端。  
+> **OpenAI / AzureOpenAI / 自定義** 通常支援 `temperature`、`presence_penalty`、`frequency_penalty`、`stop`、`top_p`、`max_tokens`。  
+> **Google / Anthropic** 通常支援 `topP`、`topK`、`maxOutputTokens`。  
+> **Anthropic / Bedrock (Anthropic 與 Nova 模型)** 支援 `promptCache`。  
+> **Bedrock** 支援 `region`、`maxTokens` 以及其他少數參數。  
+
+#### model (模型)
+
+> **支援終端：** 所有終端（`agents` 除外）
+
+<OptionTable
+  options={[
+    ['model', '字串 (nullable)', '預設設定使用的模型名稱，需匹配所選終端下配置的模型。', '無'],
+  ]}
+/>
+
+**預設值：** `無`
+
+**範例：**
+```yaml
+preset:
+  model: "gpt-4-turbo"
+```
+
+---
+
+#### temperature (溫度)
+
+> **支援終端：** `openAI`, `azureOpenAI`, `google` (名稱為 `temperature`), `anthropic` (名稱為 `temperature`), 以及自定義 (類 OpenAI)  
+
+<OptionTable
+  options={[
+    ['temperature', '數字', '控制模型回應的確定性或「創意性」。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  temperature: 0.7
+```
+
+---
+
+#### presence_penalty (存在懲罰)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)  
+> *Google/Anthropic/Bedrock 通常不使用此參數*
+
+<OptionTable
+  options={[
+    ['presence_penalty', '數字', '對重複代幣的懲罰，鼓勵探索新主題。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  presence_penalty: 0.3
+```
+
+---
+
+#### frequency_penalty (頻率懲罰)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)  
+> *Google/Anthropic/Bedrock 通常不使用此參數*
+
+<OptionTable
+  options={[
+    ['frequency_penalty', '數字', '對重複代幣的懲罰，減少回應中的冗餘。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  frequency_penalty: 0.5
+```
+
+---
+
+#### stop (停止符號)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)  
+> *Google/Anthropic/Bedrock 通常不使用此參數*
+
+<OptionTable
+  options={[
+    ['stop', '字串陣列', '模型的停止代幣，指示模型在遇到時結束回應。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  stop:
+    - "END"
+    - "STOP"
+```
+
+---
+
+#### top_p
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)  
+> **Google/Anthropic** 通常使用 `topP`（大寫 「P」）而非 `top_p`。
+
+<OptionTable
+  options={[
+    ['top_p', '數字', '核取樣 (Nucleus sampling) 參數 (0-1)，控制代幣的隨機性。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  top_p: 0.9
+```
+
+---
+
+#### topP
+
+> **支援終端：** `google` 與 `anthropic`  
+> （用途與 `top_p` 類似，但在這些 API 中命名不同）
+
+<OptionTable
+  options={[
+    ['topP', '數字', 'Google/Anthropic 終端的核取樣參數。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  topP: 0.8
+```
+
+---
+
+#### topK
+
+> **支援終端：** `google` 與 `anthropic`  
+> （對下一個代幣分佈的 k-取樣限制）
+
+<OptionTable
+  options={[
+    ['topK', '數字', '將下一個代幣選取限制在機率最高的 K 個代幣內。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  topK: 40
+```
+
+---
+
+#### max_tokens
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)  
+> *針對 Google/Anthropic，請使用 `maxOutputTokens` 或 `maxTokens`（取決於終端）。*
+
+<OptionTable
+  options={[
+    ['max_tokens', '數字', '模型回應中的最大代幣數量。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  max_tokens: 4096
+```
+
+---
+
+#### maxOutputTokens
+
+> **支援終端：** `google`, `anthropic`  
+> *在這些供應商中相當於 `max_tokens`。*
+
+<OptionTable
+  options={[
+    ['maxOutputTokens', '數字', '回應中的最大代幣數量 (Google/Anthropic)。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  maxOutputTokens: 2048
+```
+
+---
+
+#### promptCache (提示詞快取)
+
+> **支援終端：** `anthropic`, `bedrock` (Anthropic 與 Nova 模型)  
+> （切換 Anthropic 的「提示詞快取」功能）
+
+<OptionTable
+  options={[
+    ['promptCache', '布林值', '啟用或停用 Anthropic 內建的提示詞快取功能。', ''],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml
+preset:
+  promptCache: true
+```
+
+**備註：** 對於 Bedrock 終端，Claude 與 Nova 模型會自動啟用提示詞快取。設定 `promptCache: false` 可明確停用此功能。
+
+---
+
+#### reasoning_effort (推理投入度)
+
+**接受的值：**
+- minimal (最低)
+- low (低)
+- medium (中)
+- high (高)
+- xhigh (極高)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)
+
+<OptionTable
+  options={[
+    ['reasoning_effort', '字串', '控制模型的推理投入等級。降低推理投入可獲得更快的響應並減少推理代幣的使用。`xhigh` 選項為複雜問題提供最強推理能力。', ''],
+  ]}
+/>
+
+**預設值：** 未設定時，使用 API 預設值 (`medium`)。
+
+**範例：**
+```yaml
+preset:
+  reasoning_effort: "low"
+```
+
+---
+
+#### reasoning_summary (推理摘要)
+
+**接受的值：**
+- None (無)
+- Auto (自動)
+- Concise (精簡)
+- Detailed (詳細)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)
+
+<OptionTable
+  options={[
+    ['reasoning_summary', '字串', '設定模型的推理摘要偏好。', ''],
+  ]}
+/>
+
+**預設值：** `"None"`
+
+**範例：**
+```yaml
+preset:
+  reasoning_summary: "detailed"
+```
+
+---
+
+#### useResponsesApi (使用回應 API)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)
+
+<OptionTable
+  options={[
+    ['useResponsesApi', '布林值', '啟用或停用模型的回應 API。', ''],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml
+preset:
+  useResponsesApi: true
+```
+
+---
+
+#### verbosity (冗長度)
+
+**接受的值：**
+- low (低)
+- medium (中)
+- high (高)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)
+
+<OptionTable
+  options={[
+    ['verbosity', '字串', '控制模型回應的冗長等級。', ''],
+  ]}
+/>
+
+**預設值：** 未設定時，使用 API 預設值 (`medium`)。
+
+**範例：**
+```yaml
+preset:
+  verbosity: "low"
+```
+
+---
+
+#### web_search (網頁搜尋)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI), `google`, `anthropic`
+
+<OptionTable
+  options={[
+    ['web_search', '布林值', '為模型啟用或停用網頁搜尋功能。', ''],
+  ]}
+/>
+
+**預設值：** `false`
+
+**備註：** 對於 Google 終端，此參數在實際面板中顯示為 `Grounding with Google Search`（使用 Google 搜尋進行基礎驗證），但在實作中控制 `web_search`。
+
+**範例：**
+```yaml
+preset:
+  web_search: true
+```
+
+---
+
+#### disableStreaming (停用串流)
+
+> **支援終端：** `openAI`, `azureOpenAI`, 自定義 (類 OpenAI)
+
+<OptionTable
+  options={[
+    ['disableStreaming', '布林值', '停用模型的串流回應。', ''],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml
+preset:
+  disableStreaming: true
+```
+
+---
+
+#### thinkingBudget (思考預算)
+
+> **支援終端：** `google`, `anthropic`, `bedrock` (Anthropic 模型)
+
+<OptionTable
+  options={[
+    ['thinkingBudget', '數字或字串', '控制模型可用於內部推理的思考代幣數量。較大的預算可提升處理複雜問題的回應品質。', ''],
+  ]}
+/>
+
+**預設值：** `"Auto (-1)"` (Google), `2000` (Anthropic, Bedrock (Anthropic 模型))
+
+**範例：**
+```yaml
+preset:
+  thinkingBudget: "2000"
+```
+
+---
+
+#### effort (投入度)
+
+> **支援終端：** `anthropic`, `bedrock` (Anthropic 模型)
+
+<OptionTable
+  options={[
+    ['effort', '字串', '為支援的 Anthropic 模型（例如 Claude Opus 4.6）控制主動思考 (Adaptive Thinking) 的投入等級。較高等級會為複雜問題分配更多思考代幣。', ''],
+  ]}
+/>
+
+**選項：** `""` (未設定/自動), `"low"`, `"medium"`, `"high"`, `"max"`
+
+**預設值：** `""` (未設定 —— 由模型決定)
+
+**範例：**
+```yaml
+preset:
+  effort: "high"
+```
+
+---
+
+#### thinking (思考)
+
+> **支援終端：** `google`, `anthropic`, `bedrock` (Anthropic 模型)
+
+<OptionTable
+  options={[
+    ['thinking', '布林值', '指示模型在產生回應前是否應投入時間進行思考。', ''],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml
+preset:
+  thinking: true
+```
+
+---
+
+#### region (區域)
+
+> **支援終端：** `bedrock`  
+> （用於為 Amazon Bedrock 指定 AWS 區域）
+
+<OptionTable
+  options={[
+    ['region', '字串', 'Amazon Bedrock 終端的 AWS 區域。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  region: "us-east-1"
+```
+
+---
+
+#### maxTokens (最大代幣)
+
+> **支援終端：** `bedrock`  
+> （取代 `max_tokens` 使用）
+
+<OptionTable
+  options={[
+    ['maxTokens', '數字', 'Amazon Bedrock 終端的最大輸出代幣數。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml
+preset:
+  maxTokens: 1024
+```

@@ -1,0 +1,180 @@
+---
+title: Firebase CDN
+icon: Flame
+description: 本文件提供將 Firebase Storage 設定為 LibreChat CDN 的說明
+---
+
+Firebase Storage 與 Firebase Hosting 的全球 CDN 整合，允許您透過分佈在世界各地的邊緣節點來提供儲存在 Firebase Storage 中的檔案。這使其成為 LibreChat 中唯一具備真實 CDN 支援的檔案儲存選項。
+
+## 設定 Firebase 的步驟
+
+1. 開啟 [Firebase 網站](https://firebase.google.com/)。
+2. 點擊 「Get started」 (立即開始)。
+3. 使用您的 Google 帳號登入。
+
+### 建立新專案
+
+- 為您的專案命名（您可以使用與 Google OAuth 相同的專案）。
+
+![專案名稱](https://github.com/danny-avila/LibreChat/assets/81851188/dccce3e0-b639-41ef-8142-19d24911c65c)
+
+- 您可以選擇停用 Google Analytics (分析)。
+
+![Google Analytics](https://github.com/danny-avila/LibreChat/assets/81851188/5d4d58c5-451c-498b-97c0-f123fda79514)
+
+- 等待 20 到 30 秒讓專案準備就緒，然後點擊 「Continue」 (繼續)。
+
+![繼續](https://github.com/danny-avila/LibreChat/assets/81851188/6929802e-a30b-4b1e-b124-1d4b281d0403)
+
+- 點擊 「All Products」 (所有產品)。
+
+![所有產品](https://github.com/danny-avila/LibreChat/assets/81851188/92866c82-2b03-4ebe-807e-73a0ccce695e)
+
+- 選擇 「Storage」 (儲存空間)。
+
+![儲存空間](https://github.com/danny-avila/LibreChat/assets/81851188/b22dcda1-256b-494b-a835-a05aeea02e89)
+
+- 點擊 「Get Started」 (立即開始)。
+
+![立即開始](https://github.com/danny-avila/LibreChat/assets/81851188/c3f0550f-8184-4c79-bb84-fa79655b7978)
+
+- 點擊 「Next」 (下一步)。
+
+![下一步](https://github.com/danny-avila/LibreChat/assets/81851188/2a65632d-fe22-4c71-b8f1-aac53ee74fb6)
+
+- 選擇您的 「Cloud Storage location」 (Cloud Storage 所在地點)。
+
+![Cloud Storage 所在地點](https://github.com/danny-avila/LibreChat/assets/81851188/c094d4bc-8e5b-43c7-96d9-a05bcf4e2af6)
+
+- 返回專案概覽 (Project Overview)。
+
+![專案概覽](https://github.com/danny-avila/LibreChat/assets/81851188/c425f4bb-a494-42f2-9fdc-ff2c8ce005e1)
+
+- 點擊專案名稱下方的 「+ Add app」，接著點擊 「Web」。
+
+![Web](https://github.com/danny-avila/LibreChat/assets/81851188/22dab877-93cb-4828-9436-10e14374e57e)
+
+- 註冊應用程式。
+
+![註冊應用程式](https://github.com/danny-avila/LibreChat/assets/81851188/0a1b0a75-7285-4f03-95cf-bf971bd7d874)
+
+- 將所有這些資訊儲存在文字檔中。
+
+![儲存資訊](https://github.com/danny-avila/LibreChat/assets/81851188/056754ad-9d36-4662-888e-f189ddb38fd3)
+
+- 將所有的 `firebaseConfig` 變數填入 `.env` 檔案中：
+
+```bash
+FIREBASE_API_KEY=api_key #來自 apiKey
+FIREBASE_AUTH_DOMAIN=auth_domain #來自 authDomain
+FIREBASE_PROJECT_ID=project_id #來自 projectId
+FIREBASE_STORAGE_BUCKET=storage_bucket #來自 storageBucket
+FIREBASE_MESSAGING_SENDER_ID=messaging_sender_id #來自 messagingSenderId
+FIREBASE_APP_ID=1:您的_app_id #來自 appId
+```
+
+- 最後一次返回專案概覽。
+
+![專案概覽](https://github.com/danny-avila/LibreChat/assets/81851188/c425f4bb-a494-42f2-9fdc-ff2c8ce005e1)
+
+- 選擇 `Storage`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/16a0f850-cdd4-4875-8342-ab67bfb59804)
+
+- 選擇 `Rules` (規則) 並刪除此行中的 `: if false;`：`allow read, write: if false;`
+
+    - 您更新後的規則應如下所示：
+
+    ```bash
+    rules_version = '2';
+    
+    service firebase.storage {
+      match /b/{bucket}/o {
+        match /images/{userId}/{fileName} {
+          allow read, write: if true;
+        }
+      }
+    }
+    ```
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/c190011f-c1a6-47c7-986e-8d309b5f8704)
+
+- 發佈 (Publish) 您更新後的規則。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/5e6a17c3-5aba-419a-a18f-be910b1f25d5)
+
+### 在 `librechat.yaml` 中配置 `fileStrategy`
+
+最後，要讓應用程式啟用 Firebase，您必須在 `librechat.yaml` 配置檔案中設定下列內容：
+
+```yaml
+  version: 1.3.4
+  cache: true
+  fileStrategy: "firebase"
+```
+
+如需更多關於 `librechat.yaml` 配置檔案的資訊，請參閱此處的指南：[自定義終端與配置](/docs/configuration/librechat_yaml/index_zh_TW)。
+
+<Callout type="warning" title="使用 Firebase 時將對話匯出為 PNG">
+
+### Firebase Storage 設定 CORS 的逐步指南
+
+---
+
+#### **第一步：建立 CORS 配置檔案**
+
+- 開啟您偏好的文字編輯器。
+- 建立一個新檔案並命名為 `cors.json`。
+- 新增下列配置以允許來自 「https://ai.example.com」 的存取：
+
+```json
+[
+  {
+    "origin": ["https://ai.example.com"],
+    "method": ["GET", "POST", "DELETE", "PUT"],
+    "maxAgeSeconds": 3600
+  }
+]
+```
+- 儲存檔案。
+
+---
+
+#### **第二步：套用 CORS 配置**
+
+- 開啟您的終端機或命令提示字元。
+- 導覽至儲存 `cors.json` 檔案的目錄。
+- 執行下列命令，將 `<您的儲存空間儲存桶名稱>` 替換為您的 Firebase Storage 儲存桶名稱：
+
+```shell
+gsutil cors set cors.json gs://<您的儲存空間儲存桶名稱>
+```
+
+---
+
+#### **第三步：驗證 CORS 設定**
+
+- 若要確認 CORS 設定是否已正確套用，您可以使用下列命令獲取當前的 CORS 配置：
+
+```shell
+gsutil cors get gs://<您的儲存空間儲存桶名稱>
+```
+
+- 輸出結果應反映您在 `cors.json` 檔案中指定的設定。
+
+---
+
+#### **第四步：測試配置**
+
+- 嘗試從允許的來源（「https://ai.example.com」）將對話匯出為 PNG。
+- 如果一切設定正確，您應該不會遇到任何 CORS 問題。
+
+---
+
+> **備註：** 請務必確保您僅針對受信任的來源套用 CORS 設定，以維護應用程式的安全性。請根據您的具體需求調整允許的方法與標頭。
+
+---
+
+大功告成！您已成功為您的 Firebase Storage 儲存桶配置了 CORS，以允許來自特定來源的請求。請記住，套用配置時請將 `<您的儲存空間儲存桶名稱>` 替換為實際的名稱，並將 `https://ai.example.com` 替換為您自己的網域。
+
+</Callout>

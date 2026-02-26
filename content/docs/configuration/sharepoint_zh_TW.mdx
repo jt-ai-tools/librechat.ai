@@ -1,0 +1,275 @@
+---
+title: SharePoint 整合
+icon: Share2
+description: 為 LibreChat 配置 SharePoint Online 與 OneDrive for Business 整合
+---
+
+LibreChat 提供了企業級的 SharePoint Online 與 OneDrive for Business 整合功能，讓使用者能直接在對話中無縫瀏覽、選取並附加來自 Microsoft 365 環境的檔案。
+
+## 概覽
+
+SharePoint 整合允許使用者：
+- 瀏覽 SharePoint 文件庫與 OneDrive 檔案
+- 一次選取多個檔案（預設上限為 10 個）
+- 查看即時下載進度
+- 將來自 SharePoint 的檔案附加到對話中
+- 透過正確的存取控制維持企業安全性
+
+<Callout type="info" title="企業版功能">
+此功能需要 Microsoft 365/SharePoint Online，並專為使用 Azure Entra ID（前身為 Azure AD）驗證的企業部署所設計。
+</Callout>
+
+## 先決條件
+
+在配置 SharePoint 整合之前，請確保：
+
+1. **Azure Entra ID 身份驗證** 已正確配置並運作正常。
+2. **權杖重複使用 (Token Reuse)** 已啟用 (`OPENID_REUSE_TOKENS=true`)。
+3. 具備對您的 Azure 租戶 (tenant) 的 **管理員存取權限**，以便設定應用程式權限。
+4. 已啟用 **HTTPS**（生產環境的強制要求）。
+
+<Callout type="error" title="關鍵要求">
+SharePoint 整合若不啟用 `OPENID_REUSE_TOKENS=true` 將無法運作，因為它依賴代理人權杖流程 (on-behalf-of token flow) 來存取 Microsoft Graph API。
+</Callout>
+
+## Azure 應用程式註冊設定
+
+### 第一步：配置 API 權限
+
+1. 導覽至 [Azure 入口網站 (Azure Portal)](https://portal.azure.com) 中您的應用程式註冊。
+2. 點擊左側選單中的 **API permissions**（API 權限）。
+3. 點擊 **Add a permission**（新增權限）。
+
+### 第二步：新增 SharePoint 權限
+
+針對檔案選擇器介面：
+
+1. 從 API 清單中選擇 **SharePoint**。
+2. 選擇 **Delegated permissions**（委派權限）。
+3. 搜尋並選取：
+   - `AllSites.Read` - 讀取所有網站集合中的項目。
+4. 點擊 **Add permissions**。
+
+### 第三步：新增 Microsoft Graph 權限
+
+針對檔案下載：
+
+1. 再次點擊 **Add a permission**。
+2. 選擇 **Microsoft Graph**。
+3. 選擇 **Delegated permissions**。
+4. 搜尋並選取：
+   - `Files.Read.All` - 讀取使用者可存取的所有檔案。
+5. 點擊 **Add permissions**。
+
+### 第四步：授與管理員同意 (Grant Admin Consent)
+
+1. 新增完上述兩項權限後，您會看到它們列在清單中。
+2. 點擊 **Grant admin consent for [您的組織名稱]**。
+3. 在彈出視窗中確認同意。
+
+您的權限設定應如下所示：
+
+| API / 權限名稱 | 類型 | 說明 | 狀態 |
+|------------------------|------|-------------|---------|
+| Microsoft Graph - Files.Read.All | 委派 | 讀取使用者可存取的所有檔案 | ✅ 已授與 |
+| SharePoint - AllSites.Read | 委派 | 讀取所有網站集合中的項目 | ✅ 已授與 |
+
+## 環境變數配置
+
+將下列環境變數新增至您的 `.env` 檔案中：
+
+```bash filename=".env"
+# 啟用 SharePoint 檔案選擇器
+ENABLE_SHAREPOINT_FILEPICKER=true
+
+# 您的 SharePoint 租戶基礎 URL
+# 格式：https://[您的租戶名稱].sharepoint.com
+SHAREPOINT_BASE_URL=https://contoso.sharepoint.com
+
+# 檔案選擇器的 SharePoint 範圍
+# 將 'contoso' 替換為您實際的租戶名稱
+SHAREPOINT_PICKER_SHAREPOINT_SCOPE=https://contoso.sharepoint.com/AllSites.Read
+
+# 用於檔案下載的 Microsoft Graph 範圍
+SHAREPOINT_PICKER_GRAPH_SCOPE=Files.Read.All
+```
+
+<Callout type="warning" title="租戶名稱">
+請確保將上述範例中的 `contoso` 替換為您實際的 SharePoint 租戶名稱。這必須與您的 SharePoint URL 完全一致。
+</Callout>
+
+## 運作原理
+
+### 身份驗證流程
+
+1. 使用者透過 Azure Entra ID 進行身份驗證。
+2. 存取 SharePoint 選擇器時，LibreChat 會將使用者的權杖兌換為 SharePoint 存取權限。
+3. 權杖會被快取以優化效能（通常為 50 分鐘）。
+4. 獨立的範圍設定確保了最小權限原則。
+
+### 檔案選取程序
+
+1. 使用者點擊附件選單中的「來自 SharePoint (From SharePoint)」。
+2. SharePoint Online 檔案選擇器在嵌入的 iframe 中開啟。
+3. 使用者使用熟悉的 SharePoint 介面瀏覽並選取檔案。
+4. 選取的檔案將進入下載佇列。
+
+### 下載程序
+
+1. 檔案按批次下載（最多 3 個同時下載）。
+2. 進度指示器顯示當前檔案名稱與完成百分比。
+3. 下載完成的檔案會附加到對話中。
+4. 下載失敗將自動重試。
+
+## 使用者體驗
+
+### 存取 SharePoint 檔案
+
+正確配置後，使用者將在檔案附件選單中看到新選項：
+
+1. 點擊訊息輸入框中的附件圖標。
+2. 從選單中選擇 「From SharePoint」。
+3. SharePoint 檔案選擇器將會開啟。
+4. 根據需求瀏覽並選取檔案。
+5. 點擊 「Select」 開始下載。
+
+### 可用功能
+
+- **多檔案選取**：一次最多選取 10 個檔案。
+- **熟悉的介面**：使用原生的 SharePoint 檔案選擇器。
+- **進度追蹤**：查看即時下載進度。
+- **錯誤處理**：針對任何問題提供清晰的訊息。
+- **在地化**：支援多種語言。
+
+## 安全性考量
+
+### 存取控制
+
+- 僅能存取使用者在 SharePoint 中已有權限存取的檔案。
+- 遵循所有的 SharePoint 權限與原則。
+- 無提升權限或繞過安全控制的風險。
+
+### 權杖安全性
+
+- 使用安全的代理人流程 (on-behalf-of flow) 進行權杖兌換。
+- 權杖生命週期短且會自動刷新。
+- 不會長期儲存 SharePoint 憑證。
+
+### 範圍隔離
+
+- SharePoint 範圍僅限於讀取操作。
+- Graph API 範圍限制於檔案讀取存取。
+- 無法透過 LibreChat 修改或刪除檔案。
+
+## 疑難排解
+
+### 常見問題
+
+#### 未出現 「From SharePoint」 選項
+
+**原因**：功能未正確啟用或身份驗證問題。
+
+**解決方案**：
+1. 驗證 `.env` 中是否設定 `ENABLE_SHAREPOINT_FILEPICKER=true`。
+2. 確認 `OPENID_REUSE_TOKENS=true` 已設定。
+3. 檢查使用者是否已透過 Azure Entra ID 驗證。
+4. 變更配置後重啟 LibreChat。
+
+#### 檔案選擇器無法開啟
+
+**原因**：缺少權限或權限不正確。
+
+**解決方案**：
+1. 驗證 Azure 中是否已授與 SharePoint 權限。
+2. 確保已提供管理員同意。
+3. 檢查 `SHAREPOINT_BASE_URL` 是否與您的租戶完全一致。
+4. 確認生產環境中已啟用 HTTPS。
+
+#### 下載失敗或超時
+
+**原因**：Graph API 權限問題或網路問題。
+
+**解決方案**：
+1. 驗證是否已授與 `Files.Read.All` 權限。
+2. 檢查至 SharePoint 的網路連線性。
+3. 確保權杖未過期（若有需要請重新驗證）。
+4. 檢查瀏覽器主控台以獲取特定的錯誤訊息。
+
+### 偵錯模式
+
+若要進行疑難排解，請啟用偵錯日誌：
+
+```bash filename=".env"
+DEBUG_LOGGING=true
+DEBUG_CONSOLE=true
+```
+
+這將提供關於下列內容的詳細日誌：
+- 權杖兌換程序
+- 對 SharePoint 與 Graph 的 API 呼叫
+- 下載進度與錯誤
+- 身份驗證流程
+
+## 性能優化
+
+### 權杖快取
+
+- 快取權杖以減少身份驗證開銷。
+- 快取持續時間與權杖壽命一致（通常為 50 分鐘）。
+- 到期前自動刷新。
+
+### 並行下載
+
+- 最多同時下載 3 個檔案。
+- 防止對瀏覽器或伺服器造成過大壓力。
+- 兼顧速度與穩定性。
+
+### 檔案大小考量
+
+- 大檔案可能需要較多下載時間。
+- 進度指示器有助於管理使用者預期。
+- 請考慮您在 LibreChat 配置中設定的檔案上傳限制。
+
+## 最佳實踐
+
+### 對管理員
+
+1. **定期權限稽核**：定期檢視應用程式權限。
+2. **監控使用情況**：透過日誌追蹤 SharePoint 整合的使用情形。
+3. **更新文件**：確保內部文件包含您租戶的具體資訊。
+4. **完整測試**：在任何 Azure AD 變更後驗證功能。
+
+### 對終端使用者
+
+1. **檔案組織**：井然有序的 SharePoint 庫可提升使用者體驗。
+2. **檔案大小**：注意大檔案可能會減慢對話速度。
+3. **權限**：分享前確保您擁有檔案的存取權。
+4. **耐心下載**：給予多個或大型檔案足夠的下載時間。
+
+## 進階配置
+
+### 自定義範圍
+
+對於有特殊需求的組織，您可以自定義範圍：
+
+```bash filename=".env"
+# 範例：限制為特定的網站集合
+SHAREPOINT_PICKER_SHAREPOINT_SCOPE=https://contoso.sharepoint.com/sites/Engineering/AllSites.Read
+
+# 範例：使用更嚴格的 Graph 權限
+SHAREPOINT_PICKER_GRAPH_SCOPE=Files.Read
+```
+
+### 與資訊屏障 (Information Barriers) 整合
+
+如果您的組織使用資訊屏障：
+- SharePoint 整合遵循所有屏障原則。
+- 使用者僅能看到其被允許存取的內容。
+- 無需額外配置。
+
+## 相關文件
+
+- [Azure Entra 身份驗證](/docs/configuration/authentication/OAuth2-OIDC/azure_zh_TW)
+- [OpenID 權杖重複使用](/docs/configuration/authentication/OAuth2-OIDC/token-reuse_zh_TW)
+- [Microsoft Graph API 整合](/docs/configuration/authentication/OAuth2-OIDC/azure_zh_TW#進階microsoft-graph-api-整合)
+- [檔案上傳配置](/docs/configuration/librechat_yaml/object_structure/file_config_zh_TW)

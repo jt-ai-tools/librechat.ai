@@ -1,0 +1,37 @@
+---
+title: vLLM
+icon: VLLM
+description: vLLM 的配置範例
+---
+
+> vLLM 是一個高吞吐量且具備記憶體效率的 LLM 推理與服務引擎。
+
+**備註：**
+
+- **未知 (Not Known)**：未提供預設圖標，但建議啟用動態獲取模型列表 (fetching list of models)，以便從您的本地 vLLM 伺服器獲取可用模型。
+
+- `titleMessageRole` 的設定非常重要，因為某些本地 LLM 不接受將系統訊息角色 (system message roles) 用於標題產生（這是預設行為）。
+
+- 此配置假設您在指定的 baseURL 上有一個正在運行的本地 vLLM 伺服器。
+
+```yaml
+    - name: "vLLM"
+      apiKey: "vllm"
+      baseURL: "http://127.0.0.1:8023/v1"
+      models:
+        default: ['google/gemma-3-27b-it']
+        fetch: true
+      titleConvo: true
+      titleModel: "current_model"
+      titleMessageRole: "user"
+      summarize: false
+      summaryModel: "current_model"
+```
+
+上述配置將 LibreChat 連接至運行於 8023 連接埠的本地 vLLM 伺服器。它以 Gemma 3 27B 作為預設模型，但會從您的 vLLM 伺服器獲取所有可用的模型。
+
+## 關鍵配置選項
+
+- `apiKey`：vLLM 的簡易佔位符數值（本地部署通常不需要身份驗證）。
+- `baseURL`：您的 vLLM 伺服器運行位址。
+- `titleMessageRole`：設定為 「user」 而非預設的 「system」，因為某些本地 LLM 不支援系統訊息。

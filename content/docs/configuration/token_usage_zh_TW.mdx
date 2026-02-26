@@ -1,0 +1,249 @@
+---
+title: 代幣使用量 (Token Usage)
+icon: Coins
+description: 本文件涵蓋如何在 LibreChat 中針對 OpenAI/Plugins 終端進行代幣使用量的追蹤與控制。您將學習如何查看交易、啟用使用者餘額以及為您的帳號增加信用額度。
+---
+
+## 簡介
+
+自 `v0.6.0` 起，LibreChat 能準確地追蹤 OpenAI/Plugins 終端的代幣使用量。所有的代幣交易都儲存在資料庫中的 「Transactions」 集合。在未來的版本中，您將能切換顯示對話所產生的費用。
+
+目前，您可以透過啟用使用者餘額來限制使用者的代幣用量。現在不再是透過環境變數來配置代幣信用限制，而是改在 `librechat.yaml` 檔案中的 **balance** 區段設定這些選項。
+
+## 交易配置 (Transaction Configuration)
+
+交易系統控制是否將代幣使用紀錄儲存到資料庫中。這可以獨立於餘額系統進行配置。
+
+### 交易設定
+
+```yaml filename="librechat.yaml"
+version: 1.2.9
+
+# 交易設定
+# 控制是否將交易紀錄儲存至資料庫
+# 預設為 true (啟用)
+transactions:
+  enabled: false
+```
+
+**重要提示：** 當 `balance.enabled` 設定為 `true` 時，不論 `transactions.enabled` 的設定為何，交易紀錄都會自動啟用。這能透過維持所有代幣使用量的完整紀錄，確保餘額追蹤功能正常運作。
+
+    請參閱 [交易配置](/docs/configuration/librechat_yaml/object_structure/transactions_zh_TW) 頁面以獲取更多細節。
+
+## 餘額配置 (Balance Configuration)
+
+LibreChat 的餘額系統讓管理員可以配置如何管理使用者的代幣信用餘額。所有的餘額設定現在都透過 YAML 配置中的 `balance` 物件進行管理。
+
+**備註：** 這取代了先前的環境變數（`CHECK_BALANCE` 與 `START_BALANCE`），提供了一種更具結構化的方式來管理使用者餘額。
+
+### 完整的餘額設定
+
+```yaml filename="librechat.yaml"
+version: 1.3.4
+
+# 餘額設定
+balance:
+  enabled: true                # 為使用者啟用代幣信用餘額
+  startBalance: 20000          # 註冊時存入的初始代幣數
+  autoRefillEnabled: false     # 啟用自動代幣充值
+  refillIntervalValue: 30      # 充值間隔數值
+  refillIntervalUnit: "days"   # 充值間隔單位 (days, hours 等)
+  refillAmount: 10000          # 每次充值增加的代幣數
+```
+
+### 餘額設定說明
+
+- **enabled**：為使用者啟用代幣信用追蹤與餘額管理。設定為 `true` 時，系統將追蹤代幣使用量並執行餘額限制。
+
+- **startBalance**：指定使用者註冊時存入的初始代幣數量。這是所有新使用者的起始餘額。
+
+- **autoRefillEnabled**：決定是否啟用代幣信用的自動充值。設定為 `true` 時，系統將根據充值間隔自動為使用者餘額增加信用。
+
+- **refillIntervalValue**：指定自動充值代幣信用的時間間隔數值。與 `refillIntervalUnit` 搭配使用。
+
+- **refillIntervalUnit**：指定充值間隔的時間單位。支援的值包括 "seconds" (秒)、"minutes" (分)、"hours" (小時)、"days" (天)、"weeks" (週) 與 "months" (月)。
+
+- **refillAmount**：指定每次自動充值時加入使用者餘額的代幣數量。
+
+請參閱 [餘額配置](/docs/configuration/librechat_yaml/object_structure/balance_zh_TW) 頁面以獲取更多細節。
+
+## 自動充值如何運作
+
+當使用者的餘額被追蹤且啟用了 **autoRefill** 時，系統僅會在自上次充值以來經過指定的時間間隔後，才會自動為餘額增加信用。這是透過比對當前日期與 `lastRefill` 日期加上指定間隔來實現的。
+
+### 自動充值流程
+
+1. 當使用者嘗試消耗代幣時，系統會檢查當前餘額是否充足。
+2. 若交易後餘額將降至零或以下，系統會檢查是否啟用了自動充值。
+3. 若啟用了自動充值，系統會檢查自上次充值以來是否已過間隔時間：
+   - 系統會比對當前日期與 `lastRefill + refillInterval`。
+   - 若已過間隔時間，代幣將加入使用者餘額。
+   - `lastRefill` 日期會更新為當前日期。
+4. 若餘額充足（不論是原始餘額或充值後），交易將繼續進行。
+
+### 支援的時間單位
+
+`refillIntervalUnit` 可設定為下列任何值：
+- "seconds" (秒)
+- "minutes" (分)
+- "hours" (小時)
+- "days" (天)
+- "weeks" (週)
+- "months" (月)
+
+例如，若 `refillIntervalValue` 設定為 30 且 `refillIntervalUnit` 為 `days`，則系統僅會在距上次充值已滿 30 天的情況下，為使用者餘額增加 `refillAmount` 的代幣。
+
+### 餘額同步
+
+當使用者登入時，系統會自動將其餘額設定與當前的全域餘額配置同步。這確保了餘額配置的任何變更都能套用到所有使用者。
+
+同步程序：
+1. 檢查使用者是否有餘額紀錄。
+2. 若紀錄不存在，則以當前的 `startBalance` 建立一筆。
+3. 更新使用者的自動充值設定以符合全域配置。
+4. 確保使用者的充值間隔與金額符合全域設定。
+
+## 管理代幣餘額
+
+您可以手動增加或設定使用者餘額。這在開發期間或如果您計畫未來建構完整的餘額累計系統（例如透過管理員儀表板）時特別有用。
+
+### 增加餘額
+
+```bash filename="若要手動增加餘額，請執行下列指令："
+# 本地開發
+npm run add-balance
+
+# Docker (預設設定)
+docker-compose exec api npm run add-balance
+
+# Docker (部署設定)
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run add-balance"
+```
+
+```bash filename="您也可以指定電子郵件與要增加的代幣信用量，例如："
+# 本地開發
+npm run add-balance danny@librechat.ai 1000
+
+# Docker (預設設定)
+docker-compose exec api npm run add-balance danny@librechat.ai 1000
+
+# Docker (部署設定)
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run add-balance danny@librechat.ai 1000"
+```
+
+### 設定餘額
+
+此外，您可以為使用者設定特定餘額。現有的餘額將被新餘額覆寫。
+
+```bash filename="若要手動設定餘額，請執行下列指令："
+# 本地開發
+npm run set-balance
+
+# Docker (預設設定)
+docker-compose exec api npm run set-balance
+
+# Docker (部署設定)
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run set-balance"
+```
+
+```bash filename="您也可以指定電子郵件與要設定的代幣信用量，例如："
+# 本地開發
+npm run set-balance danny@librechat.ai 1000
+
+# Docker (預設設定)
+docker-compose exec api npm run set-balance danny@librechat.ai 1000
+
+# Docker (部署設定)
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run set-balance danny@librechat.ai 1000"
+```
+
+### 列出餘額
+
+```bash filename="若要查看使用者的餘額，您可以執行："
+# 本地開發
+npm run list-balances
+
+# Docker (預設設定)
+docker-compose exec api npm run list-balances
+
+# Docker (部署設定)
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run list-balances"
+```
+
+這對於追蹤個人用途的使用量非常有效；1000 信用點 = $0.001 (1 毫美金)。
+
+## 代幣使用與餘額注意事項
+
+- 啟用摘要功能後，若需要摘要的內容成本 + 您的訊息負載超過了當前餘額，您將被禁止發送 API 請求。
+- 對於 OpenAI 呼叫，提示詞代幣的計算非常準確，但對於外掛程式 Plugins 則非 100% 準確（由於函式呼叫的關係）。它非常接近且偏向保守，這意味著其計數可能會多出 2-5 個代幣。
+- 系統允許由補全 (completion) 代幣產生的欠額。它僅檢查您是否有足夠的提示詞代幣，對補全代幣則相當寬容。下圖詳細說明了其邏輯。
+- 話雖如此，外掛程式會在每個產生步驟進行檢查，因為該過程涉及多次 API 呼叫。LLM 自初始使用者提示詞後產生的任何內容，都會在錯誤訊息中分享給使用者，如下所示。
+- 標題產生有 150 個代幣的緩衝空間，因為這是一個兩步驟的過程，平均總計約 200 個代幣。在餘額不足的情況下，標題產生會在產生任何花費前取消，且不會拋出錯誤。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/78175053-9c38-44c8-9b56-4b81df61049e)
+
+## 更多細節
+來源：[LibreChat/discussions/1640](https://github.com/danny-avila/LibreChat/discussions/1640#discussioncomment-8251970)
+
+> "rawAmount": -000, // 這是什麼？
+
+根據分詞器 (tokenizer) 演算法計算出的原始代幣數量。
+
+>    "tokenValue": -00000, // 這是什麼？
+
+代幣信用價值。1000 信用點 = $0.001 (1 毫美金)
+
+> "rate": 00, // 這是什麼？
+
+代幣計為信用點的費率。
+
+例如，gpt-3.5-turbo-1106 對於使用者提示詞（輸入）的費率為 1，對於補全（輸出）的費率為 2。
+
+| 模型                 | 輸入 (Input)         | 輸出 (Output)        |
+|-----------------------|----------------------|----------------------|
+| gpt-3.5-turbo-1106    | $0.0010 / 1K tokens  | $0.0020 / 1K tokens  |
+
+
+給定提供的範例：
+```sh
+    "rawAmount": -137
+    "tokenValue": -205.5
+    "rate": 1.5
+```
+
+```math
+	ext{代幣價值 (Token Value)} = (	ext{原始代幣數量}) 	imes (	ext{費率})
+```
+
+```math
+137 	imes 1.5 = 205.5
+```
+
+若要根據 **代幣價值** 獲取真實的美元花費金額：
+
+```math
+\frac{	ext{代幣價值}}{1,000,000} = \left(\frac{	ext{原始代幣數量} 	imes 	ext{費率}}{1,000,000}ight)
+```
+
+```math
+\frac{205.5}{1,000,000} = \$0.0002055 	ext{ 美元}
+```
+
+編輯費率的相關檔案位於 `api/models/tx.js`。
+
+未來很快將能透過 `librechat.yaml` 檔案進行更多自定義設定。
+
+## 預覽
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/39a1aa5d-f8fc-43bf-81f2-299e57d944bb)
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/e1b1cc3f-8981-4c7c-a5f8-e7badbc6f675)
+
+## 額外備註
+
+- 啟用摘要功能時，若內容成本加上訊息負載超過當前餘額，API 請求將被封鎖。
+- 系統對補全代幣較為寬容，餘額檢查主要針對提示詞代幣。
+- 標題產生會加入緩衝空間（約 150 個代幣），以應對兩步驟程序。
+- 代幣信用可換算為金錢價值（例如：1000 信用點 = $0.001 美元）。
+
+如需更多細節與自定義設定，請參閱 [LibreChat 文件](https://www.librechat.ai/docs/configuration/librechat_yaml)。

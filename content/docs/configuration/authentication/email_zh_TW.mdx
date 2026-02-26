@@ -1,0 +1,226 @@
+---
+title: 電子郵件設定
+icon: Mail
+description: 本指南說明如何配置安全的電子郵件驗證與密碼重設功能。您可以將其設定為搭配各種電子郵件服務運作，包括 Gmail、Mailgun 以及自定義郵件伺服器。
+---
+
+如需快速概覽，請參閱此處提供的使用者指南：[密碼重設](/docs/features/password_reset_zh_TW)
+
+## 一般設定
+
+LibreChat 支援多種電子郵件供應商：
+- **Mailgun API** - 推薦用於封鎖 SMTP 連接埠的伺服器
+- **SMTP 服務** - 透過 Gmail、Outlook 或自定義郵件伺服器進行傳統郵件發送
+
+### 共同配置
+
+Mailgun 與 SMTP 都會使用到以下變數：
+
+<OptionTable
+  options={[
+    ['EMAIL_FROM', '字串', '寄件者電子郵件地址。必填。','EMAIL_FROM=noreply@librechat.ai'],
+    ['EMAIL_FROM_NAME', '字串', '寄件者名稱（若未設定則預設為 APP_TITLE）。','EMAIL_FROM_NAME=LibreChat'],
+  ]}
+/>
+
+### Mailgun 配置（推薦）
+
+Mailgun 特別適用於部署在為了防止垃圾郵件而封鎖 SMTP 連接埠的伺服器上。當同時設定 `MAILGUN_API_KEY` 與 `MAILGUN_DOMAIN` 時，LibreChat 將優先使用 Mailgun 而非 SMTP。
+
+<OptionTable
+  options={[
+    ['MAILGUN_API_KEY', '字串', '您的 Mailgun API 金鑰（Mailgun 必填）。','MAILGUN_API_KEY='],
+    ['MAILGUN_DOMAIN', '字串', '您的 Mailgun 網域，例如 mg.yourdomain.com（Mailgun 必填）。','MAILGUN_DOMAIN='],
+    ['MAILGUN_HOST', '字串', '自定義 Mailgun API 主機（選填）。歐盟地區請使用 https://api.eu.mailgun.net。','MAILGUN_HOST=https://api.mailgun.net'],
+  ]}
+/>
+
+### SMTP 配置
+
+**基本配置**
+
+如果您想使用其中一種預定義服務，僅需配置以下變數：
+如需更多關於支援的電子郵件服務資訊：https://community.nodemailer.com/2-0-0-beta/setup-smtp/well-known-services/
+
+<OptionTable
+  options={[
+    ['EMAIL_SERVICE', '字串', '電子郵件服務（例如：Gmail, Outlook）。','EMAIL_SERVICE='],
+    ['EMAIL_USERNAME', '字串', '驗證用的使用者名稱。','EMAIL_USERNAME='],
+    ['EMAIL_PASSWORD', '字串', '驗證用的密碼。','EMAIL_PASSWORD='],
+  ]}
+/>
+
+**進階配置**
+
+如果您想使用通用的 SMTP 服務，或需要針對預定義供應商進行進階配置，請同時配置這些變數：
+
+<OptionTable
+  options={[
+    ['EMAIL_HOST', '字串', '郵件伺服器主機。','EMAIL_HOST='],
+    ['EMAIL_PORT', '數字', '郵件伺服器連接埠。','EMAIL_PORT=25'],
+    ['EMAIL_ENCRYPTION', '字串', '加密方法（starttls, tls 等）。','EMAIL_ENCRYPTION='],
+    ['EMAIL_ENCRYPTION_HOSTNAME', '字串', '加密用的主機名稱。','EMAIL_ENCRYPTION_HOSTNAME='],
+    ['EMAIL_ALLOW_SELFSIGNED', '布林值', '允許自我簽署憑證。','EMAIL_ALLOW_SELFSIGNED='],
+  ]}
+/>
+
+<Callout type="warning" title="警告">
+**若未正確配置 Mailgun 或 SMTP，LibreChat 將使用不安全的密碼重設方式！這將允許任何人在您的伺服器上立即重設任何密碼，且完全不需要發送郵件！**
+</Callout>
+
+## 使用 Mailgun 設定
+
+若要設定 Mailgun，請遵循以下步驟：
+
+1. 在 [mailgun.com](https://www.mailgun.com/) 註冊 Mailgun 帳戶。
+2. 在 Mailgun 儀表板中新增並驗證您的網域。
+3. 導覽至 API Keys 區段並複製您的 Private API 金鑰。
+4. 在 `.env` 檔案中，按如下方式修改變數：
+
+<OptionTable
+  options={[    
+    ['MAILGUN_API_KEY', '字串', '您的 Mailgun 私密 API 金鑰', 'MAILGUN_API_KEY=your-mailgun-api-key'],
+    ['MAILGUN_DOMAIN', '字串', '您已驗證的 Mailgun 網域', 'MAILGUN_DOMAIN=mg.yourdomain.com'],
+    ['EMAIL_FROM', '字串', '寄件者電子郵件地址', 'EMAIL_FROM=noreply@yourdomain.com'],
+    ['EMAIL_FROM_NAME', '字串', '寄件者名稱', 'EMAIL_FROM_NAME=LibreChat'],
+    ['MAILGUN_HOST', '字串', '（選填）針對歐盟地區', 'MAILGUN_HOST=https://api.eu.mailgun.net'],
+  ]}
+/>
+
+<Callout type="info" title="備註">
+如果您的 Mailgun 帳戶位於歐盟地區，請務必設定 `MAILGUN_HOST=https://api.eu.mailgun.net`。
+</Callout>
+
+## 使用 Gmail 設定
+
+若要設定 Gmail，請遵循以下步驟：
+
+1. 建立一個 Google 帳戶並啟用兩步驟驗證。
+2. 在 **[Google 帳戶設定](https://myaccount.google.com/)** 中，點擊「安全性」分頁並開啟「兩步驟驗證」。
+3. 向下捲動並開啟「應用程式密碼」。在應用程式選擇「郵件」，裝置選擇「其他」，並給予一個隨機名稱。
+4. 點擊「產生」以建立密碼，並複製產生的密碼。
+5. 在 `.env` 檔案中，按如下方式修改變數：
+
+<OptionTable
+  options={[    
+    ['EMAIL_SERVICE', '字串', 'gmail', 'EMAIL_SERVICE=gmail'],
+    ['EMAIL_USERNAME', '字串', '您的電子郵件', 'EMAIL_USERNAME=your-email'],
+    ['EMAIL_PASSWORD', '字串', '您的應用程式密碼', 'EMAIL_PASSWORD=your-email-password'],
+    ['EMAIL_FROM', '字串', '寄件者欄位的電子郵件，例如 noreply@librechat.ai', 'EMAIL_FROM=noreply@librechat.ai'],
+    ['EMAIL_FROM_NAME', '字串', '我的 LibreChat 伺服器', 'EMAIL_FROM_NAME=LibreChat'],
+  ]}
+/>
+
+## 使用自定義郵件伺服器設定
+
+若要設定自定義郵件伺服器，請遵循以下步驟：
+
+1. 從您的供應商獲取 SMTP 登入資料。步驟因供應商而異，但通常會列出所有變數的數值。
+2. 在 `.env` 檔案中，按如下方式修改變數（假設使用一些合理的範例值）：
+
+<OptionTable
+  options={[    
+    ['EMAIL_HOST', '字串', '要連接的主機名稱', 'EMAIL_HOST=mail.example.com'],
+    ['EMAIL_PORT', '整數', '要連接的連接埠','EMAIL_PORT=25'],
+    ['EMAIL_ENCRYPTION', '字串', '加密類型','EMAIL_ENCRYPTION=starttls'],
+    ['EMAIL_USERNAME', '字串', '您的郵件使用者名稱','EMAIL_USERNAME=usernale@example.com'],
+    ['EMAIL_PASSWORD', '字串', '您的應用程式密碼','EMAIL_PASSWORD=password'],
+    ['EMAIL_FROM', '字串', '寄件者欄位的電子郵件','EMAIL_FROM=noreply@librechat.ai'],
+    ['EMAIL_FROM_NAME', '字串', '將出現在「寄件者」欄位的名稱','EMAIL_FROM_NAME=LibreChat'],
+  ]}
+/>
+
+## 完整配置範例
+
+### 範例 1：Mailgun 配置
+
+```bash
+# ===================================
+# 電子郵件配置 - Mailgun
+# ===================================
+# Mailgun 推薦用於封鎖 SMTP 連接埠的伺服器
+
+# 必要的 Mailgun 設定
+MAILGUN_API_KEY=your-mailgun-api-key
+MAILGUN_DOMAIN=mg.yourdomain.com
+
+# 選填：針對歐盟地區
+# MAILGUN_HOST=https://api.eu.mailgun.net
+
+# 通用郵件設定
+EMAIL_FROM=noreply@yourdomain.com
+EMAIL_FROM_NAME=LibreChat
+
+# 啟用密碼重設功能
+ALLOW_PASSWORD_RESET=true
+```
+
+### 範例 2：Gmail SMTP 配置
+
+```bash
+# ===================================
+# 電子郵件配置 - Gmail SMTP
+# ===================================
+# 傳統 SMTP 配置
+
+# Gmail 服務配置
+EMAIL_SERVICE=gmail
+EMAIL_USERNAME=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+
+# 通用郵件設定
+EMAIL_FROM=your-email@gmail.com
+EMAIL_FROM_NAME=LibreChat
+
+# 啟用密碼重設功能
+ALLOW_PASSWORD_RESET=true
+```
+
+### 範例 3：自定義 SMTP 伺服器配置
+
+```bash
+# ===================================
+# 電子郵件配置 - 自定義 SMTP
+# ===================================
+# 適用於自定義郵件伺服器
+
+# SMTP 伺服器詳情
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_ENCRYPTION=starttls
+EMAIL_USERNAME=username@example.com
+EMAIL_PASSWORD=your-password
+
+# 選填設定
+# EMAIL_ENCRYPTION_HOSTNAME=
+# EMAIL_ALLOW_SELFSIGNED=false
+
+# 通用郵件設定
+EMAIL_FROM=noreply@example.com
+EMAIL_FROM_NAME=LibreChat
+
+# 啟用密碼重設功能
+ALLOW_PASSWORD_RESET=true
+```
+
+## 疑難排解
+
+### Mailgun 問題
+
+1. **身份驗證失敗**：確保您的 Mailgun API 金鑰正確且具備發送權限。
+2. **找不到網域**：驗證您的 Mailgun 網域已在您的 Mailgun 帳戶中正確配置。
+3. **歐盟地區問題**：如果您的 Mailgun 帳戶位於歐盟地區，請確保設定 `MAILGUN_HOST=https://api.eu.mailgun.net`。
+4. **退而使用 SMTP**：如果僅設定了 `MAILGUN_API_KEY` 或 `MAILGUN_DOMAIN` 其中之一，系統將退而使用 SMTP 配置。
+
+### SMTP 問題
+
+1. **連線被拒絕**：檢查您的伺服器是否允許透過指定連接埠進行對外 SMTP 連線。
+2. **身份驗證失敗**：驗證您的使用者名稱與密碼是否正確。
+3. **Gmail 應用程式密碼**：對於 Gmail，您必須使用「應用程式專用密碼」，而非一般密碼。
+4. **自我簽署憑證**：如果您的郵件伺服器使用自我簽署憑證，請設定 `EMAIL_ALLOW_SELFSIGNED=true`。
+
+### 一般問題
+
+1. **郵件未發送**：檢查 LibreChat 日誌以獲取錯誤訊息。
+2. **不安全的密碼重設**：當 Mailgun 或 SMTP 均未正確配置時會發生此情況。
+3. **寄件者地址問題**：確保 `EMAIL_FROM` 地址有效且已獲授權從您的郵件服務發送。

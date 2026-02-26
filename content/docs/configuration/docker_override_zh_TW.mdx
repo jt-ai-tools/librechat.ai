@@ -1,0 +1,97 @@
+---
+title: Docker 覆寫 (Docker Override)
+icon: Container
+description: "如何使用 Docker Compose 覆寫檔案：在 Docker Compose 中，覆寫檔案是一個強大的功能，允許您修改由主 `docker-compose.yml` 提供的預設配置，而無需直接編輯或複製整個原始檔案。"
+---
+
+在 Docker Compose 中，覆寫檔案是一個強大的功能，允許您修改由主 `docker-compose.yml` 提供的預設配置，而無需直接編輯或複製整個原始檔案。覆寫檔案的主要用途是針對本地開發進行自定義，當您執行 `docker compose up` 時，Docker Compose 會合併 `docker-compose.yml` 與 `docker-compose.override.yml` 的配置。
+
+以下是如何使用 `docker-compose.override.yml` 的快速指南：
+
+> 備註：請參考 `docker-compose.override.yml.example` 以獲取更多範例。
+
+如需更多資訊，請參閱 Docker 官方文件：
+
+- **[docker docs - 瞭解多個 compose 檔案](https://docs.docker.com/compose/multiple-compose-files/extends/#understanding-multiple-compose-files)**
+- **[docker docs - 合併 compose 檔案](https://docs.docker.com/compose/multiple-compose-files/merge/#merge-compose-files)**
+- **[docker docs - 指定多個 compose 檔案](https://docs.docker.com/compose/reference/#specifying-multiple-compose-files)**
+
+## 第一步：建立 `docker-compose.override.yml` 檔案
+
+如果您尚未擁有 `docker-compose.override.yml` 檔案，可以透過複製範例內容來建立：
+
+```bash filename="複製範例覆寫檔案"
+cp docker-compose.override.yml.example docker-compose.override.yml
+```
+
+當您執行 docker-compose 命令時，Docker Compose 會自動識別此檔案。
+
+## 第二步：編輯覆寫檔案
+
+使用 VS Code 或任何文字編輯器開啟您的 `docker-compose.override.override.yml` 檔案。
+
+透過取消註釋相關區塊並根據需要進行客製化，來完成您想要的變更。
+
+> 警告：每個服務名稱（api, mongodb, meilisearch...）只能指定一次。如果您想在一個服務中覆寫多個設定，則必須相應地合併編輯。
+
+### 範例
+
+如果您想確保 Docker 能使用您的 `librechat.yaml` 檔案進行 [自定義終端與配置](/docs/configuration/librechat_yaml/index_zh_TW)，配置如下：
+
+```yaml filename="docker-compose.override.yml"
+services:
+  api:
+    volumes:
+      - ./librechat.yaml:/app/librechat.yaml
+```
+
+或者，如果您想在本地建置 `api` 服務的映像、使用 LibreChat 配置檔案，並使用不需要 AVX 支援的舊版 Mongo，您的 `docker-compose.override.yml` 可能如下所示：
+
+```yaml filename="docker-compose.override.yml"
+services:
+  api:
+    volumes:
+      - ./librechat.yaml:/app/librechat.yaml
+    image: librechat
+    build:
+      context: .
+      target: node
+
+  mongodb:
+    image: mongo:4.4.18
+```
+
+> 備註：若您將 MongoDB 或 Meilisearch 的連接埠公開至公網，請務必小心，這可能會使您的數據面臨風險。
+
+## 第三步：套用變更
+
+要套用配置變更，只需像平常一樣執行 Docker Compose。Docker Compose 會自動同時採納 `docker-compose.yml` 與 `docker-compose.override.yml`：
+
+```bash filename="套用變更"
+docker compose up -d
+```
+
+## 第四步：驗證變更
+
+在使用修改後的配置啟動服務後，您可以使用 `docker ps` 命令列出執行中的容器及其屬性（如連接埠），以驗證變更是否已生效。
+
+## 重要考量
+
+- **優先順序**：在覆寫檔案中定義的數值優先於原始 `docker-compose.yml` 檔案中指定的數值。
+- **安全性**：在自定義連接埠並公開服務時，請始終注意安全性影響。避免在生產環境或敏感環境中使用預設值。
+
+遵循這些步驟與考量，您可以輕鬆且安全地修改 Docker Compose 配置，而無需更動原始 `docker-compose.yml` 檔案，讓管理與維護不同環境或本地客製化變得更加簡單。
+
+
+## `deploy-compose.yml`
+
+要將覆寫檔案與非預設的 Docker Compose 檔案（如 `deploy-compose.yml`）搭配使用，您在執行 Docker Compose 命令時必須明確指定這兩個檔案。
+
+Docker Compose 允許您指定多個 `-f` 或 `--file` 選項來包含多個 compose 檔案，後續檔案中的設定將覆寫或補充前一個檔案中的設定。
+
+如果您使用 `deploy-compose.yml` 作為主要的 Docker Compose 配置，且擁有一個名為 `docker-compose.override.yml` 的覆寫檔案（您可以隨意命名覆寫檔案，但可能已經存在此特定檔案），您可以如下執行命令：
+
+```bash
+docker compose -f deploy-compose.yml -f docker-compose.override.yml pull
+docker compose -f deploy-compose.yml -f docker-compose.override.yml up
+```

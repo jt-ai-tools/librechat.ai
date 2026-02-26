@@ -1,0 +1,111 @@
+---
+title: Meilisearch
+icon: Search
+description: 為 LibreChat 設定 MeiliSearch
+---
+
+- 參見：[LibreChat 中的搜尋功能](/docs/features/search_zh_TW)以獲取快速概覽。
+
+MeiliSearch 是一款強大的開源搜尋引擎，透過啟用全文檢索、糾錯 (typo tolerance) 以及對過往對話的即時搜尋結果，增強了 LibreChat 的功能。
+
+請遵循以下步驟為 LibreChat 設定 MeiliSearch：
+
+## 1. 下載 MeiliSearch
+    - 前往 MeiliSearch 的 GitHub 釋出頁面：https://github.com/meilisearch/meilisearch/releases
+    - 根據您的作業系統下載最新版本的 MeiliSearch（例如：Linux 使用 `meilisearch-linux-amd64.tar.gz`，macOS 使用 `meilisearch-macos-amd64`，Windows 使用 `meilisearch-windows-amd64.zip`）。
+
+## 2. 解壓縮/安裝 MeiliSearch
+    - Linux/macOS：將下載的檔案解壓縮至您選擇的目錄。
+    - Windows：將 ZIP 檔案解壓縮至您選擇的目錄。
+
+## 3. 賦予 MeiliSearch 執行檔權限 (Linux/macOS)
+    - 開啟終端機並導覽至解壓縮 MeiliSearch 的目錄。
+    - 執行下列指令賦予執行權限：
+        ```sh filename="賦予執行權限"
+        chmod +x meilisearch
+        ```
+
+## 4. 產生主金鑰 (Master Key)
+    - 開啟終端機（Windows 請使用命令提示字元）並導覽至 MeiliSearch 目錄。
+    - 執行下列指令產生主金鑰：
+        ```sh filename="產生主金鑰"
+        ./meilisearch --generate-master-key
+        ```
+    - 複製產生的主金鑰，您稍後會用到。
+
+## 5. 啟動 MeiliSearch
+    - 在同一個終端機中，執行下列指令啟動 MeiliSearch，將 `<您的主金鑰>` 替換為上一步產生的金鑰：
+        ```sh filename="啟動 MeiliSearch"
+        ./meilisearch --master-key=<您的主金鑰>
+        ```
+    - MeiliSearch 將開始在預設連接埠 (`7700`) 上執行。
+
+## 6. 更新 LibreChat 的環境變數
+    - 開啟 LibreChat 專案根目錄下的 `.env` 檔案。
+    - 加入或更新下列 MeiliSearch 配置：
+
+        ```sh filename=".env"
+        SEARCH=true
+        MEILI_NO_ANALYTICS=true
+        MEILI_HOST=http://localhost:7700
+        MEILI_MASTER_KEY=<您的主金鑰>
+        ```
+
+    - 將 `<您的主金鑰>` 替換為您稍早產生的金鑰。
+
+## 7. 啟動/重啟 LibreChat
+    - 啟動或重新啟動您的 LibreChat 應用程式。
+
+大功告成！設定完成後，LibreChat 現在應已啟用對話搜尋功能，讓使用者能進行全文檢索、享有糾錯功能，並即時獲得過往對話的搜尋結果。
+
+備註：請確保 MeiliSearch 程序在背景持續執行，搜尋功能才能正常運作。您可能需要設定腳本或服務來讓 MeiliSearch 持久運行。
+
+## 8. 選填：在多節點設定中停用 Meilisearch/資料庫同步
+
+如果您是在 Node 叢集或多節點環境中執行 LibreChat，且想停用 MeiliSearch 索引同步，可以在 `.env` 檔案中將 `MEILI_NO_SYNC` 環境變數設定為 `true`。這能防止您的資料庫文件在多個 LibreChat 實例間重複同步，避免不必要的資源消耗，因為理論上應僅由一個實例負責索引工作。
+
+        ```sh filename=".env"
+        MEILI_NO_SYNC=true
+        ```
+
+## 9. 重設 MeiliSearch 同步
+
+如果您遇到 MeiliSearch 數據被刪除或損毀的情況，或是 LibreChat 誤以為所有數據都已同步（例如：升級 MeiliSearch 或刪除其數據檔案後），您可以使用重設同步腳本來強制進行完整的重新同步。
+
+此腳本會重置 MongoDB 中的同步標記，這將促使 LibreChat 在下次啟動或同步檢查時，將所有對話與訊息重新索引至 MeiliSearch 中。
+
+### 執行重設腳本
+
+```bash filename="執行下列指令以重置同步標記："
+# 本地開發
+npm run reset-meili-sync
+
+# Docker (預設設定)
+docker-compose exec api npm run reset-meili-sync
+
+# Docker (部署設定)
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run reset-meili-sync"
+```
+
+### 腳本作用
+
+1. 在 MongoDB 中將所有訊息與對話的 `_meiliIndex` 標記重置為 `false`。
+2. 顯示已重置的文件數量以及待同步的文件總數。
+3. 提供控制同步行為的進階選項。
+
+### 何時使用此腳本
+
+- 刪除 MeiliSearch 數據檔案後。
+- 升級 MeiliSearch 到需要重新索引的新版本時。
+- 若 LibreChat 顯示對話已「完全同步」但 MeiliSearch 卻遺失數據時。
+- 還原 MongoDB 備份但沒有對應的 MeiliSearch 數據時。
+
+### 進階同步選項
+
+執行重設腳本後，您可以透過這些環境變數控制同步行為：
+
+- `MEILI_SYNC_BATCH_SIZE`：每批次同步的文件數量（預設：100）。
+- `MEILI_SYNC_DELAY_MS`：批次間的延遲毫秒數（預設：100ms）。
+- `MEILI_SYNC_THRESHOLD`：觸發同步前最少未同步的文件數（預設：1000）。
+
+備註：重置同步標記後，您需要重啟 LibreChat 才能開始重新同步。

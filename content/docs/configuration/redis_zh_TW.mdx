@@ -1,0 +1,293 @@
+---
+title: Redis
+icon: Database
+description: 在 LibreChat 中設定 Redis 以用於快取、工作階段儲存與水平擴充
+---
+
+本指南涵蓋如何為 LibreChat 中的快取與工作階段儲存配置 Redis。Redis 提供了顯著的性能提升，並且是 **水平擴充 (horizontal scaling) 的必要條件** —— 如果您在負載平衡器後方執行多個 LibreChat 實例，Redis 可確保所有實例間的狀態一致。
+
+## 目錄
+
+- [基礎設定](#基礎設定)
+- [連接類型](#連接類型)
+- [安全性配置](#安全性配置)
+- [進階選項](#進階選項)
+- [性能調優](#性能調優)
+- [配置範例](#配置範例)
+- [可恢復串流 (Resumable Streams)](#可恢復串流)
+
+## 基礎設定
+
+### 啟用 Redis
+
+若要在 LibreChat 中啟用 Redis，請在您的 `.env` 檔案中設定下列環境變數：
+
+```bash
+USE_REDIS=true
+```
+
+**重要提示**：當 `USE_REDIS=true` 時，您必須同時提供 `REDIS_URI`。若啟用了 Redis 但未提供連接 URI，應用程式將會報錯。
+
+## 連接類型
+
+### 單一 Redis 實例
+
+針對標準的單一 Redis 伺服器設定：
+
+```bash
+# 本地 Redis 實例
+REDIS_URI=redis://127.0.0.1:6379
+
+# 遠端 Redis 實例
+REDIS_URI=redis://您的-redis-主機:6379
+```
+
+### Redis 叢集 (Cluster)
+
+針對具備多個節點的 Redis 叢集部署：
+
+```bash
+# 多個 Redis 叢集節點
+REDIS_URI=redis://127.0.0.1:7001,redis://127.0.0.1:7002,redis://127.0.0.1:7003
+```
+
+當提供多個 URI 時，應用程式會自動偵測叢集模式。
+
+如果您的 Redis 叢集僅有一個單一 URI，您可以使用 `USE_REDIS_CLUSTER` 環境變數來啟用叢集模式：
+
+```bash
+# 單一 URI 的 Redis 叢集
+REDIS_URI=redis://127.0.0.1:7001
+USE_REDIS_CLUSTER=true
+```
+
+### 具備 TLS/SSL 的 Redis
+
+針對安全的 Redis 連線：
+
+```bash
+# 具備 TLS 加密的 Redis
+REDIS_URI=rediss://127.0.0.1:6380
+
+# 用於 TLS 驗證的 CA 憑證路徑
+REDIS_CA=/path/to/ca-cert.pem
+```
+
+## 安全性配置
+
+### 身份驗證
+
+配置 Redis 身份驗證憑證：
+
+```bash
+# 方法 1：將憑證包含在 URI 中
+# 同時包含使用者名稱與密碼
+REDIS_URI=redis://myuser:mypassword@127.0.0.1:6379
+
+
+# 方法 2：使用獨立的環境變數
+REDIS_URI=redis://127.0.0.1:6379
+REDIS_USERNAME=您的_redis_使用者名稱
+REDIS_PASSWORD=您的_redis_密碼
+```
+
+**備註**：若同時提供，獨立的使用者名稱/密碼變數將會覆寫 URI 中的憑證。
+
+### TLS 配置
+
+針對加密連線：
+
+```bash
+# 透過 rediss:// 協定啟用 TLS
+REDIS_URI=rediss://您的-redis-主機:6380
+
+# 提供 CA 憑證進行驗證
+REDIS_CA=/path/to/your/ca-certificate.pem
+```
+### 搭配 Elasticache 的 TLS
+
+Elasticache 可能需要為 TLS 連線使用備用的 dnsLookup。詳情請參閱此網頁上的 "Special Note: Aws Elasticache Clusters with TLS" 區段：https://www.npmjs.com/package/ioredis
+
+```bash
+# 啟用 Redis 備用 dnsLookup
+REDIS_USE_ALTERNATIVE_DNS_LOOKUP=true
+```
+
+## 進階選項
+
+### 鍵值前綴 (Key Prefixing)
+
+Redis 鍵值前綴可透過隔離共用同一部 Redis 伺服器的不同環境、版本或實例之間的快取數據，防止跨部署污染。這對於下列情況至關重要：
+
+- **多租戶部署**：區分測試 (staging)、生產 (production) 與開發 (development) 環境。
+- **藍綠部署**：隔離不同應用程式版本間的快取。
+
+```bash
+# 選項 1：來自環境變數的動態前綴（推薦用於雲端環境）
+
+# Google Cloud Platform - Cloud Run
+REDIS_KEY_PREFIX_VAR=K_REVISION
+
+# AWS - ECS/Fargate
+REDIS_KEY_PREFIX_VAR=AWS_EXECUTION_ENV
+
+# Azure Container Instances
+REDIS_KEY_PREFIX_VAR=CONTAINER_NAME
+
+# Kubernetes - Pod 名稱或部署名稱
+REDIS_KEY_PREFIX_VAR=HOSTNAME
+REDIS_KEY_PREFIX_VAR=POD_NAME
+
+# Kubernetes - 自定義部署識別碼
+REDIS_KEY_PREFIX_VAR=DEPLOYMENT_ID
+
+# Heroku
+REDIS_KEY_PREFIX_VAR=DYNO
+
+# 選項 2：靜態前綴（用於手動控制）
+REDIS_KEY_PREFIX=librechat-prod-v2
+REDIS_KEY_PREFIX=staging-branch-feature-x
+REDIS_KEY_PREFIX=dev-john-local
+```
+
+**重要提示**：您不能同時設定 `REDIS_KEY_PREFIX_VAR` 與 `REDIS_KEY_PREFIX`。
+
+**未設定前綴導致污染的範例**：
+- 生產環境快取被測試環境部署覆寫。
+- 功能分支的測試損毀了主分支的快取。
+- 舊版部署提供過期的快取數據。
+
+**鍵值前綴格式**：
+- IoRedis 用戶端：`{前綴}::{鍵值}`
+- Keyv 用戶端：由儲存層處理。
+
+### 連接限制
+
+配置 Redis 連接限制：
+
+```bash
+# 事件監聽器的最大數量（預設值：40）
+REDIS_MAX_LISTENERS=40
+```
+
+### 連接維持 (Keep-Alive)
+
+配置 Redis ping 間隔以維持連線：
+
+```bash
+# Redis ping 間隔（秒，預設值：0 = 停用）
+# 設定為正整數時，Redis 用戶端將以此間隔向伺服器發送 ping
+# 若未設定或為 0，則不執行 ping（推薦用於大多數情境）
+# 範例：300 = 每 5 分鐘 ping 一次
+REDIS_PING_INTERVAL=300
+```
+
+**重要提示**：
+- 設定 `REDIS_PING_INTERVAL=0` 或省略它將完全停用 ping。
+- 僅在您遇到連線超時問題時才設定正值。
+- 間隔以秒為單位，並同時套用於 IoRedis 與 Keyv Redis 用戶端。
+- 範例數值：`300` (5 分鐘), `600` (10 分鐘), `60` (1 分鐘)。
+
+### 選擇性記憶體快取
+
+即使啟用了 Redis，仍強制特定的快取命名空間使用記憶體儲存：
+
+```bash
+# 以逗號分隔的快取鍵值清單
+FORCED_IN_MEMORY_CACHE_NAMESPACES=ROLES,MESSAGES
+```
+
+有效的快取鍵值定義於 `librechat-data-provider` 的 `CacheKeys` 列舉中。
+
+## 性能調優
+
+### 連接維持 (Keep-Alive)
+
+應用程式實作了可配置的連線維持功能：
+- Ping 間隔受 `REDIS_PING_INTERVAL` 環境變數控制。
+- 預設行為：不發送 ping（推薦用於大多數部署）。
+- 啟用時，會以指定間隔同時對 IoRedis 與 Keyv Redis 用戶端發送 ping。
+- 在中斷連線/關閉事件發生時自動清除 ping 間隔。
+
+### 快取策略
+
+應用程式採用雙用戶端方法：
+- **IoRedis 用戶端**：執行主要 Redis 操作，具備自動前綴功能。
+- **Keyv Redis 用戶端**：執行儲存層操作，前綴處理位於 `cacheFactory.js`。
+
+### 記憶體優化
+
+使用 `FORCED_IN_MEMORY_CACHE_NAMESPACES` 進行性能優化，將頻繁存取的小型數據集保留在記憶體中，而將較大的快取交由 Redis 處理。
+
+## 配置範例
+
+### 開發環境設定
+
+```bash
+USE_REDIS=true
+REDIS_URI=redis://127.0.0.1:6379
+REDIS_KEY_PREFIX=librechat-dev
+```
+
+### 生產環境設定
+
+```bash
+USE_REDIS=true
+REDIS_URI=rediss://prod-redis.company.com:6380
+REDIS_USERNAME=librechat_user
+REDIS_PASSWORD=在此輸入安全密碼
+REDIS_CA=/etc/ssl/redis-ca.pem
+REDIS_KEY_PREFIX_VAR=DEPLOYMENT_ID
+REDIS_MAX_LISTENERS=100
+REDIS_PING_INTERVAL=300
+FORCED_IN_MEMORY_CACHE_NAMESPACES=ROLES,MESSAGES
+```
+
+### 叢集設定
+
+```bash
+USE_REDIS=true
+REDIS_URI=redis://cluster-node1:7001,redis://cluster-node2:7002,redis://cluster-node3:7003
+REDIS_USERNAME=cluster_user
+REDIS_PASSWORD=cluster_password
+REDIS_KEY_PREFIX=librechat-cluster
+```
+
+## 可恢復串流 (Resumable Streams)
+
+Redis 為水平擴充的部署啟用了 [可恢復串流](/docs/features/resumable_streams_zh_TW)。啟用後，AI 回應可以在不同伺服器實例間無縫重新連線並恢復。
+
+**重要提示：** 當 `USE_REDIS=true` 時，可恢復串流會自動使用 Redis 進行跨實例協調。這是水平擴充部署的推薦設定，因為使用者可能會連接到不同的伺服器實例。
+
+**備註：** 若您執行的是單一 LibreChat 實例，為可恢復串流使用 Redis 通常是大材小用 —— 內建的記憶體模式即可正常運作。當您在負載平衡器後方擁有多個 LibreChat 實例時，Redis 變得至關重要，因為使用者的重新連線可能會導向至與其串流開始時不同的伺服器。
+
+### 配置
+
+```bash
+# 啟用 Redis = 可恢復串流自動使用 Redis
+USE_REDIS=true
+REDIS_URI=redis://127.0.0.1:6379
+
+# 選填：明確控制可恢復串流行為
+# USE_REDIS_STREAMS=true  # 當 USE_REDIS=true 時預設啟用
+```
+
+### 核心優點（針對水平擴充）
+
+- **跨實例連貫性**：使用者可以在一部伺服器開始產生內容，並在另一部伺服器恢復。
+- **滾動部署**：活躍的串流在伺服器重啟後仍能存續。
+- **多頁籤同步**：在負載平衡環境下，同一對話可在多個瀏覽器頁籤間同步。
+- **連線韌性**：無論哪部伺服器處理請求，都能自動重新連線。
+
+### 叢集配置
+
+對於 Redis 叢集部署，LibreChat 會自動使用 hash-tagged 鍵值，以確保串流操作保持在同一個叢集槽位 (cluster slot) 內：
+
+```bash
+USE_REDIS=true
+USE_REDIS_STREAMS=true
+USE_REDIS_CLUSTER=true
+REDIS_URI=redis://node1:7001,redis://node2:7002,redis://node3:7003
+```
+
+如需更多關於此功能的詳情，請參閱 [可恢復串流](/docs/features/resumable_streams_zh_TW)。

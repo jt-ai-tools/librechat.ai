@@ -1,0 +1,205 @@
+---
+title: RAG API
+icon: Brain
+description: 配置檢索增強生成 (RAG) API，使用 Langchain 與 FastAPI 進行文件索引與檢索。此 API 與 LibreChat 整合，可根據使用者上傳的檔案提供具備上下文感知能力的回應。
+---
+
+**如需更多關於 RAG 的細節，請參閱此處提供的使用者指南：[RAG API 介紹](/docs/features/rag_api_zh_TW)**
+
+---
+
+**目前，此功能可透過 [智慧體 (Agents)](/docs/features/agents_zh_TW) 以及自定義終端、OpenAI、Azure OpenAI、Anthropic 與 Google 使用。**
+
+OpenAI Assistants 透過「檢索 (Retrieval)」能力有其自身的 RAG 實作。請點擊[此處](https://platform.openai.com/docs/assistants/tools/knowledge-retrieval)瞭解更多。
+
+然而，將 RAG API 與 Assistants API 搭配使用仍有其價值，因為 OpenAI 會針對檔案儲存與「檢索」功能收費；此項整合將在未來的更新中推出。
+
+**對 RAG 仍感到困惑嗎？** [閱讀 RAG API 介紹](/docs/features/rag_api_zh_TW#什麼是-rag)，其中詳細說明了基本概念並附有實用的影片連結。
+
+## 設定
+
+要為 LibreChat 設定 RAG API，請遵循以下步驟：
+
+### Docker 設定 - 快速入門
+
+#### 預設配置
+
+**搭配 OpenAI 嵌入模型 (Embedding) 使用 RAG（預設）**
+
+1. 將下列內容新增至您的 `.env` 檔案中：
+
+    ```sh
+    RAG_API_URL=http://host.docker.internal:8000
+    ```
+
+2. 如果您的 OpenAI API 金鑰設定為 「user_provided」，也請將此項新增至您的 `.env` 檔案中，以提供 OpenAI API 金鑰：
+    - 備註：若您已在 .env 檔案中提供了 `OPENAI_API_KEY`，則可忽略此步驟。
+    ```sh
+    RAG_OPENAI_API_KEY=sk-您的-openai-api-key-範例
+    ```
+
+3. 執行指令啟動 Docker 容器：
+
+    ```sh
+    docker compose up -d
+    ```
+
+大功告成！
+
+---
+
+#### 自定義配置 - Hugging Face
+
+**搭配 Hugging Face 嵌入模型使用 RAG**
+
+1. 將下列內容新增至您的 `.env` 檔案中：
+
+    ```sh
+    RAG_API_URL=http://host.docker.internal:8000
+    EMBEDDINGS_PROVIDER=huggingface
+    HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxx
+    ```
+
+2. 更新您的 `docker-compose.override.yml` 檔案內容如下：
+
+    ```yaml
+    version: '3.4'
+
+    services:
+      rag_api:
+        image: ghcr.io/danny-avila/librechat-rag-api-dev:latest
+    ```
+
+3. 執行指令啟動 Docker 容器：
+
+    ```sh
+    docker compose up -d
+    ```
+
+大功告成！
+
+---
+
+#### 自定義配置 - Ollama
+
+**搭配 Ollama 本地嵌入模型使用 RAG**
+
+**先決條件：** 您需要安裝 Ollama 並下載 `nomic-embed-text` 嵌入模型：
+
+- `ollama pull nomic-embed-text`
+
+1. 將下列內容新增至您的 `.env` 檔案中：
+
+    ```sh
+    RAG_API_URL=http://host.docker.internal:8000
+    EMBEDDINGS_PROVIDER=ollama
+    OLLAMA_BASE_URL=http://host.docker.internal:11434
+    EMBEDDINGS_MODEL=nomic-embed-text
+    ```
+
+2. 更新您的 `docker-compose.override.yml` 檔案內容如下：
+
+    ```yaml
+    version: '3.4'
+
+    services:
+      rag_api:
+        image: ghcr.io/danny-avila/librechat-rag-api-dev:latest
+        # 若在 Linux 上執行
+        # extra_hosts:
+        #   - "host.docker.internal:host-gateway"
+    ```
+
+3. 執行指令啟動 Docker 容器：
+
+    ```sh
+    docker compose up -d
+    ```
+
+大功告成！
+
+---
+
+### Docker 設定詳情
+
+對於 Docker，設定已預先配置於預設的 `docker-compose.yml` 與 `deploy-compose.yml` 檔案中，您只需確保使用最新的 Docker 映像與 Compose 檔案即可。如果您不確定如何更新 Docker 實例，請務必閱讀 [Docker 版更新 LibreChat 指南](/docs/local/docker_zh_TW#更新-librechat)。
+
+根據預設，Docker 使用 RAG API 的 「lite」 版本映像，該版本僅支援遠端嵌入模型，即利用來自 OpenAI 的嵌入處理程序，或您為 HuggingFace/Ollama 配置的遠端服務。
+
+若要支援本地嵌入模型，請將預設 Compose 檔案使用的映像從 `ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest` 更改為 `ghcr.io/danny-avila/librechat-rag-api-dev:latest`。
+
+與往常一樣，請在您的 [Docker Compose 覆寫檔案](/docs/configuration/docker_override_zh_TW)中進行這些變更。您可以在專案根目錄的 `docker-compose.override.yml.example` 中找到如何更改映像的確切範例。
+
+如果您想查看僅包含 PostgresQL + PGVector 資料庫與 Python API 的 Compose 檔案範例，請參閱專案根目錄下的 `rag.yml` 檔案。
+
+**重要提示：** 使用預設 Docker 設定時，用於配置 RAG API 選項的 `.env` 檔案是與 LibreChat 共用的。
+
+### 本地設定
+
+本地非容器化設定較為繁瑣，對此您可以參考 [RAG API 儲存庫](https://github.com/danny-avila/rag_api/)。
+
+在本地設定中，您需要手動將 LibreChat `.env` 檔案中的 `RAG_API_URL` 設定為您環境中可用的位址。
+
+這與 Docker 不同，在 Docker 中，此項已在預設的 `docker-compose.yml` 檔案中設定好了。
+
+## 配置
+
+RAG API 提供了多項配置選項，可透過 API 可存取的 `.env` 檔案設定環境變數。除了針對您配置的供應商所需的憑證/路徑外，大多數選項皆為選填。在預設設定中，僅需 `RAG_OPENAI_API_KEY`。
+
+<Callout type="warning" title="Docker" emoji="🐳">
+使用預設 Docker 設定時，.env 檔案是與 LibreChat 共用的。出於此原因，請務必定義 [RAG API README.md](https://github.com/danny-avila/rag_api/blob/main/README.md) 中顯示的必要變數。
+</Callout>
+
+### 環境變數
+
+<OptionTable
+  options={[
+    ['RAG_API_URL', '字串', 'RAG API 服務的 URL。', 'RAG_API_URL=http://host.docker.internal:8000'],
+    ['RAG_OPENAI_API_KEY', '字串', '用於嵌入模型的 OpenAI API 金鑰。會為 RAG 覆寫 OPENAI_API_KEY。', '# RAG_OPENAI_API_KEY=sk-your-key'],
+    ['RAG_OPENAI_BASEURL', '字串', '用於 RAG 嵌入模型的自定義 OpenAI 基礎 URL。', '# RAG_OPENAI_BASEURL='],
+    ['RAG_USE_FULL_CONTEXT', '布林值', '獲取整個檔案上下文而非僅前 4 個結果。預設值：false。', '# RAG_USE_FULL_CONTEXT=true'],
+    ['EMBEDDINGS_PROVIDER', '字串', '嵌入模型供應商：openai, azure, huggingface, huggingfacetei, 或 ollama。預設值：openai。', '# EMBEDDINGS_PROVIDER=openai'],
+    ['EMBEDDINGS_MODEL', '字串', '要使用的嵌入模型。預設值取決於供應商。', '# EMBEDDINGS_MODEL=text-embedding-3-small'],
+    ['RAG_PORT', '數字', 'RAG API 執行的連接埠。預設值：8000。', '# RAG_PORT=8000'],
+    ['RAG_HOST', '字串', 'RAG API 的主機名稱。預設值：0.0.0.0。', '# RAG_HOST=0.0.0.0'],
+    ['COLLECTION_NAME', '字串', '向量儲存集合名稱。預設值：testcollection。', '# COLLECTION_NAME=testcollection'],
+    ['CHUNK_SIZE', '數字', '文本塊大小。預設值：1500。', '# CHUNK_SIZE=1500'],
+    ['CHUNK_OVERLAP', '數字', '塊之間的重疊大小。預設值：100。', '# CHUNK_OVERLAP=100'],
+    ['OLLAMA_BASE_URL', '字串', '使用 Ollama 嵌入模型時的 Ollama 基礎 URL。', '# OLLAMA_BASE_URL=http://host.docker.internal:11434'],
+  ]}
+/>
+
+> **備註：** `OPENAI_API_KEY` 可用於 RAG 嵌入，但 `RAG_OPENAI_API_KEY` 會覆寫它以避免憑證衝突。
+
+如需完整清單及其描述，請參閱 [RAG API 儲存庫](https://github.com/danny-avila/rag_api/)。
+
+## 使用方法
+
+一旦 RAG API 設定完成並開始執行，它將無縫整合至 LibreChat。當使用者將檔案上傳至對話時，RAG API 會為這些檔案建立索引，並利用它們來提供具備上下文感知能力的回應。
+
+**要有效利用 RAG API：**
+
+1. 確保已將必要的檔案上傳至 LibreChat 的對話中。若未配置 `RAG_API_URL` 或無法連線，檔案上傳將會失敗。
+2. 當使用者與聊天機器人互動時，RAG API 將自動根據使用者的輸入，從已建立索引的檔案中檢索相關資訊。
+3. 檢索到的資訊將用於增強使用者的提示詞，使 LibreChat 能產生更準確且與上下文相關的回應。
+4. 附加檔案時請仔細設計您的提示詞，因為預設行為是在每次對附有檔案的對話發送新訊息時，都會查詢向量資料庫。
+    - 您可以透過對話設定中的「重新發送檔案 (Resend Files)」開關來停用預設行為。
+    - 這樣做可以實現針對性的檔案查詢，使得「檢索」僅在訊息中明確附帶檔案時才會執行。
+    - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/29a2468d-85ac-40d7-90be-a945301c5729)
+5. 檔案只需上傳一次即可多次用於 RAG。
+    - 您可以透過側邊欄將已上傳/索引的檔案附加到任何新訊息或對話中：
+    - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/b40cb3d3-e6e7-46ec-bc74-65d194f55a1e)
+    - 備註：檔案必須存放在 「Host (宿主機)」 儲存空間中，因為 「OpenAI」 檔案被視為 Assistants 專用。換句話說，上傳檔案時不能選擇 Assistants 終端。您可以點擊側邊欄此處來查看並管理您的檔案。
+    - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/1f27e974-4124-4ee3-8091-13514cb4cbca)
+
+
+## 疑難排解
+
+如果您在設定或使用 RAG API 時遇到任何問題，請考量下列事項：
+
+- 再次檢查 `.env` 檔案中的所有必要環境變數是否已正確設定。
+- 確保向量資料庫已正確配置且可被存取。
+- 驗證 OpenAI API 金鑰或其他必要憑證是否有效。
+- 檢查 LibreChat 與 RAG API 的日誌，尋找任何錯誤訊息或警告。
+
+如果問題持續存在，請參閱 RAG API 文件，或在 GitHub Discussions 或 Discord 上尋求 LibreChat 社群的協助。

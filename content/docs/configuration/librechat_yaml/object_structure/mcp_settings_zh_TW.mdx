@@ -1,0 +1,116 @@
+---
+title: "MCP 設定物件結構"
+icon: Blocks
+---
+
+## 概覽
+
+`mcpSettings` 配置提供了關於 MCP (模型上下文協定) 伺服器安全性與行為的全域設定。此配置與 `mcpServers` 獨立，控制 MCP 伺服器是否能連接到特定的網域與 IP 位址。
+
+## 範例
+
+```yaml filename="MCP 設定物件結構"
+# MCP 設定配置範例
+mcpSettings:
+  allowedDomains:
+    - "example.com"                      # 特定網域
+    - "*.example.com"                    # 使用萬用字元的所有子網域
+    - "mcp-server"                       # 本地 Docker 網域
+    - "172.24.1.165"                     # 內網 IP
+    - "https://api.example.com:8443"     # 包含通訊協定與連接埠
+```
+
+## 配置
+
+### 子鍵 (Subkeys)
+
+<OptionTable
+  options={[
+    ['allowedDomains', '字串陣列', '指定 MCP 伺服器連接允許網域的清單。', '配置後，僅允許清單中的網域。若未配置，SSRF 目標會被封鎖，但允許所有其他網域。'],
+  ]}
+/>
+
+### 安全情境 (SSRF 防護)
+
+LibreChat 內建 SSRF (伺服器端請求偽造) 防護，行為如下：
+
+**當未配置 `allowedDomains` 時：**
+- 易受 SSRF 攻擊的目標預設為 **封鎖**。
+- 所有其他外部網域均為 **允許**。
+
+**當已配置 `allowedDomains` 時：**
+- **僅** 允許清單中的網域。
+- 若要允許內部/SSRF 目標，必須將其明確加入清單中。
+
+**被封鎖的 SSRF 目標包括：**
+- **Localhost** 位址 (`localhost`, `127.0.0.1`, `::1`)。
+- **私有 IP 範圍** (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`)。
+- **連結本地位址 (Link-local addresses)** (`169.254.0.0/16`, 包含雲端元數據 IP)。
+- **內部頂級網域 (Internal TLDs)** (`.internal`, `.local`, `.localhost`)。
+- **常見內部服務名稱** (`redis`, `mongodb`, `postgres`, `api`, `rag_api` 等)。
+
+如果您的 MCP 伺服器需要連接到內部服務或 Docker 容器，您 **必須明確將其加入** `allowedDomains`。
+
+### 模式格式
+
+`allowedDomains` 陣列支援多種模式格式：
+
+1. **精確網域匹配**
+   ```yaml
+   allowedDomains:
+     - "example.com"
+   ```
+   僅允許精確連接到 `example.com`（不限通訊協定/連接埠）。
+
+2. **萬用字元子網域匹配**
+   ```yaml
+   allowedDomains:
+     - "*.example.com"
+   ```
+   允許連接到 `example.com` 的所有子網域（例如：`api.example.com`, `mcp.example.com`）。
+
+3. **特定 IP 位址**
+   ```yaml
+   allowedDomains:
+     - "192.168.1.100"
+     - "172.24.1.165"
+   ```
+   允許連接到特定的 IP 位址。
+
+4. **本地 Docker 網域**
+   ```yaml
+   allowedDomains:
+     - "mcp-server"
+     - "host.docker.internal"
+   ```
+   允許連接到 Docker 容器名稱或特殊的 Docker 網域。
+
+5. **包含通訊協定與連接埠**
+   ```yaml
+   allowedDomains:
+     - "https://api.example.com:8443"
+     - "http://internal-mcp:3000"
+   ```
+   限制連接到特定的通訊協定與連接埠組合。
+
+### 錯誤訊息
+
+若您看到如下錯誤：
+```bash
+  error: [MCPServersRegistry] Failed to inspect server "my-mcp": Domain "http://172.24.1.165:8000" is not allowed
+  error: [MCP][my-mcp] Failed to initialize: Domain "http://172.24.1.165:8000" is not allowed
+```
+
+這通常表示該 MCP 伺服器的網域需要被加入到 `allowedDomains`：
+
+```yaml
+mcpSettings:
+  allowedDomains:
+    - "172.24.1.165"    # 加入 IP 位址或網域
+```
+
+## 參考資料
+
+- [MCP 伺服器配置](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW)
+- [MCP 功能說明](/docs/features/mcp_zh_TW)
+- [Actions allowedDomains](/docs/configuration/librechat_yaml/object_structure/actions_zh_TW#alloweddomains)（Actions 的類似概念）

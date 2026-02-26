@@ -1,0 +1,27 @@
+---
+title: Databricks
+icon: Databricks
+description: Databricks 的配置範例
+---
+
+> **[註冊 Databricks]**(https://www.databricks.com/try-databricks#account)
+
+**備註：**
+
+- 由於 Databricks 提供了一個完整的補全 (completions) 終端，針對「serving-endpoints」是以 「invocations」結尾，因此必須使用 [directEndpoint](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#directendpoint) 設定。
+- 此外，產生標題時必須將 [titleMessageRole](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#titlemessagerole) 設定為 「user」，因為該系統不支援單獨的「system」訊息。
+
+```yaml filename="librechat.yaml"
+    - name: 'Databricks'
+      apiKey: '${DATABRICKS_API_KEY}'
+      baseURL: 'https://您的_databricks_serving_endpoint_url_在此_並以/invocations_結尾'
+      models:
+        default: [
+          "databricks-meta-llama-3-70b-instruct",
+        ]
+        fetch: false
+      titleConvo: true
+      titleModel: 'current_model'
+      directEndpoint: true # 必填
+      titleMessageRole: 'user' # 必填
+```

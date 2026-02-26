@@ -1,0 +1,76 @@
+---
+title: "設定"
+icon: Settings
+---
+
+**`librechat.yaml` 檔案應放置於專案根目錄，即與 .env 檔案相同的目錄下。**
+
+您可以複製 [範例配置檔案](/docs/configuration/librechat_yaml/example_zh_TW) 作為良好的起點，同時閱讀本指南的其餘部分。
+
+該範例配置檔案已預先設定好適用於 Mistral AI、Groq 與 OpenRouter 的一些選項。
+
+**備註：** 您可以透過環境變數為 `librechat.yaml` 檔案設定替代的檔案路徑：
+
+```bash filename=".env"
+CONFIG_PATH="/alternative/path/to/librechat.yaml"
+```
+
+## Docker 設定
+
+對於 Docker，您需要使用名為 `docker-compose.override.yml` 的 [覆寫檔案](/docs/configuration/docker_override_zh_TW)，以確保配置檔案能正常運作。
+
+- 首先，使用 `docker compose down` 確保容器已停止運行。
+- 在專案根目錄建立或編輯現有的 `docker-compose.override.yml`：
+
+
+```yaml filename="docker-compose.override.yml"
+version: '3.4'
+
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ./librechat.yaml
+        target: /app/librechat.yaml
+```
+
+- **備註：** 如果您使用 `CONFIG_PATH` 指定了此檔案的替代路徑，請務必相應地進行指定。
+
+- 再次啟動 Docker，您應該會看到配置檔案的設定已生效：
+
+```bash filename="重啟容器"
+docker compose up
+```
+
+## 疑難排解
+
+### 伺服器啟動後立即退出
+
+如果您的伺服器啟動後立即以結束代碼 1 退出，這通常是因為 `librechat.yaml` 檔案中存在配置驗證錯誤。
+
+**診斷問題：**
+
+1. **檢查伺服器日誌** 以獲取驗證錯誤訊息：
+   ```bash filename="查看 Docker 日誌"
+   docker compose logs api
+   ```
+
+2. **驗證您的 YAML 語法**，使用 [YAML 驗證器](/toolkit/yaml_checker_zh_TW) 或 [yamlchecker.com](https://yamlchecker.com/) 等工具。
+
+3. **常見的驗證錯誤包括：**
+   - 無效的 YAML 語法（縮排錯誤、缺少冒號等）。
+   - 未知的配置金鑰或屬性名稱拼寫錯誤。
+   - 特定配置選項的數值無效。
+   - 缺少必填欄位。
+
+**臨時解決方案：**
+
+如果您在偵錯配置問題時急需啟動伺服器，可以透過以下設定跳過驗證：
+
+```bash filename=".env"
+CONFIG_BYPASS_VALIDATION=true
+```
+
+<Callout type="warning" title="警告">
+使用 `CONFIG_BYPASS_VALIDATION=true` 會導致伺服器紀錄警告並繼續使用預設配置啟動。不建議在生產環境中使用此設定。請務必修正配置檔案中的驗證錯誤。
+</Callout>

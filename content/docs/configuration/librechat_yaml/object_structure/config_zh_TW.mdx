@@ -1,0 +1,698 @@
+---
+title: "配置結構 (Config Structure)"
+icon: Settings
+---
+
+**備註：** 未明確標註為必填的欄位均為選填。
+
+## version (版本)
+- **必填** 
+
+<OptionTable
+  options={[
+    ['version', '字串', '指定配置檔案的版本。', 'version: 1.3.4' ],
+  ]}
+/>
+
+## cache (快取)
+
+<OptionTable
+  options={[
+    ['cache', '布林值', '切換快取功能的開啟或關閉。設定為 `true` 以啟用快取（預設值）。', 'cache: true' ],
+  ]}
+/>
+
+## fileStrategy (檔案策略)
+
+- **選項**："local" | "firebase" | "s3" | "azure_blob"
+
+<OptionTable
+  options={[
+    ['fileStrategy', '字串', '決定使用者上傳/產生的檔案儲存位置。若省略則預設為 `"local"`。', 'fileStrategy: "firebase"' ],
+  ]}
+/>
+
+- **備註**：
+  - `"firebase"` 是目前唯一透過真實 CDN (內容傳遞網路) 提供檔案的選項，這意味著圖片與頭像將從全球邊緣節點傳遞。S3 與 Azure Blob Storage 是物件儲存後端 —— 檔案可被存取，但預設不具備 CDN 加速。
+  - S3 透過 **預簽名 URL (presigned URLs)**（臨時簽署權杖）提供檔案，該 URL 會過期。一旦過期，UI 中引用該 URL 的任何圖片或頭像都會顯示損壞。這使得 S3 不適合用作視覺資產的主要策略。詳情請參閱[相關討論](https://github.com/danny-avila/LibreChat/discussions/10280#discussioncomment-14803903)。
+  - CloudFront (針對 S3 的 CDN) 已在計畫中並積極開發中。
+  - 為了讓圖片與頭像獲得最佳效能，請使用 `"firebase"` 或配置 `fileStrategies` 將 `avatar` 與 `image` 路由至具備 CDN 支援的策略。
+  - 設定詳情請參閱[檔案儲存與 CDN 文檔](/docs/configuration/cdn_zh_TW)。
+
+## fileStrategies (細粒度檔案策略)
+
+允許針對不同檔案類型進行細粒度的儲存策略控制。
+- **可用策略**："local" | "firebase" | "s3" | "azure_blob"
+
+<OptionTable
+  options={[
+    ['fileStrategies', '物件', '為不同的檔案類型配置不同的儲存策略。比單一 fileStrategy 選項更具彈性。', ''],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+
+<OptionTable
+  options={[
+    ['default', '字串', '當未定義特定類型時的備援儲存策略。預設為 "local"。', ''],
+    ['avatar', '字串', '使用者與智慧體頭像圖片的儲存策略。建議使用具備 CDN 支援的策略 (`"firebase"`) 以獲得最佳效能。', ''],
+    ['image', '字串', '聊天中上傳圖片的儲存策略。建議使用具備 CDN 支援的策略 (`"firebase"`) 以獲得最佳效能。', ''],
+    ['document', '字串', '文件上傳（PDF、文字檔等）的儲存策略。', ''],
+  ]}
+/>
+
+- **備註**：
+  - 此設定的優先權高於單一的 `fileStrategy` 選項。
+  - 若未配置特定檔案類型，將退而使用 `default`，接著是 `fileStrategy`，最後是 `"local"`。
+  - 圖片與頭像需要持久且穩定的 URL 才能在 UI 中正確呈現。S3 預簽名 URL 會過期（AWS 限制：IAM 使用者為 7 天，臨時憑證僅數小時），這會導致模型選擇器與聊天 UI 中出現損壞的圖片。詳情請參閱[相關討論](https://github.com/danny-avila/LibreChat/discussions/10280#discussioncomment-14803903)。請為 `avatar` 與 `image` 使用 `"firebase"`（目前唯一的 CDN 支援策略）以避免此問題。
+  - 針對 S3 的 CloudFront 支援正在開發中，將可消除預簽名 URL 的限制。
+  - S3 與 Azure Blob Storage 非常適合 `document` (文件) 儲存，因為短效的預簽名下載 URL 對此類場景是合適的。
+  - 各儲存供應商的設定詳情請參閱[檔案儲存與 CDN 文檔](/docs/configuration/cdn_zh_TW)。
+
+**範例：**
+
+```yaml filename="fileStrategies - 集中設定"
+# 為所有檔案類型使用單一策略
+fileStrategies:
+  default: "s3"
+```
+
+```yaml filename="fileStrategies - 混合策略"
+# 將圖片與頭像路由至 CDN，將文件保留在物件儲存中
+fileStrategies:
+  avatar: "firebase"   # 頭像透過 CDN 傳遞
+  image: "firebase"    # 產生/上傳的圖片透過 CDN 傳遞
+  document: "s3"       # 文件使用物件儲存
+```
+
+```yaml filename="fileStrategies - 部分配置"
+# 僅配置特定類型，其他使用預設值
+fileStrategies:
+  default: "local"
+  avatar: "firebase"   # 僅頭像使用 Firebase CDN，其他皆為本地儲存
+```
+## filteredTools (過濾工具)
+
+<OptionTable
+  options={[
+    ['filteredTools', '字串陣列', '從外掛程式 (Plugins) 與 OpenAI Assistants 終端中過濾掉特定工具。', 'filteredTools: ["scholarai", "calculator"]' ],
+  ]}
+/>
+
+- **備註**：
+    - 若同時指定了 `includedTools` 與 `filteredTools`，僅會識別 `includedTools`。
+    - 同時影響 `gptPlugins` 與 `assistants` 終端。
+    - 您可以在 [`api/app/clients/tools/manifest.json`](https://github.com/danny-avila/LibreChat/blob/main/api/app/clients/tools/manifest.json) 中找到要過濾的工具名稱。
+        - 使用 `pluginKey` 的值。
+    - 此外，任何列在 ".well-known" 目錄下的工具：[`api/app/clients/tools/.well-known`](https://github.com/danny-avila/LibreChat/blob/main/api/app/clients/tools/.well-known)。
+        - 使用 `name_for_model` 的值。
+
+## includedTools (包含工具)
+
+<OptionTable
+  options={[
+    ['includedTools', '字串陣列', '從外掛程式 (Plugins) 與 OpenAI Assistants 終端中僅包含特定工具。', 'includedTools: ["calculator"]' ],
+  ]}
+/>
+
+- **備註**：
+    - 若同時指定了 `includedTools` 與 `filteredTools`，僅會識別 `includedTools`。
+    - 同時影響 `gptPlugins` 與 `assistants` 終端。
+    - 您可以在 [`api/app/clients/tools/manifest.json`](https://github.com/danny-avila/LibreChat/blob/main/api/app/clients/tools/manifest.json) 中找到工具名稱。
+        - 使用 `pluginKey` 的值。
+    - 此外，任何列在 ".well-known" 目錄下的工具：[`api/app/clients/tools/.well-known`](https://github.com/danny-avila/LibreChat/blob/main/api/app/clients/tools/.well-known)。
+        - 使用 `name_for_model` 的值。
+
+## secureImageLinks (安全圖片連結)
+
+<OptionTable
+  options={[
+    ['secureImageLinks', '布林值', '是否保護由應用程式本地代管的圖片連結之存取權限。預設值：false。', 'secureImageLinks: true' ],
+  ]}
+/>
+
+## imageOutputType (圖片輸出類型)
+
+- **備註**：區分大小寫。Google 終端僅支援 "jpeg" 與 "png" 輸出類型。
+- **選項**："png" | "webp" | "jpeg"
+
+<OptionTable
+  options={[
+    ['imageOutputType', '字串', '圖片回應的輸出類型。若省略則預設為 "png"。', 'imageOutputType: "webp"' ],
+  ]}
+/>
+
+## ocr (光學字元辨識)
+
+**Key：**
+<OptionTable
+  options={[
+    ['ocr', '物件', '配置用於從圖片中提取文字的光學字元辨識 (OCR) 設定。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['apiKey', '字串', 'OCR 服務的 API 金鑰。', ''],
+    ['baseURL', '字串', 'OCR 服務 API 的基礎 URL。', ''],
+    ['strategy', '字串', '使用的 OCR 策略。選項包括 "mistral_ocr" 或 "custom_ocr"。', ''],
+    ['mistralModel', '字串', '用於 OCR 處理的 Mistral 模型。', ''],
+  ]}
+/>
+
+參見：[OCR 配置物件結構](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)
+
+## webSearch (網頁搜尋)
+
+**Key：**
+<OptionTable
+  options={[
+    ['webSearch', '物件', '配置網頁搜尋功能，包括搜尋供應商、內容爬蟲與結果重新排序器 (reranker)。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['serperApiKey', '字串', 'Serper API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['searxngInstanceUrl', '字串', 'SearXNG 實例 URL 的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['searxngApiKey', '字串', 'SearXNG API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['firecrawlApiKey', '字串', 'Firecrawl API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['firecrawlApiUrl', '字串', 'Firecrawl API URL 的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['jinaApiKey', '字串', 'Jina API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['cohereApiKey', '字串', 'Cohere API 金鑰的環境變數名稱。若未在 .env 中設定，系統會提示使用者透過 UI 提供。', ''],
+    ['searchProvider', '字串', '指定使用的搜尋供應商。選項："serper"、"searxng"。', ''],
+    ['scraperProvider', '字串', '指定使用的爬蟲服務。選項："firecrawl"、"serper"。', ''],
+    ['firecrawlVersion', '字串', '指定 Firecrawl API 版本 (v0 或 v1)。', ''],
+    ['rerankerType', '字串', '指定使用的重新排序器服務。選項："jina"、"cohere"。', ''],
+    ['scraperTimeout', '數字', '爬蟲請求的超時時間（毫秒）。', ''],
+    ['safeSearch', '布林值', '啟用安全搜尋模式以過濾不當內容。', ''],
+  ]}
+/>
+
+參見：[網頁搜尋物件結構](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW)
+
+## fileConfig (檔案配置)
+
+**Key：**
+<OptionTable
+  options={[
+    ['fileConfig', '物件', '配置應用程式的檔案處理設定，包括大小限制與 MIME 類型限制。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['endpoints', '紀錄/物件', '為個別終端指定檔案處理配置，允許根據不同終端進行自定義。', ''],
+    ['serverFileSizeLimit', '數字', '伺服器可接受的最大檔案大小 (MB)。除非被終端特定設定覆寫，否則全域套用。', ''],
+    ['avatarSizeLimit', '數字', '使用者頭像圖片的最大大小 (MB)。', ''],
+    ['clientImageResize', '物件', '配置用戶端圖片縮放，以優化檔案上傳並防止因圖片過大導致的上傳錯誤。', ''],
+    ['ocr', '物件', '光學字元辨識 (OCR) 檔案處理設定。', ''],
+    ['text', '物件', '直接文字檔解析設定。', ''],
+    ['stt', '物件', '語音轉文字 (STT) 音訊檔處理設定。', ''],
+    ['fileTokenLimit', '數字', '文字檔納入提示詞前的最大代幣 (tokens) 限制，超過將被截斷。', 'fileTokenLimit: 100000'],
+  ]}
+/>
+
+## clientImageResize (用戶端圖片縮放)
+
+**Key：**
+<OptionTable
+  options={[
+    ['clientImageResize', '物件', '配置用戶端圖片縮放，以優化檔案上傳並防止因圖片過大導致的上傳錯誤。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['enabled', '布林值', '啟用或停用用戶端圖片縮放功能。預設值：false。', 'enabled: true'],
+    ['maxWidth', '數字', '縮放後圖片的最大寬度（像素）。寬度超過此值的圖片將被縮放。預設值：1920。', 'maxWidth: 1024'],
+    ['maxHeight', '數字', '縮放後圖片的最大高度（像素）。高度超過此值的圖片將被縮放。預設值：1080。', 'maxHeight: 768'],
+    ['quality', '數字', 'JPEG 壓縮品質 (0.1 到 1.0)。較高的值代表品質較好但檔案較大。預設值：0.8。', 'quality: 0.9'],
+    ['compressFormat', '字串', '壓縮圖片的輸出格式。選項："jpeg"、"webp"。預設值："jpeg"。', 'compressFormat: "webp"'],
+  ]}
+/>
+
+**說明：**
+
+`clientImageResize` 配置支援在上傳前自動進行用戶端圖片縮放。此功能有助於：
+
+- **防止上傳失敗**：避免大圖檔案超過伺服器限制。
+- **減少頻寬使用**：在傳輸前壓縮圖片。
+- **提升上傳效能**：縮小檔案體積。
+- **維持圖片品質**：在優化檔案大小的同時兼顧品質。
+
+啟用後，超過指定 `maxWidth` 或 `maxHeight` 尺寸的圖片將在上傳前於用戶端自動縮放。縮放會維持原始寬高比，同時確保圖片符合指定範圍。
+
+**範例：**
+```yaml filename="clientImageResize"
+fileConfig:
+  clientImageResize:
+    enabled: true
+    maxWidth: 1920
+    maxHeight: 1080
+    quality: 0.8
+    compressFormat: "jpeg"
+```
+
+**備註：**
+
+- 僅適用於圖片檔案 (JPEG, PNG, WebP 等)。
+- 當圖片超過指定尺寸時會自動觸發縮放。
+- 縮放過程中會保留原始寬高比。
+- 該功能適用於所有支援的圖片上傳終端。
+- 品質 (Quality) 設定僅適用於 JPEG 與 WebP 格式。
+- 將品質設定過低 (< 0.5) 可能導致肉眼可見的畫質下降。
+
+參見：[檔案配置物件結構](/docs/configuration/librechat_yaml/object_structure/file_config_zh_TW)
+
+## rateLimits (速率限制)
+
+**Key：**
+<OptionTable
+  options={[
+    ['rateLimits', '物件', '定義速率限制原則，透過限制請求次數來防止濫用。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['fileUploads', '物件', '專門為檔案上傳操作配置速率限制。', ''],
+    ['conversationsImport', '物件', '專門為對話匯入操作配置速率限制。', ''],
+    ['stt', '物件', '專門為語音轉文字 (stt) 請求配置速率限制。', ''],
+    ['tts', '物件', '專門為文字轉語音 (tts) 請求配置速率限制。', ''],
+  ]}
+/>
+
+**fileUploads 子鍵：**
+<OptionTable
+  options={[
+    ['ipMax', '數字', '每個時間窗口內單一 IP 允許的最大上傳次數。', ''],
+    ['ipWindowInMinutes', '數字', '基於 IP 上傳限制的時間窗口（分鐘）。', ''],
+    ['userMax', '數字', '每個時間窗口內單一使用者允許的最大上傳次數。', ''],
+    ['userWindowInMinutes', '數字', '基於使用者上傳限制的時間窗口（分鐘）。', ''],
+  ]}
+/>
+
+**conversationsImport 子鍵：**
+<OptionTable
+  options={[
+    ['ipMax', '數字', '每個時間窗口內單一 IP 允許的最大匯入次數。', ''],
+    ['ipWindowInMinutes', '數字', '基於 IP 匯入限制的時間窗口（分鐘）。', ''],
+    ['userMax', '數字', '每個時間窗口內單一使用者允許的最大匯入次數。', ''],
+    ['userWindowInMinutes', '數字', '基於使用者匯入限制的時間窗口（分鐘）。', ''],
+  ]}
+/>
+
+**tts 子鍵：**
+<OptionTable
+  options={[
+    ['ipMax', '數字', '每個時間窗口內單一 IP 允許的最大請求次數。', ''],
+    ['ipWindowInMinutes', '數字', '基於 IP 請求限制的時間窗口（分鐘）。', ''],
+    ['userMax', '數字', '每個時間窗口內單一使用者允許的最大請求次數。', ''],
+    ['userWindowInMinutes', '數字', '基於使用者請求限制的時間窗口（分鐘）。', ''],
+  ]}
+/>
+
+**stt 子鍵：**
+<OptionTable
+  options={[
+    ['ipMax', '數字', '每個時間窗口內單一 IP 允許的最大請求次數。', ''],
+    ['ipWindowInMinutes', '數字', '基於 IP 請求限制的時間窗口（分鐘）。', ''],
+    ['userMax', '數字', '每個時間窗口內單一使用者允許的最大請求次數。', ''],
+    ['userWindowInMinutes', '數字', '基於使用者請求限制的時間窗口（分鐘）。', ''],
+  ]}
+/>
+
+    - **範例**：
+    ```yaml filename="rateLimits"
+    rateLimits:
+      fileUploads:
+        ipMax: 100
+        ipWindowInMinutes: 60
+        userMax: 50
+        userWindowInMinutes: 60
+      conversationsImport:
+        ipMax: 100
+        ipWindowInMinutes: 60
+        userMax: 50
+        userWindowInMinutes: 60
+      stt:
+        ipMax: 100
+        ipWindowInMinutes: 1
+        userMax: 50
+        userWindowInMinutes: 1
+      tts:
+        ipMax: 100
+        ipWindowInMinutes: 1
+        userMax: 50
+        userWindowInMinutes: 1
+    ```
+
+## registration (註冊)
+
+**Key：**
+<OptionTable
+  options={[
+    ['registration', '物件', '為應用程式配置與註冊相關的設定。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['socialLogins', '', '社群登入配置。', ''],
+    ['allowedDomains', '', '指定允許註冊的網域。', ''],
+  ]}
+/>
+
+另請參見：
+- [socialLogins](/docs/configuration/librechat_yaml/object_structure/registration_zh_TW#sociallogins),
+- [alloweddomains](/docs/configuration/librechat_yaml/object_structure/registration_zh_TW#alloweddomains),
+- [註冊物件結構](/docs/configuration/librechat_yaml/object_structure/registration_zh_TW)
+
+## memory (記憶)
+
+**Key：**
+<OptionTable
+  options={[
+    ['memory', '物件', '為應用程式配置對話記憶與個人化功能。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['disabled', '布林值', '設定為 true 時停用記憶功能。', ''],
+    ['validKeys', '字串陣列', '指定記憶儲存的有效鍵。', ''],
+    ['tokenLimit', '數字', '設定記憶儲存與處理的最大代幣 (tokens) 數。', ''],
+    ['charLimit', '數字', '設定記憶儲存的最大字元數。預設值：10000。', ''],
+    ['personalize', '布林值', '啟用或停用個人化功能。', ''],
+    ['messageWindowSize', '數字', '指定納入記憶上下文的近期訊息數量。', ''],
+    ['agent', '物件 | Union', '配置負責處理記憶的智慧體。', ''],
+  ]}
+/>
+
+參見：[記憶物件結構](/docs/configuration/librechat_yaml/object_structure/memory_zh_TW)
+
+## actions
+
+**Key：**
+<OptionTable
+  options={[
+    ['actions', '物件', '配置與 actions 相關的設定，供智慧體與助手使用。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['allowedDomains', '', '指定 actions 允許的網域。', ''],
+  ]}
+/>
+
+另請參見：
+- [alloweddomains](/docs/configuration/librechat_yaml/object_structure/actions_zh_TW#alloweddomains),
+- [Actions 物件結構](/docs/configuration/librechat_yaml/object_structure/actions_zh_TW)
+
+## interface (介面)
+
+**Key：**
+<OptionTable
+  options={[
+    ['interface', '物件', '配置應用程式內的使用者介面元素，允許自定義各個組件的可見性與行為。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['endpointsMenu', '布林值', '控制 UI 中終端選單下拉清單的可見性。', ''],
+    ['privacyPolicy', '物件', '包含與提供的隱私權政策連結相關的設定。', ''],
+    ['termsOfService', '物件', '包含與提供的服務條款連結相關的設定。', ''],
+    ['modelSelect', '布林值', '決定是否可用模型選擇功能。', ''],
+    ['parameters', '布林值', '切換參數配置選項（即對話設定）的可見性。', ''],
+    ['sidePanel', '布林值', '控制最右側邊欄的可見性。', ''],
+    ['presets', '布林值', '啟用或停用預設 (presets) 選單。', ''],
+    ['prompts', '布林值或物件', '為所有使用者啟用或停用所有與提示詞 (prompt) 相關的功能。', ''],
+    ['bookmarks', '布林值', '為所有使用者啟用或停用所有與書籤 (bookmarks) 相關的功能。', ''],
+    ['memories', '布林值', '為所有使用者啟用或停用記憶功能。', ''],
+    ['multiConvo', '布林值', '為所有使用者啟用或停用所有「多重對話」（即多重回應串流）相關功能。', ''],
+    ['agents', '布林值或物件', '為所有使用者啟用或停用所有智慧體 (agents) 功能。', ''],
+    ['temporaryChat', '布林值', '啟用或停用暫時對話 (temporary chat) 功能。', ''],
+    ['temporaryChatRetention', '數字', '配置暫時對話的保留時間（小時）。最小值：1，最大值：8760。預設值：720（30 天）。', ''],
+    ['mcpServers', '物件', '包含與 MCP 伺服器選擇與存取控制相關的設定。', ''],
+    ['customWelcome', '字串', '在聊天介面中顯示的自定義歡迎訊息。', ''],
+    ['runCode', '布林值', '針對 Markdown 程式碼區塊啟用或停用「執行程式碼」按鈕。', ''],
+    ['webSearch', '布林值', '在聊天介面中啟用或停用網頁搜尋按鈕。', ''],
+    ['fileSearch', '布林值', '在聊天介面中啟用或停用檔案搜尋按鈕。', ''],
+    ['fileCitations', '布林值', '為所有使用者全域啟用或停用檔案引用。', ''],
+    ['peoplePicker', '物件', '配置人員選擇器 (people picker) 介面中可用的主體類型控制項。', ''],
+    ['marketplace', '物件', '啟用或停用存取智慧體市集 (Agent Marketplace)。', ''],
+  ]}
+/>
+  
+參見：[介面物件結構](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW)
+
+## modelSpecs (模型規範)
+
+**Key：**
+<OptionTable
+  options={[
+    ['modelSpecs', '物件', '配置模型規範，允許對 AI 模型及其在應用程式內的行為進行詳細設定與自定義。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['enforce', '布林值', '決定模型規範是否應嚴格覆寫其他配置設定。', ''],
+    ['prioritize', '布林值', '指定當模型規範與預設配置皆適用時，是否應優先採用模型規範。', ''],
+    ['list', '物件陣列', '包含個別模型規範的清單，詳細列出各項配置與行為。', ''],
+  ]}
+/>
+
+參見：[模型規範物件結構](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW)
+
+## endpoints (終端)
+
+**Key：**
+<OptionTable
+  options={[
+    ['endpoints', '物件', '為應用程式定義自定義 API 終端。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['custom', '物件陣列', '陣列中的每個物件代表一個唯一的終端配置。', ''],
+    ['azureOpenAI', '物件', 'Azure OpenAI 終端特定配置。', ''],
+    ['assistants', '物件', '助手 (Assistants) 終端特定配置。', ''],
+    ['azureAssistants', '物件', 'Azure 助手特定配置。', ''],
+    ['agents', '物件', '智慧體 (Agents) 終端特定配置。', ''],
+    ['all', '物件', '適用於所有終端的全域終端設定。參見「共用終端設定」。', ''],
+  ]}
+/>
+
+> **備註：** 所有終端都支援[共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW)，包括 `streamRate`、`titleModel`、`titleMethod`、`titlePrompt`、`titlePromptTemplate` 與 `titleEndpoint`。這些可以針對每個終端個別配置，或使用 `all` 鍵進行全域配置。
+
+## mcpSettings
+
+**Key：**
+<OptionTable
+  options={[
+    ['mcpSettings', '物件', '定義模型上下文協定 (MCP) 伺服器的全域設定。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['allowedDomains', '字串陣列', '指定 MCP 伺服器連接允許的網域清單。對於內部/本地位址為必填。', ''],
+  ]}
+/>
+
+- **備註**：
+  - 這是一項安全功能，旨在防止透過 MCP 伺服器濫用/誤用內部位址。
+  - 根據預設，LibreChat 限制 MCP 伺服器連接到內部、本地或私有網路位址。
+  - 使用本地 IP 位址或網域的 MCP 伺服器必須 **明確** 被允許。
+  - 與所有 YAML 配置變更一樣，需要重啟 LibreChat 才能生效。
+  - 支援網域、萬用字元子網域 (`*.example.com`)、Docker 網域以及 IP 位址。
+
+**範例：**
+
+```yaml filename="mcpSettings"
+mcpSettings:
+  allowedDomains:
+    - "example.com"           # 特定網域
+    - "*.example.com"         # 所有子網域
+    - "mcp-server"            # 本地 Docker 網域
+    - "172.24.1.165"          # 內部網路 IP
+```
+
+參見：[MCP 設定物件結構](/docs/configuration/librechat_yaml/object_structure/mcp_settings_zh_TW)
+
+## mcpServers
+
+**Key：**
+<OptionTable
+  options={[
+    ['mcpServers', '物件', '定義模型上下文協定 (MCP) 伺服器的配置，允許在應用程式內動態整合 MCP 伺服器。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['<伺服器名稱>', '物件', '`mcpServers` 下的每個鍵代表一個個別的 MCP 伺服器配置，由唯一名稱識別。', ''],
+  ]}
+/>
+
+- **備註**：
+  - 初始化發生於啟動時，必須重啟應用程式才能使變更生效。
+  - `<伺服器名稱>` 是每個 MCP 伺服器配置的唯一識別碼。
+  - 每個 MCP 伺服器可使用四種連接類型之一進行配置：
+    - `stdio`
+    - `websocket`
+    - `sse`
+    - `streamable-http`
+  - `type` 欄位指定與 MCP 伺服器的連接類型。
+  - 若省略 `type`，將根據 `url` 或 `command` 的存在與格式設定預設值：
+    - 若指定了 `url` 且以 `http` 或 `https` 開頭，`type` 預設為 `sse`。
+    - 若指定了 `url` 且以 `ws` 或 `wss` 開頭，`type` 預設為 `websocket`。
+    - 若指定了 `command`，`type` 預設為 `stdio`。
+  - 其他配置選項包括：
+    - `timeout`：MCP 伺服器請求的超時時間（毫秒）。決定等待工具請求回應的時間。
+    - `initTimeout`：MCP 伺服器初始化的超時時間（毫秒）。決定等待伺服器初始化的時間。
+    - `serverInstructions`：控制是否將伺服器指令納入智慧體上下文。可以是 `true`（使用伺服器提供的）、`false`（停用）或自定義字串（覆寫伺服器提供的）。
+    - `customUserVars`：（選填）定義個別使用者可為 MCP 伺服器設定的自定義變數（例如：API 金鑰、URL）。這些由使用者透過 UI 提供的值，可隨後在伺服器的 `headers` 或 `env` 配置中使用 `{{VARIABLE_NAME}}` 語法引用。這支援了 MCP 工具的按使用者身份驗證或自定義設定。
+  - 參見：[MCP 伺服器物件結構](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW)
+
+**範例：**
+
+```yaml filename="mcpServers"
+mcpServers:
+  everything:
+    # type: sse # type 可選擇性省略
+    url: http://localhost:3001/sse
+    timeout: 30000
+    initTimeout: 10000
+    serverInstructions: true  # 使用伺服器提供的指令
+  puppeteer:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-puppeteer"
+    timeout: 30000
+    initTimeout: 10000
+    serverInstructions: "請勿存取任何本地檔案或本地/內部 IP 位址"
+  filesystem:
+    # type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /home/user/LibreChat/
+    iconPath: /home/user/LibreChat/client/public/assets/logo.svg
+  mcp-obsidian:
+    command: npx
+    args:
+      - -y
+      - "mcp-obsidian"
+      - /path/to/obsidian/vault
+  streamable-http-example:
+    type: streamable-http
+    url: https://example.com/mcp
+    headers:
+      Authorization: "Bearer ${API_TOKEN}"
+    timeout: 30000
+  per-user-crendentials-example:
+    type: sse
+    url: "https//some.mcp/sse"
+    headers:
+      X-Custom-Auth-Token: "{{USER_API_KEY}}" # 使用者提供 API 金鑰的佔位符，定義於下方的 `customUserVars`。
+    customUserVars:
+      USER_API_KEY:
+        title: "服務 API 金鑰"
+        description: "您在此服務的個人 API 金鑰。您可以從 <a href='https://example.com/api-keys' target='_blank'>此處</a> 獲取。"
+    serverInstructions: true
+```
+
+參見：[MCP 伺服器物件結構](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW)
+
+## speech (語音)
+
+**Key：**
+<OptionTable
+  options={[
+    ['speech', '物件', '為應用程式配置語音轉文字 (TTS) 與文字轉語音 (STT) 供應商。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['tts', '物件', '文字轉語音供應商配置（OpenAI, Azure OpenAI, ElevenLabs, LocalAI）。', ''],
+    ['stt', '物件', '語音轉文字供應商配置（OpenAI, Azure OpenAI）。', ''],
+    ['speechTab', '物件', '語音功能的預設 UI 設定。', ''],
+  ]}
+/>
+
+參見：[語音物件結構](/docs/configuration/librechat_yaml/object_structure/speech_zh_TW)
+
+## turnstile
+
+**Key：**
+<OptionTable
+  options={[
+    ['turnstile', '物件', '為註冊與登入表單配置 Cloudflare Turnstile 機器人防護。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['siteKey', '字串', '您的 Cloudflare Turnstile siteKey（必填）。', ''],
+    ['options', '物件', '額外的 Turnstile 組件選項（選填）。', ''],
+  ]}
+/>
+
+參見：[Turnstile 物件結構](/docs/configuration/librechat_yaml/object_structure/turnstile_zh_TW)
+
+## transactions (交易)
+
+**Key：**
+<OptionTable
+  options={[
+    ['transactions', '物件', '控制交易日誌與可見性功能。', ''],
+  ]}
+/>
+
+**子鍵 (Subkeys)：**
+<OptionTable
+  options={[
+    ['enabled', '布林值', '啟用或停用交易日誌。預設值：true。', ''],
+  ]}
+/>
+
+參見：[交易物件結構](/docs/configuration/librechat_yaml/object_structure/transactions_zh_TW)
+
+## 附加連結
+- [AWS Bedrock 物件結構](/docs/configuration/librechat_yaml/object_structure/aws_bedrock_zh_TW)
+- [自定義終端物件結構](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW)
+- [Azure OpenAI 終端物件結構](/docs/configuration/librechat_yaml/object_structure/azure_openai_zh_TW)
+- [Assistants 終端物件結構](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW)
+- [智慧體 (Agents)](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)
+- [OCR 配置物件結構](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)
+- [語音物件結構](/docs/configuration/librechat_yaml/object_structure/speech_zh_TW)
+- [Turnstile 物件結構](/docs/configuration/librechat_yaml/object_structure/turnstile_zh_TW)
+- [交易物件結構](/docs/configuration/librechat_yaml/object_structure/transactions_zh_TW)
+- [餘額物件結構](/docs/configuration/librechat_yaml/object_structure/balance_zh_TW)
+- [網頁搜尋物件結構](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW)
+- [記憶物件結構](/docs/configuration/librechat_yaml/object_structure/memory_zh_TW)

@@ -1,0 +1,86 @@
+---
+title: 日誌系統
+icon: ScrollText
+description: 本文件說明如何使用 LibreChat 的日誌功能，該功能會將錯誤與偵錯日誌儲存在 `/api/logs` 資料夾中。您可以使用這些日誌來排除故障、監控伺服器並回報臭蟲。如果您想節省空間，也可以停用偵錯日誌。
+---
+
+### 一般
+
+LibreChat 在其後端 (api) 內建了中央日誌系統。
+
+- 使用 **Docker** 安裝時，日誌檔案儲存在 `/logs` 中
+
+<FileTree>
+  <FileTree.Folder name="librechat" defaultOpen>
+    <FileTree.Folder name="logs" defaultOpen>
+      <FileTree.File name="debug-2024-01-01.log" active/>
+      <FileTree.File name="error-2024-01-01.log" active/>
+      <FileTree.File name="meiliSync-2024-01-01.log" active/>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+- 使用 **npm** 安裝時，日誌檔案儲存在 `/api/logs` 中
+
+<FileTree>
+  <FileTree.Folder name="librechat" defaultOpen>
+      <FileTree.Folder name="api" defaultOpen>
+        <FileTree.Folder name="logs" defaultOpen>
+        <FileTree.File name="debug-2024-01-01.log" active/>
+        <FileTree.File name="error-2024-01-01.log" active/>
+        <FileTree.File name="meiliSync-2024-01-01.log" active/>
+        </FileTree.Folder>
+      </FileTree.Folder>  
+  </FileTree.Folder>
+</FileTree>
+
+錯誤日誌 (Error logs) 預設會儲存。偵錯日誌 (Debug logs) 預設為啟用，但若不需要可以將其關閉。
+
+這讓您能透過外部工具（如 **[ELK stack](https://aws.amazon.com/what-is/elk-stack/)**）檢查日誌檔案來監控伺服器。
+
+偵錯日誌對於開發工作與修正問題至關重要。如果您在執行 LibreChat 時遇到任何問題，請盡可能重現問題，並附上位於 `./api/logs/debug-%DATE%.log` 的日誌來 **[回報問題](https://github.com/danny-avila/LibreChat/issues)**。
+
+錯誤日誌也儲存在相同位置：`./api/logs/error-%DATE%.log`。如果您配置了 Meilisearch，該項功能也會有獨立的日誌檔案。
+
+<Callout type="note" title="備註：">
+備註：日誌以 14 天為週期進行輪替 (rotated)，因此每 14 天會產生一個錯誤日誌檔、一個偵錯日誌檔以及一個 meiliSync 日誌檔。
+錯誤資訊也會出現在偵錯日誌檔中，但在錯誤日誌檔中會提供堆疊追蹤 (stack traces) 與更多細節。
+</Callout>
+
+### 設定
+
+- 透過下列環境變數切換偵錯日誌。預設情況下，即使您從未設定此變數，偵錯日誌也會產生，但您可以透過將其設定為 `FALSE` 來停用。
+
+<OptionTable
+  options={[
+    ['DEBUG_LOGGING', '布林值', '保持偵錯日誌啟用。','DEBUG_LOGGING=true'],
+  ]}
+/>
+
+> 備註：建議在生產環境中停用偵錯日誌。
+
+- 若要在主控台/終端機顯示詳細的伺服器輸出，可以將下列變數設定為 `TRUE`：
+
+<OptionTable
+  options={[
+    ['DEBUG_CONSOLE', '布林值', '啟用詳細的主控台/標準輸出 (stdout) 日誌，格式與檔案偵錯日誌相同。', 'DEBUG_CONSOLE=false'],
+  ]}
+/>
+
+然而，並不建議這樣做，因為輸出內容可能會非常冗長。此功能預設為停用，應謹慎啟用。
+
+- 在處理雲端部署（如 GCP 或 AWS）中的主控台日誌時，啟用此項將會以 UTC 時間戳記輸出日誌並將其格式化為 JSON。
+
+<OptionTable
+  options={[
+    ['CONSOLE_JSON', '布林值', '啟用詳細的 JSON 主控台/標準輸出日誌，適用於 GCP/AWS 等雲端部署。', 'CONSOLE_JSON=false'],
+  ]}
+/>
+
+根據預設，JSON 字串長度會截斷為 255 個字元。您可以透過下列環境變數進行配置：
+
+<OptionTable
+  options={[
+    ['CONSOLE_JSON_STRING_LENGTH', '數字', '配置主控台/標準輸出日誌的截斷大小，預設為 255。', 'CONSOLE_JSON_STRING_LENGTH=1000'],
+  ]}
+/>

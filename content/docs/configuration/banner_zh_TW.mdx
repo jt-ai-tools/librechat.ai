@@ -1,0 +1,103 @@
+---
+title: 公告欄 (Banner)
+icon: MessageSquare
+description: 向您的使用者顯示公告與通知
+---
+
+在應用程式頂端向所有使用者顯示重要訊息。非常適合用於發佈公告、維護通知或更新資訊。
+
+<Callout type="info" title="快速概覽">
+  - 同一時間只能啟用 **一個公告欄**
+  - 可排程公告欄自動顯示與消失的時間
+  - 可選擇是否允許使用者關閉（隱藏）公告欄
+  - 可向所有人顯示，或僅向登入使用者顯示
+</Callout>
+
+---
+
+## 建立公告欄
+
+執行此命令以建立或更新公告欄：
+
+```bash
+npm run update-banner
+```
+
+您將按照幾個簡單的提示進行操作：
+
+```ansi
+--------------------------
+Update the banner! (更新公告欄！)
+--------------------------
+Display From (顯示自) (格式: yyyy-mm-ddTHH:MM:SSZ, 預設: 現在):
+> 2025-12-02T09:00:00Z
+
+Display To (顯示至) (格式: yyyy-mm-ddTHH:MM:SSZ, 預設: 未指定):
+> 2025-12-31T23:59:59Z
+
+Enter your message (輸入您的訊息) (在最後一行輸入單個點 "." 以完成輸入):
+> 🎉 歡迎使用 LibreChat！快來看看我們的新功能。
+> .
+
+Is public (是否公開顯示) (y/N):
+> n
+
+Is persistable (是否強制顯示，不可關閉) (y/N):
+> n
+```
+
+<Callout type="tip" title="這些選項代表什麼意思？">
+  - **Display From/To (顯示自/至)**：公告欄應在何時顯示與消失。留空則分別代表「現在」與「永遠」。
+  - **Is public (是否公開顯示)**：是否向未登入的訪客顯示（例如顯示在登入頁面）。
+  - **Is persistable (是否強制顯示)**：如果設定為「是」，使用者將無法關閉公告欄 —— 適用於重要通知。
+</Callout>
+
+---
+
+## 刪除公告欄
+
+```bash
+npm run delete-banner
+```
+
+您將看到當前的公告欄內容，並在刪除前要求您確認。
+
+---
+
+## 公告欄範例
+
+<Tabs items={['歡迎訊息', '維護通知', '安全警報']}>
+  <Tabs.Tab>
+    一個簡單的歡迎訊息，使用者可以自行關閉：
+
+    ```bash
+    npm run update-banner "" "" "👋 歡迎使用 LibreChat！" "false" "false"
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    一個已排程且無法關閉的維護通知：
+
+    ```bash
+    npm run update-banner "2025-12-20T00:00:00Z" "2025-12-21T06:00:00Z" "⚠️ 預計於 12 月 20 日凌晨 2-6 點 (UTC) 進行例行維護" "true" "true"
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    一個所有人皆可見的緊急安全通知：
+
+    ```bash
+    npm run update-banner "" "" "🔒 請在 1 月 1 日前更新您的密碼" "true" "true"
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+---
+
+## 日期格式
+
+請使用以下格式設定日期：`yyyy-mm-ddTHH:MM:SSZ`
+
+**範例：**
+- `2025-12-25T09:00:00Z` → 2025 年 12 月 25 日上午 9:00 (UTC)
+- `2025-01-01T00:00:00Z` → 2025 年 1 月 1 日午夜 (UTC)
+
+日期留空則代表使用當前時間或不設定結束日期。

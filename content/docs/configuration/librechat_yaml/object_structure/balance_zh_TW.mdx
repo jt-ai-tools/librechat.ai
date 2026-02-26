@@ -1,0 +1,157 @@
+---
+title: 餘額 (Balance)
+icon: Coins
+description: 在 LibreChat 中為使用者配置代幣信用餘額
+---
+
+## 概覽
+
+`balance` 物件讓管理員可以配置 LibreChat 內使用者的代幣信用餘額管理方式。設定內容包括啟用餘額追蹤、初始化使用者餘額，以及配置自動代幣充值行為。
+
+**`balance` 下的欄位：**
+
+- `enabled` (啟用)
+- `startBalance` (初始餘額)
+- `autoRefillEnabled` (啟用自動充值)
+- `refillIntervalValue` (充值間隔數值)
+- `refillIntervalUnit` (充值間隔單位)
+- `refillAmount` (充值金額)
+
+**備註：**
+
+- `balance` 配置全域套用於應用程式內。
+- 提供預設值，但可根據需求進行自定義。
+- 條件邏輯可根據其他配置動態修改這些設定。
+
+
+## 範例
+
+```yaml filename="balance"
+balance:
+  enabled: false
+  startBalance: 20000
+  autoRefillEnabled: false
+  refillIntervalValue: 30
+  refillIntervalUnit: "days"
+  refillAmount: 10000
+```
+
+
+## enabled (啟用)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['enabled', '布林值', '為使用者啟用代幣信用追蹤與餘額管理。', '設定為 true 以啟動代幣使用量的餘額追蹤。'],
+    ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+
+```yaml filename="balance / enabled"
+balance:
+  enabled: true
+```
+
+
+## startBalance (初始餘額)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['startBalance', '整數', '指定使用者註冊時存入的初始代幣數量。', '存入新使用者帳號的代幣。'],
+    ]}
+/>
+
+**預設值：** `20000`
+
+**範例：**
+
+```yaml filename="balance / startBalance"
+balance:
+  startBalance: 20000
+```
+
+
+## autoRefillEnabled (啟用自動充值)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['autoRefillEnabled', '布林值', '決定是否啟用代幣信用的自動充值功能。', '設定為 true 以啟用自動代幣充值。'],
+    ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+
+```yaml filename="balance / autoRefillEnabled"
+balance:
+  autoRefillEnabled: true
+```
+
+
+## refillIntervalValue (充值間隔數值)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['refillIntervalValue', '整數', '指定自動充值代幣信用的時間間隔數值。', '例如，30 代表 30 天的間隔。'],
+    ]}
+/>
+
+**預設值：** `30`
+
+**範例：**
+
+```yaml filename="balance / refillIntervalValue"
+balance:
+  refillIntervalValue: 30
+```
+
+
+## refillIntervalUnit (充值間隔單位)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['refillIntervalUnit', '字串', '指定充值間隔的時間單位（例如："days" (天)、"hours" (小時)）。', '表示 refillIntervalValue 的時間單位。'],
+    ]}
+/>
+
+**預設值：** `"days"`
+
+**範例：**
+
+```yaml filename="balance / refillIntervalUnit"
+balance:
+  refillIntervalUnit: "days"
+```
+
+
+## refillAmount (充值金額)
+
+**Key：**
+
+<OptionTable
+    options={[
+        ['refillAmount', '整數', '指定每次自動充值時加入使用者餘額的代幣數量。', '每次充值間隔加入使用者代幣信用的金額。'],
+    ]}
+/>
+
+**預設值：** `10000`
+
+**範例：**
+
+```yaml filename="balance / refillAmount"
+balance:
+  refillAmount: 10000
+```

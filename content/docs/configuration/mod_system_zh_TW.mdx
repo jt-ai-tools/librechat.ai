@@ -1,0 +1,169 @@
+---
+title: 自動審核 (Automated Moderation)
+icon: Shield
+description: 自動審核系統配置。此系統使用評分機制來追蹤使用者的違規行為。當使用者執行如頻繁登入、註冊或傳送訊息等操作時，會累積違規分數。一旦達到設定的閾值，該使用者及其相關 IP 將被暫時封鎖。此系統透過監測並懲罰快速或可疑的活動來確保平台安全。
+---
+
+自動審核系統使用評分機制來追蹤使用者的違規行為。當使用者執行如頻繁登入、註冊或傳送訊息等操作時，會累積違規分數。一旦達到設定的閾值，該使用者及其相關 IP 將被暫時封鎖。此系統透過監測並懲罰快速或可疑的活動來確保平台安全。
+
+在生產環境中，您應該部署 Cloudflare 或其他 DDoS 防護方案來真正保護伺服器免受過量請求的攻擊，但這些設定在很大程度上能保護您免受單個或少數惡意行為者針對您的部署實例進行代理攻擊。
+
+**如需更多細節，請參閱此處的使用者指南：[自動審核](/docs/features/mod_system_zh_TW)**
+
+## 設定
+
+下列是用於配置審核系統的所有相關環境變數。請注意，這些變數也可以在 [/.env.example](https://github.com/danny-avila/LibreChat/blob/main/.env.example) 檔案中找到，並應設定在您自己的 `.env` 檔案中。
+
+**備註：** 目前大多數數值是透過 .env 檔案配置的，但它們可能很快會遷移至僅透過 [`librechat.yaml` 配置檔案](/docs/configuration/librechat_yaml/object_structure/config_zh_TW#ratelimits)進行配置。
+
+### 違規、間隔與持續時間 (Violation, Interval, Duration)
+
+<OptionTable
+  options={[
+    ['BAN_VIOLATIONS', '布林值', '是否啟用因違規而封鎖使用者的功能（違規行為仍會被紀錄）。','BAN_VIOLATIONS=true'],
+    ['BAN_DURATION', '整數', '使用者與相關 IP 被封鎖的時間長度（以毫秒為單位）。','BAN_DURATION=1000 * 60 * 60 * 2'],
+    ['BAN_INTERVAL', '整數', '每當使用者的分數達到或跨越間隔閾值時，使用者將被封鎖。','BAN_INTERVAL=20'],
+  ]}
+/>
+
+### 各項違規分數 (The score for each violation)
+
+<OptionTable
+  options={[    
+    ['LOGIN_VIOLATION_SCORE', '整數', '登入違規的分數。','LOGIN_VIOLATION_SCORE=1'],
+    ['REGISTRATION_VIOLATION_SCORE', '整數', '註冊違規的分數。','REGISTRATION_VIOLATION_SCORE=1'],
+    ['CONCURRENT_VIOLATION_SCORE', '整數', '並行請求違規的分數。','CONCURRENT_VIOLATION_SCORE=1'],
+    ['MESSAGE_VIOLATION_SCORE', '整數', '訊息違規的分數。','MESSAGE_VIOLATION_SCORE=1'],
+    ['NON_BROWSER_VIOLATION_SCORE', '整數', '非瀏覽器存取違規的分數。','NON_BROWSER_VIOLATION_SCORE=20'],
+    ['IMPORT_VIOLATION_SCORE', '整數', '匯入對話違規的分數。','IMPORT_VIOLATION_SCORE=1'],
+    ['FORK_VIOLATION_SCORE', '整數', '對話分叉違規的分數。','FORK_VIOLATION_SCORE=1'],
+    ['TTS_VIOLATION_SCORE', '整數', '文字轉語音違規的分數。','TTS_VIOLATION_SCORE=0'],
+    ['STT_VIOLATION_SCORE', '整數', '語音轉文字違規的分數。','STT_VIOLATION_SCORE=0'],
+    ['FILE_UPLOAD_VIOLATION_SCORE', '整數', '檔案上傳違規的分數。','FILE_UPLOAD_VIOLATION_SCORE=0'],
+    ['RESET_PASSWORD_VIOLATION_SCORE', '整數', '密碼重設違規的分數。','RESET_PASSWORD_VIOLATION_SCORE=0'],
+    ['VERIFY_EMAIL_VIOLATION_SCORE', '整數', '郵件驗證違規的分數。','VERIFY_EMAIL_VIOLATION_SCORE=0'],
+    ['TOOL_CALL_VIOLATION_SCORE', '整數', '工具呼叫違規的分數。','TOOL_CALL_VIOLATION_SCORE=0'],
+    ['CONVO_ACCESS_VIOLATION_SCORE', '整數', '對話存取違規的分數。','CONVO_ACCESS_VIOLATION_SCORE=0'],
+  ]}
+/>
+
+### 登入與註冊速率限制 (Login and registration rate limiting)
+
+<OptionTable
+  options={[    
+    ['LOGIN_MAX', '數字', '在 LOGIN_WINDOW 時間內，每個 IP 允許的最大登入次數。預設為 `7`。'],
+    ['LOGIN_WINDOW', '數字', '以分鐘為單位，決定 LOGIN_MAX 登入的時間窗口。預設為 `5`。'],
+    ['REGISTER_MAX', '數字', '在 REGISTER_WINDOW 時間內，每個 IP 允許的最大註冊次數。預設為 `5`。'],
+    ['REGISTER_WINDOW', '數字', '以分鐘為單位，決定 REGISTER_MAX 註冊的時間窗口。預設為 `60`。'],
+  ]}
+/>
+
+### 訊息速率限制 (Message rate limiting)
+
+<OptionTable
+  options={[    
+    ['LIMIT_CONCURRENT_MESSAGES', '布林值', '是否限制使用者在每次請求中可傳送的訊息量。','LIMIT_CONCURRENT_MESSAGES=true'],
+    ['CONCURRENT_MESSAGE_MAX', '整數', '使用者每次請求可傳送的最大訊息量。','CONCURRENT_MESSAGE_MAX=2'],
+  ]}
+/>
+
+> 備註：您可以同時使用兩種限制器，但預設僅按 IP 進行限制。
+
+#### 訊息速率限制（按 IP）
+
+<OptionTable
+  options={[    
+    ['LIMIT_MESSAGE_IP', '布林值', '是否限制一個 IP 在 `MESSAGE_IP_WINDOW` 內可傳送的訊息量。','LIMIT_MESSAGE_IP=true'],
+    ['MESSAGE_IP_MAX', '整數', '一個 IP 在 `MESSAGE_IP_WINDOW` 內可傳送的最大訊息量。','MESSAGE_IP_MAX=40'],
+    ['MESSAGE_IP_WINDOW', '整數', '以分鐘為單位，決定 `MESSAGE_IP_MAX` 訊息的時間窗口。','MESSAGE_IP_WINDOW=1'],
+  ]}
+/>
+
+#### 訊息速率限制（按使用者）
+<OptionTable
+  options={[    
+    ['LIMIT_MESSAGE_USER', '布林值', '是否限制一位使用者在 `MESSAGE_USER_WINDOW` 內可傳送的訊息量。','LIMIT_MESSAGE_USER=false'],
+    ['MESSAGE_USER_MAX', '整數', '一位使用者在 `MESSAGE_USER_WINDOW` 內可傳送的最大訊息量。','MESSAGE_USER_MAX=40'],
+    ['MESSAGE_USER_WINDOW', '整數', '以分鐘為單位，決定 `MESSAGE_USER_MAX` 訊息的時間窗口。','MESSAGE_USER_WINDOW=1'],
+  ]}
+/>
+
+### 匯入對話速率限制 (Import conversation rate limiting)
+
+限制使用者匯入對話的頻率，以防止濫用。
+
+> 備註：您可以同時使用兩種限制器，但預設僅按 IP 進行限制。
+
+#### 匯入對話速率限制（按 IP）
+
+<OptionTable
+  options={[    
+    ['LIMIT_IMPORT_IP', '布林值', '是否限制一個 IP 在 `IMPORT_IP_WINDOW` 內可執行的對話匯入次數。','LIMIT_IMPORT_IP=true'],
+    ['IMPORT_IP_MAX', '整數', '一個 IP 在 `IMPORT_IP_WINDOW` 內可執行的最大對話匯入次數。','IMPORT_IP_MAX=100'],
+    ['IMPORT_IP_WINDOW', '整數', '以分鐘為單位，決定 `IMPORT_IP_MAX` 匯入的時間窗口。','IMPORT_IP_WINDOW=1'],
+  ]}
+/>
+
+#### 匯入對話速率限制（按使用者）
+
+<OptionTable
+  options={[    
+    ['LIMIT_IMPORT_USER', '布林值', '是否限制一位使用者在 `IMPORT_USER_WINDOW` 內可執行的對話匯入次數。','LIMIT_IMPORT_USER=false'],
+    ['IMPORT_USER_MAX', '整數', '一位使用者在 `IMPORT_USER_WINDOW` 內可執行的最大對話匯入次數。','IMPORT_USER_MAX=50'],
+    ['IMPORT_USER_WINDOW', '整數', '以分鐘為單位，決定 `IMPORT_USER_MAX` 匯入的時間窗口。','IMPORT_USER_WINDOW=1'],
+  ]}
+/>
+
+### 對話分叉速率限制 (Conversation forking rate limiting)
+
+限制使用者分叉（建立副本）對話的頻率，以防止濫用。
+
+> 備註：您可以同時使用兩種限制器，但預設僅按 IP 進行限制。
+
+#### 對話分叉速率限制（按 IP）
+
+<OptionTable
+  options={[    
+    ['LIMIT_FORK_IP', '布林值', '是否限制一個 IP 在 `FORK_IP_WINDOW` 內可建立的對話分叉次數。','LIMIT_FORK_IP=true'],
+    ['FORK_IP_MAX', '整數', '一個 IP 在 `FORK_IP_WINDOW` 內可建立的最大對話分叉次數。','FORK_IP_MAX=30'],
+    ['FORK_IP_WINDOW', '整數', '以分鐘為單位，決定 `FORK_IP_MAX` 分叉的時間窗口。','FORK_IP_WINDOW=1'],
+  ]}
+/>
+
+#### 對話分叉速率限制（按使用者）
+
+<OptionTable
+  options={[    
+    ['LIMIT_FORK_USER', '布林值', '是否限制一位使用者在 `FORK_USER_WINDOW` 內可建立的對話分叉次數。','LIMIT_FORK_USER=false'],
+    ['FORK_USER_MAX', '整數', '一位使用者在 `FORK_USER_WINDOW` 內可建立的最大對話分叉次數。','FORK_USER_MAX=7'],
+    ['FORK_USER_WINDOW', '整數', '以分鐘為單位，決定 `FORK_USER_MAX` 分叉的時間窗口。','FORK_USER_WINDOW=1'],
+  ]}
+/>
+
+#### 非法模型請求 (Illegal model requests)
+
+> 備註：非法模型請求幾乎總是惡意的，因為這意味著第三方正嘗試透過自動化腳本存取伺服器。對此，我建議設定相對較高的分數，不應低於 5 分。
+
+<OptionTable
+  options={[    
+    ['ILLEGAL_MODEL_REQ_SCORE', '整數', '非法模型請求的分數。','ILLEGAL_MODEL_REQ_SCORE=5'],
+  ]}
+/>
+
+## OpenAI 文本審核 (OpenAI text moderation)
+
+<OptionTable
+  options={[    
+    ['OPENAI_MODERATION', '布林值', '是否在 **OpenAI** 與 **Plugins** 終端啟用 OpenAI 審核。','OPENAI_MODERATION=false'],
+    ['OPENAI_MODERATION_API_KEY', '字串', '您的 OpenAI API 金鑰。','OPENAI_MODERATION_API_KEY='],
+  ]}
+/>
+
+
+請注意，這可能無法在所有反向代理上運作：
+
+<OptionTable
+  options={[    
+    ['OPENAI_MODERATION_REVERSE_PROXY', '字串', '備註：預設為註釋狀態，這不適用於所有反向代理。','# OPENAI_MODERATION_REVERSE_PROXY='],
+  ]}
+/>

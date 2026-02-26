@@ -1,0 +1,47 @@
+---
+title: Discord
+icon: MessageCircle
+description: 學習如何配置 LibreChat 使用 Discord 進行使用者身份驗證。
+---
+
+## 建立新的 Discord 應用程式
+
+- 前往 **[Discord 開發者入口網站 (Discord Developer Portal)](https://discord.com/developers)**。
+
+- 建立一個新應用程式 (New Application) 並為其命名。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/7e7cdfa0-d1d6-4b6b-a8a9-905aaa40d135)
+
+## Discord 應用程式配置
+
+- 在 OAuth2 的一般設定 (general settings) 中，新增一個有效的重新導向 URL：
+    - Localhost 範例：`http://localhost:3080/oauth/discord/callback`
+    - 網域範例：`https://example.com/oauth/discord/callback`
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/6c56fb92-f4ab-43b9-981b-f98babeeb19d)
+
+- 在 `Default Authorization Link` 中，選擇 `In-app Authorization` 並將範圍 (scopes) 設定為 `applications.commands`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/2ce94670-9422-48d2-97e9-ec40bd331573)
+
+- 儲存變更 (Save changes) 並重設 Client Secret (Reset Secret)。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/3af164fc-66ed-4e5e-9f5a-9bcab3df37b4)
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/2ece3935-68e6-4f2e-8656-9721cba5388a)
+
+## .env 配置
+
+- 將您的 `Client ID` 與 `Client Secret` 貼入 `.env` 檔案中：
+
+```bash filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+DISCORD_CLIENT_ID=您的_client_id
+DISCORD_CLIENT_SECRET=您的_client_secret
+DISCORD_CALLBACK_URL=/oauth/discord/callback
+```
+
+- 儲存 `.env` 檔案。
+
+> 備註：如果使用 Docker，請執行 `docker compose up -d` 以套用 .env 配置變更。

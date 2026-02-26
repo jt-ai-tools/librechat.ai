@@ -1,0 +1,31 @@
+---
+title: TrueFoundry AI 閘道
+icon: TrueFoundry
+---
+
+TrueFoundry AI 閘道是位於您的應用程式與 LLM 供應商及 MCP 伺服器之間的代理層。它是一個企業級平台，讓使用者能透過統一介面存取 1000 多種 LLM，同時兼顧可觀測性與治理。
+
+## 配置細節
+
+要使用 [TrueFoundry 的 AI 閘道](https://www.truefoundry.com/ai-gateway)，請參考[此處](https://docs.truefoundry.com/gateway/quick-start)的快速入門指南。
+
+### 獲取基礎 URL (Base URL) 與模型名稱
+
+- **基礎 URL 與模型名稱**：從統一程式碼片段中獲取您的 TrueFoundry AI 閘道終端 URL 與模型名稱（請確保您已加入相同的模型名稱）。
+- **PAT**：從您的 TrueFoundry [個人存取權杖 (PAT)](https://docs.truefoundry.com/gateway/authentication#personal-access-token-pat) 頁面產生。
+
+## 搭配任何 LLM 模型使用 TrueFoundry AI 閘道
+```yaml filename="librechat.yaml"
+      - name: "TrueFoundry"
+        apiKey: "${TRUEFOUNDRY_API_KEY}"
+        baseURL: "${TRUEFOUNDRY_GATEWAY_URL}"
+        models:
+            default: ["openai-main/gpt-4o-mini", "openai-main/gpt-4o"]
+            fetch: true
+        titleConvo: true
+        titleModel: "current_model"
+        summarize: false
+        summaryModel: "current_model"
+        modelDisplayLabel: "TrueFoundry:OpenAI"
+```
+如需更多詳情，請參閱：[TrueFoundry 文檔](https://docs.truefoundry.com/docs/introduction)

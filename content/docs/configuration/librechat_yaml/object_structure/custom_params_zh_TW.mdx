@@ -1,0 +1,115 @@
+---
+title: "自定義參數 (Custom Parameters)"
+icon: Braces
+---
+
+### 選擇預設參數集
+
+根據預設，當您在 `librechat.yaml` 配置檔案中指定自定義終端時，它會使用 OpenAI API 的預設參數。然而，您可以透過在自定義終端定義中指定 `customParams.defaultParamsEndpoint` 欄位來覆寫這些預設值。例如，若要為您的自定義終端使用 Google 參數：
+
+```yaml filename="librechat.yaml 摘錄"
+endpoints:
+  custom:
+    - name: 'Google Gemini'
+      apiKey: ...
+      baseURL: ...
+      customParams:
+        defaultParamsEndpoint: 'google'
+```
+
+現在，當您建立新的智慧體 (agent) 或預設設定 (preset) 時，您的 「Google Gemini」 終端將顯示 Google API 的參數。
+
+### 覆寫參數定義
+
+除此之外，您還可以微調為自定義終端提供的參數。例如，Google 終端的 `temperature` 參數是一個滑桿，範圍從 0.0 到 1.0，預設值為 1.0；您可以更新 `librechat.yaml` 檔案來覆寫這些數值：
+
+```yaml filename="librechat.yaml 摘錄"
+endpoints:
+  custom:
+    - name: 'Google Gemini'
+      apiKey: ...
+      baseURL: ...
+      customParams:
+        defaultParamsEndpoint: 'google'
+        paramDefinitions:
+          - key: temperature
+            range:
+              min: 0
+              max: 0.7
+              step: 0.1
+            default: 0.5
+```
+設定後，`Temperature` 滑桿將被限制在 `0.0` 到 `0.7` 的範圍內，步進值為 `0.1`，預設值為 `0.5`。其餘參數將維持其預設值。
+
+### 設定預設參數值
+
+您可以指定在進行 API 請求時自動套用的參數預設值。這對於為您的自定義終端設定基準參數值非常有用，而無需使用者每次都手動配置。
+
+`paramDefinitions` 中的 `default` 欄位允許您設定當參數未定義時所套用的預設值。這些預設值遵循特定的優先順序，以確保正確的覆寫行為：
+
+**優先順序（由低到高）：**
+1. **來自 `paramDefinitions` 的預設值** - 當參數未定義時優先套用。
+2. **`addParams`** - 可覆寫預設值。
+3. **使用者配置的 `modelOptions`** - 具備最高優先權，可覆寫所有設定。
+
+```yaml filename="librechat.yaml 摘錄"
+endpoints:
+  custom:
+    - name: '我的自定義 LLM'
+      apiKey: ...
+      baseURL: ...
+      customParams:
+        defaultParamsEndpoint: 'openAI'
+        paramDefinitions:
+          - key: temperature
+            default: 0.7
+          - key: topP
+            default: 0.9
+          - key: maxTokens
+            default: 2000
+```
+
+在此範例中：
+- 若使用者未指定 `temperature`，預設值為 `0.7`。
+- 若使用者明確將 `temperature` 設定為 `0.5`，則其設定值 (`0.5`) 優先。
+- `addParams` 欄位（若有配置）可覆寫這些預設值。
+- 使用者在 UI 中的選擇始終具備最高優先權。
+
+### Anthropic
+
+當使用 `defaultParamsEndpoint: 'anthropic'` 時，系統會提供超越僅僅顯示與使用 Anthropic 參數集的特殊處理：
+
+<Callout type="info">
+**Anthropic API 相容性**
+
+將 `defaultParamsEndpoint: 'anthropic'` 設定為 'anthropic' 會啟用參數、標頭與負載格式的完整 Anthropic API 相容性：
+- 參數會精確地按照 Anthropic API 預期的方式發送至您的自定義終端。
+- 這對於像 LiteLLM 這樣將非 OpenAI 規範參數直接傳遞給底層供應商的代理服務至關重要。
+- Anthropic 特有的參數（如 `thinking`）會被正確格式化。
+- `messages` 負載會根據 Anthropic 的要求進行格式化（包含思考區塊與提示詞快取）。
+- 會根據模型自動加入適當的 beta 標頭，就像直接使用 Anthropic 一樣。
+</Callout>
+
+這主要是為了正確格式化與 OpenAI 不相容的 `thinking` 參數：
+
+```json
+{
+  "thinking": {
+    "type": "enabled",
+    "budget_tokens": 10000
+  }
+}
+```
+
+此外，系統會根據所使用的 Claude 模型自動加入模型特定的 Anthropic beta 標頭，例如：
+- `anthropic-beta: prompt-caching-2024-07-31` 支援提示詞快取。
+- `anthropic-beta: context-1m-2025-08-07` 支援擴展上下文模型。
+- 基於當前使用的 Claude 模型之特定功能標記。
+
+這確保了在透過代理服務或直接連線到與 Anthropic 相容的終端時具備完整的相容性。
+
+<Callout type="note">
+**實作狀態**
+
+目前，這種自動參數與標頭處理功能已在 Anthropic 終端完整實作。其他 `defaultParamsEndpoint` 數值（如 `google`、`bedrock`）的類似行為已在未來的更新計畫中。
+</Callout>

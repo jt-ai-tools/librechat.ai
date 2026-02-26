@@ -1,0 +1,24 @@
+---
+title: Moonshot (月之暗面)
+icon: Moonshot
+description: Moonshot AI (Kimi) 的配置範例
+---
+
+> Moonshot API 金鑰：[platform.moonshot.cn](https://platform.moonshot.ai)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。
+- **重要提示：** 對於具備推理/思考能力的模型（例如 `kimi-k2.5`、`kimi-k2-thinking`），終端名稱 `name` **必須** 設定為 `"Moonshot"`（不區分大小寫），以便讓交錯推理 (interleaved reasoning) 能在工具呼叫 (tool calls) 中正常運作。使用其他名稱會導致如 `thinking is enabled but reasoning_content is missing in assistant tool call message` 的錯誤。詳情請參閱 [Moonshot 官方文檔](https://platform.moonshot.ai/docs/guide/use-kimi-k2-thinking-model#frequently-asked-questions)。
+
+```yaml filename="librechat.yaml"
+    - name: "Moonshot"
+      apiKey: "${MOONSHOT_API_KEY}"
+      baseURL: "https://api.moonshot.ai/v1"
+      models:
+        default: ["kimi-k2.5"]
+        fetch: true
+      titleConvo: true
+      titleModel: "current_model"
+      modelDisplayLabel: "Moonshot"
+```

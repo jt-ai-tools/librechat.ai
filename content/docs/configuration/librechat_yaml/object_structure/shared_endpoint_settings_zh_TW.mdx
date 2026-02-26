@@ -1,0 +1,252 @@
+---
+title: "共用終端設定"
+icon: Braces
+---
+
+此頁面說明了所有終端共用的配置設定。除非另有說明，否則此處列出的設定適用於[「終端 (Endpoints)」](/docs/configuration/librechat_yaml/object_structure/config_zh_TW#endpoints)欄位下的所有配置。
+
+## 配置範例
+
+```yaml filename="共用終端設定"
+endpoints:
+  # 個別終端配置
+  openAI:
+    streamRate: 25
+    titleModel: "gpt-4o-mini"
+    titleMethod: "completion"
+    titlePrompt: "請為此對話建立一個精簡的標題：
+
+{convo}"
+  
+  azureOpenAI:
+    streamRate: 35
+    titleModel: "grok-3"
+    titleMethod: "structured"
+    titlePrompt: |
+      分析此對話並提供：
+      1. 使用偵測到的語言提供一個精簡標題（5 個字以內，不含標點符號或引號）
+      2. 務必在標題開頭提供一個相關的表情符號 (emoji)
+
+      {convo}
+    titleConvo: true
+  
+  anthropic:
+    streamRate: 25
+    titleModel: "claude-3-5-haiku-20241022"
+    titleMethod: "completion"
+  
+  bedrock:
+    streamRate: 25
+    titleModel: "us.amazon.nova-lite-v1:0"
+    titleEndpoint: "anthropic"
+  
+  google:
+    streamRate: 1
+    titleModel: "gemini-2.0-flash-lite"
+    titlePromptTemplate: "人類：{input}
+助手：{output}"
+  
+  assistants:
+    streamRate: 30
+  
+  azureAssistants:
+    streamRate: 30
+  
+  # 使用 'all' 進行全域配置 - 這將覆寫所有個別終端的「共用」設定，
+  # 亦即 streamRate、titleModel、titleMethod、titlePrompt、titlePromptTemplate、titleEndpoint。
+  all:
+    titleConvo: true
+    titleModel: "gpt-4.1-nano"
+    titlePrompt: |
+      分析此對話並提供：
+      1. 偵測到的對話語言
+      2. 使用偵測到的語言提供一個精簡標題（5 個字以內，不含標點符號或引號）
+      3. 務必在標題開頭提供一個相關的表情符號 (emoji)
+      {convo}
+```
+
+> **重要提示：** 使用 `all` 配置時，它將覆寫您所定義屬性在所有個別終端中的設定。在上述範例中，`all` 配置將覆寫所有終端的 `titleConvo`、`titleModel` 與 `titlePrompt` 設定，而個別的 `streamRate` 設定則會保留，因為它未在 `all` 中定義。
+
+## streamRate (串流速率)
+
+**Key：**
+<OptionTable
+  options={[
+    ['streamRate', '數字', '從終端串流數據的速率。對於控制串流數據的節奏非常有用。', 'streamRate: 25'],
+  ]}
+/>
+
+**預設值：** 1
+
+> 允許以最快速度串流數據，同時讓系統有時間處理下一個 tick。
+
+## titleConvo (對話標題)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleConvo', '布林值', '為此終端啟用自動產生對話標題的功能。', 'titleConvo: true'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**備註：**
+- 啟用後，系統將使用配置的標題設定自動產生標題。
+- 必須與 `titleModel` 搭配使用，或者該終端必須有可用的預設模型。
+
+**範例：**
+```yaml filename="titleConvo"
+titleConvo: true
+```
+
+## titleModel (標題產生模型)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleModel', '字串', '指定用於產生標題的模型。', '若省略則預設為當前終端的系統預設模型。若系統預設模型不可用，可能會導致問題。您也可以透過設定為 "current_model" 來動態使用當前的對話模型。'],
+  ]}
+/>
+
+**預設值：** 當前終端的系統預設模型
+
+## titleMethod (標題產生方法)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleMethod', '字串', '控制產生對話標題所使用的方法。', '有效值："completion" (預設), "structured", "functions" ("structured" 的舊版別名)'],
+  ]}
+/>
+
+**預設值：** `"completion"`
+
+**可用方法：**
+- **`"completion"`** - 使用標準補全 API，不包含工具/函式。與大多數 LLM 相容。
+- **`"structured"`** - 使用結構化輸出產生標題。需要供應商/模型支援。
+- **`"functions"`** - "structured" 的舊版別名。功能完全相同。
+
+**範例：**
+```yaml filename="titleMethod"
+titleMethod: "completion"
+```
+
+## titlePrompt (標題提示詞)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titlePrompt', '字串', '標題產生的自定義提示詞。必須包含 {convo} 佔位符。', '允許完整控制標題產生的方式。'],
+  ]}
+/>
+
+**預設值：** 
+```
+分析此對話並提供：
+1. 偵測到的對話語言
+2. 使用偵測到的語言提供一個精簡標題（5 個字以內，不含標點符號或引號）
+
+{convo}
+```
+
+**備註：**
+- 必須始終包含 `{convo}` 佔位符。
+- `{convo}` 佔位符將被替換為格式化後的對話內容。
+- 可放置在提示詞中的任何位置。
+
+**範例：**
+```yaml filename="titlePrompt"
+titlePrompt: "請為下列對話建立一個簡短、具描述性的標題：
+
+{convo}
+
+標題："
+```
+
+## titlePromptTemplate (標題提示詞模板)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titlePromptTemplate', '字串', '用於格式化對話內容的模板，該內容會取代 titlePrompt 中的 {convo}。', '必須包含 {input} 與 {output} 佔位符。'],
+  ]}
+/>
+
+**預設值：** `"User: {input}
+AI: {output}"`
+
+**備註：**
+- 必須同時包含 `{input}` 與 `{output}` 佔位符。
+- `{input}` 會被替換為使用者的初始訊息。
+- `{output}` 會被替換為 AI 的回應。
+- 格式化後的結果會取代 titlePrompt 中的 `{convo}`。
+
+**範例：**
+```yaml filename="titlePromptTemplate"
+titlePromptTemplate: "人類：{input}
+
+助手：{output}"
+```
+
+## titleEndpoint (標題產生終端)
+
+**Key：**
+<OptionTable
+  options={[
+    ['titleEndpoint', '字串', '指定用於標題產生的替代終端。', '允許使用不同且可能更便宜的模型/終端來產生標題。'],
+  ]}
+/>
+
+**預設值：** 使用當前對話的終端
+
+**接受的值：**
+- `openAI`
+- `azureOpenAI`
+- `google`
+- `anthropic`
+- `bedrock`
+- 針對自定義終端：使用精確的[自定義終端名稱](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#name)
+
+**範例：**
+```yaml filename="titleEndpoint"
+# 即使在使用 OpenAI 聊天時，也使用 Anthropic 產生標題
+endpoints:
+  openAI:
+    titleEndpoint: "anthropic"
+    # 將使用 anthropic 的配置來產生標題
+```
+
+---
+
+**備註：**
+- 此頁面顯示的所有設定都可以針對每個終端個別配置，或使用 `all` 鍵進行全域配置。
+- 使用 `all` 配置時，它將覆寫所有個別終端中的對應設定。
+- 未在 `all` 中定義的設定將保留其個別終端的數值。
+- 關於 `streamRate`：建議數值介於 25-40 之間，以獲得流暢的串流體驗。
+- 當在大規模使用者環境下提供服務時，必須使用較高的串流速率。
+
+**覆寫行為範例：**
+```yaml
+endpoints:
+  openAI:
+    streamRate: 25      # 此項將被保留
+    titleModel: "gpt-4" # 此項將被覆寫
+    titleConvo: false   # 此項將被覆寫
+  
+  all:
+    titleConvo: true
+    titleModel: "gpt-3.5-turbo"
+    # streamRate 未在此定義，因此個別數值被保留
+```
+
+---
+
+# 終端設定
+- [自定義終端](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW)
+- [OpenAI](/docs/configuration/pre_configured_ai/openai_zh_TW)
+- [Anthropic](/docs/configuration/pre_configured_ai/anthropic_zh_TW)
+- [Bedrock](/docs/configuration/pre_configured_ai/bedrock_zh_TW)
+- [Google](/docs/configuration/pre_configured_ai/google_zh_TW)
+- [Azure OpenAI](/docs/configuration/librechat_yaml/object_structure/azure_openai_zh_TW)
+- [助手 (Assistants)](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW)

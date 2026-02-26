@@ -1,0 +1,81 @@
+---
+title: Facebook
+icon: Globe
+description: 學習如何配置 LibreChat 使用 Facebook 進行使用者身份驗證。
+---
+
+> ⚠️ **警告：目前開發中，暫不可用**
+
+> ❗ 備註：Facebook 身份驗證無法在 `localhost` 上運作。
+
+## 建立 Facebook 應用程式
+
+- 前往 **[Facebook 開發者入口網站 (Facebook Developer Portal)](https://developers.facebook.com/)**。
+
+- 點擊標頭選單中的「我的應用程式 (My Apps)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/b75ccb8b-d56b-41b7-8b0d-a32c2e762962)
+
+- 建立一個新應用程式。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/706f050d-5423-44cc-80f0-120913695d8f)
+
+- 選擇「使用 Facebook 登入對使用者進行身份驗證並請求資料 (Authenticate and request data from users with Facebook Login)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/2ebbb571-afe8-429e-ab39-be6e83d12c01)
+
+- 選擇「否，我不是要建立遊戲」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/88b5160a-9c72-414a-bbcc-7717b81106f3)
+
+- 提供「應用程式名稱 (app name)」與「應用程式聯絡電子郵件 (App contact email)」，接著點擊「建立應用程式 (Create app)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/e1282c9e-4e7d-4cbe-82c9-cc76967f83e1)
+
+## Facebook 應用程式配置
+
+- 在側邊選單中，選擇「使用案例 (Use cases)」，並在「身份驗證與帳號建立 (Authentication and account creation)」下方點擊「自定義 (Customize)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/39f4bb70-d9dc-4d1c-8443-2666fe56499b)
+
+- 新增 `email` 權限。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/dfa20879-2cb8-4daf-883d-3790854afca0)
+
+- 現在點擊「前往設定 (Go to settings)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/512213a2-bd8b-4fd3-96c7-0de6d3222ddd)
+
+- 確保 `用戶端 OAuth 登入 (Client OAuth login)`、`網頁 OAuth 登入 (Web OAuth login)` 與 `強制執行 HTTPS (Enforce HTTPS)` 均已 **啟用 (enabled)**。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/3a7d935b-97bf-493b-b909-39ecf9b3432b)
+
+- 新增一個「有效的 OAuth 重新導向 URI (Valid OAuth Redirect URIs)」並「儲存變更」。
+    - 網域範例：`https://example.com/oauth/facebook/callback`
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/ef8e54ee-a766-4871-9719-d4eff7a770b6)
+
+- 點擊「返回 (Go back)」，並在「應用程式設定 (App settings)」標籤中選擇「基本 (Basic)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/0d14f702-5183-422e-a12c-5d1b6031581b)
+
+- 點擊應用程式金鑰 (App secret) 旁邊的「顯示 (Show)」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/9a009e37-2bb6-4da6-b5c7-9139c3db6185)
+
+## .env 配置
+
+- 複製「應用程式 ID (App ID)」與「應用程式金鑰 (App Secret)」，並按如下方式貼入 `.env` 檔案中：
+
+```bash filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+FACEBOOK_CLIENT_ID=您的_app_id
+FACEBOOK_CLIENT_SECRET=您的_app_secret
+FACEBOOK_CALLBACK_URL=/oauth/facebook/callback
+```
+
+- 儲存 `.env` 檔案。
+
+> 備註：如果使用 Docker，請執行 `docker compose up -d` 以套用 .env 配置變更。

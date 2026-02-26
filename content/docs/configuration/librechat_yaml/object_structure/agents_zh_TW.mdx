@@ -1,0 +1,254 @@
+---
+title: "Agents 終端物件結構"
+icon: Bot
+---
+
+此頁面適用於 [`agents`](/docs/features/agents_zh_TW) 終端。
+
+## 範例
+
+```yaml filename="Agents 終端"
+endpoints:
+  agents:
+    recursionLimit: 50
+    maxRecursionLimit: 100
+    disableBuilder: false
+    # (選填) 開放給所有使用者的 Agent 功能。省略您想排除的功能。預設清單如下。
+    # capabilities: ["execute_code", "file_search", "actions", "tools", "artifacts", "context", "ocr", "chain", "web_search"]
+    # (選填) 針對 file_search 功能的檔案引用 (citation) 配置
+    maxCitations: 30          # 回應中的最大總引用數 (1-50)
+    maxCitationsPerFile: 7    # 每個檔案的最大引用數 (1-10)
+    minRelevanceScore: 0.45   # 最低相關性評分閾值 (0.0-1.0)
+```
+> 此配置啟用了智慧體 (agent) 的構建器介面。
+
+## recursionLimit (遞迴限制)
+
+<OptionTable
+  options={[
+    ['recursionLimit', '數字', '設定智慧體在單次執行中可執行的預設步數。', '控制遞迴深度以防止無限迴圈。達到限制時，會拋出 GraphRecursionError。此值可從 UI 配置，最高不超過 maxRecursionLimit。'],
+  ]}
+/>
+
+**預設值：** `25`
+
+**範例：**
+```yaml filename="endpoints / agents / recursionLimit"
+recursionLimit: 50
+```
+
+如需更多關於智慧體步數的資訊，請參閱 [最大智慧體步數](/docs/features/agents_zh_TW#最大智慧體步數)。
+
+## maxRecursionLimit (最大遞迴限制)
+
+<OptionTable
+  options={[
+    ['maxRecursionLimit', '數字', '設定智慧體在單次執行中可執行的絕對最大步數。', '定義可從 UI 設定的 recursionLimit 上限。這能防止使用者設定過高的數值。'],
+  ]}
+/>
+
+**預設值：** 若省略，預設為 recursionLimit 的值；若 recursionLimit 亦省略，則預設為 50。
+
+**範例：**
+```yaml filename="endpoints / agents / maxRecursionLimit"
+maxRecursionLimit: 100
+```
+
+如需更多關於智慧體步數的資訊，請參閱 [最大智慧體步數](/docs/features/agents_zh_TW#最大智慧體步數)。
+
+## disableBuilder
+
+<OptionTable
+  options={[
+    ['disableBuilder', '布林值', '控制智慧體構建器介面之可見性與使用。', '設定為 `true` 時，停用智慧體的構建器介面，限制直接的手動互動。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+**範例：**
+```yaml filename="endpoints / agents / disableBuilder"
+disableBuilder: false
+```
+
+## allowedProviders (允許的供應商)
+
+<OptionTable
+  options={[
+    ['allowedProviders', '字串陣列/清單', '指定允許與 Agents 功能搭配使用的終端供應商清單（例如："openAI", "anthropic", "google"）。', '若有定義，則僅能初始化配置了這些供應商的智慧體。若省略或為空，則允許所有已配置的供應商。'],
+  ]}
+/>
+
+**預設值：** `[]`（空清單，允許所有供應商）
+
+**備註：** 必須為下列之一，或是您在[配置](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#name)中定義的自定義終端名稱：
+    - `openAI, azureOpenAI, google, anthropic, assistants, azureAssistants, bedrock`
+
+**範例：**
+```yaml filename="endpoints / agents / allowedProviders"
+allowedProviders:
+  - openAI
+  - google
+```
+
+## capabilities (功能)
+
+<OptionTable
+  options={[
+    ['capabilities', '字串陣列/清單', '為智慧體終端指定開放給所有使用者的智慧體功能。', '定義智慧體終端中開放給所有使用者的功能。您可以從清單中省略想要排除的功能。'],
+  ]}
+/>
+
+**預設值：** `["execute_code", "file_search", "actions", "tools", "artifacts", "context", "ocr", "chain", "web_search"]`
+
+**範例：**
+```yaml filename="endpoints / agents / capabilities"
+capabilities:
+  - "execute_code"
+  - "file_search"
+  - "actions"
+  - "tools"
+  - "artifacts"
+  - "context"
+  - "ocr"
+  - "chain"
+  - "web_search"
+```
+**備註：** 此欄位為選填。若省略，預設行為將包含預設清單中的所有功能。
+
+## maxCitations (最大引用數)
+
+<OptionTable
+  options={[
+    ['maxCitations', '數字', '控制單次智慧體回應中可包含的最大引用總數。', '使用 file_search 功能時，限制返回的來源引用總數，以防止回應過於冗長，同時確保內容全面。'],
+  ]}
+/>
+
+**預設值：** `30`
+
+**範圍：** `1-50`
+
+**範例：**
+```yaml filename="endpoints / agents / maxCitations"
+maxCitations: 30
+```
+
+## maxCitationsPerFile (單一檔案最大引用數)
+
+<OptionTable
+  options={[
+    ['maxCitationsPerFile', '數字', '限制從任何單一檔案中提取的最大引用數量。', '確保引用的多樣性，防止單一檔案主導引用內容，鼓勵呈現來自多個來源的資訊。'],
+  ]}
+/>
+
+**預設值：** `7`
+
+**範圍：** `1-10`
+
+**範例：**
+```yaml filename="endpoints / agents / maxCitationsPerFile"
+maxCitationsPerFile: 7
+```
+
+## minRelevanceScore (最低相關性評分)
+
+<OptionTable
+  options={[
+    ['minRelevanceScore', '數字', '設定來源被納入回應所需的最低相關性評分閾值。', '根據向量相似度評分過濾低質量的匹配。較高的值（如 0.7）可確保僅引用高度相關的來源，而較低的值（如 0.0）則包含所有來源而不論質量。'],
+  ]}
+/>
+
+**預設值：** `0.45` (45% 相關性閾值)
+
+**範圍：** `0.0-1.0`
+
+**範例：**
+```yaml filename="endpoints / agents / minRelevanceScore"
+minRelevanceScore: 0.45
+```
+
+### 檔案引用配置範例
+
+**預設配置（平衡）**
+```yaml
+endpoints:
+  agents:
+    maxCitations: 30
+    maxCitationsPerFile: 7
+    minRelevanceScore: 0.45
+```
+提供全面的引用，同時防止回應過於冗長，並過濾掉低質量的匹配。
+
+**嚴格配置（高質量）**
+```yaml
+endpoints:
+  agents:
+    maxCitations: 10
+    maxCitationsPerFile: 3
+    minRelevanceScore: 0.7
+```
+僅包含高度相關的引用，並設定嚴格限制以獲得精確的回應。
+
+**全面配置（研究用途）**
+```yaml
+endpoints:
+  agents:
+    maxCitations: 50
+    maxCitationsPerFile: 10
+    minRelevanceScore: 0.0
+```
+針對詳盡的研究任務提取最大量的信息，包含所有來源而不論相關性。
+
+## 智慧體功能 (Agent Capabilities)
+
+`capabilities` 欄位允許您啟用或停用智慧體的特定功能。可用的功能包括：
+
+- **execute_code**：允許智慧體執行程式碼。
+- **file_search**：讓智慧體能夠搜尋檔案並與之互動。啟用時，引用行為受 `maxCitations`、`maxCitationsPerFile` 與 `minRelevanceScore` 設定控制。
+- **actions**：允許智慧體執行預定義的 actions。
+- **tools**：授予智慧體存取各種工具的權限。
+- **artifacts**：讓智慧體能產生互動式組件（React 元件、HTML、Mermaid 圖表）。
+- **context**：在聊天中啟用「以文字上傳」功能，並為智慧體啟用「檔案上下文」，允許使用者上傳檔案並將其內容提取後直接納入對話。
+- **ocr**：選填，增強聊天中的「以文字上傳」與智慧體的「檔案上下文」，允許上傳檔案並透過 OCR 處理。**需要配置 OCR 服務。**
+- **chain**：啟用智慧體鏈接 (Beta) 功能，也稱為智慧體混合 (Mixture-of-Agents, MoA) 工作流。
+- **web_search**：為智慧體啟用網頁搜尋功能，讓它們能從網際網路搜尋並檢索資訊。
+
+透過指定這些功能，您可以控制使用者與智慧體互動時可使用的特性。
+
+## 配置範例
+
+以下是配置 `agents` 終端並自定義功能與檔案引用設定的範例：
+
+```yaml filename="Agents 終端"
+endpoints:
+  agents:
+    disableBuilder: false
+    # 檔案引用配置
+    maxCitations: 20
+    maxCitationsPerFile: 5
+    minRelevanceScore: 0.6
+    # 自定義功能
+    capabilities:
+      - "execute_code"
+      - "file_search"
+      - "actions"
+      - "artifacts"
+      - "context"
+      - "ocr"
+      - "web_search"
+```
+
+在此範例中：
+- 構建器介面已啟用。
+- 檔案引用限制為總計 20 個，每個檔案最多 5 個。
+- 僅納入相關性 60% 以上的來源。
+- LibreChat 智慧體可使用代碼執行、檔案搜尋（含引用）、actions、artifacts、檔案上下文、OCR 服務（若有配置）以及網頁搜尋功能。
+
+## 備註
+
+- 不建議停用構建器介面，除非您正使用 [modelSpecs](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW) 來定義可供選擇的智慧體清單。
+- 檔案引用配置 (`maxCitations`、`maxCitationsPerFile`、`minRelevanceScore`) 僅在啟用 `file_search` 功能時生效。
+- 相關性評分是使用向量相似度計算的，1.0 代表完全匹配，0.0 代表完全不相似。
+- 引用限制有助於平衡全面資訊檢索與回應質量及效能。
+- `context` 功能在未配置 OCR 時透過文字解析方法運作。配置 OCR 後可提升提取質量。
+- `ocr` 功能需要配置 OCR 服務（請參閱 [OCR 配置](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)）。

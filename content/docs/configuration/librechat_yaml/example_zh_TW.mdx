@@ -1,0 +1,428 @@
+---
+title: "範例"
+icon: FileCode
+---
+
+## 簡潔範例
+
+<Callout type="example" title="範例" collapsible>
+
+此範例配置包含所有已紀錄的終端（除了 Azure、LiteLLM、MLX 與 Ollama，這些終端都需要額外的配置）。
+
+```yaml filename="librechat.yaml"
+version: 1.3.4
+
+cache: true
+
+interface:
+  # MCP 伺服器 UI 配置
+  mcpServers:
+    placeholder: 'MCP 伺服器'
+    
+  # 隱私權政策設定
+  privacyPolicy:
+    externalUrl: 'https://librechat.ai/privacy-policy'
+    openNewTab: true
+
+  # 服務條款
+  termsOfService:
+    externalUrl: 'https://librechat.ai/tos'
+    openNewTab: true
+
+registration:
+  socialLogins: ["discord", "facebook", "github", "google", "openid"]
+
+endpoints:
+  custom:
+
+    # Anyscale
+    - name: "Anyscale"
+      apiKey: "${ANYSCALE_API_KEY}"
+      baseURL: "https://api.endpoints.anyscale.com/v1"
+      models:
+        default: [
+          "meta-llama/Llama-2-7b-chat-hf",
+          ]
+        fetch: true
+      titleConvo: true
+      titleModel: "meta-llama/Llama-2-7b-chat-hf"
+      summarize: false
+      summaryModel: "meta-llama/Llama-2-7b-chat-hf"
+      modelDisplayLabel: "Anyscale"
+
+    # APIpie
+    - name: "APIpie"
+      apiKey: "${APIPIE_API_KEY}"
+      baseURL: "https://apipie.ai/v1/"
+      models:
+        default: [
+          "gpt-4",
+          "gpt-4-turbo",
+          "gpt-3.5-turbo",
+          "claude-3-opus",
+          "claude-3-sonnet",
+          "claude-3-haiku",
+          "llama-3-70b-instruct",
+          "llama-3-8b-instruct",
+          "gemini-pro-1.5",
+          "gemini-pro",
+          "mistral-large",
+          "mistral-medium",
+          "mistral-small",
+          "mistral-tiny",
+          "mixtral-8x22b",
+          ]
+        fetch: false
+      titleConvo: true
+      titleModel: "gpt-3.5-turbo"
+      dropParams: ["stream"]
+
+    # cohere
+    - name: "cohere"
+      apiKey: "${COHERE_API_KEY}"
+      baseURL: "https://api.cohere.ai/v1"
+      models:
+        default: ["command-r","command-r-plus","command-light","command-light-nightly","command","command-nightly"]
+        fetch: false
+      modelDisplayLabel: "cohere"
+      titleModel: "command"
+      dropParams: ["stop", "user", "frequency_penalty", "presence_penalty", "temperature", "top_p"]
+
+    # Fireworks
+    - name: "Fireworks"
+      apiKey: "${FIREWORKS_API_KEY}"
+      baseURL: "https://api.fireworks.ai/inference/v1"
+      models:
+        default: [
+          "accounts/fireworks/models/mixtral-8x7b-instruct",
+          ]
+        fetch: true
+      titleConvo: true
+      titleModel: "accounts/fireworks/models/llama-v2-7b-chat"
+      summarize: false
+      summaryModel: "accounts/fireworks/models/llama-v2-7b-chat"
+      modelDisplayLabel: "Fireworks"
+      dropParams: ["user"]
+  
+    # groq
+    - name: "groq"
+      apiKey: "${GROQ_API_KEY}"
+      baseURL: "https://api.groq.com/openai/v1/"
+      models:
+        default: [
+          "llama2-70b-4096",
+          "llama3-70b-8192",
+          "llama3-8b-8192",
+          "mixtral-8x7b-32768",
+          "gemma-7b-it",
+          ]
+        fetch: false
+      titleConvo: true
+      titleModel: "mixtral-8x7b-32768"
+      modelDisplayLabel: "groq"
+
+    # Mistral AI API
+    - name: "Mistral"
+      apiKey: "${MISTRAL_API_KEY}"
+      baseURL: "https://api.mistral.ai/v1"
+      models:
+        default: [
+          "mistral-tiny",
+          "mistral-small",
+          "mistral-medium",
+          "mistral-large-latest"
+          ]
+        fetch: true
+      titleConvo: true
+      titleModel: "mistral-tiny"
+      modelDisplayLabel: "Mistral"
+      dropParams: ["stop", "user", "frequency_penalty", "presence_penalty"]
+
+    # OpenRouter.ai
+    - name: "OpenRouter"
+      apiKey: "${OPENROUTER_KEY}"
+      baseURL: "https://openrouter.ai/api/v1"
+      models:
+        default: ["openai/gpt-3.5-turbo"]
+        fetch: true
+      titleConvo: true
+      titleModel: "gpt-3.5-turbo"
+      summarize: false
+      summaryModel: "gpt-3.5-turbo"
+      modelDisplayLabel: "OpenRouter"
+
+    # Perplexity
+    - name: "Perplexity"
+      apiKey: "${PERPLEXITY_API_KEY}"
+      baseURL: "https://api.perplexity.ai/"
+      models:
+        default: [
+          "mistral-7b-instruct",
+          "sonar-small-chat",
+          "sonar-small-online",
+          "sonar-medium-chat",
+          "sonar-medium-online"
+          ]
+        fetch: false # 不支援獲取模型列表
+      titleConvo: true
+      titleModel: "sonar-medium-chat"
+      summarize: false
+      summaryModel: "sonar-medium-chat"
+      dropParams: ["stop", "frequency_penalty"]
+      modelDisplayLabel: "Perplexity"
+
+    # ShuttleAI API
+    - name: "ShuttleAI"
+      apiKey: "${SHUTTLEAI_API_KEY}"
+      baseURL: "https://api.shuttleai.app/v1"
+      models:
+        default: [
+          "shuttle-1", "shuttle-turbo"
+          ]
+        fetch: true
+      titleConvo: true
+      titleModel: "gemini-pro"
+      summarize: false
+      summaryModel: "llama-summarize"
+      modelDisplayLabel: "ShuttleAI"
+      dropParams: ["user"]
+
+    # together.ai
+    - name: "together.ai"
+      apiKey: "${TOGETHERAI_API_KEY}"
+      baseURL: "https://api.together.xyz"
+      models:
+        default: [
+          "zero-one-ai/Yi-34B-Chat",
+          "Austism/chronos-hermes-13b",
+          "DiscoResearch/DiscoLM-mixtral-8x7b-v2",
+          "Gryphe/MythoMax-L2-13b",
+          "lmsys/vicuna-13b-v1.5",
+          "lmsys/vicuna-7b-v1.5",
+          "lmsys/vicuna-13b-v1.5-16k",
+          "codellama/CodeLlama-13b-Instruct-hf",
+          "codellama/CodeLlama-34b-Instruct-hf",
+          "codellama/CodeLlama-70b-Instruct-hf",
+          "codellama/CodeLlama-7b-Instruct-hf",
+          "togethercomputer/llama-2-13b-chat",
+          "togethercomputer/llama-2-70b-chat",
+          "togethercomputer/llama-2-7b-chat",
+          "NousResearch/Nous-Capybara-7B-V1p9",
+          "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+          "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT",
+          "NousResearch/Nous-Hermes-Llama2-70b",
+          "NousResearch/Nous-Hermes-llama-2-7b",
+          "NousResearch/Nous-Hermes-Llama2-13b",
+          "NousResearch/Nous-Hermes-2-Yi-34B",
+          "openchat/openchat-3.5-1210",
+          "Open-Orca/Mistral-7B-OpenOrca",
+          "togethercomputer/Qwen-7B-Chat",
+          "snorkelai/Snorkel-Mistral-PairRM-DPO",
+          "togethercomputer/alpaca-7b",
+          "togethercomputer/falcon-40b-instruct",
+          "togethercomputer/falcon-7b-instruct",
+          "togethercomputer/GPT-NeoXT-Chat-Base-20B",
+          "togethercomputer/Llama-2-7B-32K-Instruct",
+          "togethercomputer/Pythia-Chat-Base-7B-v0.16",
+          "togethercomputer/RedPajama-INCITE-Chat-3B-v1",
+          "togethercomputer/RedPajama-INCITE-7B-Chat",
+          "togethercomputer/StripedHyena-Nous-7B",
+          "Undi95/ReMM-SLERP-L2-13B",
+          "Undi95/Toppy-M-7B",
+          "WizardLM/WizardLM-13B-V1.2",
+          "garage-bAInd/Platypus2-70B-instruct",
+          "mistralai/Mistral-7B-Instruct-v0.1",
+          "mistralai/Mistral-7B-Instruct-v0.2",
+          "mistralai/Mixtral-8x7B-Instruct-v0.1",
+          "teknium/OpenHermes-2-Mistral-7B",
+          "teknium/OpenHermes-2p5-Mistral-7B",
+          "upstage/SOLAR-10.7B-Instruct-v1.0"
+          ]
+        fetch: false # 不支援獲取模型列表
+      titleConvo: true
+      titleModel: "togethercomputer/llama-2-7b-chat"
+      summarize: false
+      summaryModel: "togethercomputer/llama-2-7b-chat"
+      modelDisplayLabel: "together.ai"
+```
+
+</Callout>
+
+## 帶有註釋的範例
+
+此範例配置檔案在幾個關鍵領域為 LibreChat 進行了詳細設定：
+
+- **快取 (Caching)**：已啟用以提升性能。
+- **檔案處理 (File Handling)**：
+    - **檔案策略 (File Strategy)**：已註釋，但提示了可能與 Firebase 整合進行檔案儲存。
+    - **檔案配置 (File Configurations)**：針對不同終端自定義了檔案上傳限制與允許的 MIME 類型，包括全域伺服器檔案大小限制以及使用者頭像圖片的特定限制。
+- **速率限制 (Rate Limiting)**：定義了每個 IP 與使用者在指定時間窗口內允許的最大檔案上傳次數，旨在防止濫用。
+- **註冊 (Registration)**：
+    - 允許來自特定社群登入供應商與電子郵件網域的註冊，增強了安全性與使用者管理。
+- **終端 (Endpoints)**：
+    - **Assistants**：配置了 Assistants 終端的輪詢間隔與操作超時，並提供了停用構建器介面的選項。
+    - **自定義終端 (Custom Endpoints)**：
+        - 配置了兩個外部 AI 服務終端：Mistral 與 OpenRouter，包括 API 金鑰、基礎 URL、模型處理以及特定的功能切換（如對話標題、摘要與參數調整）。
+        - 針對 Mistral，啟用了動態模型獲取，套用了安全提示詞的額外參數，並明確刪除了不支援的參數。
+        - 針對 OpenRouter，設定了不含動態模型獲取的基礎配置，並指定了用於對話標題的模型。
+
+<Callout type="example" title="帶有註釋的範例" collapsible>
+
+```yaml filename="librechat.yaml"
+# 如需更多資訊，請參閱配置指南：
+# https://www.librechat.ai/docs/configuration/librechat_yaml
+
+# 配置版本 (必填)
+version: 1.3.4
+
+# 快取設定：設定為 true 以啟用快取
+cache: true
+
+# 自定義介面配置
+interface:
+  # MCP 伺服器 UI 配置
+  mcpServers:
+    placeholder: 'MCP 伺服器'
+
+  # 隱私權政策設定
+  privacyPolicy:
+    externalUrl: 'https://librechat.ai/privacy-policy'
+    openNewTab: true
+
+  # 服務條款
+  termsOfService:
+    externalUrl: 'https://librechat.ai/tos'
+    openNewTab: true
+
+# 註冊物件結構範例 (選填)
+registration:
+  socialLogins: ['github', 'google', 'discord', 'openid', 'facebook']
+  # allowedDomains:
+  # - "gmail.com"
+
+# rateLimits:
+#   fileUploads:
+#     ipMax: 100
+#     ipWindowInMinutes: 60  # 每個 IP 的檔案上傳速率限制窗口
+#     userMax: 50
+#     userWindowInMinutes: 60  # 每個使用者的檔案上傳速率限制窗口
+#   conversationsImport:
+#     ipMax: 100
+#     ipWindowInMinutes: 60  # 每個 IP 的對話匯入速率限制窗口
+#     userMax: 50
+#     userWindowInMinutes: 60  # 每個使用者的對話匯入速率限制窗口
+
+# 自定義終端定義
+endpoints:
+  # assistants:
+  #   disableBuilder: false # 設定為 `true` 以停用 Assistants 構建器介面
+  #   pollIntervalMs: 750  # 檢查 Assistant 更新的輪詢間隔
+  #   timeoutMs: 180000  # Assistant 操作的超時時間
+  #   # 以下兩項僅能擇一使用：`supportedIds` 或 `excludedIds`
+  #   supportedIds: ["asst_supportedAssistantId1", "asst_supportedAssistantId2"]
+  #   # excludedIds: ["asst_excludedAssistantId"]
+  #   # 僅顯示使用者建立或在外部建立（例如在 Assistants playground）的 Assistants。
+  #   # privateAssistants: false # 不可與 `supportedIds` 或 `excludedIds` 同時使用
+  #   # (選填) 支援檢索 (retrieval) 的模型，預設為支援該功能的最新 OpenAI 已知模型
+  #   retrievalModels: ["gpt-4-turbo-preview"]
+  #   # (選填) 開放給所有使用者的 Assistant 功能。省略您想排除的功能。預設清單如下。
+  #   capabilities: ["code_interpreter", "retrieval", "actions", "tools", "image_vision"]
+  custom:
+    # Groq 範例
+    - name: 'groq'
+      apiKey: '${GROQ_API_KEY}'
+      baseURL: 'https://api.groq.com/openai/v1/'
+      models:
+        default: [
+          "llama3-70b-8192",
+          "llama3-8b-8192",
+          "llama2-70b-4096",
+          "mixtral-8x7b-32768",
+          "gemma-7b-it",
+          ]
+        fetch: false
+      titleConvo: true
+      titleModel: 'mixtral-8x7b-32768'
+      modelDisplayLabel: 'groq'
+
+    # Mistral AI 範例
+    - name: 'Mistral' # 終端的唯一名稱
+      # 對於 `apiKey` 與 `baseURL`，您可以使用自定義的環境變數。
+      # 建議使用的環境變數：
+      apiKey: '${MISTRAL_API_KEY}'
+      baseURL: 'https://api.mistral.ai/v1'
+
+      # 模型配置
+      models:
+        # 預設使用的模型列表。至少需要一個數值。
+        default: ['mistral-tiny', 'mistral-small', 'mistral-medium']
+        # 獲取選項：設定為 true 以從 API 獲取模型。
+        fetch: true # 預設為 false。
+
+      # 選填配置
+
+      # 對話標題設定
+      titleConvo: true # 設定為 true 以啟用對話標題產生
+
+      # 標題方法：選擇 "completion" 或 "functions"。
+      # titleMethod: "completion"  # 若省略則預設為 "completion"。
+
+      # 標題模型：指定用於產生標題的模型。
+      titleModel: 'mistral-tiny' # 若省略則預設為 "gpt-3.5-turbo"。
+
+      # 摘要設定：設定為 true 以啟用摘要功能。
+      # summarize: false
+
+      # 摘要模型：若啟用了摘要，指定所使用的模型。
+      # summaryModel: "mistral-tiny"  # 若省略則預設為 "gpt-3.5-turbo"。
+
+      # 在訊息中為 AI 模型顯示的標籤。
+      modelDisplayLabel: 'Mistral' # 未設定時預設為 "AI"。
+
+      # 為請求加入額外參數。預設參數將被覆寫。
+      # addParams:
+      # safe_prompt: true # 此欄位為 Mistral AI 特有：https://docs.mistral.ai/api/
+
+      # 從請求中刪除預設參數。參見下方連結指南中的預設參數。
+      # 注意：對於 Mistral，必須刪除以下參數，否則會遇到 422 錯誤：
+      dropParams: ['stop', 'user', 'frequency_penalty', 'presence_penalty']
+
+    # OpenRouter 範例
+    - name: 'OpenRouter'
+      # 對於 `apiKey` 與 `baseURL`，您可以使用自定義的環境變數。
+      # 建議使用的環境變數：
+      # 已知問題：請勿使用 `OPENROUTER_API_KEY`，否則會覆寫 `openAI` 終端也使用 OpenRouter。
+      apiKey: '${OPENROUTER_KEY}'
+      baseURL: 'https://openrouter.ai/api/v1'
+      models:
+        default: ['meta-llama/llama-3-70b-instruct']
+        fetch: true
+      titleConvo: true
+      titleModel: 'meta-llama/llama-3-70b-instruct'
+      # 建議：從請求中刪除 stop 參數，因為 OpenRouter 模型使用多種不同的停止權杖 (stop tokens)。
+      dropParams: ['stop']
+      modelDisplayLabel: 'OpenRouter'
+
+# fileConfig:
+#   endpoints:
+#     assistants:
+#       fileLimit: 5
+#       fileSizeLimit: 10  # 單個檔案的最大大小 (MB)
+#       totalSizeLimit: 50  # 單次請求中所有檔案的最大總大小 (MB)
+#       supportedMimeTypes:
+#         - "image/.*"
+#         - "application/pdf"
+#     openAI:
+#       disabled: true  # 停用向 OpenAI 終端上傳檔案
+#     default:
+#       totalSizeLimit: 20
+#     您的自定義終端名稱:
+#       fileLimit: 2
+#       fileSizeLimit: 5
+#   serverFileSizeLimit: 100  # 全域伺服器檔案大小限制 (MB)
+#   avatarSizeLimit: 2  # 使用者頭像圖片大小限制 (MB)
+# 更多資訊請參閱自定義配置指南：
+# https://www.librechat.ai/docs/configuration/librechat_yaml
+```
+
+</Callout>

@@ -1,0 +1,63 @@
+---
+title: Authentik
+icon: UserCheck
+description: 學習如何配置 LibreChat 使用 Authentik 進行使用者身份驗證。
+---
+
+1. **存取 Authentik 管理介面：**
+
+- 在瀏覽器中開啟 Authentik 管理介面。通常位於如下 URL：`https://authentik.example.com/if/admin/#/administration/overview`。
+  > 我們將以 `https://authentik.example.com` 作為範例 URL。請替換為您實際的 Authentik 實例 URL。
+
+2. **使用精靈建立新的應用程式與供應商 (Provider)：**
+
+- 點擊左側側邊欄中的 「Applications」 標籤，再次點擊 「Applications」。
+- 在頁面頂端您應該會看到一個標記為 「Create with Wizard」 的按鈕。點擊它。
+  > 備註：您也可以手動建立應用程式與供應商，但請確保之後將它們連結起來。
+- 您可以隨意命名應用程式。在此範例中，我們將其命名為 「LibreChat」 並點擊下一步。
+- 選擇 「OAuth2/OIDC」 供應商並點擊下一步。
+- 選擇您的身份驗證與授權流程。
+- 向下捲動並記下 「Client ID」 與 「Client Secret」。您稍後會用到這些。
+- 在 「Advanced protocol settings」 下方，將 「Subject mode」 更改為 「Based on the User's Email」。
+- 點擊提交 (Submit)。
+- 將您建立的新應用程式新增至一個 Outpost。
+  > 備註：您也應在此時套用任何您想針對 LibreChat 執行的存取控制原則。
+
+3. **獲取用於 .env 的資訊：**
+
+- 您需要從 Authentik 獲取以下資訊：
+  - 「Client ID」
+  - 「Client Secret」
+  - 「OpenID Configuration URL」
+    > 點擊您剛建立的供應商，即可找到所有這些資訊。
+
+3. **配置 LibreChat：**
+
+- 開啟 `.env` 檔案並新增下列變數：
+
+```bash filename=".env"
+OPENID_ISSUER=https://authentik.example.com/application/o/librechat/.well-known/openid-configuration
+OPENID_CLIENT_ID=[您的ClientID]
+OPENID_CLIENT_SECRET=[您的ClientSecret]
+OPENID_SESSION_SECRET=[請產生一個隨機工作階段秘密]
+OPENID_CALLBACK_URL=/oauth/openid/callback
+OPENID_SCOPE=openid profile email
+# 下方為選填的自定義設定
+OPENID_BUTTON_LABEL=使用 Authentik 登入
+OPENID_IMAGE_URL=https://cdn.jsdelivr.net/gh/selfhst/icons/png/authentik.png
+# 為需要 nonce 的聯邦身份供應商（例如將 Cognito 配置為搭配 Entra 的 OIDC 供應商）產生 nonce。
+OPENID_GENERATE_NONCE=true
+# 登出後將使用者重新導向至結束工作階段終端
+OPENID_USE_END_SESSION_ENDPOINT=true
+```
+
+> 備註：確保 `.env` 中的內容沒有被引號包圍，且您已允許社群登入。
+
+4. **檢查配置：**
+
+- 重啟 LibreChat 以套用變更。
+- 開啟無痕視窗並導覽至您的 LibreChat 實例。
+- 在表單登入下方，應該會出現一個名為 「使用 Authentik 登入」 的新按鈕。
+- 您應該會被重新導向至 Authentik 進行登入。
+- 登入後，您應該會被導回 LibreChat 並成功登入。
+  - 如果您沒有被導回 LibreChat，請檢查 Authentik 日誌以獲取錯誤訊息。

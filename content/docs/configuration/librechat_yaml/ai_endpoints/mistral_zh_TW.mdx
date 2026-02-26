@@ -1,0 +1,33 @@
+---
+title: Mistral
+icon: Mistral
+description: Mistral 的配置範例
+---
+
+> Mistral API 金鑰：[console.mistral.ai](https://console.mistral.ai/)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。對訊息角色 (message roles) 有特殊處理：系統訊息 (system message) 僅允許出現在訊息負載的最頂端。
+
+- Mistral API 對不被辨識的參數要求嚴格，且錯誤訊息通常不明確（通常顯示為 "no body"）。
+
+    - 必須使用 [`dropParams`](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#dropparams) 來刪除 "user"、"frequency_penalty"、"presence_penalty" 等參數。
+    - `stop` 參數已不再作為預設參數包含在內，因此除非您想完全禁止使用者配置此欄位，否則不再需要將其加入 [`dropParams`](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#dropparams)。
+    
+- 支援動態獲取模型列表，但請注意不要將嵌入 (embedding) 模型用於對話。
+
+```yaml filename="librechat.yaml"
+    - name: "Mistral"
+      apiKey: "${MISTRAL_API_KEY}"
+      baseURL: "https://api.mistral.ai/v1"
+      models:
+        default: ["mistral-tiny", "mistral-small", "mistral-medium", "mistral-large-latest"]
+        fetch: true
+      titleConvo: true
+      titleModel: "mistral-tiny"
+      modelDisplayLabel: "Mistral"
+      dropParams: ["stop", "user", "frequency_penalty", "presence_penalty"]
+```
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/ddb4b2f3-608e-4034-9a27-3e94fc512034)

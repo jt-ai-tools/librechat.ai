@@ -1,0 +1,38 @@
+---
+title: Perplexity
+icon: Perplexity
+description: Perplexity 的配置範例
+---
+
+> Perplexity API 金鑰：[perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
+
+**備註：**
+
+- **已知 (Known)**：已提供圖標。
+- **已知問題**：不支援動態獲取模型列表。
+- 部分模型的 API 可能較為嚴格，可能不允許包含 `stop` 欄位；此外，`frequency_penalty` 設定為 0 時可能會導致錯誤。在這些情況下，您應使用 [`dropParams`。](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#dropparams)
+- 為了方便起見，此範例包含了一個模型清單，最後更新於 2024 年 7 月 3 日。
+
+```yaml
+    - name: "Perplexity"
+      apiKey: "${PERPLEXITY_API_KEY}"
+      baseURL: "https://api.perplexity.ai/"
+      models:
+        default: [
+          "sonar-deep-research",
+          "sonar-reasoning-pro",
+          "sonar-reasoning",
+          "sonar-pro",
+          "sonar",
+          "r1-1776"
+          ]
+        fetch: false # 不支援獲取模型列表
+      titleConvo: true
+      titleModel: "llama-3-sonar-small-32k-chat"
+      summarize: false
+      summaryModel: "llama-3-sonar-small-32k-chat"
+      dropParams: ["stop", "frequency_penalty"]
+      modelDisplayLabel: "Perplexity"
+```
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/6bf6c121-0895-4210-a1dd-e5e957992fd4)

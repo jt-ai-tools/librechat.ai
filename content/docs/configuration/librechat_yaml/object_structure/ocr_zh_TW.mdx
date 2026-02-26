@@ -1,0 +1,141 @@
+---
+title: "OCR 配置物件結構"
+icon: Braces
+---
+
+## 概覽
+
+`ocr` 物件讓您可以配置應用程式的光學字元辨識 (OCR) 設定，以便從圖片中提取文字。本章節提供 `ocr` 物件結構的詳細解析。
+
+`ocr` 下包含 4 個主要欄位：
+
+  - `mistralModel` (Mistral 模型)
+  - `apiKey` (API 金鑰)
+  - `baseURL` (基礎 URL)
+  - `strategy` (策略)
+
+**備註：**
+
+- 若使用 Mistral OCR API，您不一定要編輯 `librechat.yaml` 檔案。
+    - 僅需設定下列環境變數即可開始使用：`OCR_API_KEY` 與 `OCR_BASEURL`。
+- OCR 功能允許應用程式從圖片中提取文字，隨後可由 AI 模型進行處理。
+- 預設策略為 `mistral_ocr`，使用 Mistral 的 OCR 能力。
+- 您也可以透過將策略設定為 `custom_ocr` 來配置自定義的 OCR 服務。
+- 若要使用部署在 Azure 上的 Mistral OCR 模型，請將策略設定為 `azure_mistral_ocr`。
+- 若要使用部署在 Google Vertex AI 上的 Mistral OCR 模型，請將策略設定為 `vertexai_mistral_ocr`。
+  - 需要設定 `GOOGLE_SERVICE_KEY_FILE` 環境變數，內容為服務帳號憑證。
+  - 服務金鑰可以透過下列方式提供：檔案路徑、URL、Base64 編碼的 JSON 或原始 JSON 字串。
+  - 專案 ID 與地點將自動從服務帳號憑證中提取。
+- 若使用預設的 Mistral OCR，您可以選擇性指定要使用的特定 Mistral 模型。
+- `apiKey`、`baseURL` 與 `mistralModel` 參數均支援環境變數解析。
+- 未來版本計畫增加 `user_provided` 策略選項，但目前尚未實作。
+
+## 範例
+
+```yaml filename="ocr"
+ocr:
+  mistralModel: "mistral-ocr-latest"
+  apiKey: "您的-mistral-api-金鑰"
+  strategy: "mistral_ocr"
+```
+
+使用自定義 OCR 的範例：
+
+```yaml filename="使用自定義 OCR 的 ocr"
+ocr:
+  apiKey: "您的-自定義-ocr-api-金鑰"
+  baseURL: "https://your-custom-ocr-service.com/api"
+  strategy: "custom_ocr"
+```
+
+使用 Azure Mistral OCR 的範例：
+
+```yaml filename="使用 Azure Mistral OCR 的 ocr"
+ocr:
+  mistralModel: "deployed-mistral-ocr-2503" # 應匹配 Azure 上的部署名稱
+  apiKey: "${AZURE_MISTRAL_OCR_API_KEY}" # 引用自定義環境變數
+  baseURL: "https://your-deployed-endpoint.models.ai.azure.com/v1" # 硬編碼位址，亦可引用環境變數
+  strategy: "azure_mistral_ocr"
+```
+
+使用 Google Vertex AI Mistral OCR 的範例：
+
+```yaml filename="使用 Google Vertex AI Mistral OCR 的 ocr"
+ocr:
+  mistralModel: "mistral-ocr-2505" # 部署於 Vertex AI 中的模型名稱
+  strategy: "vertexai_mistral_ocr"
+```
+
+## mistralModel
+
+<OptionTable
+  options={[
+    ['mistralModel', '字串', '用於 OCR 處理的 Mistral 模型。對於 Azure 部署，此項應匹配您的部署名稱。對於 Google Vertex AI，此項應匹配部署中的模型名稱。', '選填。指定當策略設定為 mistral_ocr、azure_mistral_ocr 或 vertexai_mistral_ocr 時應使用的 Mistral 模型。'],
+  ]}
+/>
+
+```yaml filename="ocr / mistralModel"
+ocr:
+  mistralModel: "mistral-ocr-latest"
+```
+
+針對 Azure 部署：
+
+```yaml filename="ocr / mistralModel (Azure)"
+ocr:
+  mistralModel: "deployed-mistral-ocr-2503" # 您的 Azure 部署名稱
+```
+
+針對 Google Vertex AI 部署：
+
+```yaml filename="ocr / mistralModel (Google Vertex AI)"
+ocr:
+  mistralModel: "mistral-ocr-2505" # 您的 Vertex AI 模型名稱
+```
+
+## apiKey
+
+<OptionTable
+  options={[
+    ['apiKey', '字串', 'OCR 服務的 API 金鑰。Google Vertex AI 不使用此項（透過 GOOGLE_SERVICE_KEY_FILE 進行服務帳號驗證）。', '選填。若未指定，則預設使用環境變數 OCR_API_KEY。'],
+  ]}
+/>
+
+```yaml filename="ocr / apiKey"
+ocr:
+  apiKey: "您的-ocr-api-金鑰"
+```
+
+## baseURL
+
+<OptionTable
+  options={[
+    ['baseURL', '字串', 'OCR 服務 API 的基礎 URL。針對 Google Vertex AI，此項會自動從服務帳號憑證中構建。', '選填。若未指定，則預設使用環境變數 OCR_BASEURL。'],
+  ]}
+/>
+
+```yaml filename="ocr / baseURL"
+ocr:
+  baseURL: "https://your-ocr-service.com/api"
+```
+
+
+## strategy (策略)
+
+<OptionTable
+  options={[
+    ['strategy', '字串', '使用的 OCR 策略。', '決定使用哪種 OCR 服務。選項包括 "mistral_ocr"、"azure_mistral_ocr"、"vertexai_mistral_ocr" 或 "custom_ocr"。預設為 "mistral_ocr"。'],
+  ]}
+/>
+
+```yaml filename="ocr / strategy"
+ocr:
+  strategy: "custom_ocr"
+```
+
+**可用策略：**
+
+- `mistral_ocr`：透過標準的 [Mistral API](/docs/features/ocr_zh_TW#1-mistral-ocr-預設) 使用 Mistral 的 OCR 能力。
+- `azure_mistral_ocr`：使用部署在 [Azure AI Foundry](/docs/features/ocr_zh_TW#2-azure-mistral-ocr) 上的 Mistral OCR 模型。
+- `vertexai_mistral_ocr`：使用部署在 [Google Cloud Vertex AI](/docs/features/ocr_zh_TW#3-google-vertex-ai-mistral-ocr) 上的 Mistral OCR 模型。
+- `custom_ocr`：使用由 `baseURL` 指定的自定義 OCR 服務 [（尚未實作）](/docs/features/ocr_zh_TW#未來增強功能)。

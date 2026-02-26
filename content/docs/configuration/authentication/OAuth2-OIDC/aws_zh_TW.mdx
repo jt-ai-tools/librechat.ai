@@ -1,0 +1,122 @@
+---
+title: AWS Cognito
+icon: Cloud
+description: 學習如何配置 LibreChat 使用 AWS Cognito 進行使用者身份驗證。
+---
+
+## 在 Cognito 中建立新的使用者池 (User Pool)
+
+- 造訪：**[https://console.aws.amazon.com/cognito/](https://console.aws.amazon.com/cognito/)**
+- 以根使用者 (Root User) 身份登入。
+- 點擊 `Create user pool`（建立使用者池）。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/e9b412c3-2cf1-4f54-998c-d1d6c12581a5)
+
+## 配置登入體驗
+
+您的 Cognito 使用者池登入選項應包含 `User Name`（使用者名稱）與 `Email`（電子郵件）。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/d2cf362d-469e-4993-8466-10282da114c2)
+
+## 配置安全性需求
+
+如果需要，您可以在此時配置密碼強度需求。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/e125e8f1-961b-4a38-a6b7-ed1faf29c4a3)
+
+## 配置註冊體驗
+
+選擇註冊時必要的屬性。最低要求為 `name`。如果您想要求使用者在註冊時提供全名，請將 `given_name` 與 `family_name` 設定為必要屬性。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/558b8e2c-afbd-4dd1-87f3-c409463b5f7c)
+
+## 配置訊息傳送
+
+使用 Cognito 傳送電子郵件每天可免費發送最多 50 封。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/fcb2323b-708e-488c-9420-7eb482974648)
+
+## 整合您的應用程式
+
+選擇 `Use Cognito Hosted UI`（使用 Cognito 託管 UI）並選擇一個網域名稱。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/111b3dd4-3b20-4e3e-80e1-7167d2ad0f62)
+
+將應用程式類型設定為 `Confidential client`（機密用戶端）。
+確保已勾選 `Generate a client secret`（產生用戶端金鑰）。
+將 `Allowed callback URLs`（允許的回呼 URL）設定為 `https://您的網域/oauth/openid/callback`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/1f92a532-7c4d-4632-a55d-9d00bf77fc4d)
+
+在 `Advanced app client settings`（進階應用程式用戶端設定）下方，確保 `Profile` 已包含在 `OpenID Connect scopes`（OpenID Connect 範圍）中（位於底部）。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/5b035eae-4a8e-482c-abd5-29cee6502eeb)
+
+## 檢閱並建立
+
+您現在可以進行最後的檢查與修改，檢閱完配置後，點擊 `Create user pool`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/dc8b2374-9adb-4065-85dc-a087d625372d)
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/67efb1e9-dfe3-4ebd-9ebb-92186c514b5c)
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/9f819175-ace1-44b1-ba68-af21ac9f6735)
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/3e7b8b17-4e12-49af-99cf-78981d6331df)
+
+## 獲取您的環境變數
+
+1. 開啟您的使用者池 (User Pool)。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/b658ff2a-d252-4f3d-90a7-9fbde42c01db)
+
+2. `User Pool ID`（使用者池 ID）與您的 AWS 區域將用於構建 `OPENID_ISSUER`（見下方說明）。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/dc8ae403-cbff-4aae-9eee-42d7cf3485e7)
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/d606f5c8-c60b-4d20-bdb2-d0d69e49ea1e)
+
+3. 前往 `App Integrations`（應用程式整合）分頁。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/58713bdc-24bc-47de-bdca-020dc321e997)
+
+4. 開啟應用程式用戶端 (app client)。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/271bf7d2-3df2-43a7-87fc-e50294e49b2e)
+
+5. 切換顯示 `Show Client Secret`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/a844fe65-313d-4754-81b4-380336e0e336)
+
+- 將 `Client ID` 用於 `OPENID_CLIENT_ID`。
+
+- 將 `Client secret` 用於 `OPENID_CLIENT_SECRET`。
+
+- 為 `OPENID_SESSION_SECRET` 產生一個隨機字串。
+
+> `OPENID_SCOPE` 與 `OPENID_CALLBACK_URL` 已預先配置好正確的數值。
+
+6. 開啟 LibreChat 資料夾根目錄下的 `.env` 檔案，並新增下列變數及其對應數值：
+
+```bash filename=".env"
+DOMAIN_CLIENT=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+DOMAIN_SERVER=https://your-domain.com # 若不使用自定義網域，請使用 http://localhost:3080
+
+OPENID_CLIENT_ID=您的_client_ID
+OPENID_CLIENT_SECRET=您的_client_secret
+OPENID_ISSUER=https://cognito-idp.[AWS_區域].amazonaws.com/[使用者池_ID]/.well-known/openid-configuration
+OPENID_SESSION_SECRET=任何隨機字串
+OPENID_SCOPE=openid profile email
+OPENID_CALLBACK_URL=/oauth/openid/callback
+
+# 選填：登出後將使用者重新導向至結束工作階段終端
+OPENID_USE_END_SESSION_ENDPOINT=true
+# 選填：產生 nonce URL 參數
+OPENID_GENERATE_NONCE=true
+```
+
+> [!WARNING]  
+> 如果 Cognito 配置了 OIDC 供應商（例如聯邦身份驗證至 Entra），則必須設定 `OPENID_GENERATE_NONCE=true`。否則 Cognito 不論如何都會自行產生 nonce，且由於用戶端未提供 nonce，將導致聲明驗證 (claims validation) 失敗。
+
+7. 儲存 .env 檔案。
+
+> 備註：如果使用 Docker，請執行 `docker compose up -d` 以套用 .env 配置變更。

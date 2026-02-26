@@ -1,0 +1,692 @@
+---
+title: "介面物件結構 (Interface Object Structure)"
+icon: LayoutDashboard
+---
+
+## 概覽
+
+`interface` 物件讓您可以自定義應用程式中的各種使用者介面元素，包括選單、面板與連結的可見性與行為設定。本章節提供 `interface` 物件結構的詳細解析。
+
+以下是 `interface` 下的欄位：
+
+  - `endpointsMenu` (終端選單)
+  - `mcpServers` (MCP 伺服器)
+  - `privacyPolicy` (隱私權政策)
+  - `termsOfService` (服務條款)
+  - `modelSelect` (模型選擇)
+  - `parameters` (參數設定)
+  - `sidePanel` (側邊欄)
+  - `presets` (預設設定)
+  - `prompts` (提示詞)
+  - `bookmarks` (書籤)
+  - `memories` (記憶)
+  - `multiConvo` (多重對話)
+  - `agents` (智慧體)
+  - `temporaryChat` (暫時對話)
+  - `temporaryChatRetention` (暫時對話保留時間)
+  - `customWelcome` (自定義歡迎訊息)
+  - `runCode` (執行程式碼)
+  - `webSearch` (網頁搜尋)
+  - `fileSearch` (檔案搜尋)
+  - `fileCitations` (檔案引用)
+  - `peoplePicker` (人員選擇器)
+  - `marketplace` (市集)
+
+**備註：**
+
+- `interface` 配置全域套用於應用程式內。
+- 大多數設定皆提供預設值，但可根據特定需求或條件進行覆寫。
+- 應用程式中的條件邏輯可能會根據其他配置（如模型規範）進一步修改這些設定。
+
+## 範例
+
+```yaml filename="interface"
+interface:
+  mcpServers:
+    placeholder: "MCP 伺服器"
+    use: true
+    create: true
+    share: false
+    public: false
+    trustCheckbox:
+      label: "我信任此伺服器"
+      subLabel: "僅啟用您信任的伺服器"
+  privacyPolicy:
+    externalUrl: "https://example.com/privacy"
+    openNewTab: true
+  termsOfService:
+    externalUrl: "https://example.com/terms"
+    openNewTab: true
+    modalAcceptance: true
+    modalTitle: "服務條款"
+    modalContent: |
+      # 服務條款
+      ## 簡介
+      歡迎使用 LibreChat！
+  modelSelect: false
+  parameters: true
+  sidePanel: true
+  presets: false
+  prompts:
+    use: true
+    create: true
+    share: true
+    public: false
+  bookmarks: true
+  multiConvo: true
+  agents:
+    use: true
+    create: true
+    share: true
+    public: false
+  customWelcome: "嘿 {{user.name}}！歡迎來到 LibreChat"
+  runCode: true
+  webSearch: true
+  fileSearch: true
+  fileCitations: true
+```
+
+## endpointsMenu (終端選單)
+
+控制聊天介面中終端選單下拉清單的可見性。
+
+**Key：**
+<OptionTable
+  options={[
+    ['endpointsMenu', '布林值', '控制 UI 中是否顯示終端選單。', '設定為 `false` 時，使用者將看不到終端選擇器下拉選單。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / endpointsMenu"
+interface:
+  endpointsMenu: false
+```
+
+## mcpServers (MCP 伺服器)
+
+**Key：**
+<OptionTable
+  options={[
+    ['mcpServers', '物件', '包含與 MCP (模型上下文協定) 伺服器選擇介面與存取控制相關的設定。', '允許自定義佔位符文字、使用者權限以及信任勾選框標籤。'],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+<OptionTable
+  options={[
+    ['placeholder', '字串', '未選擇伺服器時，MCP 伺服器選擇下拉選單中顯示的佔位符文字。', 'MCP 伺服器'],
+    ['use', '布林值', '控制使用者是否有權限使用現有的 MCP 伺服器。', 'true'],
+    ['create', '布林值', '控制使用者是否有權限建立新的 MCP 伺服器。', 'true'],
+    ['share', '布林值', '控制使用者是否有權限與其他使用者分享 MCP 伺服器。', 'false'],
+    ['public', '布林值', '控制使用者是否可以公開分享 MCP 伺服器（對所有使用者可見）。', 'false'],
+    ['trustCheckbox', '物件', 'MCP 伺服器對話方塊中信任勾選框的自定義標籤。支援簡單字串或用於國際化的語言鍵值物件。', '詳見下方'],
+  ]}
+/>
+
+**trustCheckbox 子鍵：**
+<OptionTable
+  options={[
+    ['label', '字串或物件', '信任勾選框的主要標籤。可以是簡單字串或語言鍵值物件（例如：{ en: "I trust this server", zh-TW: "我信任此伺服器" }）。', ''],
+    ['subLabel', '字串或物件', '信任勾選框的子標籤（說明文字）。可以是簡單字串或用於國際化的語言鍵值物件。', ''],
+  ]}
+/>
+
+**範例：**
+```yaml filename="interface / mcpServers"
+interface:
+  mcpServers:
+    placeholder: "選擇 MCP 伺服器"
+    use: true
+    create: true
+    share: false
+    trustCheckbox:
+      label:
+        en: "I trust this server"
+        zh-TW: "我信任此伺服器"
+      subLabel:
+        en: "Only enable servers you trust"
+        zh-TW: "僅啟用您信任的伺服器"
+```
+
+## privacyPolicy (隱私權政策)
+
+**Key：**
+<OptionTable
+  options={[
+    ['privacyPolicy', '物件', '包含與使用者介面中提供的隱私權政策連結相關的設定。', '允許指定自定義 URL 以及是否在新分頁開啟。'],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+<OptionTable
+  options={[
+    ['externalUrl', '字串 (URL)', '指向隱私權政策文件的 URL。', ''],
+    ['openNewTab', '布林值', '指定是否應在新分頁開啟連結。', ''],
+  ]}
+/>
+
+## termsOfService (服務條款)
+
+**Key：**
+<OptionTable
+  options={[
+    ['termsOfService', '物件', '包含與使用者介面中提供的服務條款連結相關的設定。', '允許指定自定義 URL、是否在新分頁開啟，以及服務條款的強制接受對話方塊。'],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+<OptionTable
+  options={[
+    ['externalUrl', '字串 (URL)', '指向服務條款文件的 URL。', 'https://librechat.ai/tos'],
+    ['openNewTab', '布林值', '指定是否應在新分頁開啟連結。', 'true'],
+    ['modalAcceptance', '布林值', '指定是否顯示服務條款對話方塊，要求使用者必須接受才能使用 LibreChat。', 'true'],
+    ['modalTitle', '字串', '指定服務條款對話方塊的自定義標題（選填）。', '服務條款'],
+    ['modalContent', '字串', '以 Markdown 格式指定服務條款對話方塊的內容。', '請參考 librechat.yaml.example 以瞭解如何正確格式化多行參數。'],
+  ]}
+/>
+
+## modelSelect (模型選擇)
+
+**Key：**
+<OptionTable
+  options={[
+    ['modelSelect', '布林值', '決定 UI 中是否可用模型選擇功能。', '啟用此功能後，使用者可以直接從介面選擇不同的模型。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**備註：**
+- 如果使用了 [`modelSpecs.addedEndpoints`](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#addedendpoints)，此項必須為 `true`。
+- 若使用了 `modelSpecs.addedEndpoints` 且未明確設定 `interface.modelSelect`，則預設為 `true`。
+
+**範例：**
+```yaml filename="interface / modelSelect"
+interface:
+  modelSelect: true
+```
+
+## parameters (參數設定)
+
+**Key：**
+<OptionTable
+  options={[
+    ['parameters', '布林值', '切換介面中參數配置選項（即對話設定）的可見性。', '此設定對於需要針對特定功能調整參數的使用者至關重要。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / parameters"
+interface:
+  parameters: false
+```
+
+## sidePanel (側邊欄)
+
+**Key：**
+<OptionTable
+  options={[
+    ['sidePanel', '布林值', '控制應用程式介面中側邊欄的可見性。', '側邊欄通常包含與應用程式上下文相關的額外導覽或資訊。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / sidePanel"
+interface:
+  sidePanel: true
+```
+
+## presets (預設設定)
+
+**Key：**
+<OptionTable
+  options={[
+    ['presets', '布林值', '啟用或停用應用程式 UI 中的預設設定 (presets) 功能。', '預設設定提供預先配置好的設定或操作，可簡化使用者互動，提升體驗與效率。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / presets"
+interface:
+  presets: true
+```
+
+## prompts (提示詞)
+
+**Key：**
+<OptionTable
+  options={[
+    ['prompts', '布林值或物件', '為所有使用者控制提示詞相關功能。可以是簡單啟用/停用的布林值，或針對使用、建立、分享與公開可見性進行細粒度控制的物件。', '設定為 `false` 時，使用者將無法建立、編輯或使用自定義提示詞。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**重要：布林值 vs 物件配置**
+
+- **布林值 (`prompts: true`)**：僅更新 `use` (使用) 權限。現有的 `create` (建立)、`share` (分享) 與 `public` (公開) 權限值將從資料庫中 **保留**。這適合用作簡單的功能開關，而不影響透過管理面板進行的其他設定。
+
+- **物件**：僅更新明確指定的子權限。未包含在配置中的權限將從資料庫中保留。
+
+使用物件結構時：
+
+**子鍵 (Sub-keys)：**
+<OptionTable
+  options={[
+    ['use', '布林值', '控制使用者是否可以使用提示詞。', 'true'],
+    ['create', '布林值', '控制使用者是否可以建立新提示詞。', 'true'],
+    ['share', '布林值', '控制使用者是否可以與特定使用者/群組分享提示詞。', 'false'],
+    ['public', '布林值', '控制使用者是否可以公開分享提示詞（對所有使用者可見）。', 'false'],
+  ]}
+/>
+
+**範例（布林值 - 簡單功能開關）：**
+```yaml filename="interface / prompts (布林值)"
+interface:
+  prompts: true  # 僅更新 USE；create/share/public 維持不變
+```
+
+**範例（物件 - 細粒度控制）：**
+```yaml filename="interface / prompts (物件)"
+interface:
+  prompts:
+    use: true
+    create: false  # 允許使用但停用建立功能
+    # share 與 public 未指定 - 保留現有數值
+```
+
+**範例（物件 - 完整控制）：**
+```yaml filename="interface / prompts (物件)"
+interface:
+  prompts:
+    use: true
+    create: true
+    share: true
+    public: false
+```
+
+## bookmarks (書籤)
+
+**Key：**
+<OptionTable
+  options={[
+    ['bookmarks', '布林值', '為所有使用者啟用或停用所有書籤相關功能。', '停用後，使用者將無法在應用程式內建立、管理或存取書籤。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / bookmarks"
+interface:
+  bookmarks: true
+```
+
+## memories (記憶)
+
+**Key：**
+<OptionTable
+  options={[
+    ['memories', '布林值', '在介面中為所有使用者啟用或停用記憶功能。', '停用後，使用者將無法存取記憶面板或記憶相關功能。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**備註：** 此項控制記憶功能在 UI 中的可見性。如需詳細的記憶行為配置（代幣限制、個人化、智慧體設定），請參閱[記憶配置](/docs/configuration/librechat_yaml/object_structure/memory_zh_TW)。
+
+**範例：**
+```yaml filename="interface / memories"
+interface:
+  memories: true
+```
+
+## multiConvo (多重對話)
+
+**Key：**
+<OptionTable
+  options={[
+    ['multiConvo', '布林值', '為所有使用者啟用或停用所有「multiConvo」（即多重回應串流）相關功能。', '停用後，使用者將無法同時串流來自兩個 AI 模型的回應。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / multiConvo"
+interface:
+  multiConvo: true
+```
+
+## agents (智慧體)
+
+如需更多資訊請參閱 [智慧體 (Agents)](/docs/features/agents_zh_TW)
+
+**Key：**
+<OptionTable
+  options={[
+    ['agents', '布林值或物件', '為所有使用者控制智慧體相關功能。可以是簡單啟用/停用的布林值，或針對使用、建立、分享與公開可見性進行細粒度控制的物件。', '設定為 `false` 時，使用者將無法使用智慧體。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**重要：布林值 vs 物件配置**
+
+- **布林值 (`agents: true`)**：僅更新 `use` (使用) 權限。現有的 `create` (建立)、`share` (分享) 與 `public` (公開) 權限值將從資料庫中 **保留**。這適合用作簡單的功能開關，而不影響透過管理面板進行的其他設定。
+
+- **物件**：僅更新明確指定的子權限。未包含在配置中的權限將從資料庫中保留。
+
+使用物件結構時：
+
+**子鍵 (Sub-keys)：**
+<OptionTable
+  options={[
+    ['use', '布林值', '控制使用者是否可以使用智慧體。', 'true'],
+    ['create', '布林值', '控制使用者是否可以建立新智慧體。', 'true'],
+    ['share', '布林值', '控制使用者是否可以與特定使用者/群組分享智慧體。', 'false'],
+    ['public', '布林值', '控制使用者是否可以公開分享智慧體（對所有使用者可見）。', 'false'],
+  ]}
+/>
+
+**範例（布林值 - 簡單功能開關）：**
+```yaml filename="interface / agents (布林值)"
+interface:
+  agents: true  # 僅更新 USE；create/share/public 維持不變
+```
+
+**範例（物件 - 細粒度控制）：**
+```yaml filename="interface / agents (物件)"
+interface:
+  agents:
+    use: true
+    create: false  # 允許使用但停用建立功能
+    # share 與 public 未指定 - 保留現有數值
+```
+
+**範例（物件 - 完整控制）：**
+```yaml filename="interface / agents (物件)"
+interface:
+  agents:
+    use: true
+    create: true
+    share: true
+    public: false
+```
+
+## remoteAgents (遠端智慧體)
+
+控制對智慧體 API（OpenAI 相容與 Open Responses API 終端）的存取權限，該 API 允許外部應用程式透過 API 金鑰以程式化方式與 LibreChat 智慧體互動。
+
+**Key：**
+<OptionTable
+  options={[
+    ['remoteAgents', '物件', '遠端智慧體 API 存取控制配置。所有欄位預設為 `false`。', ''],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+<OptionTable
+  options={[
+    ['use', '布林值', '控制使用者是否可以存取遠端智慧體 API。', 'false'],
+    ['create', '布林值', '控制使用者是否可以建立遠端智慧體用的 API 金鑰。', 'false'],
+    ['share', '布林值', '控制使用者是否可以分享遠端智慧體。', 'false'],
+    ['public', '布林值', '控制使用者是否可以公開分享遠端智慧體。', 'false'],
+  ]}
+/>
+
+**預設值：** 所有欄位預設均為 `false`（停用）。
+
+**範例：**
+```yaml filename="interface / remoteAgents"
+interface:
+  remoteAgents:
+    use: true
+    create: true
+    share: false
+    public: false
+```
+
+**備註：** 管理員使用者預設擁有所有遠端智慧體權限，不受此配置限制。
+
+## temporaryChat (暫時對話)
+
+控制暫時對話功能是否對使用者可用。暫時對話不會儲存到對話紀錄中，且會在可配置的保留期過後自動刪除。
+
+**Key：**
+<OptionTable
+  options={[
+    ['temporaryChat', '布林值', '啟用或停用暫時對話功能。', '設定為 `false` 時，使用者將看不到開啟暫時對話的選項。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**備註：** 暫時對話的保留期可透過 `temporaryChatRetention` 進行配置。
+
+**範例：**
+```yaml filename="interface / temporaryChat"
+interface:
+  temporaryChat: true
+```
+
+## temporaryChatRetention (暫時對話保留時間)
+
+`temporaryChatRetention` 配置讓您可以自定義暫時對話在自動刪除前保留的時間長度。
+
+**Key：**
+<OptionTable
+  options={[
+    ['temporaryChatRetention', '數字', '設定暫時對話的保留時間（小時）。', 'temporaryChatRetention: 168'],
+  ]}
+/>
+
+**驗證規則：**
+- **最小值**：1 小時（防止立即刪除）
+- **最大值**：8760 小時（最高保留 1 年）
+- **預設值**：720 小時（30 天）
+
+**配置方法：**
+1. **LibreChat.yaml** (推薦)：`interface.temporaryChatRetention: 168`
+2. **環境變數** (已棄用)：`TEMP_CHAT_RETENTION_HOURS=168`
+
+> **備註：** 環境變數 `TEMP_CHAT_RETENTION_HOURS` 已棄用。請改用 `librechat.yaml` 中的 `interface.temporaryChatRetention` 配置選項。配置檔案中的數值優先於環境變數。
+
+**範例：**
+```yaml filename="interface / temporaryChatRetention"
+interface:
+  temporaryChatRetention: 168  # 將暫時對話保留 7 天
+```
+
+**常見保留期：**
+- **1 小時**：`temporaryChatRetention: 1`（最低保留）
+- **24 小時**：`temporaryChatRetention: 24`（1 天）
+- **168 小時**：`temporaryChatRetention: 168`（1 週）
+- **720 小時**：`temporaryChatRetention: 720`（30 天 - 預設）
+- **8760 小時**：`temporaryChatRetention: 8760`（1 年 - 最大值）
+
+## customWelcome (自定義歡迎訊息)
+
+**Key：**
+<OptionTable
+  options={[
+    ['customWelcome', '字串', '允許管理員為聊天介面定義自定義歡迎訊息，並可選擇使用 {{user.name}} 參數進行個人化。'],
+  ]}
+/>
+
+**預設值：** _無（若未指定，將使用預設問候語）_
+
+**範例：**
+```yaml filename="interface / customWelcome"
+interface:
+    customWelcome: "嘿 {{user.name}}！歡迎來到 LibreChat"
+```
+
+**備註：** 您可以在 `customWelcome` 訊息中使用 `{{user.name}}` 動態插入使用者名稱，以提供個人化的問候體驗。
+
+## runCode (執行程式碼)
+
+啟用/停用 Markdown 程式碼區塊中的「執行程式碼」按鈕。更多資訊請參閱 [LibreChat Code Interpreter API](/docs/features/code_interpreter_zh_TW)。
+
+**備註：** 此設定不會停用[智慧體代碼解釋器能力](/docs/features/agents_zh_TW#代碼解釋器)。若要停用智慧體能力，請參閱 [Agents 終端配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)。
+
+**Key：**
+<OptionTable
+  options={[
+    ['runCode', '布林值', '啟用或停用 Markdown 程式碼區塊的「執行程式碼」按鈕。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / runCode"
+interface:
+  runCode: true
+```
+
+## webSearch (網頁搜尋)
+
+在聊天介面中啟用/停用網頁搜尋按鈕。更多資訊請參閱[網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW)。
+
+**備註：** 此設定不會停用[智慧體網頁搜尋能力](/docs/features/agents_zh_TW#網頁搜尋)。若要停用智慧體能力，請參閱 [Agents 終端配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)。
+
+**Key：**
+<OptionTable
+  options={[
+    ['webSearch', '布林值', '在聊天介面中啟用或停用網頁搜尋按鈕。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / webSearch"
+interface:
+  webSearch: true
+```
+
+## fileSearch (檔案搜尋)
+
+在聊天介面中啟用/停用檔案搜尋按鈕（用於透過工具使用 RAG API）。
+
+**備註：** 此設定不會停用[智慧體檔案搜尋能力](/docs/features/agents_zh_TW#檔案搜尋)。若要停用智慧體能力，請參閱 [Agents 終端配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)。
+
+**Key：**
+<OptionTable
+  options={[
+    ['fileSearch', '布林值', '在聊天介面中啟用或停用檔案搜尋按鈕。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / fileSearch"
+interface:
+  fileSearch: true
+```
+
+## fileCitations (檔案引用)
+
+控制檔案引用功能的全域可用性。停用時，將實際上移除所有使用者的 `FILE_CITATIONS` 權限，不論個別使用者的權限為何，在使用檔案搜尋時都不會顯示任何檔案引用。
+
+**備註：** 
+- 此設定作為系統範圍內 `FILE_CITATIONS` 權限的全域開關。
+- 設定為 `false` 時，任何使用者都不會看到檔案引用，即使他們透過角色獲得了該權限。
+- 檔案引用需要啟用 `fileSearch` 功能。
+- 當使用具備檔案搜尋能力的智慧體時，引用的行為（數量與品質）可透過 [Agents 終端配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#檔案引用配置範例)進行配置。
+
+**Key：**
+<OptionTable
+  options={[
+    ['fileCitations', '布林值', '為所有使用者全域啟用或停用 FILE_CITATIONS 權限，控制檔案搜尋結果是否包含來源引用。'],
+  ]}
+/>
+
+**預設值：** `true`
+
+**範例：**
+```yaml filename="interface / fileCitations"
+interface:
+  fileCitations: true
+```
+
+## peoplePicker (人員選擇器)
+
+控制在人員選擇器介面中可供選擇的主體類型（使用者、群組、角色），通常用於分享智慧體或管理存取控制。
+
+**Key：**
+<OptionTable
+  options={[
+    ['peoplePicker', '物件', '配置人員選擇器介面中可用的主體類型。'],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+
+<OptionTable
+  options={[
+    ['users', '布林值', '啟用人員選擇器中的使用者搜尋。預設值：true'],
+    ['groups', '布林值', '啟用人員選擇器中的群組搜尋。預設值：true'],
+    ['roles', '布林值', '啟用人員選擇器中的角色搜尋。預設值：true'],
+  ]}
+/>
+
+**預設值：**
+```yaml
+peoplePicker:
+  users: true
+  groups: true
+  roles: true
+```
+
+**範例：**
+```yaml filename="interface / peoplePicker"
+interface:
+  peoplePicker:
+    users: true
+    groups: true
+    roles: false  # 停用人員選擇器中的角色選擇
+```
+
+## marketplace (市集)
+
+啟用/停用存取智慧體市集 (Agent Marketplace)。
+
+**Key：**
+<OptionTable
+  options={[
+    ['marketplace', '物件', '智慧體市集存取控制配置。'],
+  ]}
+/>
+
+**子鍵 (Sub-keys)：**
+
+<OptionTable
+  options={[
+    ['use', '布林值', '啟用或停用市集存取。預設值：false'],
+  ]}
+/>
+
+**預設值：**
+```yaml
+marketplace:
+  use: false
+```
+
+**範例：**
+```yaml filename="interface / marketplace"
+interface:
+  marketplace:
+    use: true  # 啟用市集存取
+```

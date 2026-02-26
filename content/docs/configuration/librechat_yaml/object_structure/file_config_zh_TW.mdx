@@ -1,0 +1,392 @@
+---
+title: "檔案配置物件結構"
+icon: FileCode
+---
+
+## 概覽
+
+`fileConfig` 物件讓您可以配置應用程式的檔案處理設定，包括大小限制與 MIME 類型限制。本章節提供 `fileConfig` 物件結構的詳細解析。
+
+`fileConfig` 下包含 8 個主要欄位：
+
+  - `endpoints` (終端)
+  - `serverFileSizeLimit` (伺服器檔案大小限制)
+  - `avatarSizeLimit` (頭像大小限制)
+  - `imageGeneration` (圖片產生)
+  - `fileTokenLimit` (檔案代幣限制)
+  - `ocr` (光學字元辨識)
+  - `text` (文字解析)
+  - `stt` (語音轉文字)
+
+**備註：**
+
+- 截至撰寫本文時，助手 (Assistants) 終端[支援此清單中的檔案類型](https://platform.openai.com/docs/assistants/tools/file-search#supported-files)。
+- OpenAI、Azure OpenAI、Google 與自定義終端透過 [RAG API](../../rag_api_zh_TW) 支援檔案。
+- `ocr`、`text` 與 `stt` 區段控制了針對[以文字上傳](/docs/features/upload_as_text_zh_TW)與 [OCR](/docs/features/ocr_zh_TW) 等功能的檔案處理方式。
+- 任何未提及的其他終端（如外掛程式 Plugins）目前尚不支援檔案上傳。
+- 助手終端的定義值為 `assistants`。所有其他終端使用定義值 `default`。
+  - 對於非助手終端，您可以在 `default` 下調整所有終端的檔案設定。
+  - 如果您想針對特定終端調整設定，可以列出其對應的終端名稱：
+    - `assistants`
+        - 不使用 "default"，因為它有獨立於其他的預設值。
+    - `openAI`
+    - `azureOpenAI`
+    - `google`
+    - `您的自定義終端名稱`
+- 您可以省略數值，在此情況下，應用程式將使用下方按終端類型定義的預設值。
+- LibreChat 計算 1 MB 的方式為：`1 x 1024 x 1024`。
+
+## 範例
+
+```yaml filename="fileConfig"
+fileConfig:
+  endpoints:
+    assistants:
+      fileLimit: 5
+      fileSizeLimit: 10
+      totalSizeLimit: 50
+      supportedMimeTypes:
+        - "image/.*"
+        - "application/pdf"
+    openAI:
+      disabled: true
+    default:
+      totalSizeLimit: 20
+    您的自定義終端名稱:
+      fileLimit: 5
+      fileSizeLimit: 1000
+      supportedMimeTypes:
+        - "image/.*"
+  serverFileSizeLimit: 1000
+  avatarSizeLimit: 2
+  fileTokenLimit: 100000
+  imageGeneration:
+    percentage: 100
+    px: 1024
+  ocr:
+    supportedMimeTypes:
+      - "^image/(jpeg|gif|png|webp|heic|heif)$"
+      - "^application/pdf$"
+      - "^application/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|presentationml\.presentation|spreadsheetml\.sheet)$"
+      - "^application/vnd\.ms-(word|powerpoint|excel)$"
+      - "^application/epub\+zip$"
+  text:
+    supportedMimeTypes:
+      - "^text/(plain|markdown|csv|json|xml|html|css|javascript|typescript|x-python|x-java|x-csharp|x-php|x-ruby|x-go|x-rust|x-kotlin|x-swift|x-scala|x-perl|x-lua|x-shell|x-sql|x-yaml|x-toml)$"
+  stt:
+    supportedMimeTypes:
+      - "^audio/(mp3|mpeg|mpeg3|wav|wave|x-wav|ogg|vorbis|mp4|x-m4a|flac|x-flac|webm)$"
+```
+
+## serverFileSizeLimit (伺服器檔案大小限制)
+
+<OptionTable
+  options={[
+    ['serverFileSizeLimit', '整數', '上傳至伺服器的任何檔案的全域最大大小，以百萬位元組 (MB) 為單位。', '作為所有終端檔案上傳的總體限制，確保伺服器範圍內沒有檔案超過此大小。'],
+  ]}
+/>
+
+```yaml filename="fileConfig / serverFileSizeLimit"
+fileConfig:
+  serverFileSizeLimit: 1000
+```
+
+## avatarSizeLimit (頭像大小限制)
+
+<OptionTable
+options={[
+['avatarSizeLimit', '整數', '頭像圖片允許的最大大小，以百萬位元組 (MB) 為單位。', '專為使用者頭像上傳量身定制，允許控制圖片大小以維持一致的品質與載入時間。'],
+]}
+/>
+
+```yaml filename="fileConfig / avatarSizeLimit"
+fileConfig:
+  avatarSizeLimit: 2
+```
+
+## imageGeneration (圖片產生)
+
+<OptionTable
+  options={[
+    ['imageGeneration', '物件', '與圖片產生輸出品質與尺寸相關的設定。', '允許將輸出大小配置為相對於某個基礎大小的百分比，或配置為明確的像素尺寸。'],
+  ]}
+/>
+
+`imageGeneration` 支援下列參數：
+
+- `percentage` (整數)
+  - 以百分比表示的所產生圖片輸出大小（例如：`100` 代表基礎大小的 100%）。
+  - 用於相對於預設或原始大小縮放輸出圖片。
+
+- `px` (整數)
+  - 指定以像素為單位的輸出圖片尺寸（例如：`1024`）。
+  - 用於明確設定所產生圖片的輸出大小，而不論其基礎大小為何。
+
+您可以根據使用情境設定這兩個參數中的其中一個（`percentage` 或 `px`），不可兩者同時設定。
+
+配置範例：
+
+```yaml filename="fileConfig / imageGeneration"
+fileConfig:
+  imageGeneration:
+    percentage: 100
+    px: 1024
+```
+
+## fileTokenLimit (檔案代幣限制)
+
+<OptionTable
+  options={[
+    ['fileTokenLimit', '數字', '文字檔納入提示詞前的最大代幣 (tokens) 數量，超過將被截斷。', 'fileTokenLimit: 100000'],
+  ]}
+/>
+
+**說明：** 當附加文字內容時，LibreChat 會在提示詞構建前，於執行階段按配置的代幣限制截斷文字。
+
+**預設值：** `100000`
+
+```yaml filename="fileConfig / fileTokenLimit"
+fileConfig:
+  fileTokenLimit: 100000
+```
+
+## ocr
+
+<OptionTable
+  options={[
+    ['ocr', '物件', '光學字元辨識 (OCR) 檔案處理設定。', '配置哪些檔案類型應使用 OCR 進行處理。'],
+  ]}
+/>
+
+**說明：** `ocr` 區段配置了哪些檔案類型應使用 OCR 功能進行處理，以便從視覺文件中提取文字。
+
+**備註：** 此區段控制 OCR 處理的檔案類型匹配。要啟用智慧體能力並配置 OCR 服務，請參閱：
+- [智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities) 以獲取 `ocr` 與 `context` 功能說明。
+- [OCR 配置](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW) 以獲取 OCR 服務設定。
+
+### supportedMimeTypes
+
+<OptionTable
+  options={[
+    ['supportedMimeTypes', '字串陣列', '應使用 OCR 處理的檔案 MIME 類型模式清單。', '使用正則表達式來匹配檔案類型。'],
+  ]}
+/>
+
+**預設值：** 圖片、PDF 與 Office 文件。
+
+```yaml filename="fileConfig / ocr / supportedMimeTypes"
+fileConfig:
+  ocr:
+    supportedMimeTypes:
+      - "^image/(jpeg|gif|png|webp|heic|heif)$"
+      - "^application/pdf$"
+      - "^application/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|presentationml\.presentation|spreadsheetml\.sheet)$"
+      - "^application/vnd\.ms-(word|powerpoint|excel)$"
+      - "^application/epub\+zip$"
+```
+
+## text (文字解析)
+
+<OptionTable
+  options={[
+    ['text', '物件', '不使用 OCR 的直接文字檔解析設定。', '配置哪些檔案類型應被視為純文字檔進行直接內容提取。'],
+  ]}
+/>
+
+**說明：** `text` 區段配置了哪些檔案類型應使用直接文字提取進行處理。
+
+**備註：** 文字解析是「以文字上傳」功能使用的預設方法（受 `context` 能力控制）。它首先嘗試使用來自 RAG API 的文字解析函式庫，若未連接 RAG API，則會退而使用較簡單的文字提取方法，無需任何外部服務。詳情請參閱[以文字上傳](/docs/features/upload_as_text_zh_TW)。
+
+### supportedMimeTypes
+
+<OptionTable
+  options={[
+    ['supportedMimeTypes', '字串陣列', '應被解析為純文字的檔案 MIME 類型模式清單。', '使用正則表達式來匹配檔案類型。'],
+  ]}
+/>
+
+**預設值：** 所有文字檔與常見程式語言檔案。
+
+```yaml filename="fileConfig / text / supportedMimeTypes"
+fileConfig:
+  text:
+    supportedMimeTypes:
+      - "^text/(plain|markdown|csv|json|xml|html|css|javascript|typescript|x-python|x-java|x-csharp|x-php|x-ruby|x-go|x-rust|x-kotlin|x-swift|x-scala|x-perl|x-lua|x-shell|x-sql|x-yaml|x-toml)$"
+```
+
+## stt (語音轉文字)
+
+<OptionTable
+  options={[
+    ['stt', '物件', '語音轉文字 (STT) 音訊檔處理設定。', '配置哪些音訊檔案類型應使用 STT 進行轉錄。'],
+  ]}
+/>
+
+**說明：** `stt` 區段配置了哪些音訊檔案類型應使用語音轉文字功能將音訊轉換為文字。
+
+### supportedMimeTypes
+
+<OptionTable
+  options={[
+    ['supportedMimeTypes', '字串陣列', '應使用 STT 轉錄的音訊檔案 MIME 類型模式清單。', '使用正則表達式來匹配音訊檔案類型。'],
+  ]}
+/>
+
+**預設值：** 常見音訊格式。
+
+```yaml filename="fileConfig / stt / supportedMimeTypes"
+fileConfig:
+  stt:
+    supportedMimeTypes:
+      - "^audio/(mp3|mpeg|mpeg3|wav|wave|x-wav|ogg|vorbis|mp4|x-m4a|flac|x-flac|webm)$"
+```
+
+**備註：**
+- 匹配 `text` 模式的檔案會以簡單文字提取進行處理。
+- 匹配 `ocr` 模式的檔案會使用提供的 OCR 服務進行處理。
+- 匹配 `stt` 模式的檔案會使用語音轉文字轉錄進行處理。
+- **處理優先權：OCR > STT > 文字解析 > 備援 (fallback)**
+- 未匹配任何模式的檔案將退而使用文字解析。
+
+## 檔案處理優先順序
+
+LibreChat 根據 MIME 類型匹配處理上傳的檔案，**優先順序**如下：
+
+1. **OCR** - 若檔案匹配 `ocr.supportedMimeTypes` 且已配置 OCR。
+2. **STT** - 若檔案匹配 `stt.supportedMimeTypes` 且已配置 STT。
+3. **文字解析 (Text Parsing)** - 若檔案匹配 `text.supportedMimeTypes`。
+4. **備援 (Fallback)** - 作為最後手段的文字解析。
+
+此處理順序確保了在未配置專門服務 (OCR/STT) 的情況下仍能維持功能，同時在可用時提供最佳的提取品質。
+
+### 處理範例
+
+**配置了 OCR 的 PDF 檔案：**
+- 檔案匹配 `ocr.supportedMimeTypes`。
+- **使用 OCR** 提取文字。
+- 對於掃描的 PDF 與圖片有更好的品質。
+
+**未配置 OCR 的 PDF 檔案：**
+- 檔案匹配 `text.supportedMimeTypes`（或使用備援）。
+- **使用文字解析** 函式庫。
+- 對於具備可選取文字的數位 PDF 運作良好。
+
+**Python 檔案：**
+- 檔案匹配 `text.supportedMimeTypes`。
+- **使用文字解析**（無需 OCR）。
+- 直接提取文字。
+
+**配置了 STT 的音訊檔案：**
+- 檔案匹配 `stt.supportedMimeTypes`。
+- **使用 STT** 將音訊轉錄為文字。
+
+**未配置 OCR 的圖片檔案：**
+- 檔案匹配 `ocr.supportedMimeTypes` 但 OCR 不可用。
+- **退而使用文字解析**。
+- 無 OCR 時提取能力有限。
+
+此優先系統允許「以文字上傳」等功能在無需 OCR 配置的情況下運作，同時在 OCR 可用時利用其提升提取品質。
+
+## endpoints (終端)
+
+<OptionTable
+  options={[
+    ['endpoints', '紀錄/物件', '為個別終端配置檔案處理設定，允許按終端進行自定義。', '指定個別終端的檔案處理配置。'],
+  ]}
+/>
+
+**說明：** endpoints 下的每個物件都是一條紀錄，可包含下列設定：
+
+### 概覽
+
+  - `disabled`
+      - 是否針對該終端停用檔案處理。
+  - `fileLimit`
+      - 每次上傳請求允許的最大檔案數量。
+  - `fileSizeLimit`
+      - 單個檔案的最大大小。以 MB 為單位（例如：使用 `20` 代表 20 MB）。
+  - `totalSizeLimit`
+      - 單次請求中所有檔案的最大總大小。以 MB 為單位。
+  - `supportedMimeTypes`
+      - 指定允許上傳之 MIME 類型的[正則表達式 (Regular Expressions)](https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F)清單。可用於限制檔案類型。
+
+## disabled
+
+<OptionTable
+  options={[
+    ['disabled', '布林值', '表示是否針對特定終端停用檔案上傳。', '設定為 `true` 會阻止向指定終端上傳任何檔案，並覆寫任何其他與檔案相關的設定。'],
+  ]}
+/>
+
+**預設值：** `false`
+
+```yaml filename="fileConfig / endpoints / {endpoint_record} / disabled"
+openAI:
+  disabled: true
+```
+
+## fileLimit (檔案數量限制)
+
+**Key：**
+<OptionTable
+  options={[
+    ['fileLimit', '整數', '單次上傳請求中允許的最大檔案數量。', '有助於控制上傳量並管理伺服器負載。'],
+  ]}
+/>
+
+**預設值：** 因終端而異。
+
+```yaml filename="fileConfig / endpoints / {endpoint_record} / fileLimit"
+assistants:
+  fileLimit: 5
+```
+
+## fileSizeLimit (單個檔案大小限制)
+
+**Key：**
+<OptionTable
+  options={[
+    ['fileSizeLimit', '整數', '每個個別檔案允許的最大大小，以百萬位元組 (MB) 為單位。', '此限制確保沒有單一檔案超過指定大小，以便更好地進行資源分配與管理。'],
+  ]}
+/>
+
+**預設值：** 因終端而異。
+
+```yaml filename="fileConfig / endpoints / {endpoint_record} / fileSizeLimit"
+您的自定義終端名稱:
+  fileSizeLimit: 1000
+```
+
+## totalSizeLimit (總檔案大小限制)
+
+**Key：**
+<OptionTable
+  options={[
+    ['totalSizeLimit', '整數', '單次請求中所有檔案允許的最大總大小，以百萬位元組 (MB) 為單位。', '此設定對於防止單次上傳請求過度消耗頻寬與儲存空間至關重要。'],
+  ]}
+/>
+
+**預設值：** 因終端而異。
+
+```yaml filename="fileConfig / endpoints / {endpoint_record} / totalSizeLimit"
+assistants:
+  totalSizeLimit: 50
+```
+
+## supportedMimeTypes (支援的 MIME 類型)
+
+**Key：**
+<OptionTable
+  options={[
+    ['supportedMimeTypes', '字串陣列', '定義允許上傳之 MIME 類型的正則表達式清單。', '這允許精確控制可上傳的檔案類型。無效的正則表達式會被忽略。'],
+  ]}
+/>
+
+**預設值：** 因終端而異。
+
+```yaml filename="fileConfig / endpoints / {endpoint_record} / supportedMimeTypes"
+assistants:
+  supportedMimeTypes:
+      - "image/.*"
+      - "application/pdf"
+```

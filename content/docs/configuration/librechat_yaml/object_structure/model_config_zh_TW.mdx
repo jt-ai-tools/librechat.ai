@@ -1,0 +1,69 @@
+---
+title: "模型配置結構 (Model Config Structure)"
+icon: Braces
+---
+
+`models` 下的每個項目都是紀錄清單的一部分，可以是布林值或物件：
+
+**當將模型指定為物件時：**
+
+物件形式允許對模型進行詳細配置，包括其 `deploymentName`（部署名稱）及/或 `version`（版本）。此模式用於對模型進行更細粒度的控制，特別是在一個實例或資源群組下處理多個版本或部署時。
+
+**範例**：
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / models / {model_item=Object}"
+models:
+  gpt-4-vision-preview:
+    deploymentName: "gpt-4-vision-preview"
+    version: "2024-02-15-preview"
+```
+
+**備註：**
+- **部署名稱**與**版本**對於確保使用正確的模型至關重要。
+    - 請仔細檢查這些數值的準確性，以防止非預期的行為。
+
+### deploymentName (部署名稱)
+
+**Key：**
+<OptionTable
+  options={[
+    ['deploymentName', '字串', '模型的部署名稱。在 Azure 內識別模型的部署。', '這不一定要與 OpenAI 模型名稱慣例一致，但必須與您在 Azure 上實際的部署名稱相符。'],
+  ]}
+/>
+
+**必填：** 是
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / models / {model_item=Object} / deploymentName"
+deploymentName: "gpt-4-vision-preview"
+```
+
+## version (版本)
+
+**Key：**
+<OptionTable
+  options={[
+    ['version', '字串', '指定模型的版本。定義要使用的模型版本。', ''],
+  ]}
+/>
+
+**必填：** 是
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / models / {model_item=Object} / version"
+version: "2024-02-15-preview"
+```
+
+**使用預設群組配置啟用模型**
+
+**Key：**
+<OptionTable
+  options={[
+    ['models', '布林值', '使用預設群組配置啟用模型。', '當模型被啟用 (`true`) 且未使用物件時，它會直接使用群組配置中的部署名稱與版本數值。'],
+  ]}
+/>
+
+**範例：**
+```yaml filename="endpoints / azureOpenAI / groups / {group_item} / models"
+models:
+  gpt-4-turbo: true
+```
