@@ -1,0 +1,90 @@
+---
+title: 具備 Basic 身份驗證的反向代理
+date: 2023-10-29
+description: 學習如何配置您的伺服器以啟用 Basic Auth，同時針對 /api/ 終端停用它，確保 LibreChat 自有的驗證系統能順暢運作。
+tags:
+  - ReverseProxy
+  - BasicAuth
+ogImage: /images/blog/2023-10-29_basic_auth.png
+author: anon
+category: guide
+---
+
+
+
+# 在具備 Basic 身份驗證的反向代理後方使用 LibreChat
+
+### Basic 身份驗證 (Basic Auth)
+
+Basic 身份驗證是內建於 HTTP 協定中的一種簡單驗證機制。當用戶端向伺服器發送請求時，伺服器可以回應 `401 Unauthorized` 狀態碼，提示使用者提供使用者名稱與密碼。接著，這些帳密會以 Base64 格式編碼後，隨後續請求放入 HTTP 標頭中發送。
+
+例如，若使用者名稱為 `Aladdin` 且密碼為 `open sesame`，用戶端會發送：
+
+```
+Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+```
+
+其中 `QWxhZGRpbjpvcGVuIHNlc2FtZQ==` 是 `Aladdin:open sesame` 的 Base64 編碼。
+
+**備註**：Basic Auth 本身不被認為是非常安全的，因為憑證是以易於解碼的 Base64 格式發送。它應始終與 HTTPS 結合使用，以在傳輸過程中加密憑證。
+
+### 反向代理 (Reverse Proxy)
+
+反向代理是位於用戶端裝置與網頁伺服器之間的伺服器，負責將用戶端請求轉發至網頁伺服器，並將伺服器的回應傳回給用戶端。這對於負載平衡、快取以及在此情境下增加額外的安全或驗證層非常有用。
+
+### LibreChat 與 Basic Auth 之間的問題
+
+如果 LibreChat 位於作為反向代理並啟用 Basic Auth 的網頁伺服器後方（這在一般使用者中很常見），若無額外配置，LibreChat 將無法正常運作。您連線至 LibreChat 時會被提示輸入 Basic Auth 憑證，輸入正確後 LibreChat 會載入，但隨後您將無法獲得來自 AI 服務的回應。
+
+原因在於 LibreChat 在呼叫 domain.com/api 的後端 API 時使用的是 Bearer 驗證。因為這些呼叫使用 Bearer 而非 Basic auth，您的網頁伺服器會將其視為未經驗證的連線嘗試並返回 401。
+
+解決方案是啟用 Basic Auth，但特別針對 `/api/` 終端停用它（這是安全的，因為 API 呼叫本身仍需要已驗證的使用者）。
+
+因此，您需要建立一條新規則來針對 `/api/` 停用 Basic Auth。此規則的優先順序必須高於啟用 Basic Auth 的規則。
+
+### Nginx 配置
+
+以 Nginx 為例，您可以這樣設定：
+
+```nginx filename="nginx.conf"
+#https://librechat.domain.com
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	server_name librechat.*;
+	include /config/nginx/ssl.conf;
+
+	# 所有連往 librechat.domain.com 的連線都需要 basic_auth
+	location / {
+	  auth_basic "Access Restricted";
+	  auth_basic_user_file /config/nginx/.htpasswd;
+	  include /config/nginx/proxy_params.conf;
+	  proxy_pass http://127.0.0.1:3080;
+	}
+
+	# ...除了 /api/ 以外，它將使用 LibreChat 自有的驗證系統
+	location ~ ^/api/ {
+	  auth_basic off;
+	  include /config/nginx/proxy_params.conf;
+	  proxy_pass http://127.0.0.1:3080;
+	}
+
+	# ...除了 manifest 以外，排除 Manifests 是因為若啟用了 BASIC 驗證，瀏覽器將無法讀取它們。
+	location /manifest.webmanifest {
+	  auth_basic off;
+	  proxy_pass http://127.0.0.1:3080;
+	}
+
+	# ...除了健康檢查 (health check) 以外，避免在健康檢查中重複要求 BASIC 憑證。特別注意 Safari 在儲存 BASIC 憑證方面存在臭蟲。
+	location /health {
+	  auth_basic off;
+	  proxy_pass http://127.0.0.1:3080;
+	}
+}
+```
+
+上述提供的 Nginx 配置為 `librechat.domain.com` 設定了一個伺服器區塊：
+
+1. **針對所有請求的 Basic Auth**：`location /` 區塊為連往 `librechat.domain.com` 的所有請求設定了 Basic Auth。`auth_basic` 指令啟動了驗證，而 `auth_basic_user_file` 指令則指向包含有效使用者名稱與密碼的檔案。
+
+2. **`/api/` 終端的例外**：`location ~ ^/api/` 區塊匹配任何以 `/api/` 開頭的 URL 路徑。針對這些請求，使用 `auth_basic off;` 關閉了 Basic Auth。這確保了 LibreChat 自有的身份驗證系統能在不受干擾的情況下運作。

@@ -1,0 +1,89 @@
+---
+title: Ollama
+date: 2024-02-19
+description: '學習如何使用 Ollama 在本地執行 AI 模型'
+tags:
+  - ollama
+  - guide
+  - LLM
+ogImage: /images/blog/2024-03-02_ollama.png
+author: librechat
+category: guide
+---
+
+
+
+# 解鎖 Ollama 的力量：在本地硬體上執行大型語言模型
+
+您是否厭倦了依賴雲端解決方案來執行您的語言模型？您是否想在不花大錢的情況下挖掘大型語言模型的潛力？那就試試 Ollama 吧！這是一個革命性的平台，讓您能在本地硬體上執行大型語言模型。
+
+## Ollama 能做什麼？
+
+透過 Ollama，您可以：
+
+* 在本地硬體上執行大型語言模型，省去昂貴的雲端運算費用。
+* 輕鬆託管多個模型。
+* 根據請求動態載入模型，簡化您的工作流程。
+
+## Ollama 入門指南
+
+準備好解鎖 Ollama 的力量了嗎？請遵循下列簡單步驟開始：
+
+### 安裝 Ollama
+
+您有兩種安裝 Ollama 的選項：透過 Ollama 應用程式或使用 Docker。
+
+<Tabs items={['方法 1：應用程式安裝', '方法 2：Docker 安裝']}>
+<Tabs.Tab>
+針對 Mac、Linux 與 Windows 使用者，請遵循 [Ollama 下載](https://ollama.com/download) 頁面上的說明開始安裝。Ollama 支援 Nvidia、AMD 與 Apple Metal 的 GPU 加速，讓您能充分利用本地硬體的效能。
+</Tabs.Tab>
+<Tabs.Tab>
+### Docker 安裝
+如果您已經在使用 LibreChat，可以使用 `docker-compose.override.yml` 檔案將 Ollama 加入您的容器棧中。只需在 LibreChat 資料夾根目錄建立 `docker-compose.override.yml` 並加入下列內容，接著執行指令 `docker compose up -d {:sh}`：
+- 參見：[Docker 覆寫](/docs/configuration/docker_override_zh_TW)
+
+```yaml filename="docker-compose.override.yml"
+version: '3.4'
+
+services:
+# 使用 LIBRECHAT 配置檔案
+  api:
+    volumes:
+      - type: bind
+        source: ./librechat.yaml
+        target: /app/librechat.yaml
+
+# 新增 OLLAMA
+  ollama:
+    image: ollama/ollama:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [compute, utility]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+```
+安裝完成後，您可以透過下列方式在容器內存取 Ollama 指令：
+ -  `docker exec -it ollama /bin/bash {:bash}`。
+
+</Tabs.Tab>
+</Tabs>
+
+## 在 Ollama 中載入模型
+
+安裝好 Ollama 後，現在可以開始載入模型了。步驟如下：
+
+1. 瀏覽 [Ollama 模型庫](https://ollama.ai/library) 探索可用的模型。
+2. 從模型庫網站的 Tags 分頁複製指令文字，並貼入您的終端機。指令應以 `ollama run {:bash}` 開頭。
+3. 檢查模型大小，確保其能載入 GPU 記憶體中以獲得最佳效能。
+4. 完成後，輸入 `/bye{:bash}` 即可退出終端機。
+
+## 配置 LibreChat
+
+最後，使用您的 `librechat.yaml` 配置檔案將 Ollama 加入為一個獨立終端。請參考我們的 [自定義終端與配置指南](/docs/configuration/librechat_yaml_zh_TW) 獲取逐步說明。
+
+透過 Ollama，您可以在本地硬體上解鎖大型語言模型的全部潛力。告別雲端運算成本，迎向更快速、更高效的工作流程！

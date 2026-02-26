@@ -1,0 +1,46 @@
+---
+title: 使用 MLX 在 Apple Silicon 上執行 LLM
+date: 2024-05-01
+description: 透過 MLX 在本地執行大型語言模型，釋放 Apple Silicon 的強大效能。
+tags:
+  - apple
+  - LLM
+  - guide
+  - MLX
+ogImage: /images/blog/2024-05-01_mlx.png
+author: anon
+category: guide
+---
+
+
+
+# 在 Apple Silicon 上使用 MLX 執行大型語言模型
+
+在本文中，我們將探討如何利用 Apple Silicon 硬體（M1, M2, M3）的效能，透過 MLX 在本地執行大型語言模型 (LLM)。MLX 是一個開源專案，支援在 Apple 的 Metal 後端進行 GPU 加速，讓您能利用統一的 CPU/GPU 記憶體實現高效的模型執行。
+
+## 在 macOS 上安裝 MLX
+
+MLX 透過 `mlx-lm` Python 套件支援在 Apple Metal 後端進行 GPU 加速。若要開始使用，請遵循 [mlx-lm 套件安裝指南](https://github.com/ml-explore/mlx-examples/tree/main/llms) 中的說明。
+
+**備註**：MLX 目前僅支援 Mac MX 系列裝置。
+
+## 使用 MLX 載入模型
+
+雖然 MLX 直接支援常見的 HuggingFace 模型，但建議使用由 [mlx-community](https://huggingface.co/mlx-community) 提供的轉換且量化過的模型。這些模型已根據您的裝置效能，針對 Apple Silicon 硬體進行了優化，能提供更高效的表現。
+
+要使用 MLX 載入模型，請遵循下列步驟：
+
+1. 瀏覽 [HuggingFace](https://huggingface.co/models?search=mlx-community) 上的可用模型。
+2. 從模型頁面複製格式為 `<作者>/<模型ID>` 的文字（例如：`mlx-community/Meta-Llama-3-8B-Instruct-4bit`）。
+3. 檢查模型大小。能在 CPU/GPU 統一記憶體中執行的模型通常表現更佳。
+4. 參考 [在本地執行與 OpenAI 相容的伺服器](https://github.com/ml-explore/mlx-examples/blob/main/llms/mlx_lm/SERVER.md) 說明，執行下列指令啟動模型伺服器：
+
+   ```sh filename="啟動模型伺服器"
+   mlx_lm.server --model <作者>/<模型ID>
+   ```
+
+## 配置 LibreChat
+
+若要在 LibreChat 中使用 MLX，您需要在 `librechat.yaml` 配置文件中將其新增為一個獨立終端。專案已提供適用於 Llama-3 模型的配置範例。詳情請參閱 [自定義終端與配置指南](/docs/configuration/librechat_yaml_zh_TW)。
+
+透過 MLX，您現在可以在 Apple Silicon 硬體上享受在本地執行大型語言模型的優點，為高效且強大的自然語言處理任務開啟新可能。

@@ -1,0 +1,103 @@
+---
+date: 2024-03-22
+title: 使用 Unraid 安裝 LibreChat
+description: 如何使用 Unraid Community App 安裝並設定 LibreChat 的全面指南
+tags:
+  - Unraid
+  - install
+  - guide
+author: anon
+ogImage: /images/blog/2024-03-22_unraid_guide.png
+category: guide
+---
+
+
+
+> 請注意，本指南專門針對 LibreChat Unraid Community 應用程式編寫。不過，在 Unraid 上安裝 LibreChat 還有其他方法，例如利用 Portainer。
+
+## 簡介
+
+我前幾天才剛設定好，而這正是我希望當時能擁有的一份指南。
+
+為什麼要這樣做？我想我們很多人都覺得 ChatGPT 很有用，這裡的受眾可能多為程式設計師，它對我的專案很有幫助。但對於 GPT-4 來說，每月 21.50 美元（含稅後）是一筆昂貴的開銷，特別是當我太太無法在她的帳號上同時使用，而且我每月可能只發送約 50 個指令，有時甚至一整個月都沒用到。
+
+## API 計費
+這是 [OpenAI API 計費頁面](https://openai.com/pricing)，它按每 100 萬個代幣 (tokens) 計費，這有點令人困惑。代幣是什麼？老實說我還是不太確定。但我知道我的平均指令大約使用 500-800 個代幣。簡單來說，在撰寫本文時，我發現 GPT-3.5 Turbo 每則回應只需不到一分錢，而 GPT-4 Turbo 每則回應大約花費 1.5-2 美分。如果您想使用 DALL-E，每張圖片約 4-12 美分，取決於品質。（「Turbo」似乎是一個「更強大且更便宜」的版本）。以上是以美元計算。
+
+唯一的限制是他們不是在月底向您收費，您必須在帳戶中預存金額並使用自動充值。您可以設定的最低限制基本上是「當我的錢包低於 5 美元時，充值到 10 美元」。
+
+## 設定前置需求
+
+### MongoDB
+前往 Community Apps 商店搜尋 MongoDB。我使用的是由 Taddeusz 維護的版本。預設的 Docker 模板即可，無需額外配置，只需記下您使用的連接埠（預設為 27017）。安裝它，確保開啟自動啟動 (autostart)，就大功告成了。
+
+如果您有興趣一探究竟，開啟主控台後可以執行 `mongosh` 進入 Mongo Shell。在那裡您可以參考 [MongoDB 手冊](https://www.mongodb.com/docs/manual/reference/command/) 瞭解操作資訊。一個實用的指令是 `show dbs`，用來查看存在哪些資料庫。我稍後會再談到這個。
+
+### OpenAI API 金鑰
+如果您有 OpenAI 帳號，可以登入 [OpenAI 開發者平台](https://platform.openai.com/)。您需要一個有效的電話號碼才能使用 API。我相信他們會提供免費額度，但長話短說，我沒拿到。
+
+在左側選單中，前往 Settings > Billing 來設定您的付款方式。正如我先前提到的，他們會問您現在想購買多少額度（最低 5 美元）、在哪個閾值觸發扣款（最低 5 美元），以及您想充值到多少金額（最低 10 美元）。我直接設定了最低限額，雖然我一開始就買了 10 美元。我相信系統會帶您前往每月上限設定畫面，若沒有，請在左側選單的 Usage 下方設定您的 Monthly Limit（每月上限）。我將我的上限設定為 20 美元。一旦達到該閾值，您的 API 金鑰將停止運作，直到下個月 1 號。
+
+若要獲取 API 金鑰，只需前往左側選單的 API Keys，點擊 Create New Secret Key 並為其命名。我將我的金鑰命名為 「LibreChat」 並給予所有權限。請將此 API 金鑰儲存在密碼管理員或其他安全的地方，因為之後您將無法再次看到它，且一旦在 Docker Compose 中輸入後，您也無法輕易找回。
+
+## 設定 LibreChat
+LibreChat 實際上是一個自行代管的 ChatGPT 複製品；它的外觀與功能幾乎一模一樣。[這是其 GitHub](https://github.com/danny-avila/LibreChat)。它支援原版 ChatGPT 網站幾乎所有的功能，但將所有帳號與訊息儲存在 MongoDB 資料庫中，並利用 API 進行通訊。
+
+前往 Community Apps 搜尋 LibreChat。在撰寫本文時，應該只有一個結果，是由 pureelectricity 維護的容器。
+
+Docker compose 檔案是比較棘手的地方，裡面有很多設定。從上到下依次為：
+
+- **Port UI**：就是您的網頁介面連接埠。我保留預設值。
+
+- **Crypto Key**、**Crypto Initialization Vector**、**JWT Secret** 與 **JWT Refresh Secret**。 
+
+    這 4 個設定我們需要一次獲取，老實說我仍不完全確定它們代表什麼。LibreChat 提供了一個工具來 [產生這些數值](/toolkit/creds_generator_zh_TW)。這應該相當直觀，執行後您會看到 `CREDS_KEY`（填入 `Crypto Key`）、`CREDS_IV`（填入 `Crypto Initialization Vector`）、`JWT_SECRET`（填入 `JWT Secret`）與 `JWT_REFRESH_SECRET`（填入 `JWT Refresh Secret`）。太棒了，最困難的部分解決了。
+
+- 回到 **MongoDB URI**。在此您需要以如下格式填入 MongoDB 實例的位置：`mongodb://ip:port/database`。由於我的伺服器本地 IP 是 `192.168.1.100` 且我保留了預設連接埠 `27017`，因此我輸入了：`mongodb://192.168.1.100:27017/librechat`。等一下，我還沒建立名為 librechat 的資料庫！沒關係，系統會自動為您建立。您其實可以隨意命名，但命名為 librechat 最符合邏輯。
+
+- 接下來，**Email From Address**、**Email Service Provider**、**Email Username** 與 **Email Password** 我都保持留空。它們非必填項，我也不是很確定具體作用。我猜是用於在建立帳號時發送電子郵件，但除非您是為幾十個人開啟此服務，否則不必擔心這些。我的目標僅是讓我的家人使用。
+
+- **OpenAI API Key**：輸入您先前獲取的 OpenAI 金鑰。
+
+- **Enable Email Login** 設定為 `true`，**Enable Email Registration** 設定為 `true`，**Enable Social Login** 設定為 `false`，**Enable Social Registration** 設定為 `false`。此應用程式允許透過電子郵件或社群帳號（Google, GitHub, Discord 等）進行註冊或登入。同樣地，對我家人來說，僅使用電子郵件即可。帳號資訊會儲存在您的本地 MongoDB 實例中，所以如果您願意，註冊時甚至可以輸入假的電子郵件。我也猜測社群登入會涉及更多複雜性與潛在問題。
+
+- **Client Domain** 與 **Server Domain**：我將兩者都設定為我伺服器的本地 IP 位址，即 `192.168.1.100`。我猜如果您是透過反向代理執行，您會將其設定為您使用的任何網域，例如 `librechat.mycoolserver.net` 等。
+
+- **Debug Logging Enabled** 預設為 `False`。
+- **UID** 預設為 `1000`，**GID** 預設為 `1000`。
+
+太棒了！我們完成了，理論上它應該能正常運作。
+
+## 使用 LibreChat
+網頁介面非常直觀。它看起來就像 OpenAI 的即時網頁應用程式，但再次提醒，帳號資料都存儲在您的 MongoDB 中（我稍後會展示）。點擊 「Sign up」，輸入您想要的任何真假資訊，然後登入。只需注意系統會對電子郵件欄位進行正則表達式檢查，因此必須包含 @ 與 .。
+
+如果您用過 ChatGPT，應該會看到一個非常熟悉的畫面。唯一的新東西是在頁首有一個下拉選單，可能顯示為 gpt-3.5-turbo-1106，點擊後會有十幾個選項。這些模型的格式基本上是 `gpt-[主版本]-[風味]-[次版本]`。正如我先前提到的，「turbo」風味（或隨便您怎麼稱呼）更便宜且據說更強大。帶有 「vision」 的模型具備理解圖片的能力，但可能使用較舊的訓練數據。沒有標註 [次版本] 的將使用最新的次版本。例如，我相信目前 *gpt-3.5-turbo-1106* 與 *gpt-3.5-turbo* 是同一個模型。
+
+簡單來說：使用 *gpt-3.5-turbo* 可以獲得極其便宜（甚至不到一分錢）的回答（這本來就是免費模型）；使用 *gpt-4-turbo-preview* 可以獲得更優質的回答，每則大約花費 0.015-0.02 美元；如果您想詢問關於理解圖片的問題，請使用 *gpt-4-vision-preview*（價格與前者相同）。您可以在 OpenAI 模型文件頁面找到關於模型的詳細資訊。
+
+下拉選單旁邊還有一個配置按鈕，老實說我還沒研究過，唯一值得注意的是用於 DALL-E 的 「Image Detail」 滑塊。
+
+若要使用 DALL-E，點擊 OpenAI 下拉選單（模型下拉選單左側）並選擇 「**Plugins**」。模型下拉選單右側會出現一個新的下拉選單顯示 「None selected」。點擊它，選擇 「**Plugin store**」，然後搜尋 `DALL-E`。DALL-E 較便宜，每張圖片約 0.04 美元，產生的圖片品質普通。DALL-E 3 產生的效果非常驚人，每張 0.12 美元（1024x1024 像素）。點擊安裝，系統可能會再次要求您輸入 OpenAI API 金鑰，請將其輸入。現在您可以選取 DALL-E 並開始產生圖片。我不確定 GPT 版本如何影響圖片，我相信它僅用於理解您的提示詞並轉達給 DALL-E。產生圖片時，您可以點擊出現的 DALL-E 下拉選單，它會顯示傳送給 DALL-E 的提示詞。如前所述，Image Detail 配置會給您較低或較高品質的圖片，品質越高圖片越貴。
+
+## 查看 MongoDB 內部（選填）
+此 Docker 不使用 appdata 資料夾或任何類似的東西，一切都儲存在 MongoDB 中。若要查看發生了什麼事，開啟您的 MongoDB Docker 主控台並輸入 `mongosh` 進入 MongoDB Shell。您現在應該會看到一個 `test>` 輸入框。在那裡我們可以輸入 `show dbs` 來查看所有資料庫。別擔心 admin、config 或 local，我也不知道它們是幹嘛的。輸入 `use librechat` 進入我們的 LibreChat 資料庫。現在我們可以輸入 `show tables` 來查看各個資料表（想成 Excel 表格）。值得注意的有趣點是，我們發送的每則訊息都儲存在 `messages` 中，而每位使用者都儲存在 `users` 中。我想如果您想確保您的孩子沒在輸入「產生色情內容」，您可以偷看一下 `messages` 資料表。若要查看資料表內容，只需輸入 `db.[資料表名稱].find()`，例如查看所有使用者請輸入 `db.users.find()`。現在如果出於某種原因您想刪除一名使用者，可以輸入 `db.[資料表名稱].remove({ [條件] })`。例如，我想刪除使用者名稱為 「poop」 的使用者，我會輸入 `db.users.remove({ username: 'poop' })` 並按回車。唯一要注意的是，我相信該使用者的訊息與聊天歷史會作為未連結的數據持久存在於其他資料表中，但我不會擔心清理這些東西。
+
+## 結論
+希望這份指南對某些人有所幫助！關於安全性，我無法評論它是更高還是更低，正如以往，生成式 AI 的隱私始終是一個疑慮。如果您將敏感的客戶數據輸入 AI 模型，您實際上就是在用該數據訓練模型，根據我的理解，它可能會將您的數據吐回給其他人。這裡有一篇相關文章。我不是專家，只是一個懷疑論者，所以請自行研究。
+
+我的主要目標是讓我太太和我都能登入 LibreChat，擁有各自的使用者，我們都可以享受使用 GPT-4 來處理瑣事，而無需每人每月支付 21.50 美元，即使我們當月幾乎沒用到。
+
+## 加碼章節！（Assistants）
+OpenAI 開發者平台上有一個很有趣的功能我一直在研究，叫做 「Assistants」。這是相關文件。若要讓 Assistants 出現在您的 LibreChat 實例中，請編輯您的 Docker compose 檔案，開啟 Advanced View，然後點擊 「Add another Path, Port, Variable, Label or Device」。以下是相關設定：
+
+- **Config Type**: Variable
+- **Name**: Assistants API Key
+- **Key**: ASSISTANTS_API_KEY
+- **Value**: [您的 OpenAI API 金鑰 (是的，我們再輸入一次)]
+- **Default Value**: [留空]
+- **Description**: [留空]
+- **Display**: Always
+- **Required**: No
+- **Password Mask**: Yes
+
+大功告成！當您點擊頁首的 OpenAI 下拉選單時，Assistants 將會出現在 Plugins 上方，作為另一個選項。

@@ -1,0 +1,11 @@
+---
+date: 2024-09-10
+title: ⚙️ 配置版本 v1.1.7
+version: "1.1.7"
+---
+
+- 在介面設定中新增了 [`multiConvo`](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#multiConvo)。
+    - 此設定讓您能啟用或停用所有「多重對話 (multi convo)」，即多重回應串流相關功能。
+    - 所有介面設定現在同時適用於 「USER」 與 「ADMIN」 角色。
+- 在終端設定中新增了 [`bedrock`](/docs/configuration/librechat_yaml/object_structure/aws_bedrock_zh_TW)。
+    - 此設定讓您可以為 AWS Bedrock 終端配置額外選項，特別是 `titleModel`、`streamRate` 與 `availableRegions`。

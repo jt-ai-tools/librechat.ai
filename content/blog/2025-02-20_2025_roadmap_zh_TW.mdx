@@ -1,0 +1,173 @@
+---
+title: LibreChat 2025 開發藍圖
+date: 2025-02-20
+description: 'LibreChat 的 2025 年開發藍圖：即將推出的功能、合作夥伴關係等。'
+tags:
+  - update
+  - roadmap
+  - 2025
+ogImage: /images/blog/2025-02-20_2025_roadmap.jpg
+author: danny
+category: guide
+---
+
+import Discord from '@/components/icons/discord'
+import Github from '@/components/icons/github'
+
+
+# LibreChat 兩歲了！ 🎉
+
+我很高興地宣布，LibreChat 正式滿兩週年，成為執行時間最長、最活躍的開源 AI 聊天介面！自從作為 ChatGPT 發布後首批主要的開源選擇以來，我們一起走過了漫長的道路，並取得了巨大的成就。
+
+## 2024 年成就
+
+在深入探討 2025 年計畫前，讓我們先慶祝 2024 年達成的里程碑：
+- ✨ 2024 年 1 月時 GitHub 星數為 4,000，現在已超過 22,200 顆星
+- 📈 超過 15 次登上 GitHub 全語言趨勢榜前 25 名，包含多次奪下第 1 名
+- ⬇️ 容器註冊表 (Container Registry) 下載次數超過 300 萬次
+- 👐 得益於與哈佛大學的合作，在數位無障礙 (Digital Accessibility) 方面獲評為頂尖 AI 應用
+- 🏢 成為大型組織、中小企業與高等教育機構首選的開源 AI 聊天介面
+
+**以及關鍵的功能更新：**
+- 透過 [LibreChat 智慧體 (Agents)](https://www.librechat.ai/docs/features/agents_zh_TW) 為所有支援的供應商提供智慧體工具化支援
+- 提供安全的沙盒執行環境 [代碼解釋器 API (Code Interpreter API)](https://code.librechat.ai/pricing)，支援 Python, Node.js (JS/TS), Go, C/C++, Java, PHP, Rust, Rscript 與 Fortran
+- 透過 [自定義終端 (Custom Endpoints)](https://www.librechat.ai/docs/quick_start/custom_endpoints_zh_TW) 增強 OpenAI 相容性，包含本地 LLM 整合
+- 生成式 UI 組件 (Artifacts)（受 claude.ai 啟發）
+- 改進聊天 UI 與後端優化
+- 多重回應串流 (Multiple Response Streaming)（實驗性）
+- 語音轉文字 (STT) 與文字轉語音 (TTS)
+- 用於提示詞與智慧體/模型切換的行內文字指令
+- [i18next 國際化支援](https://www.librechat.ai/blog/2025-02-13_translation_zh_TW)
+- 提供擴展檔案支援的本地 RAG
+- 暫時對話 (Temporary Chats)
+
+## 2025 開發藍圖
+
+> 備註：針對所有計畫/提議的項目，在開發過程中可能會根據需求調整其他項目（特別是臭蟲修復）。
+
+### 即將推出的功能
+
+這些功能將在下個月內隨 v0.7.8 及/或 v0.7.9 版本發布，部分功能已在積極開發中。
+
+- 增加「以文字上傳檔案」的能力：
+	- 類似於 claude.ai，任何能從檔案中解析出的文字都會直接進入您的提示詞。
+	- 上傳後，檔案文字會被視為附件，且可以像現有檔案一樣在對話或智慧體中隨時「引用」（即附加/分離）。
+- 增加將檔案發送至供應商的能力 ([#4616](https://github.com/danny-avila/LibreChat/issues/4616))：
+  - Google 支援 [「影片理解 (Video Understanding)」](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/video-understanding) 與 [「文件理解 (Document Understanding)」](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/document-understanding)。
+  - Anthropic 支援 [PDFs](https://docs.anthropic.com/en/docs/build-with-claude/pdf-support)。
+- 為 Gemini 模型提供 「Grounding」 Google 搜尋功能。
+- `librechat.yaml`：可針對個別或所有供應商指定視覺模型，以及預設視覺模型 ([#1634](https://github.com/danny-avila/LibreChat/issues/1634))。
+- `librechat.yaml`：針對終端設定自定義代幣費率 ([#1633](https://github.com/danny-avila/LibreChat/issues/1633))。
+- `librechat.yaml`：針對首頁設定自定義歡迎訊息 ([#2967](https://github.com/danny-avila/LibreChat/issues/2967))。
+- 聊天 UI 更新，精簡功能：
+	- 現代化的首頁，具備工具切換功能，提供更簡單的初始聊天體驗。
+	- 更新訊息 UI，帶來現代化的視覺感受。
+- 實驗性功能：智慧體混合 (Mixture-of-Agents)：
+	- 建立自定義「思維鏈 (Chain-of-thought)」智慧體的能力，利用 [「Mixture-of-Agents」](https://arxiv.org/abs/2406.04692) 方案優化 LLM 效能與成本。
+	- 備註：此功能即將推出，大部分工作已完成原型開發，僅需 UI/UX 拋光。
+	
+
+預計期限：2025 年 3 月 15 日
+
+### 核心項目：管理面板 (Admin Panel)
+
+一旦即將推出/短期項目完成或接近完成，我們將開始進行今年的核心項目。這是一個大型專案，我們將投入大量資源，希望能比預計期限更早發布。
+
+管理面板將是一個獨立的選配應用程式，充當 LibreChat 的內容管理系統 (CMS)，包含對使用量、聊天、使用者、設定與存取控制的管理。
+
+核心願景是為環境變數檔案中的配置/安全性設定提供圖形化使用者介面 (GUI)，並為現有及未來的 [librechat.yaml](https://www.librechat.ai/docs/configuration/librechat_yaml_zh_TW) 配置提供介面，同時擴展在角色甚至使用者層級套用這些配置的能力。
+
+更多細節將在專案接近完成時公布。
+
+預計期限：2025 年 6 月 6 日
+
+**更新 (2025 年 6 月 6 日)：** 雖然今天原定是我們樂觀的目標，但我們已確定無法在此期限前完成。我們現在的目標是 6 月底，最遲於 7 月中旬完成。此調整將確保我們交付一個符合高標準、穩健且拋光良好的管理面板。
+
+### 計畫中項目
+
+計畫中項目是根據社群興趣列入清單的，目前尚無明確的預估時間/期限。它們 **並非** 按特定順序排列，且可能在今年任何時間點完成。
+
+- 針對 Actions (智慧體/助手) 的 OAuth 用戶端憑證流程 (Client Credentials Flow)
+  - OAuth 授權流程已實作完成。
+- 適用於 LibreChat 智慧體的 OpenAI 相容 API
+- 加入 [MCP 資源 (Resources)](https://modelcontextprotocol.io/docs/concepts/resources) 以實現更廣泛的臨時數據整合
+- 來源 UI，以便更清楚地瞭解當前對話中包含哪些檔案/圖片
+- 側邊面板 UI 更新，減少遮擋並提升直觀性
+- 智慧體指令的動態提示詞變數 ([#5007](https://github.com/danny-avila/LibreChat/issues/5007))
+- 使用者專屬記憶 ([#5494](https://github.com/danny-avila/LibreChat/issues/5494))
+- 將提示詞庫 (Prompt Library) 功能擴展至智慧體/助手的對話啟動器 ([#5053](https://github.com/danny-avila/LibreChat/issues/5053))
+- 提示詞庫項目的收藏與自定義排序 ([#4875](https://github.com/danny-avila/LibreChat/issues/4875))
+- 用於快速存取/導覽的鍵盤快捷鍵 ([#3664](https://github.com/danny-avila/LibreChat/issues/3664))
+- 增強 Artifacts 以支援 Markdown/筆記，類似 ChatGPT 的 canvas ([#3995](https://github.com/danny-avila/LibreChat/issues/3995))
+- 擴展 Artifacts 代碼編輯以支援 LibreChat 代碼解釋器 API，從而將 Python, Rust, Go, C++ 等作為組件執行
+- 工具使用的「人為介入 (Human-in-the-loop)」機制（允許使用者在使用工具前進行確認） ([#5580](https://github.com/danny-avila/LibreChat/issues/5580))
+- 建立團隊、群組與工作區 ([#4730](https://github.com/danny-avila/LibreChat/issues/4730))
+- 深度研究工具 (Deep research tool)
+- 更好的搜尋整合，包含來源/引用的 UI 元素 ([#4615](https://github.com/danny-avila/LibreChat/issues/4615))
+- 用於回饋的聊天評分功能 ([#901](https://github.com/danny-avila/LibreChat/issues/901))
+- 個別訊息與對話的資訊/元數據 ([#1241](https://github.com/danny-avila/LibreChat/issues/1241), [#1215](https://github.com/danny-avila/LibreChat/issues/1215), [#5199](https://github.com/danny-avila/LibreChat/issues/5199))
+  - 包含預估成本、時間戳記等。
+- 排程任務（智慧體工作流）
+- OpenAI 即時語音 + Gemini 多模態支援 ([#4382](https://github.com/danny-avila/LibreChat/issues/4382))
+- 用於工具 + RAG API 的使用者提供 API 金鑰 ([#4758](https://github.com/danny-avila/LibreChat/issues/4758))
+- 若使用 `user_provided` API 金鑰，則為使用者獲取模型清單 ([#1028](https://github.com/danny-avila/LibreChat/issues/1028))
+- 對話/檔案保留期限設定 ([#2365](https://github.com/danny-avila/LibreChat/issues/2365))
+- 每位使用者的對話/訊息數量限制 ([#3058](https://github.com/danny-avila/LibreChat/issues/3058))
+- 每位使用者的檔案儲存空間限制 ([#3057](https://github.com/danny-avila/LibreChat/issues/3057))
+- 將聊天組織進資料夾/專案 ([#4848](https://github.com/danny-avila/LibreChat/issues/4848))
+- 允許將標題產生終端/模型用於不同的終端 ([#3321](https://github.com/danny-avila/LibreChat/issues/3321))
+- 在對話中顯示模型名稱的設定 ([#3203](https://github.com/danny-avila/LibreChat/issues/3203))
+- 為所有聊天提供匯入/匯出功能 ([#3768](https://github.com/danny-avila/LibreChat/issues/3768))
+- S3 與類 S3 檔案儲存支援 ([#2898](https://github.com/danny-avila/LibreChat/issues/2898))
+- 傳送僅包含圖片的訊息 ([#3157](https://github.com/danny-avila/LibreChat/issues/3157))
+
+### 合作夥伴關係
+
+除了來自開源社群的出色貢獻外，LibreChat 今年將獲得一些開發協助！
+
+一項策略性合作夥伴關係將招募開發者，在今年為開源社群貢獻下列內容：
+
+- RAG API 優化與改進，以實現更高品質的語意搜尋
+- 智慧體市集 (Agent Marketplace) UI，功能類似於 https://chatgpt.com/gpts 但針對 LibreChat 智慧體
+- 針對智慧體分享提供更好、更細粒度的存取控制
+
+LibreChat 核心團隊將主導這些改進，但不會深度參與早期/原型階段，以便騰出更多時間處理計畫中項目。
+
+還有其他合作夥伴關係正在洽談中，敬請期待！
+
+### 核心專案之外
+
+以下是今年同樣計畫中的項目，但與核心專案關聯度較低：
+
+- LC 代碼解釋器 API —— 按使用量計費方案，預計時間待定。
+- 完全代管的公開 LibreChat 服務，預計第三季發布。
+
+### 提議項目
+
+其他未被提及的項目 —— 無論是已提議或未來由社群建議的，我們都會在 [討論區 (Discussions)](https://github.com/danny-avila/LibreChat/discussions/categories/feature-requests-suggestions) 與 [問題回報 (Issues)](https://github.com/danny-avila/LibreChat/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22%E2%9C%A8%20enhancement%22) 頁面持續審核，並根據需求與貢獻決定是否實作。支持這些項目的最佳方式是在對應頁面留下反應 (reaction)（所有反應都會被程式化統計以進行全面分析），並在下方連結的專屬開發藍圖討論串中提及它們。
+
+
+### 結論
+
+感謝大家使用並改進 LibreChat。我對 2025 年感到非常樂觀，這將是我們在更新、新功能與改進方面收穫最豐碩的一年。
+
+請在專屬的討論串中分享您的想法，我們非常期待聽到您的回饋與建議！
+
+<Cards>
+  <Cards.Card
+    title="GitHub 開發藍圖討論"
+    href="https://github.com/danny-avila/LibreChat/discussions/5960"
+    target="_blank"
+    icon={<Github />}
+  />
+  <Cards.Card
+    title="Discord 開發藍圖討論"
+    href="https://discord.com/channels/1086345563026489514/1342217637748408392"
+    target="_blank"
+    icon={<Discord />}
+  />
+</Cards>
+
+<Callout type="info" title="備註">
+  此開發藍圖可能會根據社群回饋與貢獻進行調整。項目可能會根據需求與資源，比預期更早或更晚實作。
+</Callout>

@@ -1,0 +1,71 @@
+---
+title: LibreChat 2024 開發藍圖
+date: 2024-02-19
+description: 'LibreChat 的 2024 年開發藍圖，包含 Assistants API 整合等更多內容。'
+tags:
+  - update
+  - roadmap
+ogImage: /images/blog/2024-02-19_2024_roadmap.webp
+author: danny
+category: guide
+---
+
+import Discord from '@/components/icons/discord'
+
+
+我很高興地宣布，**Assistants API** 整合現已在主分支 (main branch) 上線！請務必閱讀 [更新後的設定指南](/docs/configuration/pre_configured_ai/assistants_zh_TW)。
+
+這允許建立 AI 助手 (AI Assistants)，提供如代碼解釋器 (code interpreter)、檔案知識檢索與工具執行等功能，極其接近 GPTs 的體驗。
+
+我還想宣布目前的 **LibreChat 開發藍圖 (Roadmap)**。
+
+### 2024 開發藍圖：
+
+- 管理面板 (Admin Panel) 與基於角色的存取控制 (RBAC)（更多資訊即將發布）
+
+<Callout type="info" title="資訊">
+  隨著配置選項的增加，複雜度也隨之提升。此更新的主要目的是透過介面整合許多這些設定，以簡化自定義流程、消除對 CLI 指令的需求，並更有效地管理使用者。
+</Callout>
+
+- Assistants API 增強；**詳見下方討論串中的開發藍圖**
+- 暫時對話 (Temporary Chats)
+- 預設設定嚮導 (Preset wizard)（AI 協助您建立預設設定）
+- 可在對話中的任何位置新增/刪除訊息
+- 多重回應串流 (Multiple response streaming)
+- 用於使用預設設定/助手/切換終端的行內文字指令 (In-line text commands)
+- 原生本地 LLM 整合（從 Ollama 開始）
+- 為所有終端提供擴展檔案支援的本地 RAG
+- 對話「記憶 (Memory)」
+- 改進所有終端的工具 (Tooling) 支援（而不僅限於外掛程式）
+- 微調 (Fine Tuning) 與 LLM 回饋數據管理
+
+我知道這很雄心勃勃，但我相信在大家的持續支持下，這一切都是非常有可能實現的！
+
+我製作了一份 **[開發藍圖意見回饋表](https://forms.gle/KCHkeQCYSP9LAWLcA)**，歡迎有興趣分享想法的人填寫！
+
+### **_另外，LibreChat 正式滿 1 歲了！_** 🎉🎉🎉
+
+---
+
+在 Discord 上討論這些更新：
+
+<Cards>
+  <Cards.Card
+    title="開發藍圖討論"
+    href="https://discord.com/channels/1086345563026489514/1207101969735483433"
+    target="_blank"
+    icon={<Discord />}
+  />
+  <Cards.Card
+    title="Assistants API 回饋"
+    href="https://discord.com/channels/1086345563026489514/1207093490740109392"
+    target="_blank"
+    icon={<Discord />}
+  />
+  <Cards.Card
+    title="Assistants API 問題回報"
+    href="https://discord.com/channels/1086345563026489514/1207093490740109392"
+    target="_blank"
+    icon={<Discord />}
+  />
+</Cards>

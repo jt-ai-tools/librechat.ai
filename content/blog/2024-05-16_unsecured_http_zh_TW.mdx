@@ -1,0 +1,44 @@
+---
+title: 防止在 HTTP 環境下自動登出
+date: 2024-05-16
+description: 在本文中，我們將探討導致此問題的原因，並提供修正該問題的逐步指南。
+tags:
+  - http
+  - local network
+author: fuegovic
+ogImage: /images/blog/2024-05-16_unsecured_http.jpg
+category: guide
+---
+
+
+
+## 簡介
+如果您在區域網路 (local network) 中執行 LibreChat 實例，且發現每次重新整理頁面時都被要求重新登入，您並不孤單。這個問題確實令人困擾，但幸運的是，我們有解決方案。在本文中，我們將探討導致此問題的原因，並提供修正該問題的逐步指南。
+
+## 原因分析
+當您執行 LibreChat 伺服器時，在「生產 (production)」模式下，Cookie 預設會被設定為 「secure」 (安全)。這項安全措施旨在保護使用者工作階段並防止未經授權的存取。然而，當在不使用 localhost 或 HTTPS 的情況下，透過區域網路存取實例時，此設定會導致每次重新整理頁面都彈出登入提示。
+
+## 解決方案
+要解決此問題，我們需要覆寫預設配置，並為 API 服務設定適當的環境。步驟如下：
+
+1. 如果您使用 Docker 執行 LibreChat，請在與 `docker-compose.yml` 檔案相同的目錄下建立一個名為 `docker-compose.override.yml` 的新檔案（如果尚未建立的話！）。
+
+2. 開啟 `docker-compose.override.yml` 檔案並加入下列內容：
+
+```yaml filename="docker-compose.override.yml"
+services:
+  api:
+    command: npm run backend:dev
+```
+<Callout type="tip" title="瞭解更多關於 docker-compose.override.yml 檔案">
+**請參考 [Docker 覆寫](/docs/configuration/docker_override_zh_TW) 以瞭解更多資訊**
+</Callout>
+
+3. 儲存檔案。
+
+4. 使用 `docker compose up -d` 指令重新啟動您的 LibreChat 實例。
+
+## 結論
+透過加入此覆寫配置，我們指示 API 服務以開發 (development) 模式執行，這會停用安全 Cookie 設定。這樣一來，即使在區域網路中重新整理頁面，使用者也能維持登入狀態。
+
+值得注意的是，在這種情況下，直接修改 `package.json` 中的 `NODE_ENV` 變數，或透過 `.env` 及 `docker-compose.yml` 檔案提供該變數，可能無法奏效。使用覆寫配置能確保 API 服務執行正確的啟動指令。

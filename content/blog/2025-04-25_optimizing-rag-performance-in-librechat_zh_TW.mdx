@@ -1,0 +1,288 @@
+---
+title: 在 LibreChat 中優化 RAG 效能
+date: 2025-04-25
+description: '為 LibreChat 優化檢索增強生成 (RAG) 效能'
+tags:
+  - rag
+  - performance
+  - optimization
+  - guide
+author: anon
+ogImage: https://firebasestorage.googleapis.com/v0/b/superb-reporter-407417.appspot.com/o/rag_blog_image_04_25_25.png?alt=media
+category: guide
+---
+
+
+
+> **備註**：這是一篇客座文章。若未來的 LibreChat 版本中底層的 RAG API 有所變動，此處提供的資訊可能不再準確。請務必參考官方文件以獲取最新資訊。
+
+# 在 LibreChat 中優化 RAG 效能
+
+本指南將引導您如何在 LibreChat 設定中優化檢索增強生成 (RAG) 的效能。請務必 **一次僅更改一項主要設定**，並仔細測試結果。
+
+---
+
+## 1. 優化資料庫 (vectordb - PostgreSQL/pgvector)
+
+提升資料庫效能對於 RAG 速度至關重要，特別是在索引 (indexing) 與檢索 (retrieval) 階段。
+
+### 1.1. 驗證/建立元數據與過濾索引 (**關鍵**)
+
+若缺少用於過濾的索引，效能會大幅下降。
+
+#### 連接至資料庫：
+
+```bash
+docker exec -it vectordb psql -U myuser -d mydatabase
+# 輸入 'mypassword' (或您的安全密碼)
+```
+
+#### 檢查現有索引：
+
+```sql
+\di langchain_pg_embedding*
+```
+
+您應該會看到：
+
+- `custom_id_idx`
+- `idx_cmetadata_file_id_text`
+- 向量索引，如 `langchain_pg_embedding_embedding_idx`
+
+若缺失，請執行：
+
+```sql
+-- 透過 custom_id 進行內部查找
+CREATE INDEX CONCURRENTLY IF NOT EXISTS custom_id_idx ON langchain_pg_embedding (custom_id);
+
+-- 透過元數據內的 file_id 進行過濾
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cmetadata_file_id_text ON langchain_pg_embedding ((cmetadata ->> 'file_id'));
+```
+
+#### 退出：
+
+```sql
+\q
+```
+
+---
+
+### 1.2. 驗證/調優向量索引
+
+pgvector 擴充功能通常會在 `embedding` 欄位上建立索引。
+
+再次使用 `\di` 檢查。尋找 `hnsw` 或 `ivfflat` 類型的索引。
+
+> ⚙️ **進階**：您可以調優索引參數，如 `lists`、`m`、`ef_search` 與 `ef_construction`（詳見 [pgvector README](https://github.com/pgvector/pgvector)）。
+
+---
+
+### 1.3. 監控/調整伺服器資源
+
+```bash
+docker stats vectordb
+```
+
+觀察記憶體及/或 CPU 是否達到飽和。PostgreSQL 能從充足的 RAM 中獲益。
+
+#### 選填：在 `docker-compose.override.yml` 中設定資源限制
+
+```yaml
+deploy:
+  resources:
+    limits:
+      memory: 4G
+      cpus: '1.0'
+```
+
+---
+
+### 1.4. 執行資料庫維護
+
+定期執行：
+
+```sql
+VACUUM (VERBOSE, ANALYZE) langchain_pg_embedding;
+```
+
+---
+
+### 1.5. 進階 PostgreSQL 調優
+
+考慮調整下列參數：
+
+- `shared_buffers`
+- `work_mem`
+- `maintenance_work_mem`
+- `effective_cache_size`
+
+這些設定位於容器內的 `postgresql.conf` 中。請僅在您瞭解其含義的情況下進行修改。
+
+---
+
+## 2. 調優切分 (Chunking) 策略 (`.env`)
+
+這會影響上傳速度與檢索精度。
+
+### 2.1. 開啟主 `.env` 檔案：
+
+```bash
+nano ~/LibreChat/.env
+```
+
+### 2.2. 修改切分設定：
+
+```env
+CHUNK_SIZE=1500
+CHUNK_OVERLAP=150
+```
+
+嘗試其他組合，例如：
+
+- `1000/100`
+- `500/50`
+
+權衡取捨：  
+- **較大的塊 (chunks)** = 處理較快，精度較低  
+- **較小的塊** = 速度較慢，精度較高
+
+### 2.3. 儲存、退出並重啟：
+
+```bash
+docker-compose down
+docker-compose up -d --force-recreate
+```
+
+---
+
+### 2.4. 刪除舊的嵌入向量
+
+- **最簡單**：透過 UI 刪除檔案。
+- **進階**：從資料庫中刪除。
+
+```sql
+DELETE FROM langchain_pg_embedding WHERE cmetadata ->> 'file_id' = '您的_FILE_ID';
+```
+
+> 🔁 更安全的方法：每次配置測試皆使用一個 **新的測試檔案**。
+
+---
+
+### 2.5. 重新上傳並測試效能
+
+---
+
+## 3. 優化嵌入程序
+
+在 `.env` 中設定供應商/模型。
+
+### 範例：
+
+#### OpenAI：
+
+```env
+EMBEDDINGS_PROVIDER=openai
+EMBEDDINGS_MODEL=text-embedding-ada-002
+```
+
+#### Azure：
+
+```env
+EMBEDDINGS_PROVIDER=azure
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_ENDPOINT=...
+AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME=...
+```
+
+#### Ollama (本地)：
+
+```env
+EMBEDDINGS_PROVIDER=ollama
+OLLAMA_BASE_URL=http://ollama:11434
+EMBEDDINGS_MODEL=nomic-embed-text
+```
+
+### 重啟並重新上傳：
+
+```bash
+docker-compose down
+docker-compose up -d --force-recreate
+```
+
+---
+
+## 4. 調優檢索策略
+
+檢索多少個塊會同時影響相關性與 API 限制。
+
+### 4.1. 在 `.env` 中：
+
+```env
+RAG_API_TOP_K=3
+# RAG_USE_FULL_CONTEXT=True
+```
+
+- 較低的 `TOP_K` = 較安全、較快  
+- 較高的 `TOP_K` = 更多上下文，但有超出代幣限制的風險
+
+---
+
+## 5. 監控 LibreChat API 日誌
+
+檢查是否有截斷或代幣溢出的情況。
+
+### 5.1. 執行一個大型查詢，接著：
+
+```bash
+docker logs <apiN_container_name> --tail 300
+```
+
+搜尋：
+
+```text
+... [truncated]
+```
+
+若出現此類訊息，請調降 `TOP_K` 或 `CHUNK_SIZE`。
+
+---
+
+## 6. 管理伺服器負載與隔離
+
+### 6.1. 監控：
+
+```bash
+htop
+docker stats
+```
+
+### 6.2. 降低負載（暫時性）：
+
+```bash
+# 停止未使用的 API 或管理面板
+docker-compose stop api2 api3
+sudo systemctl stop lcadmin3.service
+```
+
+### 6.3. 升級硬體
+
+- 增加 RAM/CPU
+- 使用 SSD（首選 NVMe）
+- GPU 可加速嵌入程序（若使用本地模型）
+
+### 6.4. 進階：分離服務
+
+針對重度負載，您可以將 `vectordb` 與 `rag_api` 託管在獨立的機器上。
+
+---
+
+## 總結
+
+請先從 **索引優化** 開始。接著依序處理：
+
+1. 切分調優 (`CHUNK_SIZE`, `CHUNK_OVERLAP`)
+2. 檢索策略 (`RAG_API_TOP_K`)
+3. 嵌入配置
+4. API 日誌監控
+
+獨立測試每項變更。務必持續監控 API 日誌與資源使用情況。若問題持續，請考慮升級模型或硬體。

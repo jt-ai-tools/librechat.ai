@@ -1,0 +1,209 @@
+---
+title: 'LibreChat 2026 開發藍圖：管理面板、動態上下文及更多'
+date: 2026-02-18
+description: 'LibreChat 的 2026 年開發藍圖：第一季至第二季將推出基於 GUI 的管理面板、智慧體技能 (Agent Skills)、程式化工具呼叫 (Programmatic Tool Calling) 以及互動式工作流。'
+tags:
+  - update
+  - roadmap
+  - 2026
+ogImage: /images/blog/2026-02-18_2026_roadmap.png
+ogMetaImage: /images/blog/2026-02-18_2026_roadmap_og.png
+ogImagePosition: center 10%
+author: danny
+---
+
+import Discord from '@/components/icons/discord'
+import Github from '@/components/icons/github'
+
+## LibreChat 三歲了！
+
+LibreChat 在 2 月 11 日正式屆滿三週年！ 🎉🥳
+
+我衷心感謝每一位提供貢獻的人，不論是透過建議回饋、代碼貢獻，或是僅僅是使用並支持這個專案。
+
+## 2025 年回顧
+
+在展望未來之前，讓我們先檢視 2025 年所達成的成就（參見 [去年的開發藍圖](/blog/2025-02-20_2025_roadmap_zh_TW)）：
+
+- 年初時 GitHub 星數為 22,200，截至目前已突破 **33,900+** 顆星。
+- 超過 **6,800 次分叉 (forks)** 以及超過 2,300 萬次容器註冊表下載。
+- 社群 Discord 伺服器成長至超過 **9,000 名成員**。
+- 重大功能發布，涵蓋 v0.7.8 至 **[v0.8.3-rc1](/changelog/v0.8.3-rc1)**。
+- 由 [ClickHouse](https://clickhouse.com/blog/clickhouse-acquires-librechat) 收購，致力於讓 AI 驅動的分析更加普及。
+
+**關鍵功能里程碑：**
+- 透過與應用程式無關的 [智慧體框架 (Agents framework)](https://github.com/danny-avila/agents/) 實現多智慧體支援。
+- 原生網頁搜尋、OCR、行內 Mermaid 圖表、釘選模型/智慧體。
+- [可恢復聊天 (Resumable chats)](/docs/features/resumable_streams_zh_TW)，在斷線、分頁切換與裝置更換時仍能完整保存回應。
+- 多模態檔案支援：影片理解、PDF、原生供應商檔案處理。
+- 透過 GPT-Image-1+ 與 Gemini (Nano Banana) 進行 [圖片產生與編輯](/docs/features/image_gen_zh_TW)。
+- [MCP](https://modelcontextprotocol.io/) 整合，並支援從 UI 進行動態伺服器管理。
+- 支援在使用者間分享智慧體、提示詞與 MCP 伺服器，並由存取控制清單 (ACL) 提供保障。
+- 用於跨對話個人化上下文的 [使用者記憶 (User Memories)](/docs/configuration/librechat_yaml/object_structure/memory_zh_TW)。
+- 用於外部整合與自動化的 [與 OpenAI 相容的智慧體 API](/docs/features/agents_api_zh_TW)（測試版）。
+
+---
+
+## 2026 開發藍圖
+
+今年，我們不再列出所有可能的功能清單，而是 **一次僅專注於兩個季度**：第一季與第二季。這能讓承諾更真實、時程更具彈性，並讓我們能隨著 AI 領域瞬息萬變的局勢進行調整。
+
+我們在 ClickHouse 內部使用 LibreChat 來驅動智慧體數據分析，這份藍圖中的許多內容反映了我們在生產環境執行時所需的功能。
+
+我們將在年中重新評估並發布下半年的藍圖。
+
+> 備註：如同以往，臭蟲修復與小型改進將與藍圖工作同步進行。
+
+---
+
+### 第一季 (Q1)
+
+第一季有兩大重點領域，將定義 LibreChat 的下一個篇章。
+
+---
+
+#### 管理面板 (Admin Panel)
+
+管理面板 v1 ([#3137](https://github.com/danny-avila/LibreChat/issues/3137)) 將具備四項核心能力：
+
+- **配置圖形介面 (GUI)**
+  - 為目前透過 `librechat.yaml` 管理的所有內容提供圖形化介面，讓 [自定義配置](/docs/configuration/librechat_yaml_zh_TW) 不再需要手動編輯 YAML 檔案。
+- **配置設定檔 (Configuration Profiles)**
+  - 初步將自定義配置設定檔套用至角色 (roles)，並以群組級別的設定檔為進階目標。
+- **群組與角色管理**
+  - 從 UI 建立並管理群組與角色，並以使用者管理為進階目標。
+- **貫穿始終的存取控制**
+  - 將存取控制內嵌在管理面板的各個面向，而非事後補強。
+
+結合這些能力，我們將能為不同情境打造 LibreChat 體驗；例如，為商務使用者提供精簡介面，為進階使用者提供完全開放的權限。
+
+管理面板發布後，將持續在公開環境下進行開發與疊代。
+
+---
+
+#### 動態上下文 (Dynamic Context)
+
+最出色的智慧體工作流始於「精簡」，並根據需求拉取上下文。更少的噪音、更少的代幣消耗，帶來更優質的結果。
+
+LibreChat 已經實作了一些動態上下文的模式，但在第一季末，我們將更進一步：
+
+- **智慧體技能 (Agent Skills)** ([#11106](https://github.com/danny-avila/LibreChat/issues/11106))
+  - 針對特定領域指令與配套資源的新標準。
+- **程式化工具呼叫 (Programmatic Tool Calling, PTC)**
+  - 針對工具的程式碼編排，讓智慧體在解讀工具輸出時具備驚人的靈活性。
+- **對話摘要 (Conversation Summarization)**
+  - 針對長期對話的智慧型上下文壓縮，保留關鍵細節的同時回收代幣預算。
+
+我們的目標是讓 LibreChat 智慧體更聰明地掌握知識內容與獲取時機。
+
+為了驅動 Skills 與 PTC 功能，我將在第一季末開源 [代碼解釋器 API (Code Interpreter API)](/docs/features/code_interpreter_zh_TW)，讓智慧體能以安全且具擴充性的方式執行程式碼，專為 LibreChat 實作這些功能而打造。
+
+動態上下文已完成的顯著功能：
+- 針對 MCP 工具的 [事件驅動延遲工具執行](https://github.com/danny-avila/LibreChat/pull/11588)。
+- 針對使用 MCP 工具之智慧體的 [延遲工具發現](/docs/features/agents_zh_TW#延遲工具-deferred-tools)。
+
+**如需更多相關資訊：**
+- [智慧體技能概覽](https://agentskills.io/home)
+- Cursor 中的 [動態上下文 (Dynamic Context)](https://cursor.com/blog/dynamic-context-discovery)
+- Cloudflare 的 [Code 模式](https://blog.cloudflare.com/code-mode/)
+- Anthropic 的 [進階工具使用 (Advanced Tool Use)](https://www.anthropic.com/engineering/advanced-tool-use)
+- [我針對程式化工具呼叫的演示](https://youtu.be/5DUvTbntkAg?si=80c9J9fryLoVhYPy&t=515)（錄自近期在紐約舉行的 ClickHouse 活動）
+
+---
+
+### 第二季 (Q2)
+
+第二季將在第一季的基礎上增加新能力，並持續疊代現有功能。
+
+---
+
+#### 工具 UI 更新
+
+> 備註：這是第二季的主要重點，但若時間允許可能會在第一季啟動。
+
+當智慧體呼叫工具時顯示的 UI 已顯過時，需要進行更新，特別是針對結構化輸入與輸出的呈現。
+
+[組件 (Artifacts)](/docs/features/artifacts_zh_TW) 仍是極受歡迎的功能，也將會迎來改進，包括：
+
+- 渲染來自檔案與工具結果的輸出。
+- 專用於數據視覺化與分析的工具。
+- 讓產生的 Artifacts 在疊代間更容易分享與維護。
+
+---
+
+#### 工作流與互動性
+
+- **人為介入 (Human-in-the-Loop)** ([#5580](https://github.com/danny-avila/LibreChat/issues/5580))
+  - 工具使用的核准關卡，讓使用者在智慧體執行操作前進行檢閱與授權。
+- **訊息佇列與中斷**
+  - 支援後續訊息排隊並優雅地中斷進行中的回應，實現更自然的回合互動。
+- **背景智慧體與子智慧體** (鄰近於 [#11687](https://github.com/danny-avila/LibreChat/issues/11687))
+  - 可定時執行或由其他智慧體觸發的智慧體工作流，實現自動化與背景處理。
+
+---
+
+#### 基礎設施與數據管理
+
+- 檔案保留政策（自動清理與過期） ([#2365](https://github.com/danny-avila/LibreChat/issues/2365))
+- 每個配置設定檔的檔案儲存限制 ([#3057](https://github.com/danny-avila/LibreChat/issues/3057))
+- 用於圖片提供的 AWS CloudFront 整合。
+- 針對敏感數據（主要是訊息內容）的用戶端欄位級加密。
+
+---
+
+### 社區驅動項目
+
+具備強大社群支持的項目，可能會根據需求與貢獻（反應 + PRs）隨藍圖工作一同落地：
+
+- MCP 應用程式 ([#10641](https://github.com/danny-avila/LibreChat/issues/10641), [PR #11799](https://github.com/danny-avila/LibreChat/pull/11799))
+- 鍵盤快捷鍵 ([#3664](https://github.com/danny-avila/LibreChat/issues/3664))
+- 對話資料夾與專案 ([#4848](https://github.com/danny-avila/LibreChat/issues/4848))
+- 統一的檔案上傳體驗 ([#10941](https://github.com/danny-avila/LibreChat/discussions/10941))
+- 可見的對話成本與用量指標 ([#1215](https://github.com/danny-avila/LibreChat/issues/1215))
+
+這些項目的優先順序大致根據 GitHub 反應與社群討論排列。其中幾項已在與外部貢獻者及組織進行積極討論。推動項目優先級的最佳方式是在其 GitHub issue 留下反應並參與連結的討論串。
+
+我們始終歡迎並感謝社群貢獻。包含優質代碼、文檔以及先前討論的拉取請求 (PR) 更有可能被合併。
+
+---
+
+### 我們正在招募
+
+我們正在尋找經驗豐富的全端開發者，以約聘形式協助維護 LibreChat，並有機會轉為全職職位。需精通 TypeScript；熟悉 Python 者佳。
+
+**要求：**
+- 精通全端開發（後端 + 前端）
+- 5 年以上專業經驗
+
+有興趣嗎？[發送電子郵件給我們](mailto:danny.avila&#64;clickhouse&#46;com)，主旨請註明：**[LibreChat Job]**
+
+---
+
+### 結論
+
+三年過去了，LibreChat 持續作為目前功能最全面的開源 AI 聊天平台。今年的重點是「深度」而非廣度 —— 讓智慧體在處理上下文時真正變得更聰明，賦予管理員所需的工具，並建構能將聊天轉化為更多可能性的互動式工作流。
+
+我們將在年中帶來的下半年藍圖中再次向大家報告。在此期間，請在下方的討論串分享您的想法。
+
+---
+
+<Cards>
+  <Cards.Card
+    title="GitHub 開發藍圖討論"
+    href="https://github.com/danny-avila/LibreChat/discussions/11860"
+    target="_blank"
+    icon={<Github />}
+  />
+  <Cards.Card
+    title="Discord 開發藍圖討論"
+    href="https://discord.com/channels/1086345563026489514/1473847210700705885"
+    target="_blank"
+    icon={<Discord />}
+  />
+</Cards>
+
+---
+
+<Callout type="info" title="備註">
+  此開發藍圖涵蓋 2026 年第一季與第二季，並可能根據社群回饋與貢獻進行調整。下半年的藍圖將於年中發布。
+</Callout>

@@ -1,0 +1,53 @@
+---
+date: 2026-02-18
+title: ⚙️ 配置版本 v1.3.4
+version: "1.3.4"
+---
+
+- 在 `interface.prompts` 與 `interface.agents` 配置中新增了 `create` 欄位
+  - 用以控制使用者是否可以建立新的提示詞/智慧體（預設：`true`）。
+  - 補充了現有的 `use`、`share` 與 `public` 權限欄位。
+  - 仍支援布林值以維持向下相容性。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#prompts)。
+
+- 新增了 `interface.remoteAgents` 配置，用以控制遠端智慧體的存取
+  - 新增了 `use` 設定，用以啟用/停用遠端智慧體的使用（預設：`false`）。
+  - 新增了 `create` 設定，用以控制使用者是否可以建立遠端智慧體（預設：`false`）。
+  - 新增了 `share` 設定，用以控制使用者是否可以分享遠端智慧體（預設：`false`）。
+  - 新增了 `public` 設定，用以啟用遠端智慧體的公開分享（預設：`false`）。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#remoteagents)。
+
+- 為 `endpoints.bedrock` 配置新增了 `models` 與 `inferenceProfiles`
+  - `models`：為 Bedrock 指定可用的自定義模型 ID。
+  - `inferenceProfiles`：將推理設定檔 (inference profile) ID 映射至顯示名稱，以進行跨區域推理。
+  - 詳情請參閱 [AWS Bedrock 配置](/docs/configuration/librechat_yaml/object_structure/aws_bedrock_zh_TW#inferenceprofiles)。
+
+- 新增 Moonshot 為已知終端
+  - 新增 `moonshot` 已知終端，用於整合 Moonshot AI 並支援圖標。
+  - 詳情請參閱 [Moonshot 配置](/docs/configuration/librechat_yaml/ai_endpoints/moonshot_zh_TW)。
+
+- 新增了 `deferred_tools` 與 `programmatic_tools` 智慧體能力
+  - `deferred_tools`：啟用 MCP 工具的延遲/事件驅動載入，減少上下文窗口佔用（預設啟用）。
+  - `programmatic_tools`：透過程式碼執行沙盒為 MCP 工具啟用程式化工具呼叫（預設停用，需要最新的代碼解釋器 API）。
+  - 詳情請參閱 [智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)。
+
+- 移除了已棄用的 `forcePrompt` 設定
+  - 已從 Azure 終端與自定義終端配置中移除。
+  - 該設定已棄用且不再具備功能。
+
+- 更新了預設模型清單
+  - 在 Anthropic 與 Bedrock 預設模型中新增了 `claude-sonnet-4-6` 與 `claude-opus-4-6`。
+  - 在 Bedrock 預設模型中新增了 `moonshotai.kimi` 與 `moonshotai.kimi-k2.5`。
+  - 為 MoonshotAI、Z.AI 與 OpenAI GPT-OSS 模型增加了 Bedrock 參數支援。
+  - 移除了已棄用的 Claude 模型：claude-3-opus、claude-3-sonnet、claude-3-haiku、claude-2.x、claude-1.x 以及 claude-instant 變體。
+
+- 在 `modelSpecs` 清單項目中新增了 `artifacts` 欄位
+  - 為特定模型規範啟用 Artifacts 能力。
+  - 設定為 `true` 以啟用預設模式，或設定特定模式字串（例如：`"default"`）。
+  - 詳情請參閱 [模型規範配置](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#artifacts)。
+
+- 在 `modelSpecs` 預設設定中為 Anthropic 主動思考 (Adaptive Thinking) 新增了 `effort` 參數
+  - 為支援的 Anthropic 模型（例如：Claude Opus 4.6）控制思考投入等級。
+  - 選項：`"low"`、`"medium"`、`"high"`、`"max"`，或不設定（由模型決定）。
+  - 由 `anthropic` 與 `bedrock` (Anthropic 模型) 終端支援。
+  - 詳情請參閱 [模型規範配置](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#effort)。

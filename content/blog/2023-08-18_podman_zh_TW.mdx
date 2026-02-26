@@ -1,0 +1,275 @@
+---
+title: Podman 安裝指南
+date: 2023-08-18
+description: 如果您不喜歡 docker compose，也不想要裸機 (bare-metal) 安裝，但仍想利用容器的隔離性與模組化優點...
+tags:
+  - install
+  - podman
+  - guide
+ogImage: /images/blog/2023-08-18_podman.png
+author: anon
+category: guide
+---
+
+
+
+# Podman 安裝指南
+
+如果您不喜歡 docker compose，也不想要裸機 (bare-metal) 安裝，但仍想利用容器的隔離性與模組化優點 —— 那麼您應該參考這份指南。
+
+> 同樣地，如果您正在積極開發 LibreChat，且並非在生產環境中使用該服務，您應避免參考本指南，並尋找更容易上手的工具，例如 docker compose。
+
+**重要提示：** `docker` 與 `podman` 指令在大多數情況下是互通且可替換的。下文的代碼指令將會使用（且強烈偏好） `podman`。
+
+## 建立基礎映像
+
+由於 LibreChat 正處於積極開發階段，目前建議針對您計畫使用的容器在本地建置映像。幸運的是，這操作起來相當簡單。
+
+在您的目標目錄中，執行下列指令：
+
+```bash filename="複製 LibreChat 儲存庫"
+git clone https://github.com/danny-avila/LibreChat
+```
+
+這會在您的本地環境中加入一個 `LibreChat` 目錄。
+
+在不進入 `LibreChat` 目錄的情況下，新增一個腳本 `./image.sh`，內容如下：
+
+> 如果您不想以腳本方式執行，可以直接執行容器指令而非映像指令。
+
+```bash filename="為 LibreChat 建置基礎容器映像"
+podman build --tag "librechat:local" --file ./LibreChat/Dockerfile
+```
+
+> 備註：執行具有 live root 的基礎容器之缺點在於，映像的修訂需要手動完成。最簡單的方法是在容器不再存在時移除並重新建立映像。如果您無法這麼做，則可以手動更新映像以遞增版本。只需將 $image 修改為您正在建置的版本即可。
+
+> 我們稍後會紀錄如何更有效地進行更新流程。更新時您無需移除現有的容器，也不會遺失任何數據。
+
+## 設定環境檔案 (env file)
+
+執行下列指令建立一個僅供 LibreChat 容器使用的 env 檔案：
+
+```bash filename="將 env.example 檔案複製為 .env"
+cp ./LibreChat/.env.example .env
+```
+
+這會將 env 檔案新增至我們建立容器的頂層目錄中，讓我們能透過 `--env-file` 指令參數輕鬆地將其傳入。
+
+請遵循 [此指南](/docs/configuration/pre_configured_ai_zh_TW) 為各種 API 填入正確的環境變數。環境檔案中還有其他值得更改的環境變數，皆已記錄在檔案內。接著，編輯 `.env` 檔案中的下列幾行：
+
+```sh filename=".env"
+HOST=0.0.0.0
+MONGO_URI=mongodb://librechat-mongodb:27017/LibreChat
+MEILI_HOST=http://librechat-meilisearch:7700
+MEILI_NO_ANALYTICS=true
+```
+
+這些數值將被部分容器使用，以便透過 LibreChat 網路正確使用容器 DNS。
+
+## 為 LibreChat 建立網路
+
+如果您是採用「手動」方式，想必您的機器上正在執行不只幾個不同的容器與服務。大多數容器引擎提供的一項優點是，您不需要將每個容器都暴露在主機網路 (host network) 上。這還有一個好處，即不會將您的數據與依賴服務暴露給主機上的其他容器。
+
+```bash filename="使用 podman 建立一個名為 librechat 的網路"
+podman network create librechat
+```
+
+我們在建立容器時將會使用此網路。
+
+## 建立依賴容器
+
+LibreChat 目前使用 MongoDB 與 Meilisearch，因此我們也需要建立這些容器。
+
+## Mongodb
+
+使用下列指令安裝並啟動 MongoDB 容器：
+
+```bash filename="啟動具備網路與磁碟卷設定的 MongoDB 容器"
+podman run 
+  --name="librechat-mongodb" 
+  --network=librechat 
+  -v "librechat-mongodb-data:/data/db" 
+  --detach 
+  docker.io/mongo 
+  mongod --noauth
+```
+
+## Meilisearch 
+
+使用下列指令安裝並啟動 Meilisearch 容器：
+
+```bash filename="安裝並啟動 Meilisearch 容器"
+podman run 
+  --name="librechat-meilisearch" 
+  --network=librechat 
+  --env-file="./.env" 
+  -v "librechat-meilisearch-data:/meili_data" 
+  --detach 
+  docker.io/getmeili/meilisearch:v1.0;
+```
+
+## 啟動 LibreChat
+
+```bash filename="啟動 LibreChat"
+podman run 
+  --name="librechat" 
+  --network=librechat 
+  --env-file="./.env" 
+  -p 3080:3080 
+  --detach 
+  librechat:local;
+```
+
+如果您在另一個負載平衡器後方使用 LibreChat，可以省略 `-p` 宣告，您也可以透過增加額外的網路參數將容器連接到同一個網路：
+
+```bash filename="將 LibreChat 連接至特定網路"
+--network=librechat 
+```
+
+```bash filename="連接至負載平衡器網路"
+--network=mybalancernetwork 
+```
+
+如原始的 `-p` 指令參數所述，您可以透過 `librechat:3080` 存取 LibreChat，`mybalancernetwork` 則應替換為您的平衡器所在的任何網路。
+
+## 開機時自動啟動容器 (僅限 Podman + Linux)
+
+Podman 具備一種宣告式的方法，可透過 systemd 確保 Pod 在系統開機時自動啟動。
+
+若要使用此方法，您需要執行下列指令：
+
+首先，停止任何與 LibreChat 相關且正在執行中的容器：
+
+```bash filename="停止 LibreChat 容器"
+podman stop librechat
+```
+
+```bash filename="停止 LibreChat MongoDB 容器"
+podman stop librechat-mongodb
+```
+
+```bash filename="停止 LibreChat Meilisearch 容器"
+podman stop librechat-meilisearch
+```
+
+接著，我們將更新使用者的 systemd 配置以啟用延續 (lingering)。在基於 systemd 的系統中，當使用者登入或登出時，使用者層級的服務通常會自行終止以節省 CPU；但由於我們使用的是無根 (rootless) 容器（這是 podman 首選的執行方式），我們需要表明該使用者具備權限，讓使用者鎖定的服務在其工作階段結束後仍能繼續執行。
+
+```bash filename="使用 loginctl 為當前使用者啟用 linger"
+loginctl enable-linger $(whoami)
+```
+
+接著，使用文字編輯器在您的 `home` 目錄下某處建立一個腳本。我們將該腳本命名為 `./install.sh`。
+
+```bash filename="./install.sh"
+#!/bin/bash
+# 將 podman 容器安裝為 systemd 容器
+set -e
+name="$1";
+podman generate systemd --name "$name" > ~/.config/systemd/user/container-$name.service
+systemctl --user enable --now container-$name;
+```
+
+儲存後，將腳本設定為具備執行權限：
+
+```bash filename="使安裝腳本具備執行權限"
+chmod +x ./install.sh
+```
+
+假設我們先前沒有在執行那些 LibreChat 容器，我們可以使用下列指令為每個容器啟用開機自動啟動服務：
+
+```bash filename="安裝 LibreChat MongoDB"
+./install.sh librechat-mongodb 
+```
+
+```bash filename="安裝 LibreChat Meilisearch"
+./install.sh librechat-meilisearch 
+```
+
+```bash filename="安裝 LibreChat 應用程式"
+./install.sh librechat 
+```
+
+（假設一切操作正確）容器現在將透過 systemd 層而非 podman 層執行。這代表服務會在開機時載入，但也代表管理這些容器會變得更偏向手動操作，需要直接與 systemd 互動而非 podman。
+
+例如，您不再執行 `podman stop {name}`，而是執行 `systemctl --user stop container-{name}` 來進行維護（如更新或備份）。同樣地，若需要再次啟動服務，只需執行 `systemctl --user start container-{name}`。若想使用自動開機啟動功能，直接使用 podman 操作受控容器可能會導致 systemd 的容錯機制出現問題，因為它在受到干擾時無法正確反映容器狀態。
+
+## 備份磁碟卷容器 (僅限 Podman)
+
+上述 Podman 容器使用具名磁碟卷 (named volumes) 來持久保存數據，這代表我們無法簡單地將檔案從一處複製到另一處。但這也有其優點。在 Podman 中，我們可以簡單地將磁碟卷備份為磁帶封存格式 (tarball)。若要執行此操作，請執行下列指令：
+
+> 建議您在執行這些指令前先停止容器。
+
+```bash filename="備份 LibreChat Meilisearch 數據"
+podman volume export librechat-meilisearch-data --output "librechat-meilisearch-backup-$(date +"%d-%m-%Y").tar"
+```
+
+```bash filename="備份 LibreChat MongoDB 數據"
+podman volume export librechat-mongodb-data --output "librechat-mongodb-backup-$(date +"%d-%m-%Y").tar"
+```
+
+這會產生存檔檔案，您可以根據需求進行處理，包括在需要時將磁碟卷還原到先前的狀態。請參閱 **[Podman 官方文檔](https://docs.podman.io/en/latest/markdown/podman-volume-import.1.html)** 以瞭解如何執行此操作。
+
+## 更新 LibreChat
+
+LibreChat 仍處於開發階段，因此目前依賴發布的映像並非非常可行。相反地，使用 git 進行更新會更容易。LibreChat 的數據持久性是在主容器之外管理的，因此執行就地更新 (in-place update) 相當簡單。
+
+在包含 LibreChat 儲存庫的父目錄中：
+
+```bash filename="更新 Git 儲存庫"
+(cd LibreChat && git pull)
+```
+
+```bash filename="停止 Systemd 服務"
+systemctl --user stop container-librechat
+```
+
+```bash filename="移除 LibreChat 容器"
+podman rm -f librechat
+```
+
+```bash filename="刪除本地映像"
+podman rmi -f librechat:local
+```
+
+```bash filename="重新建置 LibreChat 映像"
+podman build --tag "librechat:local" --file ./LibreChat/Dockerfile
+```
+
+```bash filename="重新建立 LibreChat 容器"
+podman run --name="librechat" --network=librechat --env-file="./.env" -p 3080:3080 --detach librechat:local
+```
+
+```bash filename="停止容器後重啟 Systemd 服務"
+podman stop librechat && systemctl --user start container-librechat
+```
+
+---
+
+## 在 Podman 設定中整合配置檔案
+
+使用 Podman 設定 LibreChat 時，您也可以整合 [`librechat.yaml` 配置檔案](/docs/configuration/librechat_yaml_zh_TW)。
+
+此檔案讓您可以定義特定設定與 AI 終端（例如 Mistral AI），從而根據您的需求量身打造應用程式。
+
+按照先前步驟建立好 `.env` 檔案後，請遵循下列說明來整合 `librechat.yaml` 配置：
+
+1. 將您的 `librechat.yaml` 檔案放置於專案根目錄。
+2. 修改 LibreChat 容器的 Podman run 指令，加入一個磁碟卷參數，將 `librechat.yaml` 檔案映射至容器內部。您可以透過在 Podman run 指令中加入下列這一行來實現：
+
+  ```bash filename="指定 Docker 磁碟卷映射"
+  -v "./librechat.yaml:/app/librechat.yaml"
+  ```
+
+例如，修改後用於啟動 LibreChat 的 Podman run 指令將看起來如下所示：
+
+（由於我先前提供的是拆分的指令，此處可能產生誤解。為了整合成單一指令，我會將所有元素合併到同一個指令塊中：）
+
+```bash filename="使用特定配置執行 Docker 容器"
+docker run --name="librechat" --network=librechat --env-file="./.env" -p 3080:3080 --detach librechat:local
+```
+
+透過將 `librechat.yaml` 檔案映射至容器內，Podman 可確保您的自定義配置被套用至 LibreChat，進而實現客製化的 AI 體驗。
+
+請確保 `librechat.yaml` 檔案格式正確且包含有效的設定。
+
+此檔案中的任何錯誤都可能影響 LibreChat 的功能。如需更多關於配置 `librechat.yaml` 的資訊，請參閱 [自定義終端與配置](/docs/configuration/librechat_yaml_zh_TW)。

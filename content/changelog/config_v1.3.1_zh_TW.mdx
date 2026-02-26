@@ -1,0 +1,82 @@
+---
+date: 2025-11-24
+title: ⚙️ 配置版本 v1.3.1
+version: "1.3.1"
+---
+
+- 在 `memory` 配置中新增了 `charLimit`
+  - 限制使用者建立記憶體的最大字元長度。
+  - 預設值為 `10000` 個字元。
+  - 防止過大的記憶體負載影響效能。
+  - 詳情請參閱 [記憶配置](/docs/configuration/librechat_yaml/object_structure/memory_zh_TW#charlimit)。
+
+- 新增了 `interface.peoplePicker` 配置，用以控制使用者/群組/角色的選取控制項
+  - 新增了 `users` 設定來控制使用者搜尋（預設：`true`）。
+  - 新增了 `groups` 設定來控制群組搜尋（預設：`true`）。
+  - 新增了 `roles` 設定來控制角色搜尋（預設：`true`）。
+  - 實現對分享資源（智慧體/提示詞）時誰能搜尋並檢視使用者/群組/角色的細粒度控制。
+  - 人員選擇器的存取控制透過權限系統進行管理。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#peoplepicker)。
+
+- 新增了 `interface.marketplace` 配置，用以控制智慧體市集的存取
+  - 新增了 `use` 設定來啟用/停用市集存取（預設：`false`）。
+  - 控制智慧體市集功能的可見性與存取權限。
+  - 存取控制透過權限系統進行管理。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#marketplace)。
+
+- 新增了 `fileStrategies`，用於細粒度的檔案儲存配置
+  - 允許針對不同檔案類型使用不同的儲存策略。
+  - 新增了 `default` 設定，作為備援儲存策略。
+  - 新增了 `avatar` 設定，用於使用者/智慧體頭像圖片儲存。
+  - 新增了 `image` 設定，用於聊天中上傳的圖片儲存。
+  - 新增了 `document` 設定，用於文件上傳（PDF、文字檔等）。
+  - 支援混合儲存策略（例如：頭像用 S3，文件用本地儲存）。
+  - 可用策略：`"local"`, `"s3"`, `"firebase"`, `"azure_blob"`。
+  - 向下相容現有的 `fileStrategy`（所有檔案使用單一策略）。
+  - 詳情請參閱 [檔案策略配置](/docs/configuration/librechat_yaml/object_structure/config_zh_TW#filestrategies)。
+
+- 將 `webSearch.scraperType` 重新命名為 `webSearch.scraperProvider`
+  - 更改配置欄位名稱以與其他供應商命名慣例保持一致。
+  - 詳情請參閱 [網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW#scraperprovider)。
+- 新增了 `webSearch.firecrawlVersion` 以指定 Firecrawl API 版本
+  - 允許配置 Firecrawl API 版本（v0 或 v1）。
+  - 預設：使用環境變數 `${FIRECRAWL_VERSION}`。
+  - 詳情請參閱 [網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW#firecrawlversion)。
+
+- 新增了 `CONVERSATION_IMPORT_MAX_FILE_SIZE_BYTES` 環境變數
+  - 以位元組 (bytes) 為單位，限制對話匯入的最大檔案大小。
+  - 防止因過大的匯入檔案導致記憶體耗盡。
+  - 預設值：`0`（未設定時不強制限制）。
+  - 範例：`262144000` (250 MiB)。
+  - 詳情請參閱 [環境變數](/docs/configuration/dotenv_zh_TW#conversation_import_max_file_size_bytes)。
+
+- 在 modelSpecs 配置中新增了選填的 `group` 欄位
+  - 在 UI 選擇器中透過靈活的分組選項來組織模型規範。
+  - 根據 `group` 數值提供三種行為：
+    - 若 `group` 匹配終端名稱（例如："openAI"、"groq"），規範會嵌套在該終端下方。
+    - 若 `group` 為自定義名稱（不匹配任何終端），則會建立一個獨立的可摺疊區段。
+    - 若省略 `group`，規範將作為獨立項目顯示在頂層。
+  - 詳情請參閱 [模型規範](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#group)。
+
+- 移除了 `SERPAPI_API_KEY` 相關文檔
+  - 不再支援 SerpAPI 整合。
+  - 詳情請參閱 [環境變數](/docs/configuration/dotenv_zh_TW)。
+
+- 新增了 `MCP_SKIP_CODE_CHALLENGE_CHECK` 環境變數
+  - 跳過 MCP OAuth 流程中的代碼挑戰 (code challenge) 方法驗證。
+  - 預設值：`false`。
+  - 詳情請參閱 [MCP 伺服器配置](/docs/configuration/dotenv_zh_TW#mcp-伺服器配置)。
+
+- 為多實例部署新增了領導者選舉 (Leader Election) 配置
+  - 新增了 `LEADER_LEASE_DURATION` —— 領導者租約有效的秒數（預設：25）。
+  - 新增了 `LEADER_RENEW_INTERVAL` —— 領導者續約租約的秒數間隔（預設：10）。
+  - 新增了 `LEADER_RENEW_ATTEMPTS` —— 續約租約失敗時的最大重試次數（預設：3）。
+  - 新增了 `LEADER_RENEW_RETRY_DELAY` —— 重試次數之間的秒數延遲（預設：0.5）。
+  - 需要啟用 Redis (`USE_REDIS=true`)。
+  - 確保僅有一個實例執行排程任務等操作。
+  - 詳情請參閱 [領導者選舉配置](/docs/configuration/dotenv_zh_TW#領導者選舉配置)。
+
+- 更新了 `FORCED_IN_MEMORY_CACHE_NAMESPACES` 範例
+  - 從範例值中移除了 `STATIC_CONFIG`（已棄用的快取鍵）。
+  - 更新範例使用 `ROLES,MESSAGES` 作為推薦預設值。
+  - 詳情請參閱 [Redis 配置](/docs/configuration/redis_zh_TW#選擇性記憶體快取)。

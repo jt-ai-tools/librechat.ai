@@ -1,0 +1,18 @@
+---
+date: 2025-08-26
+title: ⚙️ 配置版本 v1.2.9
+version: "1.2.9"
+---
+
+- 為智慧體終端新增了檔案引用 (file citation) 配置
+  - `maxCitations` —— 智慧體回應中的最大總引用數（1-50，預設：30）。
+  - `maxCitationsPerFile` —— 每個檔案的最大引用數（1-10，預設：7）。
+  - `minRelevanceScore` —— 最低相關性評分閾值（0.0-1.0，預設：0.45）。
+  - 對檔案搜尋引用的品質與數量提供細粒度控制。
+  - 詳情請參閱 [智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)。
+
+- 在介面配置中新增了 `fileCitations`
+  - 作為 `FILE_CITATIONS` 權限的全域切換開關。
+  - 停用時，不論個別使用者的權限為何，所有使用者都將無法看到檔案引用。
+  - 預設為啟用，允許檔案搜尋結果包含來源引用。
+  - 詳情請參閱 [介面配置 - fileCitations](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#filecitations)。

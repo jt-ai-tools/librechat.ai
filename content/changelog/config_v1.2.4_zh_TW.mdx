@@ -1,0 +1,40 @@
+---
+date: 2025-04-01
+title: ⚙️ 配置版本 v1.2.4
+version: "1.2.4"
+---
+
+- 在 [智慧體](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW) 中新增了 `allowedProviders`。
+  - 允許管理員指定可以與智慧體功能搭配使用的終端供應商清單（例如：`openAI`、`anthropic`、`google`）。
+  - 若有定義，則僅能初始化配置了這些供應商的智慧體。
+  - 這對與智慧體功能搭配使用的供應商提供了更好的控制，增強了安全性與合規性。
+---
+- 在 [模型規範](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW) 中實作了 `addedEndpoints`。
+  - **`modelSpecs.addedEndpoints`**：即使定義並優先採用了 `modelSpecs`，仍能在 UI 中選取特定的終端（例如：`openAI`、`google`）。這讓使用者能在特定規範之外選擇標準模型。需要 `interface.modelSelect` 為 `true`。詳見 [模型規範文檔](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#addedendpoints)。
+  - 若提供了 `modelSpecs.addedEndpoints`，而未明確設定 `interface.modelSelect`，則後者將預設為 `true`，以確保模型選擇下拉選單可見。
+---
+- 在 [MCP 伺服器](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW) 中新增了 `timeout`。
+  - 控制等待來自 MCP 伺服器工具請求回應的時間（以毫秒為單位）。
+  - 對於 MCP 伺服器請求行為提供了更好的控制。
+  - 允許根據不同 MCP 伺服器的預期回應時間來調整超時設定。
+---
+- 在 [MCP 伺服器](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW) 中新增了 `initTimeout`。
+  - 控制等待 MCP 伺服器初始化的時間（以毫秒為單位）。
+  - 允許為啟動時間較長的伺服器配置初始化超時時間。
+  - 有助於針對特定環境與使用案例進行效能微調。
+---
+- 實作了 [餘額配置](/docs/configuration/librechat_yaml/object_structure/balance_zh_TW)。
+  - 將 `enabled` 設定為 `true` 以檢查使用者餘額；取代了 `CHECK_BALANCE` 環境變數。
+  - 將 `startBalance` 設定為所需的初始餘額；取代了 `START_BALANCE` 環境變數。
+  - 新增了 `autoRefillEnabled` 用以啟用使用者的自動代幣充值功能。
+  - 新增了 `refillIntervalValue` 用以指定充值間隔的數值。
+  - 新增了 `refillIntervalUnit` 用以指定充值間隔的時間單位（秒、分、時、天、週、月）。
+  - 新增了 `refillAmount` 用以指定每次充值增加的代幣數量。
+  - 改進了餘額同步機制，確保使用者設定與全域配置一致。
+  - 為管理員提供了對代幣使用與使用者餘額管理的更多主導權。
+  - 詳情請參閱 [代幣使用指南](/docs/configuration/token_usage_zh_TW)。
+---
+- 棄用了 [介面設定](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#endpointsmenu) 中的 `interface.endpointsMenu`。
+  - 此設定將在未來版本中移除。
+  - 請改用 `interface.modelSelect` 來控制終端/模型選單的可見性。
+  - 若您在使用模型規範時想限制可用的終端，請配置 [`modelSpecs.addedEndpoints`](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#addedendpoints) 設定。

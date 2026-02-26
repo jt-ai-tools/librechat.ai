@@ -1,0 +1,20 @@
+---
+date: 2025-05-08
+title: ⚙️ 配置版本 v1.2.6
+version: "1.2.6"
+---
+
+- 新增了 `webSearch` 配置，用以控制網頁搜尋功能。
+  - 配置搜尋供應商（Serper, SearXNG）、爬蟲（Firecrawl, Serper）與重新排序器（Jina, Cohere）。
+  - 允許為每項服務自定義 API 金鑰與終端。
+  - 預設啟用安全搜尋模式。
+  - 詳情請參閱 [網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW)。
+
+- 在 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW) 中新增了 `webSearch` 切換開關。
+  - 設定為 `false` 時，將停用聊天介面中的網頁搜尋按鈕。
+  - 預設值為 `true`（網頁搜尋按鈕可見）。
+
+- 在 [智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW) 中新增了 `web_search` 能力。
+  - 為智慧體啟用網頁搜尋功能。
+  - 在預設能力清單中為啟用狀態。
+  - 可透過從能力陣列中移除該項來停用。

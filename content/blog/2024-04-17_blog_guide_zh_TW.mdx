@@ -1,0 +1,158 @@
+---
+title: 貢獻部落格指南
+date: 2024-05-31
+description: '想與社群分享您的見解與知識嗎？透過這份逐步指南，學習如何為我們的部落格做出貢獻！'
+tags:
+  - blog
+  - contributing
+  - guide
+author: fuegovic
+ogImage: /images/blog/2024-04-17_blog_guide.png
+category: guide
+---
+
+
+
+# 歡迎各位未來的部落格貢獻者！ 🙌
+
+您是否渴望與我們充滿活力的社群分享您的專業知識與見解？貢獻部落格是實現這一目標的絕佳方式！在這份適合初學者的指南中，我們將引導您完成建立首篇部落格文章的過程，讓您在我們的平台上留下印記。讓我們開始吧！ 🌟
+
+## 在開始之前
+
+在開始之前，您需要分叉 (fork) 並複製 (clone) 網站儲存庫，位址為：https://github.com/LibreChat-AI/librechat.ai
+
+<Callout type="note" title="詳細說明" collapsible>
+
+請仔細遵循下列說明以確保順利開始：
+
+1. **分叉儲存庫 (Fork the Repository)**： 
+    - 導覽至 [LibreChat-AI GitHub 儲存庫](https://github.com/LibreChat-AI/librechat.ai)。
+    - 點擊頁面右上角的 「Fork」 按鈕，在您的 GitHub 帳號下建立一份儲存庫副本。
+
+2. **複製儲存庫 (Clone the Repository)**：
+    - 分叉儲存庫後，將其複製到您的本地機器。開啟終端機並執行下列指令，將 `<您的使用者名稱>` 替換為您的實際 GitHub 使用者名稱：
+      ```sh
+      git clone https://github.com/<您的使用者名稱>/librechat.ai.git
+      ```
+    - 這將在您的電腦上建立一份儲存庫的本地副本。進入專案目錄：
+      ```sh
+      cd librechat.ai
+      ```
+
+3. **設定上游遠端 (Set Upstream Remote)**：
+    - 為了讓您的分叉儲存庫與原始儲存庫保持同步，您需要將原始儲存庫設定為上游遠端。執行下列指令：
+      ```sh
+      git remote add upstream https://github.com/LibreChat-AI/librechat.ai.git
+      git fetch upstream
+      ```
+
+4. **建立新分支 (Create a New Branch)**：
+    - 最佳實踐是為您的部落格文章建立一個新分支，以保持工作井然有序並與主分支 (main) 分開。您可以使用下列指令建立並切換至新分支：
+      ```sh
+      git checkout -b 您的分支名稱
+      ```
+    - 將 `您的分支名稱` 替換為具描述性的名稱，例如 `add-new-post`。
+
+5. **安裝依賴項目**：
+    - 執行下列指令安裝依賴項目：
+      ```sh
+      pnpm install
+      ```
+    - 確保您的機器已安裝 Node.js 與 `pnpm`（一個快速且節省磁碟空間的套件管理器）。如果您尚未安裝 pnpm，可以使用 npm 全域安裝：
+      ```sh
+      npm install -g pnpm
+      ```
+
+</Callout>
+
+<Callout type="tip" title="資源">
+關於我們的文檔結構與支援語法的更多通用資訊，請參閱我們的 [貢獻文檔](/docs/documentation_zh_TW) 指南。
+</Callout>
+
+## 第一步：設定您的作者簡介 👤
+
+在開始撰寫部落格文章前，您需要建立一個作者簡介。這有助於讀者瞭解內容背後的原創者。步驟如下：
+
+1. 在 `pages/authors` 目錄中建立一個新檔案，格式為 `作者ID.mdx`。
+2. 將您的大頭照加入 `public/images/people` 資料夾。
+3. 在模板中填入您的詳細資訊，包括姓名、簡介與社群媒體連結。
+
+<Callout title="偏好保持匿名？">
+  沒問題！如果您不想建立個人簡介，可以在部落格文章的元數據中加入 `authorid: anon` 來使用 「anon」 (匿名) 簡介。
+</Callout>
+
+```mdx filename="作者ID.mdx"
+---
+title: 您的姓名 簡介
+authorid: 您的-作者ID
+subtitle: 職稱或簡短描述
+name: 您的姓名
+bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla litora ridiculus magna et etiam mi. Dolor etiam id elit morbi ipsum mauris. Non dapibus urna platea elementum fusce vulputate.
+ogImage: '/images/people/您的圖片.png'
+socials:
+  GitHub: https://github.librechat.ai
+  LinkedIn: https://linkedin.librechat.ai/
+  X: https://x.com/LibreChatAI
+  Discord: https://discord.librechat.ai
+---
+
+import AuthorProfile from '@/components/Author/AuthorProfile'
+
+<AuthorProfile authorId="您的-作者ID" />
+```
+
+## 第二步：撰寫您的部落格文章 ✍️
+
+現在，是展現創意的時候了！我們使用 MDX 撰寫部落格文章，這讓您可以無縫地融合 Markdown 與 JSX。這代表您可以透過匯入圖表與提醒框等組件來建立具互動性且吸引人的內容。
+
+建立部落格文章的步驟：
+
+1. 將您的文章放置於 `pages/blog` 目錄，命名慣例為 `yyyy-mm-dd_簡短標題.mdx`。
+2. 將縮圖加入 `public/images/blog` 資料夾，並使用與部落格文章檔案相同的名稱。
+3. 在文件中包含必要的元數據 (metadata) 與標頭，如範例所示。
+4. 盡情發揮您的想法與創意吧！ 🎉
+
+```mdx filename="元數據與標頭"
+---
+
+title: 您的精彩標題
+date: 2024/01/01
+description: "部落格文章的簡短描述"
+tags: 
+  - 標籤1 
+  - 標籤2
+authorid: 您的-作者ID
+ogImage: /images/blog/2024-01-01_您的精彩標題.png
+
+---
+
+
+# 標題 
+Lorem ipsum...
+```
+
+<Callout title="需要靈感？">
+  查看 `pages/blog` 中現有的部落格文章，參考它們的格式範例。
+</Callout>
+
+## 第三步：測試並提交您的文章 🚀
+
+在提交部落格文章前，確保一切完美呈現至關重要。請花點時間檢閱您的作者簡介、部落格首頁以及文章本身。
+
+測試您的變更：
+
+1. 執行 `pnpm install` 準備環境。
+2. 執行 `pnpm dev` 啟動開發伺服器。
+3. 使用 `pnpm build` 與 `pnpm start` 建置並預覽專案。
+
+<Callout type="note" title="測試">
+  提交前，請確保部落格文章中的所有連結、圖片與嵌入組件均能正常運作。
+</Callout>
+
+一旦您確定一切就緒，請提交拉取請求 (pull request)，我們的團隊將會審核您的貢獻。我們迫不及待想看到您的創作！ 😊
+
+## 準備好留下您的印記了嗎？ 🎨
+
+貢獻部落格是一個展示您的知識、與社群互動並產生深遠影響的絕佳機會。遵循此指南，您將順利成為我們受重視的貢獻者。
+
+還在等什麼？拿起您的鍵盤，讓靈感湧現，加入我們，一起創造能傳遞資訊、啟發靈感並建立連結的內容。我們非常期待您的加入！ 🚀✨
