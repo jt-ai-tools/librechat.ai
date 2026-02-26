@@ -1,0 +1,57 @@
+---
+date: 2023-08-09
+title: 🚀 LibreChat v0.5.7
+description: 多項 UI 優化，以及更多...
+version: "0.5.7"
+---
+
+# 更新內容
+
+## ✨ 新功能
+
+- 設定與預設設定 (Settings/Presets) UI 重構，並將多個檔案轉換為 TS，由 [@danny-avila](https://github.com/danny-avila) 於 [#740](https://github.com/danny-avila/LibreChat/pull/740) 提交。
+  - **此版本包含多項 UI 優化**（變更了超過 200 個檔案），具體變更請見 PR 內容。
+    - 整體而言，UI 變得更簡潔，且更貼近官方網站的基礎風格。
+    - 針對各類螢幕尺寸的對話框/彈出視窗進行了特別處理，效能較以往有顯著提升。
+    - 開發者體驗也獲得極大改善，除了類型安全外，終端設定現在變得非常模組化，讓現有代碼更易於管理，也讓未來整合新終端更加輕鬆。
+  - 大部分前端 JS 檔案已轉換為 TS，僅剩最後幾十個檔案，本專案即將全面進入 TypeScript 時代！
+- 導覽列切換動畫對齊官方網站，由 [@danny-avila](https://github.com/danny-avila) 於 [#755](https://github.com/danny-avila/LibreChat/pull/755) 提交。
+- 捲動行為與按鈕樣式更貼近官方網站風格，由 [@danny-avila](https://github.com/danny-avila) 於 [#761](https://github.com/danny-avila/LibreChat/pull/761) 提交。
+- 支援透過電子郵件進行密碼重設，由 [@danorlando](https://github.com/danorlando) 於 [#730](https://github.com/danny-avila/LibreChat/pull/730) 提交。
+- 在設定中新增下拉選單以切換語言，由 [@NoahDragon](https://github.com/NoahDragon) 於 [#726](https://github.com/danny-avila/LibreChat/pull/726) 提交。
+- 在導覽列中新增搜尋列，由 [@techwithanirudh](https://github.com/techwithanirudh) 於 [#760](https://github.com/danny-avila/LibreChat/pull/760) 提交。
+
+## 🌐 國際化
+
+- 德語翻譯，由 [@XHyperDEVX](https://github.com/XHyperDEVX) 於 [#772](https://github.com/danny-avila/LibreChat/pull/772) 提交。
+- 法語翻譯，由 [@fuegovic](https://github.com/fuegovic) 於 [#778](https://github.com/danny-avila/LibreChat/pull/778) 提交。
+
+## 🔧 臭蟲修復
+
+- 修正 Translation.tsx 中的語法錯誤，由 [@Berry-13](https://github.com/Berry-13) 於 [#731](https://github.com/danny-avila/LibreChat/pull/731) 提交。
+- 允許在 openIdStrategy 中設定使用者名稱，由 [@AndrejG82](https://github.com/AndrejG82) 於 [#744](https://github.com/danny-avila/LibreChat/pull/744) 提交。
+- 修正重大重構後出現的問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#757](https://github.com/danny-avila/LibreChat/pull/757)、[#764](https://github.com/danny-avila/LibreChat/pull/764)、[#765](https://github.com/danny-avila/LibreChat/pull/765) 與 [#766](https://github.com/danny-avila/LibreChat/pull/766) 提交。
+
+## :memo: 文檔
+
+- 關於如何新增語言的指南，由 [@Berry-13](https://github.com/Berry-13) 於 [#732](https://github.com/danny-avila/LibreChat/pull/732) 提交。
+- 關於如何為密碼重設功能設定電子郵件服務的指南，由 [@Berry-13](https://github.com/Berry-13) 於 [#737](https://github.com/danny-avila/LibreChat/pull/737) 提交。
+- 在雲端部署指南中加入 Azure 說明（Terraform），由 [@thunderbug1](https://github.com/thunderbug1) 於 [#738](https://github.com/danny-avila/LibreChat/pull/738) 提交。
+- 通用文檔更新，由 [@fuegovic](https://github.com/fuegovic) 於 [#781](https://github.com/danny-avila/LibreChat/pull/781) 提交。
+
+## ⚙️ 其他變動
+
+- 採用類型定義的最佳實踐，由 [@danorlando](https://github.com/danorlando) 於 [#763](https://github.com/danny-avila/LibreChat/pull/763) 提交。
+- 使用 zod 以獲得更好的類型安全性，由 [@danny-avila](https://github.com/danny-avila) 於 [#761](https://github.com/danny-avila/LibreChat/pull/761) 提交。
+- 更新 index.html，將 「ChatGPT Clone」 替換為 「LibreChat」，由 [@fuegovic](https://github.com/fuegovic) 於 [#724](https://github.com/danny-avila/LibreChat/pull/724) 提交。
+- chore: 將 data-provider 重新加回 monorepo，由 [@danny-avila](https://github.com/danny-avila) 於 [#728](https://github.com/danny-avila/LibreChat/pull/728) 提交。
+- 外掛程式：移除初始的 「I'm thinking」 步驟，使外掛程式的使用顯得更智慧與流暢，由 [@danny-avila](https://github.com/danny-avila) 於 [#729](https://github.com/danny-avila/LibreChat/pull/729) 提交。
+- 新增整合工作流，協助偵測全域的重大變更，由 [@danny-avila](https://github.com/danny-avila) 於 [#771](https://github.com/danny-avila/LibreChat/pull/771) 提交。
+- 解決多項前端建置時會出現的 Vite 警告，由 [@danny-avila](https://github.com/danny-avila) 於 [#779](https://github.com/danny-avila/LibreChat/pull/779) 提交。
+
+## 新貢獻者
+
+- [@AndrejG82](https://github.com/AndrejG82) 於 [#744](https://github.com/danny-avila/LibreChat/pull/744) 提交了其首份貢獻
+- [@XHyperDEVX](https://github.com/XHyperDEVX) 於 [#772](https://github.com/danny-avila/LibreChat/pull/772) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.5.6...v0.5.7

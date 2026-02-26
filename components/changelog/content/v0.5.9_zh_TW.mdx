@@ -1,0 +1,83 @@
+---
+date: 2023-09-18
+title: 🚀 LibreChat v0.5.9
+description: 重新整理權杖、自動審核系統，以及更多...
+version: "0.5.9"
+---
+
+# 更新內容
+
+- **更新方式：** 在專案目錄下執行 `npm run update` 進行全新安裝。
+  - **先決條件：** 已安裝 git 與 npm。
+  - **推薦操作：** 清除瀏覽器的 localStorage 與 cookies。
+
+### ⚠️ 重大變更
+
+根據 [#927](https://github.com/danny-avila/LibreChat/pull/927)，現在必須在您的 .env 檔案中設定 **JWT_REFRESH_SECRET**。
+
+> 同時建議您將 `SESSION_EXPIRY` 設定為較小的值，並設定 `REFRESH_TOKEN_EXPIRY`。
+> 預設值：工作階段過期時間：15 分鐘，重新整理權杖過期時間：7 天。
+> _請參閱 **[.env.example](https://github.com/danny-avila/LibreChat/blob/1378eb5097b666a4add27923e47be73919957e5b/.env.example#L314)** 以獲取毫秒計算的精確數值。_
+
+## 🛠️ 新功能
+
+- 🛡️ 實作重新整理權杖 (Refresh Token) 以提升工作階段安全性，由 [@bsu3338](https://github.com/bsu3338) 與 [@danny-avila](https://github.com/danny-avila) 於 [#927](https://github.com/danny-avila/LibreChat/pull/927) 提交
+- 🛡️ 實作訊息速率限制器、違規日誌紀錄與封鎖系統 🔨，由 [@danny-avila](https://github.com/danny-avila) 於 [#903](https://github.com/danny-avila/LibreChat/pull/903) 提交
+- 🛡️ 強化 AI 訊息渲染安全性以防止 XSS 攻擊，由 [@danny-avila](https://github.com/danny-avila) 於 [#893](https://github.com/danny-avila/LibreChat/pull/893) 提交
+- 🛡️ 支援加密使用者提供的金鑰、設定過期時間與速率限制，由 [@danny-avila](https://github.com/danny-avila) 於 [#874](https://github.com/danny-avila/LibreChat/pull/874) 提交
+- 支援 OpenRouter 並優化模型獲取邏輯 ⇆，由 [@danny-avila](https://github.com/danny-avila) 於 [#936](https://github.com/danny-avila/LibreChat/pull/936) 提交
+- 為對話刪除按鈕新增確認對話框，由 [@Berry-13](https://github.com/Berry-13) 於 [#875](https://github.com/danny-avila/LibreChat/pull/875) 提交
+- 支援 Bun 執行環境 🥟，由 [@danny-avila](https://github.com/danny-avila) 於 [#907](https://github.com/danny-avila/LibreChat/pull/907) 提交
+- 新增用於識別聊天類型的圖標，由 [@Berry-13](https://github.com/Berry-13) 於 [#879](https://github.com/danny-avila/LibreChat/pull/879) 提交
+- 新增 CodeBrew 外掛程式，由 [@Falven](https://github.com/Falven) 於 [#931](https://github.com/danny-avila/LibreChat/pull/931) 提交
+- 支援自動偵測瀏覽器語言，由 [@Berry-13](https://github.com/Berry-13) 於 [#947](https://github.com/danny-avila/LibreChat/pull/947) 提交
+
+## 🌐 國際化
+
+- 更新 Zh.tsx (簡體中文)，由 [@yuanmu0814](https://github.com/yuanmu0814) 於 [#862](https://github.com/danny-avila/LibreChat/pull/862) 提交
+- 新增使用者提供金鑰與數據控制功能的義大利語翻譯，由 [@Berry-13](https://github.com/Berry-13) 於 [#886](https://github.com/danny-avila/LibreChat/pull/886) 提交
+- 更新葡萄牙語與西班牙語翻譯，由 [@itzraiss](https://github.com/itzraiss) 於多個 PR 提交
+- 新增日語翻譯，由 [@forestsource](https://github.com/forestsource) 於 [#895](https://github.com/danny-avila/LibreChat/pull/895) 提交
+- 新增瑞典語翻譯，由 [@yoHasse](https://github.com/yoHasse) 於 [#940](https://github.com/danny-avila/LibreChat/pull/940) 提交
+
+## 🔧 臭蟲修復
+
+- 匹配 OpenAI 的代幣計數策略 🪙，由 [@danny-avila](https://github.com/danny-avila) 於 [#945](https://github.com/danny-avila/LibreChat/pull/945) 提交
+- 新增更多翻譯文本並修復微小 UI 問題，由 [@Berry-13](https://github.com/Berry-13) 於 [#861](https://github.com/danny-avila/LibreChat/pull/861) 提交
+- 修正 Docker 安裝指南中失效的連結，由 [@finnless](https://github.com/finnless) 於 [#877](https://github.com/danny-avila/LibreChat/pull/877) 提交
+- 修正文檔中多個失效的 Docker_compose_install.md 連結，由 [@GovernmentPlates](https://github.com/GovernmentPlates) 於 [#882](https://github.com/danny-avila/LibreChat/pull/882) 提交
+- 優化 Devcontainer 映像與網路設定，由 [@finnless](https://github.com/finnless) 於 [#891](https://github.com/danny-avila/LibreChat/pull/891) 提交
+- 修正已中斷訊息未儲存的問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#894](https://github.com/danny-avila/LibreChat/pull/894) 提交
+- 修正翻譯中重複鍵值的錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#906](https://github.com/danny-avila/LibreChat/pull/906) 提交
+- 修正 create-user 腳本的模組解析問題 👤，由 [@danny-avila](https://github.com/danny-avila) 於 [#935](https://github.com/danny-avila/LibreChat/pull/935) 提交
+- Payload 僅包含 API 參考定義的欄位，由 [@danny-avila](https://github.com/danny-avila) 於 [#933](https://github.com/danny-avila/LibreChat/pull/933) 與 [#938](https://github.com/danny-avila/LibreChat/pull/938) 提交
+- 使用者名稱支援拉丁語系特殊字元，由 [@danny-avila](https://github.com/danny-avila) 於 [#969](https://github.com/danny-avila/LibreChat/pull/969) 提交
+
+## :memo: 文檔
+
+- 修正 Make_your_own.md 在 Mkdocs 中的格式問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#855](https://github.com/danny-avila/LibreChat/pull/855) 提交
+- 實作 Hugging Face 部署文檔，由 [@fuegovic](https://github.com/fuegovic) 於 [#867](https://github.com/danny-avila/LibreChat/pull/867) 提交
+- 更新免費 API 文檔，由 [@Berry-13](https://github.com/Berry-13) 於 [#902](https://github.com/danny-avila/LibreChat/pull/902) 提交
+- 更新 Huggingface.md 文檔，由 [@fuegovic](https://github.com/fuegovic) 於 [#942](https://github.com/danny-avila/LibreChat/pull/942) 提交
+
+## ⚙️ 其他變動
+
+- 強化資料庫架構/控制器並改進 E2E 測試，由 [@danny-avila](https://github.com/danny-avila) 於 [#966](https://github.com/danny-avila/LibreChat/pull/966) 提交
+- 在用戶端隱藏 Source Map，由 [@danny-avila](https://github.com/danny-avila) 於 [#905](https://github.com/danny-avila/LibreChat/pull/905) 提交
+- 更新安裝腳本，由 [@fuegovic](https://github.com/fuegovic) 於 [#858](https://github.com/danny-avila/LibreChat/pull/858) 提交
+- 升級套件並解決 Langchain 的同級依賴問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#883](https://github.com/danny-avila/LibreChat/pull/883) 提交
+- 為各個工作區新增 Zod 依賴，由 [@danny-avila](https://github.com/danny-avila) 於 [#884](https://github.com/danny-avila/LibreChat/pull/884) 提交
+- 升級 Data-provider，由 [@danny-avila](https://github.com/danny-avila) 於 [#885](https://github.com/danny-avila/LibreChat/pull/885) 提交
+- 整理根目錄檔案 🧹，由 [@danny-avila](https://github.com/danny-avila) 於 [#887](https://github.com/danny-avila/LibreChat/pull/887) 提交
+- 移除未使用的依賴項目 🧹，由 [@danny-avila](https://github.com/danny-avila) 於 [#939](https://github.com/danny-avila/LibreChat/pull/939) 提交
+- 重構 .env.example 檔案，由 [@Berry-13](https://github.com/Berry-13) 於 [#880](https://github.com/danny-avila/LibreChat/pull/880) 提交
+- 在 JestSetup 中初始化封鎖相關的環境變數，由 [@danny-avila](https://github.com/danny-avila) 於 [#937](https://github.com/danny-avila/LibreChat/pull/937) 提交
+
+## 新貢獻者
+
+- [@yuanmu0814](https://github.com/yuanmu0814) 於 [#862](https://github.com/danny-avila/LibreChat/pull/862) 提交了其首份貢獻
+- [@finnless](https://github.com/finnless) 於 [#877](https://github.com/danny-avila/LibreChat/pull/877) 提交了其首份貢獻
+- [@GovernmentPlates](https://github.com/GovernmentPlates) 於 [#882](https://github.com/danny-avila/LibreChat/pull/882) 提交了其首份貢獻
+- [@forestsource](https://github.com/forestsource) 於 [#895](https://github.com/danny-avila/LibreChat/pull/895) 提交了其首份貢獻
+- [@Falven](https://github.com/Falven) 於 [#931](https://github.com/danny-avila/LibreChat/pull/931) 提交了其首份貢獻
+- [@yoHasse](https://github.com/yoHasse) 於 [#940](https://github.com/danny-avila/LibreChat/pull/940) 提交了其首份貢獻

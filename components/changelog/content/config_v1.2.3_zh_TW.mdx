@@ -1,0 +1,23 @@
+---
+date: 2025-03-17
+title: ⚙️ 配置版本 v1.2.3
+version: "1.2.3"
+---
+
+- 在 [智慧體終端](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#maxrecursionlimit) 中新增了 `maxRecursionLimit`。
+  - 設定智慧體在一次執行中可採取的絕對最大步數。
+  - 定義了可從 UI 設定的 `recursionLimit` 上限。
+  - 若省略，則預設為 `recursionLimit` 的值；若 `recursionLimit` 也省略，則預設為 50。
+  - 如需更多關於智慧體步數的資訊，請參閱 [最大智慧體步數](/docs/features/agents_zh_TW#最大智慧體步數)。
+- 更新了 [智慧體終端](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#recursionlimit) 中的 `recursionLimit`。
+  - 現在代表智慧體在一次執行中可採取的預設步數。
+  - 此值可從 UI 配置，最高不超過 `maxRecursionLimit`（若有提供）。
+  - 如需更多關於智慧體步數的資訊，請參閱 [最大智慧體步數](/docs/features/agents_zh_TW#最大智慧體步數)。
+- 在 [智慧體能力](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities) 中新增了 `artifacts`。
+  - 讓智慧體能產生並顯示互動式內容，例如 React 組件、HTML 代碼與 Mermaid 圖表。
+  - 如需更多資訊，請參閱 [Artifacts](/docs/features/artifacts_zh_TW)。
+- 在 [智慧體能力](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities) 中新增了 `chain`。
+  - 針對複雜任務啟用智慧體混合 (Mixture-of-Agents, MoA) 方案。
+  - 允許建立一系列協同工作的專業智慧體鏈。
+  - 鏈中的每個智慧體皆可存取前一個智慧體的輸出。
+  - 如需更多資訊，請參閱 [智慧體鏈](/docs/features/agents_zh_TW#智慧體鏈-agent-chain)。

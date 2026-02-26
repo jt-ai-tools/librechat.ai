@@ -1,0 +1,51 @@
+---
+date: 2023-07-28
+title: 🚀 LibreChat v0.5.6
+description: 更新腳本、BIC、增強型 MongoDB-MeiliSearch 同步...
+version: "0.5.6"
+---
+
+# 更新內容
+
+- 強化 MongoDB-MeiliSearch 同步功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#722](https://github.com/danny-avila/LibreChat/pull/722) 提交。
+- 當未指定 `OPENAI_MODELS` 環境變數時，透過 API 獲取模型清單（適用於 ChimeraGPT），由 [@danny-avila](https://github.com/danny-avila) 提交。
+- 外掛程式支援反向代理，由 [@danny-avila](https://github.com/danny-avila) 於 [#691](https://github.com/danny-avila/LibreChat/pull/691) 提交。
+
+## 🐛 臭蟲修復
+
+- 解決分詞器 (tokenizer) 管理中的空指標異常問題，由 [@ywkim](https://github.com/ywkim) 於 [#689](https://github.com/danny-avila/LibreChat/pull/689) 提交。
+- 修正 Cognito (OpenID) 的 OAuth 問題，由 [@Donavan](https://github.com/Donavan) 於 [#686](https://github.com/danny-avila/LibreChat/pull/686) 提交。
+- 修正 `db/indexSync.js` 中的 TypeError 問題及搜尋分頁問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#722](https://github.com/danny-avila/LibreChat/pull/722) 提交。
+- 修正一般設定中的清除對話臭蟲，由 [@danny-avila](https://github.com/danny-avila) 於 [#710](https://github.com/danny-avila/LibreChat/pull/710) 提交。
+
+## :memo: 文檔
+
+- 在 readme.md 與 mkdocs 中加入 「chatgpt_plugins_openapi.md」，由 [@fuegovic](https://github.com/fuegovic) 於 [#655](https://github.com/danny-avila/LibreChat/pull/655) 提交。
+- 文檔更新，由 [@fuegovic](https://github.com/fuegovic) 於 [#662](https://github.com/danny-avila/LibreChat/pull/662) 提交。
+- 加入免費 AI API (ChimeraGPT) 的安裝指南，由 [@danny-avila](https://github.com/danny-avila) 與 [@Berry-13](https://github.com/Berry-13) 於 [#692](https://github.com/danny-avila/LibreChat/pull/692) 與 [#707](https://github.com/danny-avila/LibreChat/pull/707) 提交。
+- 優化 ngrok 安裝說明並強化 user_auth_system.md，由 [@Berry-13](https://github.com/Berry-13) 於 [#721](https://github.com/danny-avila/LibreChat/pull/721) 提交。
+
+## 🌐 國際化
+
+- 為終端頁面組件新增在地化支援，由 [@NoahDragon](https://github.com/NoahDragon) 於 [#667](https://github.com/danny-avila/LibreChat/pull/667) 提交。
+- 為終端頁面組件新增義大利語在地化支援，由 [@Berry-13](https://github.com/Berry-13) 於 [#687](https://github.com/danny-avila/LibreChat/pull/687) 與 [#697](https://github.com/danny-avila/LibreChat/pull/697) 提交。
+- 導覽 (Nav) 組件支援在地化，由 [@NoahDragon](https://github.com/NoahDragon) 於 [#688](https://github.com/danny-avila/LibreChat/pull/688) 提交。
+- 語言檔案：西班牙語翻譯與葡萄牙語修正，由 [@itzraiss](https://github.com/itzraiss) 於 [#694](https://github.com/danny-avila/LibreChat/pull/694) 提交。
+
+## ⚙️ 其他變動
+
+- 在 UI 中顯示版本號，由 @fuegovic 於 [#704](https://github.com/danny-avila/LibreChat/pull/704) 提交。
+- 改用 async/await 方式提升 Passport 策略處理效能，由 @danny-avila 於 [#682](https://github.com/danny-avila/LibreChat/pull/682) 提交。
+- 在 docker-compose.yml 中為 meilisearch 加入重啟設定，由 @Donavan 於 [#684](https://github.com/danny-avila/LibreChat/pull/684) 提交。
+- 升級 langchain 依賴至版本 0.0.114，由 @danny-avila 於 [#669](https://github.com/danny-avila/LibreChat/pull/669) 提交。
+- 整理快速入門選單，由 @Berry-13 於 [#708](https://github.com/danny-avila/LibreChat/pull/708) 提交。
+- 實作導覽/對話匯入功能，新增 linting 規則，由 @danny-avila 於 [#710](https://github.com/danny-avila/LibreChat/pull/710) 提交。
+- 移除 data-provider 並改用 npm 套件，由 @danny-avila 於 [#713](https://github.com/danny-avila/LibreChat/pull/713) 提交。
+- 更新 promptPrefix/系統訊息的佔位符文字，由 @danny-avila 於 [#656](https://github.com/danny-avila/LibreChat/pull/656) 提交。
+
+## 新貢獻者
+
+- @Donavan 於 [#684](https://github.com/danny-avila/LibreChat/pull/684) 提交了其首份貢獻
+- @itzraiss 於 [#694](https://github.com/danny-avila/LibreChat/pull/694) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.5.5...v0.5.6

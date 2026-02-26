@@ -1,0 +1,16 @@
+---
+date: 2024-04-30
+title: ⚙️ 配置版本 v1.0.8
+version: "1.08"
+---
+
+- 在 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW) 中新增了額外欄位，用以切換特定功能的存取權限：
+    - `endpointsMenu`、`modelSelect`、`parameters`、`sidePanel`、`presets`。
+- 現在確保下列欄位始終具備預設值：
+    - `cache`、`imageOutputType`、`fileStrategy`、`registration`。
+- 新增了 [`modelSpecs`](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW)，用於可配置的 UI 體驗，透過特定的預設設定與工具簡化模型選取。
+- 新增了 [`filteredTools`](/docs/configuration/librechat_yaml/object_structure/config_zh_TW#filteredtools)，無需更改代碼庫即可停用特定的外掛程式/工具。
+    - 同時影響 `gptPlugins` 與 `assistants` 終端。
+- [`iconURL`](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#iconurl) 現在可設定為主要終端之一，以使用專案現有的圖標。
+    - 「openAI」 | 「azureOpenAI」 | 「google」 | 「anthropic」 | 「assistants」 | 「gptPlugins」
+- 現在會紀錄無效的 YAML 格式，以便進行偵錯。

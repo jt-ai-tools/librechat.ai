@@ -1,0 +1,48 @@
+---
+date: 2023-11-16
+title: 🚀 LibreChat v0.6.1
+description: DALL-E-3、自定義頁尾、代幣交易紀錄、封鎖使用者指令，以及更多...
+version: "0.6.1"
+---
+
+# 更新內容
+
+> 舊版 UI 將逐漸棄用，但仍可透過舊路徑 `/chat/new` 存取。新路徑為 `/c/new`。
+
+## ✨ v0.6.1 新功能
+
+- **支援 DALL-E-3：** 新增 DALL-E-3 支援，包含反向代理與系統提示詞配置，由 [@danny-avila](https://github.com/danny-avila) 於 [#1147](https://github.com/danny-avila/LibreChat/pull/1147)、[#1148](https://github.com/danny-avila/LibreChat/pull/1148) 與 [#1150](https://github.com/danny-avila/LibreChat/pull/1150) 提交。
+- **Toast 組件：** 引入類似 ChatGPT 的 Toast 通知組件，以及負責在 DOM 樹高層管理通知的 Toast Provider，由 [@danny-avila](https://github.com/danny-avila) 於 [#1108](https://github.com/danny-avila/LibreChat/pull/1108) 與 [#1110](https://github.com/danny-avila/LibreChat/pull/1110) 提交。
+- **自定義頁尾環境變數：** 新增 `CUSTOM_FOOTER` 環境變數以便自定義頁尾內容，由 [@danny-avila](https://github.com/danny-avila) 於 [#1098](https://github.com/danny-avila/LibreChat/pull/1098) 提交。
+- **Azure OpenAI 增強：** 在 AzureOpenAI 中支援根據模型名稱切換部署名稱，由 [@danny-avila](https://github.com/danny-avila) 於 [#1137](https://github.com/danny-avila/LibreChat/pull/1137) 提交。
+- **代幣交易：** 在交易結構中新增時間戳記，由 [@danny-avila](https://github.com/danny-avila) 於 [#1123](https://github.com/danny-avila/LibreChat/pull/1123) 提交。
+- **封鎖使用者指令：** 實作封鎖使用者的指令，由 [@Berry-13](https://github.com/Berry-13) 於 [#1121](https://github.com/danny-avila/LibreChat/pull/1121) 提交。
+
+## 🌐 國際化
+
+- **多國語言支援：** 新增越南語、巴西葡萄牙語、土耳其語、俄語、義大利語、法語與阿拉伯語翻譯，由多位貢獻者於多個 PR 提交。
+- **更新中文在地化：** 優化簡體中文與繁體中文翻譯，由 [@liukaixiang817](https://github.com/liukaixiang817) 與 [@Super12138](https://github.com/Super12138) 於 [#1095](https://github.com/danny-avila/LibreChat/pull/1095) 與 [#1102](https://github.com/danny-avila/LibreChat/pull/1102) 提交。
+
+## 🔧 臭蟲修復
+
+- **問題修復與優化：** 解決多項問題，包括數據轉換、標籤工作流、OpenRouter 支援、拼字錯誤修正、終端處理、導覽問題以及 ModelService.js 條件語句正確性，由 [@danny-avila](https://github.com/danny-avila)、[@walbercardoso](https://github.com/walbercardoso)、[@Berry-13](https://github.com/Berry-13) 等提交。
+
+## 📝 文檔
+
+- **文檔優化：** 更新各類安裝設定的手冊與指南，包含 Docker、本地環境以及反向代理配置，由 [@danny-avila](https://github.com/danny-avila)、[@Berry-13](https://github.com/Berry-13)、[@fuegovic](https://github.com/fuegovic) 等提交。
+
+## ⚙️ 其他變動
+
+- **工作流與樣式優化：** 包含手動觸發工作流、標籤工作流調整、支援新款模型 (1106) 的代幣費率、導覽更新以及圖形介面優化，由 [@danny-avila](https://github.com/danny-avila)、[@Z1xus](https://github.com/Z1xus)、[@Berry-13](https://github.com/Berry-13) 等提交。
+
+## 新貢獻者
+
+- [@Super12138](https://github.com/Super12138) 於 [#1102](https://github.com/danny-avila/LibreChat/pull/1102) 提交了其首份貢獻
+- [@chokiproai](https://github.com/chokiproai) 於 [#1129](https://github.com/danny-avila/LibreChat/pull/1129) 提交了其首份貢獻
+- [@otisdog8](https://github.com/otisdog8) 於 [#1151](https://github.com/danny-avila/LibreChat/pull/1151) 提交了其首份貢獻
+- [@Cfomodz](https://github.com/Cfomodz) 於 [#1160](https://github.com/danny-avila/LibreChat/pull/1160) 提交了其首份貢獻
+- [@snekkenull](https://github.com/snekkenull) 於 [#1152](https://github.com/danny-avila/LibreChat/pull/1152) 提交了其首份貢獻
+- [@eniyiweb](https://github.com/eniyiweb) 於 [#1168](https://github.com/danny-avila/LibreChat/pull/1168) 提交了其首份貢獻
+- [@machinsoft](https://github.com/machinsoft) 於 [#1169](https://github.com/danny-avila/LibreChat/pull/1169) 提交了其首份貢獻
+- [@QuitCool](https://github.com/QuitCool) 於 [#1180](https://github.com/danny-avila/LibreChat/pull/1180) 提交了其首份貢獻
+- [@Z1xus](https://github.com/Z1xus) 於 [#1182](https://github.com/danny-avila/LibreChat/pull/1182) 提交了其首份貢獻

@@ -1,0 +1,46 @@
+---
+date: 2023-07-06
+title: 🚀 LibreChat v0.5.3
+description: 身份驗證、Azure、面板顯示/隱藏...
+version: "0.5.3"
+---
+
+# 更新內容
+
+## ✨ 功能
+
+- 新增 GitHub 登入，由 [@Berry-13](https://github.com/Berry-13) 於 [#578](https://github.com/danny-avila/LibreChat/pull/578) 提交。
+- 將 Azure OpenAI 整合為獨立終端，由 [@danny-avila](https://github.com/danny-avila) 於 [#532](https://github.com/danny-avila/LibreChat/pull/532) 提交。
+- 為外掛程式 (Plugins) 終端整合前端/使用者提供的憑證功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#596](https://github.com/danny-avila/LibreChat/pull/596) 提交。
+- 開發 ChatGPT 風格的面板顯示/隱藏按鈕（面板狀態儲存在 local storage 中），由 [@dncc89](https://github.com/dncc89) 於 [#575](https://github.com/danny-avila/LibreChat/pull/575) 與 [#595](https://github.com/danny-avila/LibreChat/pull/595) 提交。
+- 啟用 LaTeX 支援，以格式化輸出數學表達式，由 [@danny-avila](https://github.com/danny-avila) 於 [#574](https://github.com/danny-avila/LibreChat/pull/574) 提交。
+- 為管理面板做準備：將 data provider 移至共用套件，由 [@danorlando](https://github.com/danorlando) 於 [#582](https://github.com/danny-avila/LibreChat/pull/582) 提交。
+- feat: 儲存上次選取的 Bing 設定，由 [@danny-avila](https://github.com/danny-avila) 於 [#587](https://github.com/danny-avila/LibreChat/pull/587) 提交。
+
+## 🔧 臭蟲修復
+
+- 修正密碼最大長度限制並允許使用者名稱正則表達式包含 '-'，由 [@fuegovic](https://github.com/fuegovic) 於 [#564](https://github.com/danny-avila/LibreChat/pull/564) 提交。
+- 優化 UX，消除訊息建立時的螢幕閃爍問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#577](https://github.com/danny-avila/LibreChat/pull/577) 提交。
+- 修正 Azure 前端 「user_provided」 憑證問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#587](https://github.com/danny-avila/LibreChat/pull/587) 提交。
+- 針對外掛程式重構進行緊急修復，以保留訊息歷史並改進外掛程式中的補全提示處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#597](https://github.com/danny-avila/LibreChat/pull/597) 提交。
+
+## :memo: 文檔
+
+- 官方文檔網站上線：[https://docs.librechat.ai](https://docs.librechat.ai)，由 @bsu3338 @fuegovic @mjtechguy 於 [#568](https://github.com/danny-avila/LibreChat/pull/568) 提交。
+- 文檔內容重大更新與增強，由 @fuegovic 與 @jhcao23 於 [#555](https://github.com/danny-avila/LibreChat/pull/555)、[#594](https://github.com/danny-avila/LibreChat/pull/594)、[#598](https://github.com/danny-avila/LibreChat/pull/598) 與 [#569](https://github.com/danny-avila/LibreChat/pull/569) 提交。
+- 新增 Ngrok 文檔，由 [@Berry-13](https://github.com/Berry-13) 於 [#586](https://github.com/danny-avila/LibreChat/pull/586) 提交。
+- 新增 Cloudflare 隧道 (tunnels) 文檔，由 [@Berry-13](https://github.com/Berry-13) 於 [#592](https://github.com/danny-avila/LibreChat/pull/592) 提交。
+- 更新 OpenID 登入的 .env.example 檔案，由 @bsu3338 於 [#563](https://github.com/danny-avila/LibreChat/pull/563) 提交。
+
+## ⚙️ 通用更新
+
+- 重構客戶端類別，以提升 AI 模型整合的維護性與模組化，由 [@danny-avila](https://github.com/danny-avila) 於 [#532](https://github.com/danny-avila/LibreChat/pull/532) 與 [#591](https://github.com/danny-avila/LibreChat/pull/591) 提交。
+- 更新端對端 (E2E) 測試，於 [#579](https://github.com/danny-avila/LibreChat/pull/579) 提交。
+- 更新 Compose 檔案以使用自動標記的 GitHub 容器映像，由 [@danny-avila](https://github.com/danny-avila) 於 [#559](https://github.com/danny-avila/LibreChat/pull/559) 提交。
+- 實作多項微小修復，由 [@danny-avila](https://github.com/danny-avila) 與 @danorlando 於 [#599](https://github.com/danny-avila/LibreChat/pull/599) 與 [#590](https://github.com/danny-avila/LibreChat/pull/590) 提交。
+
+## 新貢獻者
+
+- 熱烈歡迎 @jhcao23 提交其首份貢獻！([#594](https://github.com/danny-avila/LibreChat/pull/594))
+
+完整變更紀錄：[https://github.com/danny-avila/LibreChat/compare/v0.5.2...v0.5.3](https://github.com/danny-avila/LibreChat/compare/v0.5.2...v0.5.3)

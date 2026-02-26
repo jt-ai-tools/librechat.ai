@@ -1,0 +1,42 @@
+---
+date: 2025-12-17
+title: ⚙️ 配置版本 v1.3.2
+version: "1.3.2"
+---
+
+- 在 `customParams.paramDefinitions` 中新增了 `default` 欄位，用以設定參數預設值。
+  - 允許指定在進行 API 請求時自動套用的參數預設值。
+  - 預設值僅在參數為 `undefined` 時才會套用。
+  - 遵循優先順序：`paramDefinitions.default` < `addParams` < `modelOptions` (使用者選取)。
+  - 範例：設定 `temperature: 0.7` 為預設值，使用者仍可透過其選取值來覆寫。
+  - 支援所有參數類型，包含 `web_search`、`temperature`、`topP`、`maxTokens` 等。
+  - 適用於所有 `defaultParamsEndpoint` 數值（OpenAI, Anthropic, Google 等）。
+  - 有助於在無需使用者手動配置的情況下，建立基準參數值。
+  - 詳情請參閱 [自定義參數 - 設定預設參數值](/docs/configuration/librechat_yaml/object_structure/custom_params_zh_TW#設定預設參數值)。
+
+- 移除了已棄用的外掛程式環境變數
+  - `PLUGIN_MODELS` —— 外掛程式終端已移除，不再需要。
+  - `DEBUG_PLUGINS` —— 外掛程式終端已移除，不再需要。
+  - `PLUGINS_USE_AZURE` —— 外掛程式終端已移除，不再需要。
+  - 詳情請參閱 [環境變數](/docs/configuration/dotenv_zh_TW#外掛程式)。
+
+- 為 `interface.mcpServers` 配置新增了設定項
+  - 新增了 `use` 設定，用以控制使用者是否具備使用現有 MCP 伺服器的權限（預設：`true`）。
+  - 新增了 `create` 設定，用以控制使用者是否具備建立新 MCP 伺服器的權限（預設：`true`）。
+  - 新增了 `share` 設定，用以控制使用者是否具備分享 MCP 伺服器的權限（預設：`false`）。
+  - 新增了 `trustCheckbox` 物件，用以自定義信任勾選框的標籤。
+    - `label` 支援簡單字串或用於國際化的語言鍵值物件。
+    - `subLabel` 支援簡單字串或用於國際化的語言鍵值物件。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#mcp-伺服器)。
+
+- 在 `modelSpecs` 配置中新增了能力欄位
+  - 新增了 `webSearch` 欄位，用以為特定的模型規範啟用網頁搜尋（預設：`false`）。
+  - 新增了 `fileSearch` 欄位，用以為特定的模型規範啟用檔案搜尋（預設：`false`）。
+  - 新增了 `executeCode` 欄位，用以為特定的模型規範啟用程式碼執行（預設：`false`）。
+  - 新增了 `mcpServers` 欄位，用以指定該模型規範應啟用哪些 MCP 伺服器（預設：`[]`）。
+  - 詳情請參閱 [模型規範](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW)。
+
+- 在 `.env.example` 中新增了 `IMAGE_GEN_OAI_MODEL`，用以指定預設的 OpenAI 圖片產生模型
+  - 允許在使用 OpenAI 圖片工具向 OpenAI 發送圖片產生請求時，設定預設模型（預設：`gpt-image-1`）。
+  - 範例值：`gpt-image-1.5`, `gpt-image-1`。
+  - 詳情請參閱 [環境變數](/docs/configuration/dotenv_zh_TW#openai-圖片工具)。

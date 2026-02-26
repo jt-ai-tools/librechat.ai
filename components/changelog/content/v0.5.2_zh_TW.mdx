@@ -1,0 +1,47 @@
+---
+date: 2023-06-27
+title: 🚀 LibreChat v0.5.2
+description: Functions Agent、OpenID、Docker 更新...
+version: "0.5.2"
+---
+
+# 更新內容
+
+**功能特色：**
+
+- feat(Functions Agent)：使用官方 langchain 函式執行器/智慧體，以獲得更佳的輸出處理能力，由 [@danny-avila](https://github.com/danny-avila) 於 [#538](https://github.com/danny-avila/LibreChat/pull/538) 提交。
+- feat(Plugins)：將外掛程式的預設智慧體更改為 「functions」 並跳過補全步驟，由 [@danny-avila](https://github.com/danny-avila) 於 [#544](https://github.com/danny-avila/LibreChat/pull/544) 提交。
+  - **這是目前使用外掛程式最節省代幣 (token) 的方式。** 關於如何將外掛程式撰寫為函式的文檔即將推出。
+- OpenID 身份驗證，由 @bsu3338 於 [#495](https://github.com/danny-avila/LibreChat/pull/495) 提交。
+
+**建置與 Docker 更新：**
+
+- build(docker-compose.yml)：將映像名稱更改為 librechat，由 [@danny-avila](https://github.com/danny-avila) 於 [#530](https://github.com/danny-avila/LibreChat/pull/530) 提交。
+- [#531](https://github.com/danny-avila/LibreChat/pull/531)：建立 container.yml —— 支援在打標籤 (tagging) 時自動建置並推送 Docker 映像，由 @jinzishuai 於 [#536](https://github.com/danny-avila/LibreChat/pull/536) 提交。
+- feat：更新 Dockerfile 以包含 curl，由 @jinzishuai 於 [#539](https://github.com/danny-avila/LibreChat/pull/539) 提交。
+
+**樣式與 UX：**
+
+- style：行動端優化、改用固定對話框，並防止預設設定 (presets) 觸發自動捲動，由 [@danny-avila](https://github.com/danny-avila) 於 [#534](https://github.com/danny-avila/LibreChat/pull/534) 提交。
+- fix(SubmitButton.jsx)：修正按鈕與文字區域內距重疊的問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#540](https://github.com/danny-avila/LibreChat/pull/540) 提交。
+
+**文檔與圖標：**
+
+- 更新 「logo」 README.md，由 [@fuegovic](https://github.com/fuegovic) 於 [#535](https://github.com/danny-avila/LibreChat/pull/535) 提交。
+- 引入 MkDocs for Material，由 @bsu3338 於 [#545](https://github.com/danny-avila/LibreChat/pull/545) 提交。
+- 強化文檔：新增 Cloudflare 與 Linode 設定說明，由 @Berry-13 於 [#549](https://github.com/danny-avila/LibreChat/pull/549) 提交。
+- 微調 OpenID 文檔內容，由 @bsu3338 於 [#553](https://github.com/danny-avila/LibreChat/pull/553) 提交。
+- 在 MkDocs 中加入社群網站連結，由 @bsu3338 於 [#554](https://github.com/danny-avila/LibreChat/pull/554) 提交。
+
+**重構與修復：**
+
+- refactor：將所有引用名稱由 「chatgpt-clone」 更新為 「LibreChat」，由 [@fuegovic](https://github.com/fuegovic) 於 [#541](https://github.com/danny-avila/LibreChat/pull/541) 提交。
+- fix：[#546](https://github.com/danny-avila/LibreChat/pull/546) 解決註冊關閉功能的問題，由 [@danorlando](https://github.com/danorlando) 於 [#547](https://github.com/danny-avila/LibreChat/pull/547) 提交。
+
+## 新貢獻者
+
+- [@jinzishuai](https://github.com/jinzishuai) 於 [#536](https://github.com/danny-avila/LibreChat/pull/536) 提交了其首份貢獻
+- @bsu3338 於 [#495](https://github.com/danny-avila/LibreChat/pull/495) 提交了其首份貢獻
+- @Berry-13 於 [#549](https://github.com/danny-avila/LibreChat/pull/549) 提交了其首份貢獻
+
+**完整變更紀錄**: [https://github.com/danny-avila/LibreChat/compare/v0.5.1...v0.5.2](https://github.com/danny-avila/LibreChat/compare/v0.5.1...v0.5.2)

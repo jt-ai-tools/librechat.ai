@@ -1,0 +1,20 @@
+---
+date: 2025-03-10
+title: ⚙️ 配置版本 v1.2.2
+version: "1.2.2"
+---
+
+- 新增了 [OCR 配置](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)
+  - 啟用光學字元辨識 (OCR) 以從圖片與文件中提取文字。
+  - 支援兩項策略：`mistral_ocr` (預設) 與 `custom_ocr` (未來計畫)。
+  - 可配置參數包含 `mistralModel`、`apiKey` 與 `baseURL`。
+  - 所有參數均支援環境變數解析。
+  - 作為智慧體能力可用於處理圖片與文件。
+  - 可透過聊天中的「以文字上傳」與智慧體設定中的「檔案上下文」存取。
+- 在 [智慧體能力](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities) 中新增了 `ocr`。
+  - 新的能力允許智慧體從圖片與文件中提取文字。
+  - 與用於文字提取的 OCR 配置整合。
+  - 為智慧體新增了「檔案上下文 (OCR)」作為新的檔案上傳類別。
+  - 此設定同時影響聊天中的「以文字上傳」功能（作為訊息附件上傳）。
+- 在 [共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW#titlemodel) 中新增了 `titleModel`，使其對所有終端均可配置。
+    - 備註：此項不包含 `assistants` 與 `all` 配置。

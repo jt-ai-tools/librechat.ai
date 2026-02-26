@@ -1,0 +1,50 @@
+---
+date: 2026-01-28
+title: ⚙️ 配置版本 v1.3.3
+version: "1.3.3"
+---
+
+- 將 `interface.prompts` 與 `interface.agents` 從布林值改為物件結構。
+  - 新增了 `use` 欄位，用以控制使用者是否可以使用提示詞/智慧體（預設：`true`）。
+  - 新增了 `share` 欄位，用以控制使用者是否可以分享提示詞/智慧體（預設：`false`）。
+  - 新增了 `public` 欄位，用以啟用提示詞/智慧體的公開分享（預設：`false`）。
+  - 仍支援布林值以維持向下相容性（會被視為 `use` 設定）。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#prompts)。
+
+- 在 `interface.mcpServers` 配置中新增了 `public` 欄位。
+  - 控制使用者是否可以公開分享 MCP 伺服器（預設：`false`）。
+  - 詳情請參閱 [介面配置](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#mcp-伺服器)。
+
+- 強化了 `actions.allowedDomains` 與 `mcpSettings.allowedDomains` 的 SSRF 防護。
+  - 未配置時：預設封鎖 SSRF 目標，允許所有其他網域。
+  - 已配置時：僅允許清單中的網域。
+  - 封鎖的目標包含：localhost、私有 IP、連結本地 (link-local) IP、`.internal`/`.local` 頂級網域以及常見服務名稱。
+  - 支援通訊協定與連接埠限制（例如：`'https://api.example.com:8443'`）。
+  - 詳情請參閱 [Actions 配置](/docs/configuration/librechat_yaml/object_structure/actions_zh_TW#alloweddomains) 與 [MCP 設定](/docs/configuration/librechat_yaml/object_structure/mcp_settings_zh_TW#alloweddomains)。
+
+- 為 `endpoints.bedrock` 新增了 `guardrailConfig`，以支援 AWS Bedrock 護欄 (Guardrails)。
+  - 在 `guardrailIdentifier` 中配置您的護欄 ID。
+  - 設定 `guardrailVersion` 指定版本。
+  - 選填 `trace` 欄位用於偵錯（`"enabled"`, `"enabled_full"`, 或 `"disabled"`）。
+  - 詳情請參閱 [AWS Bedrock 配置](/docs/configuration/librechat_yaml/object_structure/aws_bedrock_zh_TW#guardrailconfig)。
+
+- 為 MCP 伺服器配置新增了欄位。
+  - 新增了 `title` 欄位，用於 UI 中的自定義顯示名稱。
+  - 新增了 `description` 欄位，用於伺服器描述。
+  - 為 SSE/HTTP 傳輸新增了 `apiKey` 驗證，具備 `source`、`authorization_type` 與 `custom_header` 選項。
+  - 為像 AWS Cognito 這樣支援 S256 但未宣告的供應商新增了 `oauth.skip_code_challenge_check`。
+  - 詳情請參閱 [MCP 伺服器配置](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW)。
+
+- 為模型規範自定義群組新增了 `groupIcon` 屬性。
+  - 可指定內建圖標鍵（例如：`"openAI"`, `"groq"`）或自定義 URL。
+  - 每個群組中僅會使用第一個帶有 `groupIcon` 的規範。
+  - 詳情請參閱 [模型規範配置](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#group)。
+
+- 為 OpenAI 模型新增了 `xhigh`（極高）推理投入度選項。
+  - `reasoning_effort` 參數的新選項：`"xhigh"`。
+  - 詳情請參閱 [模型規範 - 預設欄位](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#reasoning_effort)。
+
+- Bedrock `promptCache` 參數現在對 Claude 與 Nova 模型預設為 `true`。
+  - 為支援的 Bedrock 模型自動啟用提示詞快取。
+  - 可透過設定 `promptCache: false` 來明確停用。
+  - 詳情請參閱 [模型規範 - promptCache](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#promptcache)。
