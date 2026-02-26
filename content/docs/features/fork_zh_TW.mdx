@@ -1,0 +1,123 @@
+---
+title: 分叉對話 (Forking Chats)
+icon: GitFork
+description: 關於如何使用應用程式中的「分叉訊息/對話」功能，從特定訊息建立符合預期行為的新對話之指南。
+---
+
+import Image from 'next/image'
+
+<Image
+src="https://github.com/danny-avila/LibreChat/assets/32828263/5187e8e2-b1c1-4954-979c-9c3b8cfabe9e"
+width={1024}
+height={512}
+alt="LibreChat 中的分叉訊息與對話功能"
+/>
+
+## 為什麼要分叉對話？
+
+將「分叉 (forking)」想像成在聊天中開闢一條新路徑 —— 當您想進行下列操作時，這會非常方便：
+
+### 保持話題專注
+有時您會聊到一個有趣的題外話，但不希望它干擾主線對話。分叉讓您可以深入探索該話題，同時保持原始聊天的整潔。
+
+### 進行「假設」測試
+想看看不同的切入點會產生什麼結果嗎？分叉聊天並嘗試各種角度。這就像擁有數個平行對話，每個對話都在探索不同的可能性。
+
+### 儲存重要的上下文 
+分叉時，您可以根據需求決定要帶走多少先前的聊天紀錄。這樣一來，您就不是完全從零開始，而 AI 仍具備其所需的背景資訊。
+
+### 分享特定部分
+需要向某人展示對話的一部分嗎？與其複製貼上或分享整個聊天紀錄，您可以僅分叉相關的部分並進行分享。
+
+### 保持想法井然有序
+長篇對話可能會衍生出許多不同的想法。與其讓它們糾纏在一起，您可以將每個想法分叉到獨立的執行緒中分別發展。
+
+### 嘗試不同的問法
+有時您可能會想是否有更好的提問方式。分叉讓您可以實驗與 AI 對話的不同方式，而不會搞亂您的主線對話。
+
+## 分叉選項
+
+使用這些設定來以預期行為分叉訊息。
+
+「分叉」指的是從當前對話中的特定訊息開始/結束，並根據選取的選項建立一個新副本。
+
+「目標訊息」指的是彈出視窗開啟處的那則訊息；或者，如果您勾選了「從此處開始分叉 (Start fork here)」，則指對話中的最新訊息。
+
+
+### 僅限可見訊息 (Visible messages only)： 
+此選項僅分叉可見的訊息；換句話說，即通往目標訊息的直接路徑，不包含任何分支。
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/873bdba1-de1f-4b84-a996-b2dbfc866d55" alt="1-L" style={{borderRadius: "10px"}} />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/0ed6ea88-5840-4dda-8f8b-305a4c34a050" alt="1-D" style={{borderRadius: "10px"}} />
+  </div>
+</div>
+
+
+### 包含相關分支 (Include related branches)：
+此選項分叉可見訊息以及相關的分支；換句話說，即通往目標訊息的直接路徑，並包含該路徑上的所有分支。
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/e633f701-acf5-4878-bdd1-29abacb3e3e7" alt="2-L" style={{borderRadius: "10px"}} />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/0c297451-990b-4ab2-9ff2-bc3958ab7129" alt="2-D" style={{borderRadius: "10px"}} />
+  </div>
+</div>
+
+### 包含所有至此/源自此處的訊息 (Include all to/from here) (預設)：
+此選項分叉所有通往目標訊息的訊息，包括其相鄰訊息；換句話說，包含所有的訊息分支，不論其是否可見或是否位於同一路徑上。
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/d19b427b-e018-41e6-ab1a-6306a94be26b" alt="3-L" style={{borderRadius: "10px"}} />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/ae3e5086-7b8f-417f-8b6e-073776536a49" alt="3-D" style={{borderRadius: "10px"}} />
+  </div>
+</div>
+
+## 額外選項
+
+- **從此處開始分叉 (Start fork here)：** 若勾選，分叉將從此訊息開始一直到對話的最新訊息，並遵循上方選取的行為。
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/801e50e4-749a-42f3-83bd-a3fc06c6e189" alt="4-L" style={{borderRadius: "10px"}} />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/bb2f2e39-091e-4b5b-926d-bf36c7a65079" alt="4-D" style={{borderRadius: "10px"}} />
+  </div>
+</div>
+
+- **記住 (Remember)：** 勾選此項以記住您選取的選項供日後使用，讓您能依照偏好更快速地分叉對話。
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/9a9f61db-c3ec-4139-8f3a-e25557d95066" alt="5-L" style={{borderRadius: "10px"}} />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/a567965f-881e-423b-9eec-e3004643a560" alt="5-D" style={{borderRadius: "10px"}} />
+  </div>
+</div>
+
+- 或者，您也可以在設定選單中控制預設行為：
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/c85fabb7-7d92-4e63-9190-ac3f4470b505" alt="6-L" />
+  </div>
+
+  <div className="image-dark-theme">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/2ba9dfc0-8b21-4297-bf67-9bf6b2ff0aa2" alt="6-D" />
+  </div>
+</div>

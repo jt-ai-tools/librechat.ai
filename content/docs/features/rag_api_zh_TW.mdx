@@ -1,0 +1,70 @@
+---
+title: RAG API (檔案對話)
+icon: Brain
+description: 檢索增強生成 (RAG) API，使用 Langchain 與 FastAPI 進行文件索引與檢索。此 API 與 LibreChat 整合，可根據使用者上傳的檔案提供具備上下文感知能力的回應。
+---
+
+**RAG (檢索增強生成) API** 是一個強大的工具，與 LibreChat 整合後，可根據使用者上傳的檔案提供具備上下文感知能力的回應。
+
+它利用 LangChain、PostgresQL + PGVector 與 Python FastAPI 來索引並檢索相關文件，進而增強對話體驗。
+
+**如需更多細節，請參閱此處提供的配置指南：[RAG API 配置](/docs/configuration/rag_api_zh_TW)**
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/f1298f66-bf1d-4499-a582-23430b481f17)
+
+---
+
+**目前，此功能可透過 [智慧體 (Agents)](/docs/features/agents_zh_TW) 以及自定義終端、OpenAI、Azure OpenAI、Anthropic 與 Google 使用。**
+
+OpenAI Assistants 透過「檢索 (Retrieval)」能力有其自身的 RAG 實作。請點擊[此處](https://platform.openai.com/docs/assistants/tools/knowledge-retrieval)瞭解更多。
+
+然而，將 RAG API 與 Assistants API 搭配使用仍有其價值，因為 OpenAI 會針對檔案儲存與「檢索」功能收費；此項整合將在未來的更新中推出。
+
+**對 RAG 仍感到困惑嗎？** [閱讀下方章節](#什麼是-rag)，其中詳細說明了基本概念並附有實用的影片連結。
+
+## 什麼是 RAG？
+
+RAG（Retrieval-Augmented Generation，檢索增強生成）是一個 AI 框架，旨在提升大型語言模型 (LLM) 產生回應的品質與準確性。它透過將 LLM 錨定於外部知識源，補充模型內部的資訊表現來實現此目標。
+
+
+## 功能特色
+
+- **文件索引**：RAG API 對使用者上傳的檔案進行索引，建立嵌入 (embeddings) 以實現高效檢索。
+- **語意搜尋**：根據使用者的輸入，在已索引的文件中執行語意搜尋，以找出最相關的資訊。
+- **上下文感知回應**：透過檢索到的資訊增強使用者的提示詞，使 LibreChat 能產生更準確且具備上下文相關性的回應。
+- **非同步處理**：API 支援非同步操作，以提升效能與擴充性。
+- **靈活配置**：允許自定義各種參數，如文本塊大小 (chunk size)、重疊大小以及嵌入模型。
+
+### RAG 的核心優點
+
+1. **獲取即時且可靠的事實**：RAG 透過從外部知識庫檢索相關事實，確保 LLM 能獲得最新且可靠的資訊。
+2. **透明度與信任**：使用者可以存取模型的來源，讓他們能驗證產生回應的準確性，並建立對系統的信任。
+3. **減少數據洩漏與幻覺**：透過將 LLM 錨定在一組外部、可驗證的事實上，RAG 降低了模型洩漏敏感數據或產生錯誤、誤導性資訊的機會。
+4. **降低運算與財務成本**：RAG 減少了對模型參數進行持續訓練與更新的需求，這可能降低企業在執行 LLM 驅動的聊天機器人時的運算與財務成本。
+
+### RAG 如何運作
+
+RAG 包含兩個主要階段：檢索與內容生成。
+
+1. **檢索階段 (Retrieval Phase)**：演算法從外部知識庫中搜尋並檢索與使用者提示詞或問題相關的資訊片段。在開放域、消費級場景下，這些事實可以來自網際網路上的已索引文件。在封閉域、企業級場景下，通常使用較窄的來源集以增加安全性與可靠性。
+2. **生成階段 (Generative Phase)**：檢索到的外部知識會附加到使用者的提示詞中，並傳遞給 LLM。LLM 隨後結合增強後的提示詞及其訓練數據的內部表現，為使用者合成一個量身定制且具吸引力的答案。答案可以傳送給聊天機器人，並附上其來源連結。
+
+### 挑戰與持續研究
+
+雖然 RAG 是目前將 LLM 錨定於最新可驗證資訊並降低持續重練成本的最佳工具之一，但它並非完美。挑戰包括：
+
+1. **辨識無法回答的問題**：LLM 需要經過明確訓練，以辨別根據現有資訊無法回答的問題。這可能需要針對數千個可回答與不可回答問題的範例進行微調。
+2. **改善檢索與生成**：持續的研究正專注於 RAG 流程兩端的創新：提升檢索最相關資訊的能力以供給 LLM，以及優化該資訊的結構，以從 LLM 獲得最豐富的回應。
+
+總結來說，RAG 是一個強大的框架，透過將 LLM 錨定於外部、可驗證的知識，增強了模型的能力。它有助於確保更準確、即時且值得信賴的回應，同時降低與模型持續重練相關的成本。隨著該領域研究的進展，我們可以預期 LLM 驅動的對話式 AI 系統在品質與效率上將有進一步的提升。
+
+如需更詳細的 RAG 說明，您可以觀看 IBM 在 YouTube 上的這段教學影片：
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/T-D1OfcDW1M?si=SDVz1Fxsoi_z4S89" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+
+
+## 結論
+
+RAG API 是 LibreChat 的一項強大增強功能，可根據使用者上傳的檔案提供具備上下文感知能力的回應。透過結合 Langchain 與 FastAPI，它提供了高效的文件索引、檢索與生成能力。憑藉其靈活的配置選項與無縫整合，RAG API 提升了 LibreChat 的對話體驗。
+
+如需更多關於 RAG API 的詳細資訊（包括 API 終端、請求/回應格式與進階配置），請參閱 RAG API 官方文檔。

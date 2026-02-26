@@ -1,0 +1,72 @@
+---
+title: Cloudflare
+icon: Cloud
+description: 網域註冊與 Cloudflare Tunnel 配置快速指南
+---
+
+## 註冊您的網域
+
+### 第一步：選擇您的網域名稱
+- 選擇一個符合您品牌形象且易於記憶的網域名稱。避免使用過於複雜的拼寫。
+- 使用 Cloudflare、Namecheap、GoDaddy 等網域註冊商提供的線上工具來檢查您偏好的網域名稱是否可用。
+
+### 第二步：選擇網域註冊商
+- 根據價格、客戶支援、額外功能（如電子郵件、SSL 憑證）以及使用者評價來評估註冊商。
+- 特別留意隱私保護服務 (WHOIS privacy)，這有助於保護您的個人資訊不被公開。
+
+### 第三步：購買並註冊網域
+- 遵循註冊商的購買流程，這通常涉及提供聯絡資訊並完成付款。
+- 仔細閱讀服務條款，並記下網域的到期日期，以避免意外失效。
+
+## 配置 Cloudflare Tunnels (隧道)
+
+### 第一步：將您的網域加入 Cloudflare
+- 若您的網域是透過 Cloudflare 購買的，則可跳過此步驟，因為網域已預設使用 Cloudflare 的名稱伺服器 (nameservers)。
+- 登入您的 Cloudflare 帳號並新增您的新網域。按照指示將您的網域名稱伺服器替換為 Cloudflare 提供的伺服器，這是啟動 Cloudflare 服務的必要步驟。
+
+### 第三步：建立隧道
+
+<Cards>
+   <Cards.Card href="https://one.dash.cloudflare.com/" title="第一步" image arrow>
+      ![image](https://github.com/danny-avila/LibreChat/assets/32828263/ae54133f-34ed-476d-9004-d269a8707609)
+   </Cards.Card>
+   <Cards.Card href="https://one.dash.cloudflare.com/" title="第二步" image arrow>
+      ![image](https://github.com/danny-avila/LibreChat/assets/32828263/643e878e-e418-48aa-ac53-6c144ed463f0)
+   </Cards.Card>
+   <Cards.Card href="https://one.dash.cloudflare.com/" title="第三步" image arrow>
+      ![image](https://github.com/danny-avila/LibreChat/assets/32828263/e219fd49-baad-4da0-84e7-09e754068c57)
+   </Cards.Card>
+</Cards>
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/c851d405-1e90-4ad1-b65e-03cee5ae7111)
+
+#### 為您的隧道命名
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/212b8b95-5901-40d4-bc46-3b3b3997767e)
+
+#### 在您的伺服器安裝 Cloudflare 的 `cloudflared`
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/82520d5c-8524-415f-82ae-c297bde3288d)
+
+<Callout type="tip" title="提示">
+- 為了確保持續運作，建議將 `cloudflared` 設定為系統服務執行。這能確保隧道在重啟或當機後自動恢復連線。
+</Callout>
+
+- 從 Cloudflare 官方網站下載並安裝 [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) 工具至您的伺服器。此軟體將協助您的網域與內部服務之間建立安全連線。
+- 使用您的 Cloudflare 帳號憑證驗證 `cloudflared`，以便將其與您的網域連結。
+
+#### 配置您的隧道
+
+- 使用 Cloudflare 儀表板中的 「Tunnels」 區段啟動隧道。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/0232a545-115a-4c91-99e3-1240542bbea2)
+
+
+### 第六步：驗證隧道
+- 透過網頁瀏覽器存取您的網域/子網域來測試連線，確保它能透過 Cloudflare 隧道正確解析至您的伺服器且無錯誤。
+- 直接從 Cloudflare 儀表板的 「Tunnels」 區段監控隧道的效能與狀態。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/2ad741d5-8cdd-46c6-982c-7fa05a5858a8)
+
+## 結論
+透過確保網域註冊的安全並配置 Cloudflare 隧道，您可以強化連接網路服務時的安全性與可靠性。定期檢視並更新您的網域與隧道設定，以適應新的需求或網路配置變動。保持主動維護您的線上形象與安全態勢。

@@ -1,0 +1,138 @@
+---
+title: HuggingFace
+icon: Bot
+description: 輕鬆在 Hugging Face Spaces 部署 LibreChat
+---
+
+## 建立並配置您的資料庫 (必填)
+
+首先，您需要建立一個 MongoDB Atlas 資料庫並獲取您的連接字串。
+
+請遵循此文件中的說明：**[MongoDB Atlas](/docs/configuration/mongodb/mongodb_atlas_zh_TW)**
+
+## 快速入門
+
+**1.** 登入或建立一個 **[Hugging Face](https://huggingface.co/)** 帳號。
+
+**2.** 造訪 **[https://huggingface.co/spaces/LibreChat/template](https://huggingface.co/spaces/LibreChat/template)** 並點擊 `Duplicate this Space`（複製此空間）將 LibreChat 模板複製到您的個人資料中。
+
+> 備註：此模板出現執行階段錯誤 (runtime error) 是正常的，您必須按照下列指南進行配置後才能正常運作。
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/fd684254-cbe0-4039-ba4a-7c492b16a453)
+
+**3.** 為您的空間命名並填寫 `Secrets`（秘密）與 `Variables`（變數）。
+ 
+  > 您也可以在此處決定將其設為公開 (public) 或私有 (private)。
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/13a039b9-bb78-4d56-bab1-74eb48171516)
+
+您需要填寫這些數值：
+
+| Secrets (秘密) | 數值 |
+| --- | --- |
+| MONGO_URI | * 使用此處說明獲取字串：https://librechat.ai/docs/configuration/mongodb/mongodb_atlas_zh_TW |
+| OPENAI_API_KEY | `user_provided` | 
+| BINGAI_TOKEN | `user_provided` | 
+| CHATGPT_TOKEN | `user_provided` |
+| ANTHROPIC_API_KEY | `user_provided` |
+| GOOGLE_KEY | `user_provided` |
+| CREDS_KEY | * 參見下文 |
+| CREDS_IV | * 參見下文 |
+| JWT_SECRET | * 參見下文 |
+| JWT_REFRESH_SECRET | * 參見下文 |
+
+> ⬆️ **若想停用任何終端，請將該數值欄位留空。** 
+
+> ⚠️ 將 API 金鑰與權杖設定為 `user_provided` 可讓您在網頁介面中安全地提供它們。
+
+> * 針對 `CREDS_KEY`、`CREDS_IV` 與 `JWT_SECRET`，請使用此工具：**[憑證產生器](/toolkit/creds_generator_zh_TW)**
+> * 再次執行該工具，將新的 `JWT_SECRET` 數值用於 `JWT_REFRESH_SECRET`。
+
+| Variables (變數) | 數值 |
+| --- | --- |
+| APP_TITLE | LibreChat |
+| ALLOW_REGISTRATION | true |
+
+## 部署
+
+**1.** 填寫完 `secrets` 與 `variables` 後，點擊視窗底部的 `Duplicate Space`（複製空間）。
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/55d596a3-2be9-4e14-ac0d-0b493d463b1b)
+
+
+**2.** 專案現在將開始建置，這會花費幾分鐘的時間。
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/f9fd10e4-ae50-4b5f-a9b5-0077d9e4eaf6)
+
+
+**3.** 準備就緒後，`Building`（建置中）將變為 `Running`（執行中）。
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/91442e84-9c9e-4398-9011-76c479b6f272)
+
+  接著您就能存取 LibreChat 了！
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/cd5950d4-ecce-4f13-bbbf-b9109e462e10)
+
+## 更新
+  若要更新 LibreChat，只需從 ⚙️Settings（設定）選單中選擇 `Factory Reboot`（工廠重啟）即可。
+
+  ![image](https://github.com/fuegovic/LibreChat/assets/32828263/66f20129-0ffd-44f5-b91c-fcce1932112f)
+
+
+## 結論
+  您現在可以透過目前的 URL 進行存取。如果您想在不顯示 Hugging Face 外殼的情況下存取，可以按照您的資訊修改此 URL 模板：
+
+  `https://您的使用者名稱-您的專案名稱.hf.space/` 
+  
+  例如：`https://cooluser-librechat.hf.space/`
+
+**🎉 恭喜，您已成功在 Hugging Face 部署 LibreChat！🤗**
+
+
+## Meilisearch 設定 (選填)
+
+若要在 LibreChat 中啟用搜尋功能，您需要部署並配置一個 Meilisearch 實例。步驟如下：
+
+**1. 複製 Meilisearch 空間：**
+
+造訪此連結：[https://huggingface.co/spaces/LibreChat/meilisearch](https://huggingface.co/spaces/LibreChat/meilisearch) 並點擊 「Duplicate this Space」。
+
+**2. 配置 Meilisearch 空間：**
+
+   *   **Visibility (可見性)**：設定為 「public」 (公開)。
+
+   *   **MEILI_MASTER_KEY**：產生一個安全的 16 字元主金鑰。您可以使用類似 [https://randomkeygen.com/](https://randomkeygen.com/) 的工具產生隨機金鑰。將此金鑰設定為 Meilisearch 空間中的 `MEILI_MASTER_KEY` 環境變數。*重要提示：請確保此金鑰的安全！*
+
+   *   **MEILI_ENV**：將 `MEILI_ENV` 環境變數設定為 `production`。
+
+**3. 複製空間：**
+
+點擊 「Duplicate Space」 按鈕。
+
+**4. 配置 LibreChat 使用 Meilisearch：**
+
+   *   **編輯 Dockerfile**：前往您的 LibreChat 空間（即您從主 LibreChat 模板複製而來的空間）。導覽至 「Files」 -> 「Dockerfile」 並點擊 「Edit」。
+
+   *   **取消註釋並修改內容**：取消註釋/編輯 Dockerfile 中的下列幾行。這些行包含 `ENV SEARCH` 與 `ENV MEILI_*`。請務必將 `<YOUR_MEILISEARCH_SPACE_URL>` 替換為您在 Hugging Face Spaces 上部署的 Meilisearch 實際 URL。格式應類似於 https://您的使用者名稱-meilisearch.hf.space/。*請更新使用者名稱以符合您的實際名稱！*
+
+       ```dockerfile
+       ENV SEARCH=true
+       ENV MEILI_NO_ANALYTICS=true
+       ENV MEILI_HOST=<您的_MEILISEARCH_空間_URL>
+       ```
+
+   *   **提交變更**：將變更提交 (Commit) 至 `main` 分支。
+
+**5. 在 LibreChat 中加入 `MEILI_MASTER_KEY` 秘密：**
+
+   *   前往您的 LibreChat 空間設定（是 LibreChat 部署空間，而非 Meilisearch 空間）。
+
+   *   點擊 「New secret」。
+
+   *   **Name (名稱)**：輸入 `MEILI_MASTER_KEY`。
+
+   *   **Value (數值)**：輸入與您設定 Meilisearch 空間時所使用的 **同一個** 主金鑰。
+
+**6. 驗證設定：**
+
+   在 LibreChat 重新建置並開始執行後，您應該會在 LibreChat 介面的左上角看到搜尋選項。如果您沒看到，請再次檢查是否已正確遵循所有步驟。

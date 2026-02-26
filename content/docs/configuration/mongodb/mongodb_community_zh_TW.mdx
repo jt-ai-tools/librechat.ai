@@ -1,0 +1,74 @@
+---
+title: "MongoDB 社群版伺服器"
+icon: Database
+description: "為您的 LibreChat 資料庫設定 MongoDB 社群版伺服器 (Community Server)。"
+---
+
+## 1. 下載 MongoDB 社群版伺服器
+- 前往 MongoDB 官方網站：[https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
+- 選擇您的作業系統並下載對應的安裝包。
+
+## 2. 安裝 MongoDB 社群版伺服器
+請遵循適用於您作業系統的安裝說明來安裝 MongoDB 社群版伺服器。
+
+## 3. 建立數據目錄
+MongoDB 需要一個數據目錄來儲存其數據檔案。在您的系統上建立一個目錄（例如：`/path/to/data/directory`）。
+
+## 4. 啟動 MongoDB 伺服器
+- 開啟終端機或命令提示字元。
+- 導覽至 MongoDB 安裝目錄（例如：`/path/to/mongodb/bin`）。
+- 執行下列指令啟動 MongoDB 伺服器，將 `/path/to/data/directory` 替換為您在第 3 步建立的實際路徑：
+
+```sh filename="啟動 MongoDB 伺服器"
+./mongod --dbpath=/path/to/data/directory
+```
+
+## 5. 配置遠端存取 (選填)
+如果您打算從遠端位置存取 MongoDB 伺服器（例如從不同的機器或託管在別處的 LibreChat 實例），您需要配置 MongoDB 的遠端存取：
+
+- 建立一個配置文件（例如：`/path/to/mongodb/config/mongodb.conf`），內容如下：
+
+```yaml filename="mongodb.conf"
+# 網路介面
+net:
+  port: 27017
+  bindIp: 0.0.0.0
+```
+- 若 MongoDB 伺服器正在執行，請將其停止。
+- 使用配置文件啟動 MongoDB 伺服器：
+
+```yaml filename="啟動 MongoDB 伺服器"
+./mongod --config /path/to/mongodb/config/mongodb.conf
+```
+
+## 6. 獲取連接字串
+您的 MongoDB 社群版伺服器連接字串格式如下：
+
+```sh filename="連接字串"
+mongodb://[hostname]:[port]
+```
+將 `[hostname]` 替換為執行 MongoDB 機器的 IP 位址或主機名稱，`[port]` 替換為連接埠號（通常為 27017）。
+
+## 7. 更新 .env 檔案
+- 在您的 LibreChat 專案中，開啟 `.env` 檔案。
+- 找到 `MONGO_URI` 變數並貼上您的連接字串：
+
+```sh filename=".env"
+MONGO_URI=mongodb://[hostname]:[port]
+```
+
+大功告成！您現在已為 LibreChat 設定好 MongoDB 社群版伺服器。您的 LibreChat 應用程式現在應能使用您提供的連接字串連線至本地的 MongoDB 實例。
+
+## 關於 Docker 的注意事項
+
+<Callout type="note" title="Docker">
+**備註：** 如果您搭配 Docker 使用 LibreChat，您需要使用 `docker-compose.override.yml` 檔案。此覆寫檔案讓您可以防止安裝內含的 MongoDB 實例。取而代之的是，您的 LibreChat Docker 容器將會使用您剛設定好的本地 MongoDB 社群版伺服器資料庫。如需更多關於使用覆寫檔案的資訊，請參閱我們的 [Docker 覆寫指南](/docs/configuration/docker_override_zh_TW)。
+
+**範例：**
+```yaml filename="docker-compose.override.yml"
+services:
+  api:
+    environment:
+    - MONGO_URI=mongodb://user:pass@host1:27017,host2:27017,host3:27017/LibreChat?authSource=admin&replicaSet=setname
+```
+</Callout>

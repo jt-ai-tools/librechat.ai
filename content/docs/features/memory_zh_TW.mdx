@@ -1,0 +1,239 @@
+---
+title: 使用者記憶
+icon: Bookmark
+description: 為使用者提供的鍵值 (key/value) 記憶存儲，在 LibreChat 的每次聊天請求中運行
+---
+
+## 概覽
+
+LibreChat 中的使用者記憶 (User Memory) 是一個 **鍵值存儲 (key/value store)**，可在不同對話間持久保存使用者特定的資訊。一個專用的記憶智慧體會在 **每次聊天請求** 開始時執行，對此存儲進行讀寫，以為主要的 AI 回應提供個人化的上下文。
+
+<Callout type="info" title="鍵值存儲，而非對話記憶">
+這 **不是** 針對您整個對話歷史的語意記憶。它不會對過往對話進行索引、嵌入 (embed) 或搜尋。相反地，它維護一組結構化的鍵值對（例如：`user_preferences`、`learned_facts`），並在每次請求時作為上下文注入。您可以將其想像成 AI 在每次回應前都會閱讀的持久筆記本。
+
+至於單次對話中關於先前訊息的上下文，LibreChat 已經使用了標準的訊息歷史窗口 —— 這與此功能是分開的。
+</Callout>
+
+<Callout type="important" title="⚠️ 需要進行配置">
+記憶功能必須在您的 `librechat.yaml` 檔案中明確配置後才能運作。此功能預設為停用。
+</Callout>
+
+## 核心特色
+
+- **每次請求皆運行**：記憶智慧體在每次聊天請求開始時執行，確保儲存的上下文始終可用。
+- **鍵值存儲**：資訊以結構化的鍵值對形式儲存，而非原始的對話日誌。
+- **手動項目**：使用者可以直接手動新增、編輯或移除記憶項目，完全主導 AI 記得的內容。
+- **使用者控制**：啟用後，使用者可以針對個別對話切換記憶功能的開啟或關閉。
+- **可自定義的鍵值**：使用 `validKeys` 限制可以儲存哪些類別的資訊。
+- **代幣管理**：設定記憶用量限制以控制成本。
+- **智慧體整合**：使用 AI 智慧體來智慧地管理要記憶的內容。
+
+## 配置
+
+若要啟用記憶功能，您需要在 `librechat.yaml` 檔案中加入 `memory` 配置：
+
+```yaml filename="librechat.yaml"
+version: 1.3.4
+cache: true
+
+memory:
+  disabled: false  # 設定為 true 以完全停用記憶功能
+  personalize: true  # 賦予使用者切換記憶開關的能力，預設為 true
+  tokenLimit: 2000  # 記憶存儲的最大代幣數
+  messageWindowSize: 5  # 要納入分析的近期訊息數量
+  agent:
+    provider: "openAI"
+    model: "gpt-4"
+```
+
+provider 欄位應與 [模型規範指南](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#endpoint) 中定義的允許值一致。
+
+**備註：** 如果您使用自定義終端，終端數值必須與定義的自定義終端名稱完全一致。
+
+詳細配置選項請參閱 [記憶配置指南](/docs/configuration/librechat_yaml/object_structure/memory_zh_TW)。
+
+## 運作原理
+
+<Callout type="note" title="記憶智慧體執行">
+啟用記憶功能後，記憶智慧體會在 **每次聊天請求** 中運行。它與主聊天回應並行執行 —— 它在主回應開始前啟動，執行時間限制在主請求的持續時間內，並在主請求結束後最多延長 3 秒。
+
+這代表您發送的每則訊息都會觸發記憶智慧體執行下列操作：
+1. **讀取** 當前的鍵值存儲，並將相關項目作為上下文注入。
+2. **分析** 近期的訊息窗口，找出值得儲存或更新的資訊。
+3. **寫入** 任何新建立或修改過的項目回存儲中。
+</Callout>
+
+### 1. 鍵值存儲 (Key/Value Storage)
+記憶項目以鍵值對形式儲存。啟用後，系統可以儲存下列項目：
+- 使用者偏好（溝通風格、感興趣的主題）
+- 使用者明確分享的重要事實
+- 提及的進行中專案或任務
+- 任何您透過 `validKeys` 定義的類別
+
+使用者也可以透過介面 **手動建立、編輯與刪除** 記憶項目，直接控制 AI 對他們的瞭解程度。
+
+### 2. 上下文窗口 (Context Window)
+`messageWindowSize` 參數決定了有多少則近期訊息會被分析以進行記憶更新。這有助於記憶智慧體決定哪些資訊值得存入鍵值存儲中。
+
+### 3. 使用者控制
+當 `personalize` 設定為 `true` 時：
+- 使用者會在聊天介面看到一個記憶功能開關。
+- 他們可以為個別對話啟用或停用記憶功能。
+- 記憶設定會跨工作階段持久保存。
+
+### 4. 有效鍵 (Valid Keys)
+您可以透過指定 `validKeys` 來限制儲存哪些類別的資訊：
+
+```yaml filename="memory / validKeys"
+memory:
+  validKeys:
+    - "user_preferences"
+    - "conversation_context"
+    - "learned_facts"
+    - "personal_information"
+```
+
+## 最佳實踐
+
+### 1. 代幣限制 (Token Limits)
+設定適當的代幣限制，以平衡功能性與成本：
+- 較高的限制允許更全面的記憶。
+- 較低的限制可減少處理成本。
+- 請根據您的使用模式與預算進行考量。
+
+### 2. 自定義指令
+使用 `validKeys` 時，請為記憶智慧體提供自定義指令：
+
+```yaml filename="memory / 帶有指令的智慧體"
+memory:
+  agent:
+    provider: "openAI"
+    model: "gpt-4"
+    instructions: |
+      僅將資訊儲存於指定的 validKeys 類別中。
+      重點放在明確說明的偏好與重要事實。
+      及時刪除過期或已修正的資訊。
+```
+
+### 3. 隱私考量
+- 記憶功能會跨對話儲存使用者資訊。
+- 確保使用者瞭解哪些資訊正被儲存。
+- 考慮實作數據保留原則。
+- 提供關於記憶使用方式的清晰說明。
+
+## 範例
+
+### 基礎設定
+使用預設設定啟用記憶功能：
+
+```yaml filename="基礎記憶配置"
+memory:
+  tokenLimit: 2000
+  agent:
+    provider: "openAI"
+    model: "gpt-4.1-mini"
+```
+
+### 進階配置
+包含所有選項的完整配置：
+
+```yaml filename="進階記憶配置"
+memory:
+  disabled: false
+  validKeys: ["preferences", "context", "facts"]
+  tokenLimit: 3000
+  personalize: true
+  messageWindowSize: 10
+  agent:
+    provider: "anthropic"
+    model: "claude-3-opus-20240229"
+    instructions: "僅記住明確說明的偏好與核心事實。"
+    model_parameters:
+      temperature: 0.3
+```
+
+關於各供應商支援的有效模型參數，請參閱 [模型規範預設欄位](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW#模型選項)。
+
+### 使用預定義智慧體
+透過 ID 引用現有的智慧體：
+
+```yaml filename="具備智慧體 ID 的記憶功能"
+memory:
+  agent:
+    id: "memory-specialist-001"
+```
+
+### 具備記憶功能的自定義終端
+
+記憶功能完整支援自定義終端，包括具備自定義標頭與環境變數的終端。使用自定義終端時，標頭預留位置與環境變數將在記憶處理過程中被正確解析。
+
+```yaml filename="記憶功能使用自定義終端的 librechat.yaml"
+
+endpoints:
+    custom:
+        - name: 'Custom Memory Endpoint'
+           apiKey: 'dummy'
+           baseURL: 'https://api.gateway.ai/v1'
+           headers:
+             x-gateway-api-key: '${GATEWAY_API_KEY}'
+             x-gateway-virtual-key: '${GATEWAY_OPENAI_VIRTUAL_KEY}'
+             X-User-Identifier: '{{LIBRECHAT_USER_EMAIL}}'
+             X-Application-Identifier: 'LibreChat - Test'
+             api-key: '${TEST_CUSTOM_API_KEY}' 
+           models:
+             default:
+               - 'gpt-4o-mini'
+               - 'gpt-4o'
+             fetch: false
+  
+memory:
+  disabled: false
+  tokenLimit: 3000
+  personalize: true
+  messageWindowSize: 10
+  agent:
+    provider: 'Custom Memory Endpoint'
+    model: 'gpt-4o-mini'
+```
+
+- 支援所有 [自定義終端標頭](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW#headers) 設定。
+
+## 疑難排解
+
+### 記憶功能無法運作
+1. 驗證 `librechat.yaml` 中是否已配置記憶區段。
+2. 檢查 `disabled` 是否設定為 `false`。
+3. 確保配置的智慧體/模型可用。
+4. 驗證使用者已在其聊天介面中啟用記憶功能。
+5. 針對自定義終端：確保 `provider` 名稱與自定義終端的 `name` 完全一致。
+
+### 代幣用量過高
+1. 減少 `tokenLimit` 以控制成本。
+2. 調降 `messageWindowSize` 以分析較少的訊息。
+3. 使用 `validKeys` 限制儲存內容。
+4. 檢視並優化智慧體指令。
+
+### 記憶內容不一致
+1. 檢查使用者是否頻繁切換記憶開關。
+2. 驗證是否超出了代幣限制。
+3. 確保智慧體配置的一致性。
+4. 檢閱儲存的記憶內容是否存在衝突。
+
+### 自定義終端身份驗證問題
+1. 驗證 `.env` 檔案中的環境變數是否設定正確。
+2. 確保自定義標頭使用了正確語法（環境變數用 `${ENV_VAR}`，使用者預留位置用 `{{LIBRECHAT_USER_*}}`）。
+3. 在測試記憶功能前，先確認該自定義終端的一般聊天功能是否正常。
+4. 檢閱伺服器日誌中來自自定義終端 API 的身份驗證錯誤。
+
+## 未來改進方向
+
+目前的實作會在每次聊天請求中無條件執行記憶智慧體。計畫中的改進包括：
+
+- **語意觸發寫入**：偵測使用者何時明確要求模型記住某些內容（例如：「記住我偏好 Python」），並僅在此類情況下執行記憶寫入智慧體，以減少對例行訊息的不必要處理。
+- **向量相似度檢索**：與其在每次請求中注入所有儲存的記憶項目，改為使用向量嵌入僅檢索與當前對話上下文最相關的項目，同時提升效率與相關性。
+
+## 相關功能
+
+- [智慧體 (Agents)](/docs/features/agents_zh_TW) - 建構自定義 AI 助手
+- [預設設定 (Presets)](/docs/user_guides/presets_zh_TW) - 儲存對話設定
+- [分叉訊息 (Fork Messages)](/docs/features/fork_zh_TW) - 在保留上下文的同時開闢對話分支

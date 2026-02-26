@@ -1,0 +1,126 @@
+---
+title: 智慧體 API (測試版)
+icon: Plug
+description: 透過與 OpenAI 相容的終端及 Open Responses API 終端程式化存取 LibreChat 智慧體。
+---
+
+<Callout type="warning" title="測試版功能">
+智慧體 (Agents) API 目前處於測試階段。終端位址、請求/回應格式與行為可能會隨著我們邁向正式版而不斷疊代變動。
+</Callout>
+
+LibreChat 透過兩個具備 API 相容性的介面公開您的智慧體，允許外部應用程式、腳本與服務透過程式化方式與您的智慧體互動。
+
+## 概覽
+
+智慧體 API 提供兩個介面：
+
+- **OpenAI 相容的聊天補全 (Chat Completions)** —— `POST /api/agents/v1/chat/completions`
+- **Open Responses API** —— `POST /api/agents/v1/responses`
+
+兩者皆透過 API 金鑰進行身份驗證並支援串流回應，讓您可以輕鬆地將 LibreChat 智慧體整合到已使用 OpenAI SDK 或類似工具的現有工作流中。
+
+LibreChat 正在採用 [Open Responses](https://www.openresponses.org/) 作為服務智慧體的主要 API 框架。雖然聊天補全終端提供了與現有 OpenAI 相容工具的向下相容性，但 Open Responses 終端則代表了未來的發展方向。
+
+## 啟用智慧體 API
+
+智慧體 API 受 `remoteAgents` 介面配置保護。所有權限預設為 `false`。
+
+```yaml filename="librechat.yaml"
+interface:
+  remoteAgents:
+    use: true
+    create: true
+```
+
+關於所有可用選項，請參閱 [介面配置 —— remoteAgents](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#remoteagents)。
+
+**備註：** 管理員使用者預設擁有所有遠端智慧體權限。
+
+## API 金鑰管理
+
+一旦啟用了 `remoteAgents.use` 與 `remoteAgents.create`，使用者即可從 LibreChat UI 產生 API 金鑰。這些金鑰用於驗證對智慧體 API 的請求。
+
+## API 終端
+
+### 聊天補全 (OpenAI 相容)
+
+```
+POST /api/agents/v1/chat/completions
+```
+
+您可以將任何 OpenAI 相容的 SDK 指向您的 LibreChat 實例來使用此功能。`model` 參數對應於智慧體 ID。
+
+**使用 curl 的範例：**
+```bash
+curl -X POST https://您的-librechat-實例/api/agents/v1/chat/completions 
+  -H "Authorization: Bearer 您的_API_KEY" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "model": "agent_abc123",
+    "messages": [
+      {"role": "user", "content": "你好，你能幫我什麼忙？"}
+    ],
+    "stream": true
+  }'
+```
+
+**使用 OpenAI SDK (Python) 的範例：**
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://您的-librechat-實例/api/agents/v1",
+    api_key="您的_API_KEY"
+)
+
+response = client.chat.completions.create(
+    model="agent_abc123",
+    messages=[{"role": "user", "content": "你好！"}],
+    stream=True
+)
+
+for chunk in response:
+    print(chunk.choices[0].delta.content, end="")
+```
+
+### 列出模型 (List Models)
+
+```
+GET /api/agents/v1/models
+```
+
+將可用的智慧體作為模型返回。適用於發現您的 API 金鑰可以存取哪些智慧體。
+
+### Open Responses API
+
+```
+POST /api/agents/v1/responses
+```
+
+Open Responses 終端遵循 [Open Responses 規範](https://www.openresponses.org/)，這是由 OpenAI 發起並由開源 AI 社群構建的開放推理標準。它專為智慧體工作流設計，原生支援推理、工具使用、結構化輸出與語意事件串流。
+
+```bash
+curl -X POST https://您的-librechat-實例/api/agents/v1/responses 
+  -H "Authorization: Bearer 您的_API_KEY" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "model": "agent_abc123",
+    "input": "今天天氣如何？"
+  }'
+```
+
+## 代幣使用量追蹤
+
+所有對智慧體 API 的請求都會根據使用者的餘額追蹤代幣用量（若已配置代幣計費）。輸入與輸出代幣皆會計入，包含支援該功能供應商（OpenAI、Anthropic）的快取代幣。
+
+## 未來發展藍圖
+
+- **以 Open Responses 為主要介面** —— 我們計畫擴展 Open Responses 終端，完整支援智慧體循環 (agentic loops)、工具編排與語意事件串流。
+- **Anthropic Messages API** —— 未來我們可能會加入對 Anthropic Messages API 格式的支援，作為額外的介面。
+
+## 相關文件
+
+- [智慧體 (Agents)](/docs/features/agents_zh_TW) —— 建立與配置智慧體
+- [介面配置 —— remoteAgents](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW#remoteagents) —— 存取控制設定
+- [代幣使用量](/docs/configuration/token_usage_zh_TW) —— 配置代幣花費與餘額
+- [Open Responses 規範](https://www.openresponses.org/) —— 開放推理標準

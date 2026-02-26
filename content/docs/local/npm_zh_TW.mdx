@@ -1,0 +1,109 @@
+---
+title: npm
+icon: Package
+description: 如何使用 npm 在本地安裝 LibreChat
+---
+
+在大多數情況下，Docker Compose 是推薦的安裝方法，因為它簡單、易用且可靠。如果您偏好使用 npm，請遵循下列說明。
+
+## 先決條件
+
+- Node.js v20.19.0+ (或 ^22.12.0 或 >= 23.0.0)：[https://nodejs.org/en/download](https://nodejs.org/en/download)
+  - LibreChat 使用 CommonJS (CJS)，需要這些特定版本的 Node.js 以相容 openid-client v6。
+- Git：https://git-scm.com/download/
+- MongoDB (Atlas 或社群版伺服器)
+  - [MongoDB Atlas](/docs/configuration/mongodb/mongodb_atlas_zh_TW)
+  - [MongoDB 社群版伺服器](/docs/configuration/mongodb/mongodb_community_zh_TW)
+
+## 安裝步驟
+
+### 準備工作
+
+在終端機中執行下列指令：
+
+```bash filename="複製儲存庫"
+git clone https://github.com/danny-avila/LibreChat.git
+```
+
+```bash filename="進入 LibreChat 目錄"
+cd LibreChat
+```
+
+```bash filename="從 .env.example 建立 .env 檔案"
+cp .env.example .env
+```
+
+> **備註：** **如果您使用的是 Windows 10，可能需要使用 `copy` 而非 `cp`。**
+
+```bash filename="更新 MONGO_URI"
+重要：編輯新建立的 `.env` 檔案，將 `MONGO_URI` 更新為您自己的 MongoDB 實例 URI。
+```
+
+<Callout title="更新 MONGO_URI" emoji="❗">
+  編輯新建立的 `.env` 檔案，更新其中的 `MONGO_URI`
+</Callout>
+
+### 建置與啟動
+
+完成準備步驟後，執行下列指令：
+
+```bash filename="安裝依賴項目"
+npm ci
+```
+
+```bash filename="建置前端"
+npm run frontend
+```
+
+```bash filename="啟動 LibreChat！"
+npm run backend
+```
+
+<Callout type="success" title="存取 LibreChat！" emoji="🎉">
+  **造訪 [http://localhost:3080/](http://localhost:3080/)**
+</Callout>
+
+<Callout type="example" title="提示" emoji="🔥">
+  - 下次您想啟動 LibreChat 時，只需執行 `npm run backend` 即可。
+</Callout>
+
+## 更新 LibreChat
+
+若要將 LibreChat 更新至最新版本，請執行下列指令：
+
+<Callout type="warning" emoji="">
+  首先，停止 LibreChat（如果尚未停止）。
+</Callout>
+
+```bash filename="拉取最新專案變更"
+git pull
+```
+
+```bash filename="更新依賴項目"
+npm ci
+```
+
+```bash filename="重新建置前端"
+npm run frontend
+```
+
+```bash filename="啟動 LibreChat！"
+npm run backend
+```
+
+## 額外設定
+
+透過探索我們的配置指南來解鎖更多功能，學習如何設定：
+
+- Meilisearch 整合
+- RAG API 連線
+- 自定義終端 (Custom endpoints)
+- 其他進階配置選項
+- 以及更多
+
+這將讓您能根據選配功能自定義您的 LibreChat 體驗。
+
+**另請參閱：**
+- [使用者身份驗證系統設定](/docs/configuration/authentication_zh_TW)
+- [AI 設定](/docs/configuration/pre_configured_ai_zh_TW)
+- [自定義終端與配置](/docs/configuration/librechat_yaml_zh_TW)

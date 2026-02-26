@@ -1,0 +1,90 @@
+---
+title: MongoDB + Mongo Express
+date: 2023-11-30
+description: 學習如何設定 Mongo Express —— 一款友善的網頁介面，讓您能在 Docker 環境中安全地存取並管理您的 MongoDB 資料庫。
+tags:
+  - MongoDB
+  - MongoExpress
+  - Docker
+ogImage: /images/blog/2023-11-30_mongoexpress.png
+author: librechat
+category: guide
+---
+
+
+
+# 使用 Mongo Express 安全地管理您的 MongoDB 資料庫 🔑
+
+處理資料庫可能是一項艱鉅的任務，尤其是在確保數據安全方面。在本文中，我們將引導您設定 Mongo Express，這是一款基於網頁的友善介面，讓您能在 Docker 環境中安全地存取並管理您的 MongoDB 資料庫。
+
+## 什麼是 Mongo Express？ 🤔
+
+Mongo Express 是一款強大的管理工具，提供了一種便利且直觀的方式來與您的 MongoDB 資料庫進行互動。透過其簡潔的介面，您可以輕鬆瀏覽、編輯與管理數據，無需進行複雜的命令列操作。
+
+## 為什麼要在 Docker 環境中使用 Mongo Express？ 🐳
+
+在 Docker 環境中，為了優先確保數據安全，MongoDB 的外部連接埠通常不會暴露給外界。然而，這也使得直接管理資料庫變得具有挑戰性。這正是 Mongo Express 發揮作用的地方。透過在 Docker 環境中設定 Mongo Express，您可以在不犧牲安全性的情況下，安全地存取並管理您的 MongoDB 資料庫。
+
+## 設定 Mongo Express 🚀
+
+現在，讓我們深入瞭解在 Docker 環境中設定 Mongo Express 所需的步驟：
+
+1. **建立配置檔案**：首先，在與 LibreChat 的主 `docker-compose.yml` 檔案相同的目錄中，建立一個名為 `docker-compose.override.yml` 的新檔案。
+
+2. **加入 Mongo Express 配置**：將下列配置複製到 `docker-compose.override.yml` 檔案中：
+
+```yaml filename="docker-compose.override.yml"
+version: '3.4'
+
+services:
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: password
+    ports:
+      - '8081:8081'
+    depends_on:
+      - mongodb
+    restart: always
+```
+
+3. **設定強效憑證**：在使用此配置前，請將 `admin` 與 `password` 替換為用於存取 Mongo Express 的唯一且強效的使用者名稱與密碼。這些憑證應難以猜測，以防止未經授權的存取。
+
+4. **啟動 Mongo Express**：儲存 `docker-compose.override.yml` 檔案，並在 `docker-compose.yml` 檔案所在的目錄執行下列指令，將 Mongo Express 與其他 Docker 服務一同啟動：
+
+```sh filename="啟動容器"
+docker compose up -d
+```
+
+5. **存取 Mongo Express**：一旦 Mongo Express 啟動並執行，即可透過網頁瀏覽器導覽至 `http://localhost:8081` 進行存取。您需要輸入先前指定的使用者名稱與密碼。
+
+## 透過身份驗證增強安全性（選填） 🔒
+
+為了提升安全性，您可以為您的 MongoDB 資料庫啟用原生身份驗證。詳情請參閱 [MongoDB 身份驗證指南](/docs/configuration/mongodb/mongodb_auth_zh_TW) 以獲取設定身份驗證的詳細說明。
+
+如果您選擇啟用身份驗證，請確保管理員使用者具備必要的權限，例如 「clusterAdmin」 與 「readAnyDatabase」。該指南提供了建立具備所需權限的管理員使用者的逐步說明。
+
+## 移除 Mongo Express 🗑️
+
+如果您不再需要在 Docker 環境中使用 Mongo Express，可以透過下列步驟輕鬆移除：
+
+1. 導覽至包含 `docker-compose.yml` 與 `docker-compose.override.yml` 檔案的目錄。
+
+2. 執行下列指令停止當前的 Docker 環境：
+
+```sh filename="停止當前的 Docker 環境"
+docker compose down
+```
+
+3. 重新命名或刪除包含 Mongo Express 配置的 `docker-compose.override.yml` 檔案（或者從中移除 Mongo Express 區段）。
+
+4. 最後，在不包含 Mongo Express 的情況下重新啟動您的 Docker 環境：
+
+```sh filename="在不包含 Mongo Express 的情況下重新啟動 Docker 環境"
+docker compose up -d
+```
+
+透過這些簡單的步驟，您可以在維持安全環境的同時簡化資料庫管理程序。祝您管理愉快！ 🎉

@@ -1,0 +1,457 @@
+---
+title: Docker (遠端 Linux)
+icon: Container
+description: 這些說明是為在遠端 Ubuntu 伺服器上從零開始進行 Docker 安裝的人所設計的。
+---
+
+為了使用本指南，您需要一個已部署的遠端電腦或虛擬機 (VM)。雖然您也可以將本指南用於本地安裝，但請記住，它最初是針對雲端部署而寫的。
+
+> ⚠️ 本指南最初是針對 [DigitalOcean](/docs/remote/digitalocean_zh_TW) 設計的，因此您可能需要針對其他平台修改說明，但核心概念保持不變。
+
+## 第一部分：安裝 Docker 與其他依賴項目
+
+在 Linux 系統上設定 Docker 有多種方式。我將引導您採用 [基於此指南](https://www.smarthomebeginner.com/install-docker-on-ubuntu-22-04/) 的最佳且推薦的方式。
+
+> 備註：針對 Ubuntu 的 Docker 「最佳」安裝方式並不代表「最快」或「最簡單」。它是指對長期維護最有益的方式（例如更快的更新、安全性補丁等）。
+
+### **1. 更新並安裝 Docker 依賴項目**
+
+首先，讓我們更新套件清單並安裝所需的 Docker 依賴項目。
+
+```bash
+sudo apt update
+```
+
+接著，使用下列指令安裝依賴項目或必要套件。
+
+```bash
+sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+```
+
+#### **安裝備註**
+
+- 在整個指南中，遇到終端機的所有 [Y/n] (yes/no) 提示時，請輸入 「Y」。
+- 在第一個 [Y/n] 提示後，您將會看到幾個**紫色畫面**之一，詢問是否重啟服務。
+  - 每當發生這種情況時，您可以安全地針對預設已選取的選項按 ENTER 鍵：
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/05cf165b-d3d8-475a-93b3-254f3c63f59b)
+
+- 如果您的 Droplet 主控台 (console) 在任何時候中斷連線，請執行下列操作，然後從中斷處接下去：
+  - 按照上述方式重新存取主控台。
+  - 使用 `su - <您的使用者名稱>` 切換到您建立的使用者。
+
+### **2. 將 Docker 儲存庫加入 APT 來源**
+
+雖然從 Ubuntu 儲存庫安裝 Docker Engine 較容易，但加入官方 Docker 儲存庫可以讓您獲得更快的更新。這就是為什麼這是推薦的方法。
+
+首先，獲取連接到 Docker 儲存庫所需的 GPG 金鑰。請使用下列指令。
+
+```bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+```
+
+接著，將儲存庫加入來源清單。雖然您可以手動加入，但下列指令會自動為您完成。
+
+```bash
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+上述指令會自動填入您的版本代號（22.04 為 jammy，20.04 為 focal，18.04 為 bionic）。
+
+最後，再次重新整理您的套件清單。
+
+```bash
+sudo apt update
+```
+
+如果您忘記加入 GPG 金鑰，則上述步驟會因為錯誤訊息而失敗。否則，讓我們繼續在 Ubuntu 上安裝 Docker。
+
+### **3. 安裝 Docker**
+
+> docker.io 與 docker-ce 有什麼區別？
+
+> docker.io 是由一些熱門 Linux 發行版（如 Ubuntu/Debian）提供的 Docker 套件。而 docker-ce 則是來自官方 Docker 儲存庫的 Docker 套件。通常 docker-ce 更新更頻繁，也是首選。
+
+我們現在將安裝 docker-ce（而非 docker.io 套件）。
+
+```bash
+sudo apt install docker-ce
+```
+
+看到紫色畫面請按 ENTER。:)
+
+推薦做法：您應該確保建立的使用者已加入 docker 群組，以便能流暢地執行指令：
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+現在讓我們重啟系統以確保一切正常。
+
+```bash
+sudo reboot
+```
+
+重啟後，如果您使用的是瀏覽器端的 Droplet 主控台，可以點擊重新整理 (reload) 並等待重新進入主控台。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/2ad7b739-a3db-4744-813f-39af7dabfce7)
+
+**提醒：** 每當您使用 `sudo reboot` 重啟後，都應使用 `su - <您的使用者名稱>` 切換回您先前設定的使用者。
+
+### **4. 驗證 Docker 是否正在 Ubuntu 上執行**
+
+有多種方式可以檢查 Docker 是否正在 Ubuntu 上執行。其中一種是使用下列指令：
+
+```bash
+sudo systemctl status docker
+```
+
+您應該會看到狀態顯示為 **active (running)**。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/6baea405-8dfb-4d9d-9327-6e9ecf800471)
+
+按下 CTRL (或 CMD) + C 即可退出此日誌畫面。
+
+### **5. 安裝最新版本的 Docker Compose**
+
+Linux 發行版隨附的 docker-compose 版本可能較舊，無法供我們使用。
+
+檢查 [Docker Compose GitHub](https://github.com/docker/compose/releases) 上的發布版本，截至 2024/4/6，最新版本為 v2.26.1。
+
+您必須手動下載並安裝它。別擔心，這相當簡單。
+
+首先，使用下列指令下載最新版本的 Docker Compose：
+
+```bash
+sudo curl -L https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+```
+
+接著，使用下列指令使其具備執行權限：
+
+```bash
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+Docker Compose 現在應已安裝在您的 Ubuntu 系統上。讓我們確認一下。
+
+```bash
+docker-compose -v
+# 輸出應為：Docker Compose version v2.20.2 或更新版本
+```
+
+如果您像我一樣遇到權限被拒絕 (permission denied) 的錯誤，請再次重啟/切換至您建立的使用者，然後重新執行 `sudo chmod +x /usr/local/bin/docker-compose`。
+
+#### 關於 Docker Compose 指令的說明
+
+從 Docker Compose v2 開始，`docker-compose` 已變更為 `docker compose`。本指南暫時仍會使用舊指令，但您應留意此變動，且 `docker compose` 通常是首選。
+
+### **6. 作為本指南的一環，我推薦您安裝 git 與 npm：**
+
+雖然技術上非必要，但具備 git 與 npm 會讓安裝/更新變得非常簡單：
+
+```bash
+sudo apt install git nodejs npm
+```
+
+開始跑 Matrix 風格的指令行。
+
+您可以透過下列指令確認這些套件已成功安裝：
+
+```bash
+git --version
+node -v
+npm -v
+```
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/fbba1a38-95cd-4e8e-b813-04001bb82b25)
+
+> 備註：這會安裝相當舊的版本，特別是 npm。LibreChat 需要 Node.js v20.19.0+（或 ^22.12.0 或 >= 23.0.0）以便在 CommonJS 下相容 openid-client v6。如果您需要在宿主機直接執行 LibreChat（不使用 Docker），則需要安裝相容的 Node.js 版本。不過，針對本 Docker 指南，宿主機上的 Node.js 版本並不重要，因為應用程式是在容器內執行的。
+
+**好了，既然您已設定好 Droplet，現在要開始設定應用程式本身了。**
+
+---
+
+## 第二部分：設定 LibreChat
+
+### **1. 複製儲存庫**
+
+在 *Droplet* 命令列中（以您的使用者身份，而非 root）：
+
+```bash
+# 複製儲存庫
+git clone https://github.com/danny-avila/LibreChat.git
+
+# 進入專案目錄
+cd LibreChat/
+```
+
+### **2. 建立 LibreChat 配置與環境檔案**
+
+#### 配置 (librechat.yaml) 檔案
+
+接著，我們建立 [LibreChat 配置檔案](/docs/configuration/librechat_yaml_zh_TW)，即 `librechat.yaml`，以便自定義應用程式設定以及[自定義終端](/docs/configuration/librechat_yaml/ai_endpoints_zh_TW)。
+
+不論您是否想進一步自定義，我們使用的 `deploy-compose.yml` 檔案都需要此檔案，因此我們先建立一個具備最基本數值的檔案：
+
+```bash
+nano librechat.yaml
+```
+
+進入編輯畫面後，您可以貼入下列內容：
+
+```yaml
+# 如需更多資訊，請參閱配置指南：
+# https://www.librechat.ai/docs/configuration/librechat_yaml
+
+# 配置版本 (必填)
+version: 1.3.4
+# 此設定會快取配置文件，以便在應用程式生命週期中更快載入
+cache: true
+```
+
+按下 `CTRL + X` 退出編輯器，輸入 `Y` 儲存，最後按 `ENTER` 確認。
+
+<Callout type="info" title="配置驗證">
+如果您的 `librechat.yaml` 檔案包含驗證錯誤，LibreChat 將以錯誤（結束代碼 1）結束執行。這種「快速失敗」(fail-fast) 行為可確保在部署階段儘早發現配置問題。
+
+在部署前，請使用 [YAML 驗證器](/toolkit/yaml_checker_zh_TW) 驗證您的配置。如果您的 CI/CD 流程啟動了伺服器，它會在遇到無效配置時快速失敗，防止部署帶有配置錯誤的設定。
+</Callout>
+
+#### 環境 (.env) 檔案
+
+預設值已足以讓您開始執行應用程式，並允許您從網頁應用程式提供憑證。
+
+```bash
+# 將範例檔案複製為您的全域環境檔案
+cp .env.example .env
+```
+
+然而，**強烈建議**您修改預設的「秘密 (secret)」值，以提升安全性。若未修改，API 啟動日誌會發出警告。
+
+為了方便起見，您可以執行下列工具來產生您自己的數值：
+
+[https://www.librechat.ai/toolkit/creds_generator_zh_TW](https://www.librechat.ai/toolkit/creds_generator_zh_TW)
+
+```bash
+nano .env
+
+# 尋找下列變數並替換其預設值！
+
+# 必須是 16 位元組的 IV（32 個十六進位字元）
+
+CREDS_IV=e2341419ec3dd3d19b13a1a87fafcbfb
+
+# 必須是 32 位元組的金鑰（64 個十六進位字元）
+
+CREDS_KEY=f34be427ebb29de8d88c107a71546019685ed8b241d8f2ed00c3df97ad2566f0
+JWT_SECRET=16f8c0ef4a5d391b26034086c628469d3f9f497f08163ab9b40137092f2909ef
+JWT_REFRESH_SECRET=eaa5191f2914e30b9387fd84e254e4ba6fc51b4654968a9b0803b456a54b8418
+```
+
+如果您想為實例的所有使用者提供通用憑證，應在編輯此檔案時加入：
+
+```bash
+OPENAI_API_KEY=sk-您的金鑰
+```
+
+如同先前一樣，按下 `CTRL + X` 退出編輯器，輸入 `Y` 儲存，最後按 `ENTER` 確認。
+
+**大功告成！**
+
+為了完善配置，您應視需求編輯 .env 檔案，並務必閱讀檔案中的註釋以及下方的資源。
+
+```bash
+# 若需編輯 .env 檔案
+nano .env
+```
+
+這是一個需要留意的環境變數。這會停用外部註冊，若您建立完帳號後想關閉註冊功能可以設定此項。
+
+```shell
+ALLOW_REGISTRATION=false
+```
+
+**資源：**
+- [權杖/API 等設定](/docs/configuration/pre_configured_ai_zh_TW)
+- [使用者/驗證系統](/docs/configuration/authentication_zh_TW)
+
+### **3. 啟動 Docker**
+
+```bash
+# Docker 應已在執行，但保險起見仍可手動啟動
+sudo systemctl start docker
+
+# 確認 Docker 正在執行
+docker info
+```
+
+現在我們可以啟動應用程式容器。第一次我們使用完整指令，之後可以使用簡寫指令。
+
+```bash
+sudo docker-compose -f ./deploy-compose.yml up -d
+```
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/5e2f6627-8ca4-4fa3-be73-481539532ee7)
+
+您可以放心地關閉終端機 —— Docker 應用程式會持續執行。
+
+> 備註：此處使用的是專為部署環境優化的特殊 compose 檔案。如果您需要更多配置，應檢查 `deploy-compose.yml` 與 `Dockerfile.multi` 檔案。我們不在該環境中建置映像，因為 RAM 不足以應付。相反地，我們會拉取最新的 librechat `dev-api` 映像，該映像在每次推送至 main 分支後會自動建置。
+
+> 如果您正設定一個搭配 LibreChat 使用的網域，此 compose 檔案會使用位於 `client/nginx.conf` 的 nginx 檔案。相關說明請見下文第五部分。
+
+### **4. 應用程式執行後，您可以透過 `http://您的伺服器IP` 進行存取**
+
+#### 回到 Droplet 頁面獲取您的伺服器 IP，複製並貼入瀏覽器！
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/d8bbad29-6015-46ec-88ce-a72a43d8a313)
+
+#### 註冊、登入，並享受您私人代管的遠端 LibreChat :)
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/85070a54-eb57-479f-8011-f63c14116ee3)
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/b3fc2152-4b6f-46f9-81e7-4200b76bc468)
+
+---
+
+## 第三部分：更新 LibreChat
+
+只要上述步驟皆安裝成功且您未更動過 git 歷史紀錄，我已讓此步驟變得相當簡單。
+
+> 備註：如果您正工作於一個已編輯的分支（例如帶有您自己的 commits，或是修改過 `client/nginx.conf`），您應檢查 `config/deployed-update.js` 以視情況手動執行某些指令。詳情請見下文第五部分。
+
+執行下列指令進行自動化更新：
+
+```bash
+npm run update:deployed
+```
+
+**停止 Docker 容器**
+
+```bash
+npm run stop:deployed
+```
+
+> 此指令僅是執行 `docker-compose -f ./deploy-compose.yml down`
+
+**啟動 Docker 容器**
+
+```bash
+npm run start:deployed
+```
+
+> 此指令僅是執行 `docker-compose -f ./deploy-compose.yml up -d`
+
+**檢查活躍的 Docker 容器**
+
+```bash
+docker ps
+```
+
+若遇到問題，您可以在不使用腳本的情況下手動更新。
+
+```bash filename="停止執行中的容器"
+docker compose -f ./deploy-compose.yml down
+```
+
+```bash filename="移除所有現有的 docker 映像"
+# Linux/Mac
+docker images -a | grep "librechat" | awk '{print $3}' | xargs docker rmi
+
+# Windows (PowerShell)
+docker images -a --format "{{.ID}}" --filter "reference=*librechat*" | ForEach-Object { docker rmi $_ }
+```
+
+```bash filename="拉取最新專案變更"
+git pull 
+```
+
+```bash filename="拉取最新 LibreChat 映像"
+docker compose -f ./deploy-compose.yml pull
+```
+
+```bash filename="啟動 LibreChat"
+docker compose -f ./deploy-compose.yml up
+```
+
+---
+
+## 第四部分：編輯 NGINX 檔案（針對自定義網域與進階配置）
+
+如果您出於任何原因想編輯 NGINX 檔案（例如將您的伺服器指向自定義網域），請執行下列操作：
+
+```bash filename="首先，若實例正在執行請先停止"
+npm run stop:deployed
+```
+```bash filename="現在您可以放心地進行編輯"
+nano client/nginx.conf
+```
+
+我不會引導您設定自定義網域或其他 NGINX 變動，您可以參考 [Cloudflare 指南](/docs/remote/cloudflare_zh_TW)、[Traefik 指南](/docs/remote/traefik_zh_TW) 或 [NGINX 指南](/docs/remote/nginx_zh_TW) 以開始設定自定義網域。
+
+不過，我會向您展示在此設定下，LibreChat 側需要針對自定義網域進行哪些編輯。
+
+由於 NGINX 預設被用作代理傳轉 (proxy pass)，我僅需編輯下列內容：
+
+```shell
+# 修改前
+server_name localhost;
+
+# 修改後
+server_name 自定義.網域.com;
+```
+
+> 備註：這之所以奏效，是因為 `deploy-compose.yml` 檔案預設使用 NGINX，這與主 `docker-compose.yml` 檔案不同。如同以往，您可以根據需求配置 compose 檔案。
+
+現在將這些變更提交至一個獨立分支：
+
+```bash
+# 建立新分支
+# 範例：git checkout -b edit
+git checkout -b <分支名稱>
+
+# 暫存所有檔案變更
+git add .
+```
+
+若要將變更提交至 git 分支，您需要先識別自己的 git 身份。這些可以是假資料，但如果您希望在將此分支推送到 LibreChat 分叉儲存庫時能與 GitHub 同步，請使用您的 GitHub 電子郵件。
+
+```bash
+# 如果您不在意數值內容，這些設定即可生效
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+
+# 現在可以提交變更
+git commit -m "編輯 nginx.conf"
+```
+
+在已編輯分支上的更新方式會略有不同：
+
+```bash
+npm run rebase:deployed
+```
+
+您應該已經大功告成了！
+
+> **警告：** 如果您開始大幅度編輯分支，將會遇到合併衝突 (merge conflicts)，除非您知道自己在做什麼，否則不建議這樣做。
+
+> 備註：在此環境中對程式碼所做的任何變更都不會反映出來，因為 compose 檔案拉取的是由 GitHub 自動建置的 Docker 映像。
+
+---
+
+## 第五部分：使用最新穩定版 (Stable Release) 而非最新主分支 (Main Branch)
+
+預設情況下，此設定會拉取 LibreChat 主分支 (main branch) 的最新更新。如果您希望使用最新的「穩定 (stable)」版本（由 [最新標籤 tags](https://github.com/danny-avila/LibreChat/releases) 定義），您需要如同第五部分所述編輯 `deploy-compose.yml` 並提交變更。請注意，這樣做您將無法第一時間體驗到最新功能。
+
+讓我們編輯 `deploy-compose.yml`：
+
+```bash
+nano deploy-compose.yml
+```
+
+將 `librechat-dev-api` 更改為 `librechat-api`：
+
+```yaml
+image: ghcr.io/danny-avila/librechat-api:latest
+```
+
+按照第五部分的說明暫存並提交變更，您就完成了！

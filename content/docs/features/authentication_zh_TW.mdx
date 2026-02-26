@@ -1,0 +1,30 @@
+---
+title: 身份驗證
+icon: Lock
+description: LibreChat 使用者身份驗證系統快速概覽，提供安全且簡便的電子郵件與社群登入。
+---
+ 
+
+LibreChat 具備一套使用者身份驗證系統，讓使用者能安全且簡便地註冊與登入。此系統具備可擴充性，能處理大量的並行使用者，且不會損及效能或安全性。
+
+預設情況下，我們啟用了電子郵件註冊與登入，這代表使用者可以使用其電子郵件地址與密碼建立帳號。若忘記密碼，也可以進行重設。
+
+此外，我們的系統可以整合來自各種平台（如 Google、GitHub、Discord、OpenID 等）的社群登入。這代表使用者可以使用這些平台上的現有帳號登入，無需建立新帳號或記住另一組密碼。
+
+**如需更多細節，請參閱此處提供的配置指南：[身份驗證](/docs/configuration/authentication_zh_TW)**
+
+<Callout type="warning" title="重要事項">
+- 當您第一次執行應用程式時，需要點擊登入頁面上的 「Sign up」 來建立新帳號。您建立的第一個帳號將會是管理員 (admin) 帳號。目前，管理員使用者的唯一特權是控制 [智慧體 (Agents)](/docs/features/agents_zh_TW#管理員控制)、提示詞以及 [記憶 (Memory)](/docs/features/memory_zh_TW) 的權限，這對於日後透過管理員儀表板管理使用者與其他設定將會非常有用。
+- 建立的第一個帳號理想上應為本地帳號（電子郵件與密碼）。
+</Callout>
+
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    ![Image for Light Theme](https://github.com/danny-avila/LibreChat/assets/32828263/786fa525-73c4-4640-b4cf-91925ad8802e)
+  </div>
+
+  <div className="image-dark-theme">
+    ![Image for Dark Theme](https://github.com/danny-avila/LibreChat/assets/32828263/dddc34c6-9602-4177-89e8-4c0db01b0eac)
+  </div>
+</div>

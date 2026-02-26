@@ -1,0 +1,168 @@
+---
+title: 共享連結 (Shareable Links)
+icon: Share2
+description: 使用 LibreChat 的共享連結功能與他人分享您的對話，完整支援 QR Code、分支訊息以及 Artifacts 組件。
+---
+
+import Image from 'next/image'
+
+## 概覽
+
+LibreChat 中的共享連結 (Shareable Links) 讓您可以透過自動產生的連結與 QR Code 與他人分享對話。無論您是想與團隊成員協作、展示 AI 互動過程，還是分享產生的 Artifacts 組件，此功能都讓您只需點擊按鈕即可輕鬆地讓他人檢視您的對話。
+
+## 核心特色
+
+- **輕鬆分享**：只需點擊幾下即可產生共享連結。
+- **QR Code 產生**：透過 QR Code 快速分享對話，方便行動裝置存取。
+- **對話分支**：接收者可以在共享連結中看到分叉的對話路徑。
+- **Artifacts 支援**：共享的對話現在包含產生的 Artifacts 與互動式組件。
+- **可自定義外觀**：接收者可以調整語言與主題偏好。
+- **連結管理**：集中式儀表板可管理您所有的共享連結。
+
+## 如何分享對話
+有兩種方法可以讓對話變為可共享：
+
+### 選項 1：從對話選單
+
+![從對話選單點擊分享](/images/shared-links/share-from-menu.png)
+*從對話選單存取分享選項*
+
+### 選項 2：從分享按鈕
+
+![點擊對話中的分享按鈕](/images/shared-links/share-button.png)
+*使用當前對話中專用的分享按鈕*
+
+## 分享連結選項
+
+建立共享連結時，您會看到一個包含多個選項的對話方塊，可用於自定義對話對接收者的呈現方式。
+
+<div style={{display: "flex", gap: "20px", alignItems: "flex-start", flexWrap: "wrap"}}>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![建立分享連結對話方塊](/images/shared-links/share-modal-create.png)
+    *初始的分享連結建立對話方塊*
+  </div>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![具備選項的分享連結對話方塊](/images/shared-links/share-modal-options.png)
+    *共享連結配置對話方塊*
+  </div>
+</div>
+
+### 可用選項：
+
+- **更新連結 (Refresh Link)**：為分享的對話產生一個新的 URL。
+- **產生 QR Code (Generate QR code)**：建立並顯示一個 QR Code，方便行動裝置存取。
+- **複製連結至剪貼簿 (Copy Link to clipboard)**：將共享 URL 複製到您的剪貼簿。
+- **刪除連結 (Delete Link)**：移除共享連結，撤銷所有持有該連結的人之存取權。
+
+## QR Code 功能
+
+為您的共享對話產生 QR Code，以便在行動裝置上輕鬆分享。只需使用任何智慧型手機相機掃描代碼，即可立即存取對話。
+
+<div style={{display: "flex", gap: "20px", alignItems: "flex-start", flexWrap: "wrap"}}>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![為分享連結產生 QR Code](/images/shared-links/qr-code.png)
+    *產生 QR Code 以供行動裝置即時存取共享對話*
+  </div>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![QR Code 下載選項](/images/shared-links/qr-code-download.png)
+    *QR Code 將連結至共享對話的 URL*
+  </div>
+</div>
+
+這對於下列情境特別有用：
+- 簡報期間的分享
+- 快速的行動裝置存取
+- 透過印刷材料進行線下分享
+- 會議或活動演示
+
+## 檢視共享對話
+
+當有人開啟您的共享連結時，他們會看到一個整潔、專注於對話內容的頁面，其中包含您選擇納入的所有上下文。
+
+![檢視共享對話](/images/shared-links/shared-view.png)
+*接收者看到的共享對話介面*
+
+### 接收者可用的功能：
+
+- 共享連結發布的日期。
+- 捲動檢視整個對話的能力。
+- 存取任何包含在內的 Artifacts 或產生的內容。
+
+## 共享對話中的分支 (Branching)
+
+共享連結會保留對話分支，允許接收者探索不同的對話路徑，並瞭解討論是如何演進的。
+
+<div style={{display: "flex", gap: "20px", alignItems: "flex-start", flexWrap: "wrap"}}>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![共享對話中的分支選單](/images/shared-links/branching-menu.png)
+    *使用分支導覽箭頭存取不同的對話分支*
+  </div>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![共享對話的分支支援](/images/shared-links/branching-support.png)
+    *接收者可以在共享連結中導覽對話分支*
+  </div>
+</div>
+
+此功能對於下列情境至關重要：
+- 針對同一個問題演示不同的 AI 方案。
+- 說明解決方案與互動如何根據使用者輸入而產生多種不同路徑。
+
+## 共享對話中的 Artifacts
+
+對話過程中產生的所有 Artifacts 組件在共享連結中皆具備完整功能，包括 React 組件、HTML 程式碼與 Mermaid 圖表。
+
+![Artifacts 在共享對話中正常運作](/images/shared-links/artifacts-support.png)
+*產生的 Artifacts 在共享對話中仍保持互動性*
+
+接收者可以：
+- 查看互動式 React 組件。
+- 檢視 HTML 預覽。
+- 觀察 Mermaid 圖表。
+- 存取底層程式碼。
+- 理解 Artifacts 產生的背景上下文。
+
+## 接收者的自定義選項
+
+接收者可以透過調整語言與主題設定來個人化其檢視體驗。
+
+![共享連結的接收者設定](/images/shared-links/recipient-settings.png)
+*接收者可以自定義語言與主題偏好*
+
+可用自定義項：
+- **主題選擇**：亮色、暗色或跟隨系統。
+- **語言**：以偏好的語言檢視介面。
+
+## 管理您的共享連結
+
+存取設定選單中「數據控制 (Data Controls)」區段下的「共享連結管理 (Shared Links Management)」儀表板，可在一處檢視並管理您所有的共享對話。
+
+<div style={{display: "flex", gap: "20px", alignItems: "flex-start", flexWrap: "wrap"}}>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![共享連結管理儀表板](/images/shared-links/management-modal.png)
+    *管理您所有共享連結的集中式儀表板*
+  </div>
+  <div style={{flex: "1", minWidth: "300px"}}>
+    ![共享連結詳情與選項](/images/shared-links/management-details.png)
+    *查看詳情並管理個別的共享連結*
+  </div>
+</div>
+
+### 管理功能：
+
+- **檢視所有連結**：查看您已分享的所有對話清單。
+- **搜尋與篩選**：快速尋找並檢視特定共享連結的內容。
+- **撤銷存取**：刪除連結以立即停止分享。
+
+## 常見問題
+
+**問：接收者可以回應共享的對話嗎？**
+答：不行，共享連結是唯讀的。接收者可以檢視對話，但不能新增訊息或與 AI 互動。
+
+**問：如果我在分享後刪除了對話會發生什麼事？**
+答：該共享連結將不再可用，任何存取該連結的使用者都會看到「找不到共享連結」的頁面。
+
+**問：我可以在分享後編輯對話嗎？**
+答：共享連結擷取的是建立當下的對話狀態。後續新增的訊息將不會反映在分享視圖中 —— 然而，對現有訊息所做的編輯則會顯示。
+
+**問：共享連結支援離線瀏覽嗎？**
+答：不支援，接收者需要有網際網路連線才能檢視共享對話。

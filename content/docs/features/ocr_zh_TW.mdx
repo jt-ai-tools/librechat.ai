@@ -1,0 +1,250 @@
+---
+title: 文件 OCR
+icon: ScanText
+description: 學習如何配置光學字元辨識 (OCR) 以增強 LibreChat 檔案上傳功能中的文字提取效果。
+---
+
+LibreChat 中的 OCR (光學字元辨識) 是一項用於檔案文字提取的選配增強功能。
+
+### 以文字上傳 (Upload as Text)
+
+聊天框中的「以文字上傳」功能運作方式如下：
+
+- 匹配 `fileConfig.ocr.supportedMimeTypes` 的檔案若有可用的 OCR 則會使用之。
+- 若未配置 OCR，則退而使用文字解析。
+- 對於帶有文字的圖片、掃描文件與複雜的 PDF 特別有用。
+- 處理優先權：**OCR > STT > 文字解析**。
+- 詳情請參閱 [以文字上傳](/docs/features/upload_as_text_zh_TW) 文檔。
+
+### 檔案上下文 (針對智慧體)
+
+當您透過智慧體構建器的「檔案上下文 (File Context)」區段上傳檔案時：
+
+1. 預設使用文字解析提取文字（若配置了 OCR/STT 且檔案類型匹配則會優先使用）。
+2. 提取的文字會作為智慧體系統指令的一部分被儲存。
+3. 智慧體可以在所有對話中引用此上下文。
+4. **OCR 服務是選配的** —— 即使沒有 OCR，此功能仍可透過文字解析正常運作。
+
+上傳至「檔案上下文」的檔案會經過處理提取文字，隨後加入智慧體的系統指令中。這對於需要將完整文字內容納入指令的文件、程式碼檔案、PDF 或帶有文字的圖片來說非常理想。
+
+**備註：** 提取的文字會被包含在智慧體的系統指令中。
+
+## 選配 OCR 配置
+
+智慧體的「檔案上下文」與「以文字上傳」功能預設皆具備文字解析能力。若要增強圖片與掃描文件的提取品質，您可以選擇性地配置 OCR 服務：
+
+```yaml
+# librechat.yaml
+endpoints:
+  agents:
+    capabilities:
+      - "context"  # 啟用智慧體檔案上下文與以文字上傳
+      - "ocr"      # (選填) 使用 OCR 增強兩者
+
+ocr:
+  strategy: "mistral_ocr"
+  apiKey: "${OCR_API_KEY}"
+  baseURL: "https://api.mistral.ai/v1"
+  mistralModel: "mistral-ocr-latest"
+```
+
+**備註：** `context` 能力預設為啟用。您只有在需要提升圖片與掃描文件的提取品質時，才需要配置 OCR (`ocr` 能力)。
+
+## OCR 能力概覽
+
+LibreChat 中的 OCR 功能允許：
+
+- 從圖片與文件中提取文字。
+- 保留文件結構與格式。
+- 處理複雜佈局，包括多欄文本。
+- 處理表格、方程式與其他專業內容。
+- 支援多國語言內容。
+
+## OCR 策略 (Strategies)
+
+LibreChat 支援多種 OCR 策略以滿足不同的部署需求與規範。請選擇最適合您的基礎設施與合規要求的策略。
+
+### 1. Mistral OCR (預設)
+
+預設策略直接使用 Mistral 的雲端 API 服務。這是最簡單的設定方式，僅需獲取 Mistral 的 API 金鑰。
+
+**環境變數：**
+```.env
+# `.env`
+OCR_API_KEY=您的-mistral-api-key
+# OCR_BASEURL=https://api.mistral.ai/v1 # 這是預設值
+```
+
+**配置：**
+```yaml
+# `librechat.yaml`
+ocr:
+  mistralModel: "mistral-ocr-latest"       # 選填：指定 Mistral 模型，預設為 "mistral-ocr-latest"
+  apiKey: "您的-mistral-api-key"           # 選填：預設使用 OCR_API_KEY 環境變數
+  baseURL: "https://api.mistral.ai/v1"     # 選填：預設使用 OCR_BASEURL 變數，若未設定則指向 Mistral API
+  strategy: "mistral_ocr"                  # 選填：預設為 "mistral_ocr"
+```
+
+**核心特色：**
+- **保留文件結構**：維持標頭、段落、清單與表格等格式。
+- **多國語言支援**：處理多種語言與文字系統。
+- **複雜佈局處理**：處理多欄文本與混合內容。
+- **數學表達式辨識**：準確處理方程式與公式。
+- **高速處理**：每分鐘可處理多達 2000 頁。
+
+**考量事項：**
+- **成本**：使用 Mistral OCR 可能產生費用，因為它是付費 API 服務（儘管可能提供免費試用）。
+- **數據隱私**：透過 Mistral OCR 處理的數據受 Mistral 雲端環境及其服務條款約束。
+- **文件限制**： 
+  - 最大檔案大小：50 MB
+  - 最大文件長度：1,000 頁
+
+### 2. Azure Mistral OCR
+
+對於使用 Azure AI Foundry 的組織，您可以將 Mistral OCR 模型部署到您的 Azure 基礎設施中。目前 **Mistral OCR 2503** 模型已開放 Azure 部署。
+
+**配置：**
+```yaml
+# `librechat.yaml`
+ocr:
+  mistralModel: "已部署的-mistral-ocr-2503"              # 應匹配您的 Azure 部署名稱
+  apiKey: "${AZURE_MISTRAL_OCR_API_KEY}"                 # 引用 .env 中的 Azure API 金鑰
+  baseURL: "https://您的-部署-終端.models.ai.azure.com/v1"  # 您的 Azure 終端位址
+  strategy: "azure_mistral_ocr"                          # 使用 Azure 策略
+```
+
+**Azure 模型資訊：**
+您可以在此處探索 Azure AI Foundry 上可用的最新 Mistral OCR 模型（需要 Azure 訂閱）：
+
+https://ai.azure.com/explore/models/mistral-ocr-2503
+
+### 3. Google Vertex AI Mistral OCR
+
+對於使用 Google Cloud Platform 的組織，您可以將 Mistral OCR 模型部署到您的 Google Cloud Vertex AI 基礎設施中。
+
+**環境變數：**
+```bash
+# `.env`
+# 選項 1：檔案路徑
+GOOGLE_SERVICE_KEY_FILE=/path/to/your/service-account-key.json
+
+# 選項 2：獲取金鑰的 URL
+GOOGLE_SERVICE_KEY_FILE=https://your-secure-server.com/service-account-key.json
+
+# 選項 3：Base64 編碼的 JSON
+GOOGLE_SERVICE_KEY_FILE=eyJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsICJwcm9qZWN0X2lkIjogInlvdXItcHJvamVjdC1pZCIsIC4uLn0=
+
+# 選項 4：原始 JSON 字串
+GOOGLE_SERVICE_KEY_FILE='{
+  "type": "service_account",
+  "project_id": "your-project-id",
+  "private_key_id": "...",
+  "private_key": "-----BEGIN PRIVATE KEY-----
+...
+-----END PRIVATE KEY-----
+",
+  "client_email": "...",
+  "client_id": "...",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "..."
+}'
+```
+
+**配置：**
+```yaml
+# `librechat.yaml`
+ocr:
+  mistralModel: "mistral-ocr-2505"                        # 在 Vertex AI 中部署的模型名稱
+  strategy: "vertexai_mistral_ocr"                       # 使用 Google Vertex AI 策略
+```
+
+**設定要求：**
+1. 在 Google Vertex AI 部署 Mistral OCR 模型（例如：mistral-ocr-2505）。
+2. 建立一個具備存取 Vertex AI 終端權限的服務帳號。
+3. 下載服務帳號的 JSON 金鑰檔案。
+4. 使用支援的方法之一設定 `GOOGLE_SERVICE_KEY_FILE` 環境變數。
+
+### 4. 自定義 OCR (計畫中)
+
+支援自定義 OCR 供應商與使用者定義的策略已納入未來版本計畫。
+
+### 5. 直接將檔案上傳至供應商 (Direct)
+
+針對支援的 LLM 供應商（**OpenAI, AzureOpenAI, Anthropic, 與 Google**）及其對應模型，檔案現在可以作為訊息附件直接發送至供應商 API，
+允許供應商使用其原生的 OCR 實作，透過檔案附件下拉選單中的「上傳至供應商 (Upload to Provider)」選項來解析檔案。
+
+目前上述所有四家供應商皆支援圖片與 PDF，Google 在搭配相容的多模態模型時還支援音訊與影片檔案。
+
+<Callout type="note" title="Azure OpenAI PDF 上傳注意事項" emoji='✏️'>
+針對 **Azure OpenAI** 終端，僅在選用 Responses API 時才提供 PDF 檔案的「上傳至供應商」選項。Azure OpenAI 的 Chat Completions API 支援圖片但不支持 PDF 附件。
+
+如果您在 Azure OpenAI 的附件選單中沒看到 PDF 的 「Upload to Provider」 選項，請確保已在參數面板中啟用 Responses API 參數。
+
+備註：標準 OpenAI 終端在 Chat Completions 與 Responses API 中皆支援 PDF 上傳。
+</Callout>
+
+## 詳細配置
+
+如需額外的詳細配置選項，請參閱 [OCR 配置物件結構](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)。
+
+## OCR 處理配置
+
+透過 `fileConfig` 控制哪些檔案類型應使用 OCR 處理：
+
+```yaml
+fileConfig:
+  ocr:
+    supportedMimeTypes:
+      - "^image/(jpeg|gif|png|webp|heic|heif)$"
+      - "^application/pdf$"
+      - "^application/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|presentationml\.presentation|spreadsheetml\.sheet)$"
+      - "^application/vnd\.ms-(word|powerpoint|excel)$"
+      - "^application/epub\+zip$"
+```
+
+符合這些模式的檔案將在下列情況下使用 OCR：
+- 上傳至智慧體檔案上下文（若配置了 OCR 則始終使用）。
+- 在聊天中以文字上傳（若配置了 OCR；否則退而使用文字解析）。
+
+關於檔案處理配置的更多細節，請參閱 [檔案配置物件結構](/docs/configuration/librechat_yaml/object_structure/file_config_zh_TW)。
+
+## 智慧體檔案上下文的使用情境
+
+智慧體檔案上下文非常適合：
+
+- **持久的智慧體知識**：將文檔、政策或參考資料加入智慧體的系統指令中。
+- **專業智慧體**：從文件中建立具備領域專業知識的智慧體。
+- **基於文件的助手**：建構始終引用特定手冊或指南的智慧體。
+- **程式碼檔案**：在智慧體指令中包含代碼範例或函式庫。
+- **結構化數據**：加入 CSV、JSON 或其他結構化數據供智慧體參考。
+
+配置 OCR 後，檔案上下文還能處理：
+- **掃描文件處理**：從圖片或掃描版 PDF 中提取並儲存文字。
+- **圖片文字提取**：從文件截圖或照片中提取文字。
+
+關於聊天中的臨時文件提問，請參閱 [以文字上傳](/docs/features/upload_as_text_zh_TW)。
+
+## 限制事項
+
+- 文字提取的準確性可能因檔案類型、圖片品質、文件複雜度與文字清晰度而異。
+- 某些特殊的格式或不尋常的佈局可能無法被完美保留。
+- 非常大的文件可能會因為底層 AI 模型的代幣限制而被截斷。
+- 為了在圖片與掃描文件上獲得最佳效果，建議配置 OCR 服務。
+
+## 未來增強功能
+
+LibreChat 計畫在未來版本中擴展 OCR 能力：
+
+- 支援自定義 OCR 供應商。
+- 提供 `user_provided` 策略選項，讓使用者選擇其偏好的 OCR 服務。
+- 整合開源 OCR 解決方案。
+- 增強文件處理選項。
+- 提供更細粒度的 OCR 設定控制。
+- Mistral 計畫透過其雲端合作夥伴（如 GCP 與 AWS）提供其 OCR API，並為有嚴格數據隱私要求的組織提供企業級自行代管方案（[來源](https://mistral.ai/fr/news/mistral-ocr)）。
+- 目前 LibreChat 尚未在回應中包含來自 OCR 程序的已解析圖片內容，儘管如 [Mistral 的 OCR API](https://docs.mistral.ai/api/#tag/ocr) 等服務可能會在結果中提供。此功能可能會在未來的更新中支援。
+
+---
+
+關於配置 OCR 的更多資訊，請參閱 [OCR 配置物件結構](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)。

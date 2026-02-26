@@ -1,0 +1,145 @@
+---
+title: 概覽
+icon: BookOpen
+description: 關於如何為我們的文檔做出貢獻的全面指南
+---
+
+歡迎為本專案的文檔做出貢獻！本指南說明如何透過撰寫與格式化新文檔來貢獻 LibreChat 文檔。我們的網站使用 Nextra 3 構建，文檔則採用 `.mdx` 格式（增強型 Markdown）。
+
+### 何時該撰寫文檔 (Doc) vs. 部落格文章 (Blog Post)
+
+<Callout type="info" title="部落格 vs 文檔">
+當文檔是現有文檔的延伸、涉及特定情境，或需要外部維護（團隊未主動使用的功能）時，請考慮發布部落格文章。
+
+**參見：[貢獻部落格](/blog/2024-04-17_blog_guide_zh_TW)**
+
+</Callout>
+
+## 快速入門
+
+- 分叉 (Fork) LibreChat 文檔儲存庫：[https://github.com/LibreChat-AI/librechat.ai](https://github.com/LibreChat-AI/librechat.ai)
+
+- 在您的分叉儲存庫上建立一個分支，正確命名，並連結至原始儲存庫。
+
+```sh filename="下載您的 LibreChat.ai 分支"
+git clone -b 分支名稱 https://github.com/您的帳號/librechat.ai.git
+```
+
+> 請將 `分支名稱` 與 `您的帳號` 替換為實際資訊
+
+## 建立新文檔
+
+若要建立新文檔：
+
+- 使用 `.mdx` 副檔名（詳見 [MDX 文檔](https://mdxjs.com/)）。
+- 檔案命名請使用 **小寫字母** 與 **底線**（例如：`documentation_guidelines.mdx`）。
+- 將新文檔放置於 `./docs` 下相關的資料夾/子資料夾中。
+- 將該文檔新增至該資料夾下的 `_meta.ts` 檔案中的目錄列表。若未新增，它將按字母順序排在已排序的文檔之後。
+
+## Markdown 格式指引
+
+- 使用 `#`、`##` 與 `###` 作為標題與副標題。
+  - `#` 用於文檔標題（**每個文檔僅允許一個主標題**）。
+  - `##` 用於主要章節。
+  - `###` 用於章節內的子區段。
+- 使用 `**` 讓文字 **加粗** 並反白重要資訊（請勿將其用於替代標題）。
+- 使用 URL 路徑連結至其他文檔（例如：`/docs/documentation` 指向當前[文檔](/docs/documentation_zh_TW)）。
+- 您可以使用 HTML、TS 與 JS 為文檔加入額外功能。
+- 確保所有 HTML 標籤皆已閉合（例如：`<img src="" />` 或 `<a href="link"></a>`）。
+- 不要使用 HTML 註釋；請改用 [Markdown 註釋](https://gist.github.com/jonikarppinen/47dc8c1d7ab7e911f4c9?permalink_comment_id=4272770#gistcomment-4272770)，**且僅在文字確實需要隱藏時才使用**。
+
+### 文檔資源
+
+<Callout type="tip" title="文檔資源">
+
+查看一些整合組件的範例：
+
+- [組件範例](/docs/documentation/examples_zh_TW)
+
+如需更多資訊，請參考：
+
+- [Nextra](https://nextra.site/docs/docs-theme/start)
+- [Nextra 3](https://the-guild.dev/blog/nextra-3#intro)
+- [MDX](https://mdxjs.com/)
+
+</Callout>
+
+## 文檔元數據 (Metadata)
+
+請在文檔頂部按照下列格式新增元數據：
+
+> 備註：`ogImage` 欄位為選填，可以完全省略。它用於指定在社群媒體平台上分享文檔時顯示的圖片。
+
+```yaml filename="元數據範例："
+---
+title: 文檔標題
+description: 此描述將用於社群分享卡片與搜尋引擎結果。
+ogImage: /images/docs/<category>/image.png (選填)
+---
+```
+
+## 資產 (Assets)
+
+盡可能將資產（例如圖片）上傳至 GitHub，而非儲存在 `/public` 資料夾中。這有助於維持儲存庫的整潔，也讓管理資產更加容易。
+
+### 圖片
+
+**備註：在下列範例中：**
+  - 我同時提供了亮色與暗色模式的截圖。
+  - 我使用了 `Image from 'next/image'`，這能讓圖片檔案大小縮減 4 倍，以獲得更佳的效能。
+
+在此查看實際效果：[使用者指南](/docs/user_guides_zh_TW)
+
+```mdx filename="範例"
+import Image from 'next/image'
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    <Image src="https://github.com/danny-avila/LibreChat/assets/32828263/cf0f3231-287a-407f-bd4d-3d5bad94e893" alt="ipad-light" width={1024} height={512} style={{borderRadius: "5px"}} />
+  </div>
+
+  <div className="image-dark-theme">
+    <Image src="https://github.com/danny-avila/LibreChat/assets/32828263/a03ee02d-5099-4220-95b0-bfa2d3b00b4d" alt="ipad-dark" width={1024} height={512} style={{borderRadius: "5px"}} />
+  </div>
+</div>
+```
+
+### 如何在 GitHub 上傳圖片與影片
+
+<Callout title="方法 A" emoji="🅰️" collapsible>
+    - 前往 LibreChat 儲存庫
+    - 找一個隨意的對話或 PR
+    - 將剪貼簿中的圖片貼入文字輸入框。它會自動轉換為 URL。
+    - 複製產生的 URL 並貼入您的文檔中。（接著直接退出該頁面，無需發布評論。😉）
+
+    ![image](https://github.com/danny-avila/LibreChat/assets/32828263/c1612f93-a6c0-4af7-9965-9f83872cff00)
+
+</Callout>
+
+<Callout title="方法 B" emoji="🅱️" collapsible>
+    - 直接透過網頁 UI 上傳：
+
+    ![image](https://github.com/danny-avila/LibreChat/assets/32828263/4f138ab4-31a5-4fae-a459-5335e5ff25a8)
+
+</Callout>
+
+## 測試文檔
+
+<Callout type="warning" title="提交變更前">
+### 提交 PR 前請仔細檢閱
+
+在為您的部落格文章或文檔提交 PR 之前，**務必**進行測試，確保一切外觀與功能均符合預期。
+
+#### 檢查下列事項：
+
+- 新文檔的佈局、準確性與完整性
+- 文檔在目錄 (ToC) 中的位置
+- 文檔內的圖片與連結
+
+#### 如何測試：
+
+1. 執行 `pnpm install` 準備環境
+2. 執行 `pnpm dev` 啟動開發伺服器
+3. 執行 `pnpm build` 接著執行 `pnpm start` 來測試建置後的結果
+
+</Callout>

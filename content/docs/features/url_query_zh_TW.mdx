@@ -1,0 +1,252 @@
+---
+title: 查詢參數 (Query Parameters)
+icon: Link
+description: 學習如何在 LibreChat 中使用 URL 查詢參數來配置聊天對話。動態設定模型、終端與對話設定。
+---
+
+LibreChat 支援透過 URL 查詢參數動態配置聊天對話。此功能讓您可以直接從 URL 啟動具備特定設定、模型與終端的對話。
+
+### 聊天路徑 (Chat Paths)
+
+查詢參數必須接在有效的聊天路徑後方：
+- 開啟新對話：`/c/new?`
+- 進入現有對話：`/c/[對話-id]?`（[對話-id] 必須為現有的 ID）
+
+範例：
+
+```bash
+https://your-domain.com/c/new?endpoint=ollama&model=llama3%3Alatest
+https://your-domain.com/c/03debefd-6a50-438a-904d-1a806f82aad4?endpoint=openAI&model=o1-mini
+```
+
+## 基本用法
+
+最常用的參數是 `endpoint`（終端）與 `model`（模型）。建議同時使用兩者，以獲得最可預測的行為：
+
+```bash
+https://your-domain.com/c/new?endpoint=azureOpenAI&model=o1-mini
+```
+
+### URL 編碼 (URL Encoding)
+
+查詢參數中的特殊字元必須經過正確的 URL 編碼才能正常運作。常見需要編碼的字元如下：
+
+- `:` → `%3A`
+- `/` → `%2F`
+- `?` → `%3F`
+- `#` → `%23`
+- `&` → `%26`
+- `=` → `%3D`
+- `+` → `%2B`
+- 空格 → `%20` (或 `+`)
+
+帶有特殊字元的範例：
+```ts
+原始文字：`Write a function: def hello()`
+編碼後：`/c/new?prompt=Write%20a%20function%3A%20def%20hello()`
+```
+
+您可以使用 JavaScript 內建的 `encodeURIComponent()` 函式來正確編碼提示詞：
+```javascript
+const prompt = "Write a function: def hello()";
+const encodedPrompt = encodeURIComponent(prompt);
+const url = `/c/new?prompt=${encodedPrompt}`;
+console.log(url);
+```
+
+您可以嘗試在瀏覽器的主控台 (console) 執行上述代碼來查看編碼後的 URL（瀏覽器快捷鍵：`Ctrl+Shift+I`）。
+
+### 終端選取 (Endpoint Selection)
+
+`endpoint` 參數可以單獨使用：
+```bash
+https://your-domain.com/c/new?endpoint=google
+```
+
+當僅指定 `endpoint` 時：
+- 將使用儲存於 localStorage 中的該終端上次所選模型。
+- 若無先前紀錄，則使用該終端模型清單中的第一個可用模型。
+
+#### 備註
+
+- `endpoint` 的值必須為下列之一：
+```bash
+openAI, azureOpenAI, google, anthropic, assistants, azureAssistants, bedrock, agents
+```
+- 若使用 [自定義終端](/docs/quick_start/custom_endpoints_zh_TW)，可以使用其名稱作為數值（不區分大小寫）。
+
+```bash
+# 針對名為 `Perplexity` 的自定義終端使用 `endpoint=perplexity`
+https://your-domain.com/c/new?endpoint=perplexity&model=llama-3.1-sonar-small-128k-online
+```
+
+### 模型選取 (Model Selection)
+
+`model` 參數可以單獨使用：
+```bash
+https://your-domain.com/c/new?model=gpt-4o
+```
+
+當僅指定 `model` 時：
+- 僅在該模型存在於當前終端時才會選取。
+- 當前終端指的是預設終端或上次所選的終端。
+
+### 提示詞參數 (Prompt Parameter)
+
+`prompt` 參數讓您可以預先填寫聊天輸入欄位：
+```bash
+https://your-domain.com/c/new?prompt=解釋量子運算
+```
+
+您也可以使用 `q` 作為縮寫，與 `prompt` 效果相同：
+```bash
+https://your-domain.com/c/new?q=解釋量子運算
+```
+
+您可以將這些參數與其他參數結合使用：
+```bash
+https://your-domain.com/c/new?endpoint=anthropic&model=claude-3-5-sonnet-20241022&prompt=解釋量子運算
+```
+
+### 自動發送提示詞 (Automatic Prompt Submission)
+
+`submit` 參數允許您自動提交提示詞，無需手動點擊發送：
+```bash
+https://your-domain.com/c/new?prompt=解釋量子運算&submit=true
+```
+
+此功能對於下列情境特別有用：
+- 建立自動化工作流（例如搭配 Raycast, Alfred, Automater 等工具）。
+- 建構外部整合應用。
+
+您可以結合其他參數實現完全自動化：
+```bash
+https://your-domain.com/c/new?endpoint=openAI&model=gpt-4&prompt=解釋量子運算&submit=true
+```
+
+### 特殊終端
+
+#### 模型規範 (Model Specs)
+您可以按名稱選取特定的模型規範：
+```bash
+https://your-domain.com/c/new?spec=meeting-notes-gpt4
+```
+這將載入該模型規範中定義的所有設定。使用 `spec` 參數時，URL 中的其他模型參數將被忽略。
+
+#### 智慧體 (Agents)
+您可以直接透過 ID 載入智慧體，無需指定終端：
+```bash
+https://your-domain.com/c/new?agent_id=您的-智慧體-id
+```
+系統會自動將終端設定為 `agents`。
+
+#### 助手 (Assistants)
+同理，您可以直接載入助手：
+```bash
+https://your-domain.com/c/new?assistant_id=您的-助手-id
+```
+系統會自動將終端設定為 `assistants`。
+
+## 支援的參數
+
+LibreChat 支援多種參數，用於微調您的對話設定：
+
+### LibreChat 設定
+- `maxContextTokens`：覆寫系統定義的上下文窗口大小。
+- `resendFiles`：控制在後續訊息中是否重新發送檔案。
+- `promptPrefix`：設定自定義指令或系統訊息。
+- `imageDetail`：設定圖片品質，可選值為 'low'、'auto' 或 'high'。
+  - 備註：雖此為 LibreChat 特定參數，但僅影響下列終端：OpenAI、類 OpenAI 的自定義終端以及 Azure OpenAI（預設為 'auto'）。
+- `spec`：按名稱選取特定的 LibreChat [模型規範 (Model Spec)](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW)。
+  - 必須精確匹配配置的模型規範名稱。
+  - 指定後，URL 中的其他模型參數將不生效，僅採用模型規範定義的設定。
+  - **重要提示：** 若模型規範配置為 `enforce: true`，則可能必須使用此參數才能讓 URL 查詢參數正常運作。
+- `fileTokenLimit`：設定檔案處理的最大代幣限制，以控制成本與資源用量。
+  - 備註：請求中的數值會覆寫 YAML 的預設值。
+
+### 模型參數
+不同終端支援不同參數：
+
+**OpenAI, 自定義終端, Azure OpenAI:**
+```bash
+# 備註：這些值應符合供應商 API 的規範
+temperature, presence_penalty, frequency_penalty, stop, top_p, max_tokens,
+reasoning_effort, reasoning_summary, verbosity, useResponsesApi, web_search, disableStreaming
+```
+
+**Google, Anthropic:**
+```bash
+# 備註：這些值應符合供應商 API 的規範
+topP, topK, maxOutputTokens, thinking, thinkingBudget, web_search
+```
+
+**Anthropic, Bedrock (Anthropic 模型):**
+
+將此項設為 `true` 或 `false` 以切換「提示詞快取 (prompt-caching)」：
+```bash
+promptCache
+```
+
+更多資訊：https://www.anthropic.com/news/prompt-caching, https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html#prompt-caching-get-started
+
+**Bedrock:**
+```bash
+# Bedrock 區域
+region=us-west-2
+# Bedrock 對應於 `max_tokens` 的參數
+maxTokens=200
+```
+
+**Assistants/Azure Assistants:**
+```bash
+# 針對當前執行 (run) 覆寫現有的助手指令
+instructions=您的+指令
+```
+```bash
+# 為每次執行將當前日期與時間加入 `additional_instructions` 中
+append_current_datetime=true
+```
+
+## 更多資訊
+
+如需上述內容的詳細資訊，請參考 [模型規範預設欄位](/docs/configuration/librechat_yaml/object_structure/model_specs_zh_TW)，大部分參數是共用的。
+
+**多參數範例：**
+```bash
+https://your-domain.com/c/new?endpoint=google&model=gemini-2.0-flash-exp&temperature=0.7&prompt=嗨，小馬
+```
+
+**模型規範範例：**
+```bash
+https://your-domain.com/c/new?spec=meeting-notes-gpt4&prompt=這是會議逐字稿...
+```
+備註：使用 `spec` 時，其他模型參數會被忽略，優先採用模型規範的配置。
+
+## ⚠️ 警告
+
+使用查詢參數時請務必謹慎：
+- 誤用或超過供應商限制可能會導致 API 錯誤。
+- 若遇到錯誤請求 (bad request) 報錯，請點擊「開啟新對話」重置對話。
+- 部分參數若不被選定終端支援，則不會產生任何效果。
+
+## 最佳實踐
+
+1. 盡可能同時提供 `endpoint` 與 `model`。
+2. 確認所選終端是否支援該參數。
+3. 在供應商限制內使用合理的數值。
+4. 分享 URL 前先測試您的參數組合。
+
+## 參數驗證
+
+所有參數在套用前都會根據 LibreChat 的結構定義 (schema) 進行驗證。無效的參數或數值將被忽略，僅套用有效的設定至對話中。
+
+---
+
+此功能實現了多種強大的使用場景，例如：
+- 分享特定的對話配置。
+- 為不同的聊天設定建立書籤。
+- 透過 URL 參數自動化聊天初始化。
+
+---
+
+#LibreChat #聊天配置 #AI參數 #開源 #URL查詢參數

@@ -1,0 +1,73 @@
+---
+title: 組件 (Artifacts) - 生成式 UI
+icon: Palette
+description: 探索 LibreChat 革命性的 Artifacts 功能，可即時建立 React 組件、HTML 代碼與 Mermaid 圖表。
+---
+
+- **生成式 UI (Generative UI)**：建立 React 組件、HTML 代碼與 Mermaid 圖表
+- **靈活整合**：使用您已設定的任何模型
+- **迭代設計**：快速改進與精煉產出的結果
+- **智慧體整合**：在智慧體層級配置組件（推薦做法）
+
+> **備註：** 使用組件的首選方式是透過 [智慧體 (Agents) 功能](/docs/features/agents_zh_TW#組件-artifacts)，這允許在智慧體層級啟用/停用組件，提供比全域設定更細粒度的控制。
+
+<div align="center">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/GfTj7O4gmd0?si=NrtqGoodGpfANBfT" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen={true}></iframe>
+</div>
+
+## LibreChat 代碼組件的核心特色：
+
+- 透過生成式 AI 進行網站與 UI 的即時原型設計
+- 輕鬆建立動態、響應式佈局
+- React 與 HTML 的互動式學習環境
+- 使用 Mermaid 圖表實現複雜想法的視覺化
+- AI 驅動的直觀、以使用者為中心的設計迭代
+- 付費 AI 工具的免費且開源替代方案
+
+透過 LibreChat 的生成能力體驗 UI/UX 設計與開發的未來。比以往更快速地實現您的想法！
+
+## 內容安全政策 (Content-Security-Policy)
+
+您可能需要更新網頁伺服器的內容安全政策 (CSP)，將 `frame-src 'self' https://*.codesandbox.io` 納入其中，以便在 Artifacts 面板中載入產生的 HTML 應用程式。這是 [sandpack](https://sandpack.codesandbox.io/) 函式庫的依賴要求。
+
+## 自行代管 Sandpack 編譯器 (Bundler)
+
+LibreChat 中的 Artifacts 使用 CodeSandbox 的 Sandpack 函式庫來安全地渲染 HTML/JS 代碼。預設情況下，LibreChat 會連接到 CodeSandbox 的公開 CDN，該 CDN 同時也可能傳輸其使用情況的遙測數據。
+
+為了提升隱私性、符合安全規範或在隔離的網路環境中運作，您可以[自行代管編譯器。](https://sandpack.codesandbox.io/docs/guides/hosting-the-bundler)
+
+### 為什麼要自行代管 Sandpack 編譯器？
+
+[自行代管編譯器](https://sandpack.codesandbox.io/docs/guides/hosting-the-bundler) 提供多項優勢：
+
+- **隱私與安全**：將代碼執行保留在您自己的基礎設施內。
+- **可靠性**：移除對外部服務的依賴。
+- **效能**：透過在您的網路中託管編譯器來減少延遲。
+- **合規性**：滿足組織的資料處理要求。
+- **主導權**：根據您的特定需求進行配置與自定義。
+
+### 配置
+
+設定好自行代管的編譯器後，只需在 `.env` 檔案中設定環境變數，即可配置 LibreChat 使用它：
+
+```bash
+# `.env` 檔案
+SANDPACK_BUNDLER_URL=http://您的-編譯器-URL
+```
+
+### 一般考量
+
+自行代管編譯器會引入一些額外的負擔：
+
+- **CORS 配置**：您需要管理跨來源資源共享 (CORS) 原則。
+- **安全管理**：您需負責編譯器服務的安全性。
+- **維護**：需要手動套用更新與修正補丁。
+- **資源需求**：託管編譯器需要額外的伺服器資源。
+
+如需關於設定與維護自行代管編譯器的詳細說明，請參閱為 LibreChat 部署量身打造的 [分叉版 CodeSandbox 儲存庫](https://github.com/LibreChat-AI/codesandbox-client)，其中已移除了 Sandpack 的遙測功能。
+
+---
+
+AI 新聞 2024：原創且最強大的開源 AI 聊天平台 LibreChat 發布代碼組件 (Code Artifacts)！這款生成式 UI 工具只需在瀏覽器中輸入單一提示詞，即可搭配任何 LLM（OpenAI、Anthropic、LLAMA、Mistral、DeepSeek Coder，以及透過 OLLAMA 整合的模型）即時產生 React、HTML 與圖表。
+
+#AINews2024 #開源AI #生成式UI #代碼組件 #網頁開發 #ReactJS #LLM #AI原型設計 #開發工具 #OLLAMA #LibreChat

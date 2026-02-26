@@ -1,0 +1,21 @@
+---
+title: 概覽
+icon: BookOpen
+description: LibreChat 開發簡介
+---
+
+雖然 Docker 是我們安裝 LibreChat 的首選方法，因為它設定簡便且在不同環境間具備一致性，但 **我們強烈建議在進行開發時使用 `npm`。** 此建議是基於 npm 為開發者提供的幾項優勢：
+
+- **更快的迭代速度：** npm 允許在開發過程中實現更快的迭代週期。對代碼庫所做的變更可以立即反映，無需重新建置整個 Docker 映像，從而提高開發效率。
+- **直接的依賴管理：** 使用 npm 讓開發者能直接控制依賴項目。安裝、更新或移除套件，以及即時管理專案依賴項目都變得更加容易，這對開發至關重要。
+- **簡化的偵錯程序：** 使用 npm 進行偵錯更為直觀，因為開發者可以直接與代碼和工具互動，無需面對 Docker 引入的抽象層。這種直接互動有助於更容易地識別並解決問題。
+- **原生環境：** 透過 npm 進行開發可讓應用程式在您機器的原生環境中執行。這有助於在開發週期早期發現特定環境引起的問題。
+
+<Callout type="info" title="開發資源" emoji="🧑‍💻">
+  - 📚 如果您對 **儲存庫 (repositories)**、**拉取請求 (pull requests, PRs)**、**分叉 (forks)** 以及 **分支 (branches)** 等概念還不熟悉，請先閱讀 GitHub 官方文件：
+    - **[快速入門 - 關於協作開發模型](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/getting-started/about-collaborative-development-models)**
+  - 👥 我們的貢獻者指南位於：
+    - **[貢獻者指南](https://github.com/danny-avila/LibreChat/blob/main/.github/CONTRIBUTING.md)** 
+  - 💻 若要瞭解更多關於我們的編碼標準，請參閱：
+    - **[編碼慣例](/docs/development/conventions_zh_TW)**
+</Callout>

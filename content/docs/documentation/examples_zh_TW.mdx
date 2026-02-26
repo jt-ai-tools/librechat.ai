@@ -1,0 +1,651 @@
+---
+title: 文檔組件範例
+icon: Code
+description: 探索本網站提供的各種組件，您可以將它們無縫地整合到您對部落格與文檔的貢獻中。
+---
+
+
+import {
+  ArrowRight,
+  ArrowUp,
+  SvgBox,
+  Brush,
+  SvgCards,
+  ChevronRight,
+  Close,
+  Cloud,
+  Code,
+  Diagram,
+  Dropper,
+  File,
+  Files,
+  SvgFolderTree,
+  Formula,
+  Gear,
+  Globe,
+  IdCard,
+  Lightning,
+  SvgLink,
+  Markdown,
+  Newsletter,
+  One,
+  Picture,
+  Rows,
+  Search,
+  Sort,
+  Stars,
+  SvgSwitch,
+  SvgTable,
+  Terminal,
+  Warning,
+} from '@/components/svg'
+
+import { Feature, Features } from '@/components/features'
+
+## 輪播圖 (Carousel)
+
+<Tabs items={['範例', '代碼']}>
+  <Tabs.Tab>
+    <Carousel autoplay animationDuration="1500" perView="3">
+      <img 
+      src="https://github.com/danny-avila/LibreChat/assets/32828263/9b260f59-6acc-4fac-83b9-9d123d6b4a35" 
+      alt="Slide 1"
+      style={{ maxWidth: '75%', height: 'auto', borderRadius: '20px' }}
+      />
+      <img
+      src="https://github.com/danny-avila/LibreChat/assets/32828263/d742c488-963a-4011-86f2-b6df184b70d1" 
+      alt="Slide 2" 
+      style={{ maxWidth: '75%', height: 'auto', borderRadius: '20px' }}
+      />
+      <img
+      src="https://github.com/danny-avila/LibreChat/assets/32828263/5a338731-eb95-41ea-8327-f5e78b8cc157" 
+      alt="Slide 3" 
+      style={{ maxWidth: '75%', height: 'auto', borderRadius: '20px' }}
+      />
+    </Carousel>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```tsx copy filename="carousel"
+<Carousel autoplay animationDuration="1500" showBullets perView="3">
+  <img src="slide1.jpg" alt="Slide 1" />
+  <img src="slide2.jpg" alt="Slide 2" />
+  <img src="slide3.jpg" alt="Slide 3" />
+</Carousel>
+  ```
+
+此範例展示如何使用 `Carousel` 組件及其對應參數：
+
+- `autoplay`：啟用輪播圖自動播放。
+- `animationDuration="1500"`：設定動畫持續時間為 1500 毫秒。
+- `showControls`：顯示輪播圖的上一個與下一個控制按鈕。
+- `showBullets`：顯示輪播圖的點狀導覽。
+- `perView="3"`：同時顯示三張投影片。
+
+在 `Carousel` 組件內部，您可以放置任何想顯示為投影片的內容。在此範例中，我們使用 `<img>` 元素並指定圖片路徑。
+
+  </Tabs.Tab>
+</Tabs>
+
+## 提示框 (Callouts)
+
+<Tabs items={['可摺疊提示框', '標準提示框']}>
+  <Tabs.Tab>
+    <Tabs items={['範例', '代碼']}>
+      <Tabs.Tab>
+
+  <Callout type="other" title="未定義或不支援的類型" emoji='💀'collapsible>
+  這裡放置提示框的內容。它可以包含多行文字，並且可以被使用者摺疊或展開。
+  </Callout>
+
+  <Callout type="default" title="預設 (default)" collapsible>
+  這是預設類型的提示框範例。
+  </Callout>
+
+  <Callout type="example" title="範例 (example)" collapsible>
+  這是範例類型的提示框範例。
+  </Callout>
+
+  <Callout type="note" title="備註 (note)" collapsible>
+  這是備註類型的提示框範例。
+  </Callout>
+
+  <Callout type="abstract" title="摘要 (abstract)" collapsible>
+  這是摘要類型的提示框範例。
+  </Callout>
+
+  <Callout type="info" title="資訊 (info)" collapsible>
+  這是資訊類型的提示框範例。
+  </Callout>
+
+  <Callout type="tip" title="技巧 (tip)" collapsible>
+  這是技巧類型的提示框範例。
+  </Callout>
+
+  <Callout type="success" title="成功 (success)" collapsible>
+  這是成功類型的提示框範例。
+  </Callout>
+
+  <Callout type="question" title="問題 (question)" collapsible>
+  這是問題類型的提示框範例。
+  </Callout>
+
+  <Callout type="warning" title="警告 (warning)" collapsible>
+  這是警告類型的提示框範例。
+  </Callout>
+
+  <Callout type="error" title="錯誤 (error)" collapsible>
+  這是錯誤類型的提示框範例。
+  </Callout>
+
+  <Callout type="danger" title="危險 (danger)" collapsible>
+  這是危險類型的提示框範例。
+  </Callout>
+
+  <Callout type="bug" title="臭蟲 (bug)" collapsible>
+  這是臭蟲類型的提示框範例。
+  </Callout>
+
+  <Callout type="quote" title="引用 (quote)" collapsible>
+  這是引用類型的提示框範例。
+  </Callout>
+      </Tabs.Tab>
+      <Tabs.Tab>
+```tsx copy filename="callout"
+<Callout type="success" title="標題" emoji='🦆' collapsible>
+  - 類型 (type) 決定了色系與預設表情符號
+  - "title" 是選填的
+  - "emoji" 是選填的
+  - 僅在需要摺疊功能時加入 "collapsible"
+</Callout>
+```
+      </Tabs.Tab>
+    </Tabs>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <Tabs items={['範例', '代碼']}>
+      <Tabs.Tab>
+
+{' '}
+
+<Callout type="" title="未定義提示框" emoji="💀">
+  未定義或不支援的 `type` 會預設使用此色系。
+</Callout>
+
+{' '}
+
+<Callout type="default" title="預設">
+  這是一個預設提示框
+</Callout>
+
+{' '}
+
+<Callout type="example" title="範例">
+  這是一個範例提示框
+</Callout>
+
+{' '}
+
+<Callout type="note" title="備註">
+  這是一個備註提示框
+</Callout>
+
+{' '}
+
+<Callout type="abstract" title="摘要">
+  這是一個摘要提示框
+</Callout>
+
+{' '}
+
+<Callout type="info" title="資訊">
+  這是一個資訊提示框
+</Callout>
+
+{' '}
+
+<Callout type="tip" title="技巧">
+  這是一個技巧提示框
+</Callout>
+
+{' '}
+
+<Callout type="success" title="成功">
+  這是一個成功提示框
+</Callout>
+
+{' '}
+
+<Callout type="question" title="問題">
+  這是一個問題提示框
+</Callout>
+
+{' '}
+
+<Callout type="warning" title="警告">
+  這是一個警告提示框
+</Callout>
+
+{' '}
+
+<Callout type="error" title="錯誤">
+  這是一個錯誤提示框
+</Callout>
+
+{' '}
+
+<Callout type="danger" title="危險">
+  這是一個危險提示框
+</Callout>
+
+{' '}
+
+<Callout type="bug" title="臭蟲">
+  這是一個臭蟲提示框
+</Callout>
+
+  <Callout type="quote" title="引用">
+  這是一個引用提示框
+  </Callout>
+      </Tabs.Tab>
+      <Tabs.Tab>
+```tsx copy filename="callout"
+<Callout type="success" title="標題" emoji='🦆'>
+  - 類型 (type) 決定了色系與預設表情符號
+  - "title" 是選填的
+  - "emoji" 是選填的
+</Callout>
+```
+      </Tabs.Tab>
+    </Tabs>
+  </Tabs.Tab>
+</Tabs>
+
+## 選項表 (Option Table)
+
+<Tabs items={['範例', '代碼']}>
+  <Tabs.Tab>
+    <OptionTable
+      options={[
+        ['EXAMPLE', 'boolean', '這是一個範例。','EXAMPLE=true'],
+      ]}
+    />
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+```mdx filename="Option Table"
+<OptionTable
+  options={[
+    ['EXAMPLE', 'boolean', '這是一個範例。','EXAMPLE=true'],
+  ]}
+/>
+```
+  </Tabs.Tab>
+</Tabs>
+
+## 檔案樹 (File Tree)
+
+<Tabs items={['範例','代碼']}>
+&nbsp;
+
+<Tabs.Tab>
+
+<FileTree>
+  <FileTree.Folder name="src" defaultOpen>
+    <FileTree.File name="main.js" active />
+    <FileTree.Folder name="components">
+      <FileTree.File name="Header.js" />
+      <FileTree.File name="Footer.js" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+  <FileTree.File name="package.json" />
+</FileTree>
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+- `<FileTree.Folder>`：代表一個資料夾。它可以包含嵌套的資料夾或檔案組件。
+- `<FileTree.File>`：代表一個檔案。此組件僅需提供 `name` 參數，決定 UI 顯示的檔案名稱。
+- `name`：決定 UI 中顯示的檔案或資料夾名稱。
+- `defaultOpen`：設定資料夾的初始狀態。若為 true，資料夾在首次渲染時會處於展開狀態。
+- `open`：若對資料夾傳遞此參數，它將始終保持開啟，不受使用者互動影響。這在您想維持檔案樹特定區段顯現時很有用。
+- `active`：在檔案上使用此參數時，該檔案名稱會被反白。這適合用來向使用者展示當前正在檢視或選取的檔案。
+
+```tsx copy filename="file-tree.tsx"
+<FileTree>
+  <FileTree.Folder name="src" defaultOpen>
+    <FileTree.File name="main.js" active />
+    <FileTree.Folder name="components">
+      <FileTree.File name="Header.js" />
+      <FileTree.File name="Footer.js" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+  <FileTree.File name="package.json" />
+</FileTree>
+```
+
+[<span style={{ fontSize: '0.8rem' }}>原始碼 ↗</span>](https://github.com/shuding/nextra/blob/main/packages/nextra/src/components/file-tree.tsx)
+
+</Tabs.Tab>
+</Tabs>
+
+## 卡片 (Cards)
+
+<Tabs items={['卡片陣列', '單張卡片']}>
+  <Tabs.Tab>
+    <Tabs items={['範例', '代碼']}>
+      <Tabs.Tab>
+
+<Cards>
+  <Cards.Card icon={<ArrowRight />} title="ArrowRight" href="/" />
+  <Cards.Card icon={<ArrowUp />} title="ArrowUp" href="/" />
+  <Cards.Card icon={<SvgBox />} title="SvgBox" href="/" />
+  <Cards.Card icon={<Brush />} title="Brush" href="/" />
+  <Cards.Card icon={<SvgCards />} title="SvgCards" href="/" />
+  <Cards.Card icon={<ChevronRight />} title="ChevronRight" href="/" />
+  <Cards.Card icon={<Close />} title="Close" href="/" />
+  <Cards.Card icon={<Cloud />} title="Cloud" href="/" />
+  <Cards.Card icon={<Code />} title="Code" href="/" />
+  <Cards.Card icon={<Diagram />} title="Diagram" href="/" />
+  <Cards.Card icon={<Dropper />} title="Dropper" href="/" />
+  <Cards.Card icon={<File />} title="File" href="/" />
+  <Cards.Card icon={<Files />} title="Files" href="/" />
+  <Cards.Card icon={<SvgFolderTree />} title="SvgFolderTree" href="/" />
+  <Cards.Card icon={<Formula />} title="Formula" href="/" />
+  <Cards.Card icon={<Gear />} title="Gear" href="/" />
+  <Cards.Card icon={<Globe />} title="Globe" href="/" />
+  <Cards.Card icon={<IdCard />} title="IdCard" href="/" />
+  <Cards.Card icon={<Lightning />} title="Lightning" href="/" />
+  <Cards.Card icon={<SvgLink />} title="Link" href="/" />
+  <Cards.Card icon={<Markdown />} title="Markdown" href="/" />
+  <Cards.Card icon={<Newsletter />} title="Newsletter" href="/" />
+  <Cards.Card icon={<One />} title="One" href="/" />
+  <Cards.Card icon={<Picture />} title="Picture" href="/" />
+  <Cards.Card icon={<Rows />} title="Rows" href="/" />
+  <Cards.Card icon={<Search />} title="Search" href="/" />
+  <Cards.Card icon={<Sort />} title="Sort" href="/" />
+  <Cards.Card icon={<Stars />} title="Stars" href="/" />
+  <Cards.Card icon={<SvgSwitch />} title="SvgSwitch" href="/" />
+  <Cards.Card icon={<SvgTable />} title="SvgTable" href="/" />
+  <Cards.Card icon={<Terminal />} title="Terminal" href="/" />
+  <Cards.Card icon={<Warning />} title="Warning" href="/" />
+  <Cards.Card icon="🚀&nbsp;&ensp;" title="Emoji" href="/" />
+</Cards>
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```tsx copy filename="卡片陣列"
+import { Code } from '@/components/svg/'
+;<Cards>
+  <Cards.Card icon={<Code />} title="Code" href="/" />
+</Cards>
+```
+
+      </Tabs.Tab>
+    </Tabs>
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <Tabs items={['範例', '代碼']}>
+      <Tabs.Tab>
+
+{' '}
+
+<Cards.Card icon={<ArrowRight />} title="ArrowRight" href="/" />
+<Cards.Card icon={<ArrowUp />} title="ArrowUp" href="/" />
+<Cards.Card icon={<SvgBox />} title="SvgBox" href="/" />
+<Cards.Card icon={<Brush />} title="Brush" href="/" />
+<Cards.Card icon={<SvgCards />} title="SvgCards" href="/" />
+<Cards.Card icon={<ChevronRight />} title="ChevronRight" href="/" />
+<Cards.Card icon={<Close />} title="Close" href="/" />
+<Cards.Card icon={<Cloud />} title="Cloud" href="/" />
+<Cards.Card icon={<Code />} title="Code" href="/" />
+<Cards.Card icon={<Diagram />} title="Diagram" href="/" />
+<Cards.Card icon={<Dropper />} title="Dropper" href="/" />
+<Cards.Card icon={<File />} title="File" href="/" />
+<Cards.Card icon={<Files />} title="Files" href="/" />
+<Cards.Card icon={<SvgFolderTree />} title="SvgFolderTree" href="/" />
+<Cards.Card icon={<Formula />} title="Formula" href="/" />
+<Cards.Card icon={<Gear />} title="Gear" href="/" />
+<Cards.Card icon={<Globe />} title="Globe" href="/" />
+<Cards.Card icon={<IdCard />} title="IdCard" href="/" />
+<Cards.Card icon={<Lightning />} title="Lightning" href="/" />
+<Cards.Card icon={<SvgLink />} title="Link" href="/" />
+<Cards.Card icon={<Markdown />} title="Markdown" href="/" />
+<Cards.Card icon={<Newsletter />} title="Newsletter" href="/" />
+<Cards.Card icon={<One />} title="One" href="/" />
+<Cards.Card icon={<Picture />} title="Picture" href="/" />
+<Cards.Card icon={<Rows />} title="Rows" href="/" />
+<Cards.Card icon={<Search />} title="Search" href="/" />
+<Cards.Card icon={<Sort />} title="Sort" href="/" />
+<Cards.Card icon={<Stars />} title="Stars" href="/" />
+<Cards.Card icon={<SvgSwitch />} title="SvgSwitch" href="/" />
+<Cards.Card icon={<SvgTable />} title="SvgTable" href="/" />
+<Cards.Card icon={<Terminal />} title="Terminal" href="/" />
+<Cards.Card icon={<Warning />} title="Warning" href="/" />
+<Cards.Card icon="🚀&nbsp;&ensp;" title="Emoji" href="/" />
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```tsx copy filename="單張卡片"
+import { Code } from '@/components/svg/'
+;<Cards.Card icon={<Code />} title="Code" href="/" />
+```
+
+      </Tabs.Tab>
+    </Tabs>
+
+  </Tabs.Tab>
+</Tabs>
+
+{/* TODO: Button examples with onClick handlers need client component wrapping for Fumadocs.
+    These were Nextra interactive examples that are incompatible with Server Components. */}
+
+## 預設按鈕 (Default Button)
+
+包含互動處理程序的按鈕範例目前在 Fumadocs 遷移中尚不可用。
+請參考原始的 Nextra 源碼：
+[原始碼](https://github.com/shuding/nextra/blob/main/packages/nextra/src/components/button.tsx)
+
+## 特色功能 (Features)
+
+<Tabs items={['範例', '代碼']}>
+  <Tabs.Tab>
+    <Features>
+      <Feature href="https://example.com">
+        這是一個帶有連結的特色功能。
+      </Feature>
+      <Feature medium lightOnly>
+        這是一個中型「僅限亮色」特色功能，佔用兩個單元。
+      </Feature>
+      <Feature large centered>
+        這是一個帶有「置中」屬性的大型特色功能。
+      </Feature>
+      <Feature large>
+        ![](/images/socialcards/default-image.png)
+      </Feature>
+    </Features>
+
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+
+此範例展示如何使用 `<Features>` 與 `<Feature>` 組件來顯示特色功能區段。`<Feature>` 組件可以透過不同的參數進行自定義，例如 `href` 用於連結、`medium` 或 `large` 用於尺寸、`lightOnly` 用於僅亮色模式顯示，以及 `centered` 用於內容置中。
+
+提供的代碼包含 Markdown 內容與 `<Features>` 區段的組合。在 `<Features>` 區段內部，有四個不同配置的 `<Feature>` 組件，展示了各種使用案例。
+
+```tsx copy filename="features"
+import { Feature, Features } from '@/components/features'
+;<Features>
+  <Feature href="https://example.com">這是一個帶有連結的特色功能。</Feature>
+  <Feature medium lightOnly>
+    這是一個中型「僅限亮色」特色功能，佔用兩個單元。
+  </Feature>
+  <Feature large centered>
+    這是一個帶有「置中」屬性的大型特色功能。
+  </Feature>
+  <Feature large>![](/images/banner.png)</Feature>
+</Features>
+```
+
+[<span style={{ fontSize: '0.8rem' }}>原始碼：./components/features/</span>]()
+
+  </Tabs.Tab>
+</Tabs>
+
+## 簡單分頁 (Simple Tabs)
+
+<Tabs items={['範例', '代碼']}>
+  <Tabs.Tab>
+    <Tabs items={['React', 'Vue', 'Angular']}>
+      <Tabs.Tab>
+        **React** 是一個用於建構使用者介面的 JavaScript 函式庫。
+      </Tabs.Tab>
+      <Tabs.Tab>
+        **Vue** 是一個用於建構使用者介面的漸進式 JavaScript 框架。
+      </Tabs.Tab>
+      <Tabs.Tab>
+        **Angular** 是一個用於建構行動與桌面網頁應用程式的平台。
+      </Tabs.Tab>
+    </Tabs>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```tsx copy filename="simple-tabs"
+<Tabs items={['React', 'Vue', 'Angular']}>
+  <Tabs.Tab>
+    **React** 是一個用於建構使用者介面的 JavaScript 函式庫。
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Vue** 是一個用於建構使用者介面的漸進式 JavaScript 框架。
+  </Tabs.Tab>
+  <Tabs.Tab>
+    **Angular** 是一個用於建構行動與桌面網頁應用程式的平台。
+  </Tabs.Tab>
+</Tabs>
+  ```
+  [<span style={{ fontSize: '0.8rem' }}>原始碼 ↗</span>](https://github.com/shuding/nextra/blob/main/packages/nextra/src/components/tabs.tsx)
+  </Tabs.Tab>
+</Tabs>
+
+---
+
+在此範例中，我們有一個包含三個分頁的 `<Tabs>` 組件："React", "Vue", 與 "Angular"。每個分頁都包含對該技術的簡短描述。
+
+`<Tabs>` 組件上的 `items` 參數是一個字串陣列，代表每個分頁的標籤。每個分頁的內容放置在對應的 `<Tabs.Tab>` 組件內。
+
+這展示了沒有任何嵌套的 `<Tabs>` 組件之直接用法。
+
+## 嵌套分頁 (Nested Tabs)
+
+此範例展示如何使用 `<Tabs>` 與 `<Tabs.Tab>` 組件建立嵌套分頁。外層的 `<Tabs>` 組件有兩個分頁："水果 (Fruit)" 與 "蔬菜 (Vegetable)"。在這些分頁內部，有針對特定水果與蔬菜的嵌套分頁。
+
+`<Tabs>` 組件上的 `items` 參數是一個字串陣列，代表每個分頁的標籤。每個分頁的內容放置在對應的 `<Tabs.Tab>` 組件內。
+
+<Tabs items={['範例', '代碼']}>
+  <Tabs.Tab>
+    <Tabs items={['水果', '蔬菜']}>
+      <Tabs.Tab>
+        <Tabs items={['蘋果', '橘子']}>
+          <Tabs.Tab>
+            蘋果是水果。
+          </Tabs.Tab>
+          <Tabs.Tab>
+            橘子是水果。
+          </Tabs.Tab>
+        </Tabs>
+      </Tabs.Tab>
+      <Tabs.Tab>
+        <Tabs items={['紅蘿蔔', '花椰菜']}>
+          <Tabs.Tab>
+            紅蘿蔔是蔬菜。
+          </Tabs.Tab>
+          <Tabs.Tab>
+            花椰菜是蔬菜。
+          </Tabs.Tab>
+        </Tabs>
+      </Tabs.Tab>
+    </Tabs>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```tsx copy filename="nested-tabs"
+  <Tabs items={['A', 'B']}>
+    <Tabs.Tab>
+      <Tabs items={['1a', '2a']}>
+        <Tabs.Tab>
+          **1a 的內容**
+        </Tabs.Tab>
+        <Tabs.Tab>
+          **2a 的內容**
+        </Tabs.Tab>
+      </Tabs>
+    </Tabs.Tab>
+    <Tabs.Tab>
+      <Tabs items={['1b', '2b']}>
+        <Tabs.Tab>
+          **1b 的內容**
+        </Tabs.Tab>
+        <Tabs.Tab>
+          **2b 的內容**
+        </Tabs.Tab>
+      </Tabs>
+    </Tabs.Tab>
+  </Tabs>
+  ```
+  [<span style={{ fontSize: '0.8rem' }}>原始碼 ↗</span>](https://github.com/shuding/nextra/blob/main/packages/nextra/src/components/tabs.tsx)
+  </Tabs.Tab>
+</Tabs>
+
+## 影片 (Video)
+
+<Tabs items={['範例', '代碼']}>
+  <Tabs.Tab>
+    <video
+      muted
+      autoPlay
+      playsInline
+      controls
+    >
+      <source src="https://github.com/danny-avila/LibreChat/assets/32828263/0464f122-eb20-49cd-b201-57db50c57376" />
+    </video>
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+  ```tsx copy filename="video"
+    <video
+      muted
+      autoPlay
+      playsInline
+      controls
+    >
+      <source src="/videos/example.mp4" />
+    </video>
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+## 步驟 (Steps)
+
+<Tabs items={['範例','代碼']}>
+&nbsp;
+
+<Tabs.Tab>
+
+<Steps>- 步驟 1: 範例 - 步驟 2: 範例 - 步驟 3: 範例 - 步驟 4: 範例</Steps>
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+[<span style={{ fontSize: '0.8rem' }}>原始碼 ↗</span>](https://github.com/shuding/nextra/blob/main/packages/nextra/src/components/steps.tsx)
+
+```tsx copy filename="steps.tsx"
+<Steps>- 步驟 1: 範例 - 步驟 2: 範例 - 步驟 3: 範例 - 步驟 4: 範例</Steps>
+```
+
+</Tabs.Tab>
+</Tabs>

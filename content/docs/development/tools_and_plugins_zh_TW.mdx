@@ -1,0 +1,356 @@
+---
+title: 工具與外掛程式
+icon: Wrench
+description: 本文件展示如何透過繼承 LangChain 的 `Tool` 類別來為 LibreChat 建立自定義外掛程式。您將學習如何在您的外掛程式中使用不同的 API 與函式，以及如何將它們與 LangChain 框架整合。
+---
+
+**此頁面已過期。關於使用工具的最新資訊，請參閱 [智慧體 (Agents) 指南](/docs/features/agents_zh_TW)。**
+
+**強烈建議使用 [模型上下文協定 (Model Context Protocol, MCP)](/docs/features/agents_zh_TW#模型上下文協定-mcp) 或 [OpenAPI Actions](/docs/features/agents_zh_TW#actions) 來整合自定義工具。**
+
+# 製作您自己的工具/外掛程式
+
+<Callout type="warning" title="警告">
+由於外掛程式 (plugins) 在不久的將來會被工具 (tools) 取代，請參考 `api/app/clients/tools/structured/` 中與助手搭配使用的最新工具。
+</Callout>
+
+為本專案建立自定義外掛程式涉及繼承 `langchain/tools` 模組中的 `Tool` 類別。
+
+**備註：** 我會交替使用外掛程式與工具這兩個詞，後者是 LangChain 的特定術語，而我們主要遵循該函式庫的規範。
+
+在 LangChain 的術語中，您實際上是在建立 DynamicTools。更多資訊請參閱 **[LangChainJS 文檔](https://js.langchain.com/docs/how_to/custom_tools/)**。
+
+本指南將以 `StableDiffusionAPI` 與 `WolframAlphaAPI` 工具為例，引導您完成建立自定義外掛程式的過程。
+
+使用 Functions Agent（外掛程式的預設模式）時，工具會被轉換為 **[OpenAI functions](https://openai.com/blog/function-calling-and-other-api-updates)**；在任何情況下，外掛程式/工具都是根據 LLM 產生的特定格式（由我們解析）來條件式調用的。
+
+外掛程式最常見的實作是根據 AI 的自然語言輸入進行 API 呼叫，但在程式化使用案例上幾乎沒有限制。
+
+---
+
+
+## 核心要點
+
+以下是建立您自己的外掛程式的核心要點：
+
+**1.** [**匯入必要模組：**](#步驟-1匯入必要模組) 匯入外掛程式所需的模組，包括 `langchain/tools` 中的 `Tool` 類別以及任何其他模組。
+
+**2.** [**定義您的外掛程式類別：**](#步驟-2定義您的工具類別) 為您的外掛程式定義一個類別，並繼承 `Tool` 類別。在建構子 (constructor) 中設定 `name` (名稱) 與 `description` (描述) 屬性。若您的外掛程式需要憑證或其他變數，請從 fields 參數設定，或透過從處理程序環境中檢索它們的方法來設定。備註：若您的外掛程式需要長篇且詳細的指令，您可以新增 `description_for_model` 屬性，並讓 `description` 保持簡約。
+
+**3.** [**定義輔助方法：**](#步驟-3定義輔助方法) 若有需要，在類別中定義輔助方法以處理特定任務。
+
+**4.** [**實作 `_call` 方法：**](#步驟-4實作-_call-方法) 在 `_call` 方法中定義外掛程式的主要功能。當語言模型決定使用您的外掛程式時，會呼叫此方法。它應接收一個 `input` (輸入) 參數並返回結果。若發生錯誤，函式應返回代表錯誤的字串，而非拋出異常 (error)。若您的外掛程式需要來自 LLM 的多個輸入，請閱讀 [StructuredTools](#StructuredTools) 章節。
+
+**5.** [**匯出外掛程式並匯入至 handleTools.js：**](#步驟-5匯出外掛程式並匯入至-handletoolsjs) 匯出您的外掛程式並將其匯入 `handleTools.js`。在 `loadTools` 函式的 `toolConstructors` 物件中加入您的外掛程式。若您的外掛程式需要更進階的初始化，請將其加入 `customConstructors` 物件。
+
+**6.** [**將外掛程式匯出至 index.js：**](#步驟-6將外掛程式匯出至-indexjs) 將您的外掛程式匯出至 `index.js` 中的 `tools` 下。將您的外掛程式加入 `index.js` 的 `module.exports`，因此您也需要在該檔案中將其宣告為 `const`。
+
+**7.** [**將外掛程式加入 manifest.json：**](#步驟-7將外掛程式加入-manifestjson) 將您的外掛程式加入 `manifest.json`。嚴格遵循「外掛程式」物件中各個欄位的格式。若您的外掛程式需要身份驗證，請在 `authConfig` 陣列中加入相關細節。`pluginKey` 應匹配您建立的 Tool 類別中的 `name`，而 `authField` 屬性必須匹配 process.env 變數名稱。
+
+請記住，建立自定義外掛程式的關鍵在於繼承 `Tool` 類別並實作 `_call` 方法。`_call` 方法是您定義外掛程式用途的地方。您也可以在類別中定義輔助方法與屬性，以支援外掛程式的功能。
+
+**備註：您可以在 `.\api\app\langchain	ools` 資料夾中找到本指南提到的所有檔案。**
+
+---
+
+## StructuredTools
+
+**多輸入外掛程式 (Multi-Input Plugins)**
+
+如果您想製作的外掛程式能受益於來自 LLM 的多個輸入，而非我們將討論的單一輸入字串，您需要改為建立 LangChain **[StructuredTool](https://blog.langchain.dev/structured-tools/)**。詳細指南正在編寫中，目前您可以參考我在 `api\app\clients	ools\structured` 目錄下製作 StructuredTools 的方式。本指南是理解 StructuredTools 的基礎，建議您先繼續閱讀以更好地瞭解 LangChain 工具。閱讀完本指南後，上方連結的部落格也會對您有所幫助。
+
+---
+
+## 步驟 1：匯入必要模組
+
+從匯入必要模組開始。這將包含來自 `langchain/tools` 的 `Tool` 類別以及您的工具可能需要的任何其他模組。例如：
+
+```javascript
+const { Tool } = require('langchain/tools');
+// ... 任何您需要的其他模組
+```
+
+## 步驟 2：定義您的工具類別
+
+接著，為您的外掛程式定義一個類別並繼承 `Tool` 類別。該類別應具備一個呼叫 `super()` 方法並設定 `name` 與 `description` 屬性的建構子。語言模型將使用這些屬性來決定何時呼叫您的工具以及使用哪些參數。
+
+**重要提示：** 您應從 fields 參數設定憑證/必要變數，或是透過一個從處理程序環境獲取變數的方法來設定。
+```javascript
+class StableDiffusionAPI extends Tool {
+  constructor(fields) {
+    super();
+    this.name = 'stable-diffusion';
+    this.url = fields.SD_WEBUI_URL || this.getServerURL(); // <--- 重要！
+    this.description = `您可以使用 'stable-diffusion' 產生圖片。此工具專用於視覺內容...`;
+  }
+  ...
+}
+```
+
+**選填：** 自 v0.5.8 起，使用 Functions 時，您可以透過 `description_for_model` 屬性新增更長、更詳細的指令。執行此操作時，建議您讓 `description` 屬性更為概括，以優化代幣。此屬性中的每一行都以 `// ` 開頭，以模仿 ChatGPT (chat.openai.com) 產生提示詞的方式。此格式更貼近官方 ChatGPT 外掛程式的提示工程。
+
+```js
+// ...
+    this.description_for_model = `// 使用 'stable-diffusion' 透過文字產生圖片與視覺效果。
+// 指引：
+// - 對於查詢，務必使用 {{"prompt": "7個以上詳細關鍵字", "negative_prompt": "7個以上詳細關鍵字"}} 結構。
+// - 以視覺方式描述圖片的氣氛、細節、結構、風格及/或比例。請記住，重點在於視覺屬性。
+// - 透過「展現 (showing)」而非「述說 (telling)」影像內容來構建您的輸入。從您想在相片或畫作中看到的內容來思考。
+// - 以下是產生男士寫實肖像照的範例：
+// "prompt":"photo of a man in black clothes, half body, high detailed skin, coastline, overcast weather, wind, waves, 8k uhd, dslr, soft lighting, high quality, film grain, Fujifilm XT3"
+// "negative_prompt":"semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, out of frame, low quality, ugly, mutation, deformed"
+// - 除非使用者明確要求，否則針對每個人類查詢僅產生一次圖片`;
+    this.description = '您可以使用 'stable-diffusion' 透過文字產生圖片。此工具專用於視覺內容。';
+// ...
+```
+
+在建構子中，請注意我們是從 fields 物件或從我們定義的用來存取環境變數的 **getServerURL** 方法中獲取敏感變數。
+
+```js
+this.url = fields.SD_WEBUI_URL || this.getServerURL();
+```
+
+當使用者從前端提供憑證時，任何必要的憑證都會透過 `fields` 傳遞；否則，管理員可以透過環境變數為所有使用者「授權」該外掛程式。從前端傳遞的所有憑證均經過加密。
+
+```js
+// 建議您在存取環境變數時遵循此慣例。
+  getServerURL() {
+    const url = process.env.SD_WEBUI_URL || '';
+    if (!url) {
+      throw new Error('缺少 SD_WEBUI_URL 環境變數。');
+    }
+    return url;
+  }
+```
+
+## 步驟 3：定義輔助方法
+
+您可以在類別中定義輔助方法以處理特定任務。例如，`StableDiffusionAPI` 類別包含 `replaceNewLinesWithSpaces`、`getMarkdownImageUrl` 與 `getServerURL` 等方法來處理各項任務。
+
+```javascript
+class StableDiffusionAPI extends Tool {
+  ...
+  replaceNewLinesWithSpaces(inputString) {
+    return inputString.replace(/
+||
+/g, ' ');
+  }
+  ...
+}
+```
+
+## 步驟 4：實作 `_call` 方法
+
+`_call` 方法是實作外掛程式主要功能的地方。當語言模型決定使用您的外掛程式時，會呼叫此方法。它應接收一個 `input` 參數並返回結果。
+
+> 在基礎 Tool 中，LLM 會產生一個字串值作為輸入。若您的外掛程式需要來自 LLM 的多個輸入，請閱讀 **[StructuredTools](#StructuredTools)** 章節。
+
+```javascript
+class StableDiffusionAPI extends Tool {
+  ...
+  async _call(input) {
+    // 您的工具功能實作於此
+    ...
+    return this.result;
+  }
+}
+```
+
+**重要提示：** `_call` 函式是智慧體實際會呼叫的內容。發生錯誤時，函式應盡可能返回代表錯誤的字串，而非拋出異常。這允許將錯誤傳遞給 LLM，讓 LLM 決定如何處理。若拋出異常，智慧體的執行將會停止。
+
+## 步驟 5：匯出外掛程式並匯入至 handleTools.js
+
+
+**此程序未來將會實現某種程度的自動化，前提是您的外掛程式/工具位於 api\app\langchain	ools 目錄下**
+
+```javascript
+// 匯出
+module.exports = StableDiffusionAPI;
+```
+
+```js
+/* api\app\langchain	ools\handleTools.js */
+const StableDiffusionAPI = require('./StableDiffusion');
+...
+```
+
+在 handleTools.js 中，尋找 `loadTools` 函式的開頭，並將您的外掛程式/工具加入 `toolConstructors` 物件中。
+
+```js
+const loadTools = async ({ user, model, tools = [], options = {} }) => {
+  const toolConstructors = {
+    calculator: Calculator,
+    google: GoogleSearchAPI,
+    wolfram: WolframAlphaAPI,
+    'dall-e': OpenAICreateImage,
+    'stable-diffusion': StableDiffusionAPI // <----- 新增項目。備註：鍵值為類別中提供的 'name'。 
+    // 我們現在將此名稱稱為 `pluginKey`
+  };
+```
+  
+若您的 Tool 類別需要更進階的初始化，應將其加入 `customConstructors` 物件。
+
+預設初始化可以在 `loadToolWithAuth` 函式中看到，大多數自定義外掛程式應以此方式初始化。
+
+以下是幾個具有不同初始化的 customConstructors：
+
+```javascript
+  const customConstructors = {
+    browser: async () => {
+      let openAIApiKey = process.env.OPENAI_API_KEY;
+      if (!openAIApiKey) {
+        openAIApiKey = await getUserPluginAuthValue(user, 'OPENAI_API_KEY');
+      }
+      return new WebBrowser({ model, embeddings: new OpenAIEmbeddings({ openAIApiKey }) });
+    },
+  // ...
+    plugins: async () => {
+      return [
+        new HttpRequestTool(),
+        await AIPluginTool.fromPluginUrl(
+          "https://www.klarna.com/.well-known/ai-plugin.json", new ChatOpenAI({ openAIApiKey: options.openAIApiKey, temperature: 0 })
+        ),
+      ]
+    }
+  };
+```
+
+## 步驟 6：將外掛程式匯出至 index.js
+
+尋找 `api/app/clients/tools` 下的 `index.js`。您需要將您的外掛程式放入 `module.exports`。為了使其能順利編譯，您也需要將外掛程式宣告為 `const`：
+
+```js
+const StructuredSD = require('./structured/StableDiffusion');
+const StableDiffusionAPI = require('./StableDiffusion');
+...
+module.exports = {
+  ...
+  StableDiffusionAPI,
+  StructuredSD,
+  ...
+}
+```
+  
+## 步驟 7：將外掛程式加入 manifest.json
+
+**此程序未來將會與步驟 5 一同實現某種程度的自動化，前提是您的外掛程式/工具位於 api\app\langchain	ools，且外掛程式可以使用預設方法初始化**
+
+```json
+  {
+    "name": "Calculator",
+    "pluginKey": "calculator",
+    "description": "執行簡單與複雜的數學計算。",
+    "icon": "https://i.imgur.com/RHsSG5h.png",
+    "isAuthRequired": "false",
+    "authConfig": []
+  },
+  {
+    "name": "Stable Diffusion",
+    "pluginKey": "stable-diffusion",
+    "description": "根據任何文字輸入產生寫實照片圖片。",
+    "icon": "https://i.imgur.com/Yr466dp.png",
+    "authConfig": [
+      {
+        "authField": "SD_WEBUI_URL",
+        "label": "您的 Stable Diffusion WebUI API URL",
+        "description": "您需要提供您的 Stable Diffusion WebUI API URL。關於如何獲取此網址的說明，請參閱<a href='url'>我們的文檔</a>。"
+      }
+    ]
+  },
+```
+  
+「外掛程式」物件的每個欄位都很重要。請嚴格遵循此格式。若您的外掛程式需要身份驗證，請在 `authConfig` 陣列中加入相關細節，因為可能會有個多個驗證變數。請參考 Calculator 外掛程式中不需要身份驗證的範例，其 `authConfig` 為空陣列（陣列為必填項）。
+
+**備註：** 如前所述，`pluginKey` 應匹配您建立的 Tool 類別中的 `name`。
+**備註：** `authField` 屬性必須匹配 process.env 變數名稱。
+
+以下是具備多個憑證變數的外掛程式範例：
+
+```json
+  [
+  {
+    "name": "Google",
+    "pluginKey": "google",
+    "description": "使用 Google 搜尋來尋找天氣、新聞、體育等相關資訊。",
+    "icon": "https://i.imgur.com/SMmVkNB.png",
+    "authConfig": [
+      {
+        "authField": "GOOGLE_CSE_ID",
+        "label": "Google CSE ID",
+        "description": "這是您的 Google 自定義搜尋引擎 ID。關於如何獲取此 ID 的說明，請參閱<a href='https://github.com/danny-avila/LibreChat/blob/main/docs/features/plugins/google_search.md'>我們的文檔</a>。"
+      },
+      {
+        "authField": "GOOGLE_SEARCH_API_KEY",
+        "label": "Google API 金鑰",
+        "description": "這是您的 Google 自定義搜尋 API 金鑰。關於如何獲取此金鑰的說明，請參閱<a href='https://github.com/danny-avila/LibreChat/blob/main/docs/features/plugins/google_search.md'>我們的文檔</a>。"
+      }
+    ]
+  },
+```
+
+## 範例：WolframAlphaAPI 工具
+
+這是另一個自定義工具的範例：`WolframAlphaAPI` 工具。此工具使用 `axios` 模組對 Wolfram Alpha API 發送 HTTP 請求。
+
+```javascript
+const axios = require('axios');
+const { Tool } = require('langchain/tools');
+
+class WolframAlphaAPI extends Tool {
+  constructor(fields) {
+    super();
+    this.name = 'wolfram';
+    this.apiKey = fields.WOLFRAM_APP_ID || this.getAppId();
+    this.description = `透過 WolframAlpha 存取計算、數學、策劃知識與即時數據...`;
+  }
+
+  async fetchRawText(url) {
+    try {
+      const response = await axios.get(url, { responseType: 'text' });
+      return response.data;
+    } catch (error) {
+      console.error(`獲取原始文本時發生錯誤: ${error}`);
+      throw error
+
+    }
+  }
+
+  getAppId() {
+    const appId = process.env.WOLFRAM_APP_ID || '';
+    if (!appId) {
+      throw new Error('缺少 WOLFRAM_APP_ID 環境變數。');
+    }
+    return appId;
+  }
+
+  createWolframAlphaURL(query) {
+    const formattedQuery = query.replaceAll(/`/g, '').replaceAll(/
+/g, ' ');
+    const baseURL = 'https://www.wolframalpha.com/api/v1/llm-api';
+    const encodedQuery = encodeURIComponent(formattedQuery);
+    const appId = this.apiKey || this.getAppId();
+    const url = `${baseURL}?input=${encodedQuery}&appid=${appId}`;
+    return url;
+  }
+
+  async _call(input) {
+    try {
+      const url = this.createWolframAlphaURL(input);
+      const response = await this.fetchRawText(url);
+      return response;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        console.log('錯誤數據:', error.response.data);
+        return error.response.data;
+      } else {
+        console.log(`查詢 Wolfram Alpha 時發生錯誤`, error.message);
+        return '查詢 Wolfram Alpha 時發生錯誤。';
+      }
+    }
+  }
+}
+
+module.exports = WolframAlphaAPI;
+```
+
+在此範例中，`WolframAlphaAPI` 類別具備 `fetchRawText`、`getAppId` 與 `createWolframAlphaURL` 等輔助方法以處理特定任務。`_call` 方法對 Wolfram Alpha API 發送 HTTP 請求並返回回應。

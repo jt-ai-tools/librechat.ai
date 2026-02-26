@@ -1,0 +1,31 @@
+---
+title: 匯入對話 (Import Conversations)
+icon: Import
+description: 對話匯入功能允許使用者匯入從其他 GPT 聊天應用程式匯出的對話。目前，我們支援從 ChatGPT、ChatbotUI v1 以及 LibreChat 本身進行匯入。
+---
+
+對話匯入功能允許使用者匯入從其他 GPT 聊天應用程式匯出的對話。目前，我們支援從 [ChatGPT](https://chatgpt.com/)、[ChatbotUI v1](https://github.com/mckaywrigley/chatbot-ui/tree/b865b0555f53957e96727bc0bbb369c9eaecd83b?tab=readme-ov-file#legacy-code) 以及 LibreChat 本身進行匯入。
+
+匯入功能位於「設定 (Settings)」->「數據控制 (Data Controls)」區段中。
+
+## 如何從 ChatGPT 匯入對話
+
+1. 遵循 [ChatGPT 匯出說明](https://help.openai.com/en/articles/7260999-how-do-i-export-my-chatgpt-history-and-data) 匯出您的對話。
+2. 您應該會在電子郵件中收到下載封存檔的連結。
+3. 下載該封存檔。它應該是一個帶有隨機名稱的 zip 檔案，例如：_d119d98bb3711aff7a2c73bcc7ea53d96c984650d8f7e033faef78386a9907-2024-01-01-10-30-00.zip_。
+4. 解壓縮 zip 檔案內容。
+5. 在 LibreChat 中導覽至：設定 -> 數據控制。
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+  <div className="image-light-theme">
+    ![Image for Light Theme](https://github.com/danny-avila/LibreChat/assets/32828263/3c71b4f8-3d67-4293-ae89-fea4c59312d8)
+  </div>
+
+  <div className="image-dark-theme">
+    ![Image for Dark Theme](https://github.com/danny-avila/LibreChat/assets/32828263/14151a19-94ca-45b3-a79e-134d961e474c)
+  </div>
+</div>
+6. 點擊 「Import」 (匯入) 按鈕，並從解壓縮後的內容中選取 `conversations.json` 檔案。系統將開始匯入對話。
+7. 稍後您會收到匯入完成的通知。
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+    ![import-success](https://github.com/danny-avila/LibreChat/assets/32828263/597eefec-0b8e-4fbf-ac27-2405472c195f)
+</div>

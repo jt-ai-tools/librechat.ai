@@ -1,0 +1,459 @@
+---
+title: MCP
+icon: Blocks
+description: 瞭解 LibreChat 如何利用模型上下文協定 (Model Context Protocol, MCP) 與外部工具、數據源及專業服務實現無縫整合。
+---
+
+模型上下文協定 (Model Context Protocol, MCP) 是一個開放協定，標準化了應用程式如何為大型語言模型 (LLM) 提供上下文。您可以將 MCP 想像成 **「AI 界的 USB-C」** —— 正如 USB-C 為電子裝置提供統一的連接標準，MCP 則為 AI 模型連接各種工具、數據源與服務提供了一種標準化方式。
+
+LibreChat 利用 MCP 極大地擴展了 AI 智慧體的能力，讓您可以整合從檔案系統存取、網頁瀏覽器、專業 API 到自定義業務工具的一切功能。
+
+## 為什麼 MCP 很重要
+
+LLM 受限於其內建能力。透過 MCP，LibreChat 突破了這些限制：
+
+- **連接到任何提供 MCP 伺服器的工具或服務**
+- **標準化整合**，因此您不需要針對每種工具修改 LibreChat 的程式碼
+- **支援多使用者環境**，具備正確的身份驗證與隔離機制
+- **提供不斷成長的生態系統**，包含各種動態且即插即用的整合
+
+## MCP 在 LibreChat 中如何運作
+
+LibreChat 提供兩種使用 MCP 伺服器的方式：在聊天區域使用或與智慧體 (Agents) 搭配使用。
+
+您可以手動在 `librechat.yaml` 檔案中配置 MCP 伺服器，或使用 [smithery.ai](https://smithery.ai) 尋找並將 MCP 伺服器安裝至 `librechat.yaml`（[參見下方範例](#基本配置)）。每當您新增或編輯 MCP 伺服器後，都需要重啟 LibreChat 以初始化連接。
+
+### 在聊天區域使用
+
+![聊天區域中的 MCP 工具](/images/agents/mcp_chat.png)
+
+當使用傳統終端（OpenAI, Anthropic, Google, Bedrock 等）時，LibreChat 會直接在聊天區域顯示配置好的 MCP 伺服器：
+
+- 首先選擇任何非智慧體 (non-agent) 終端，以及一個支援工具的模型。
+- MCP 伺服器會出現在聊天介面文字輸入框下方的下拉選單中。
+- 選取後，該伺服器的所有工具即可供您當前的模型使用。
+- 無需建立智慧體即可快速存取 MCP 工具，並允許同時使用多個伺服器。
+
+若要禁止 MCP 伺服器出現在聊天下拉選單中（僅限智慧體使用），請在配置中設定 [`chatMenu: false`](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW#chatmenu)：
+
+```yaml
+mcpServers:
+  internal-tools:
+    command: npx
+    args: ["-y", "internal-mcp-server"]
+    chatMenu: false  # 僅在智慧體構建器中可用
+```
+
+### 與智慧體搭配使用
+
+MCP 伺服器與 LibreChat 智慧體 (Agents) 無縫整合：
+
+1. 建立或編輯一個智慧體。
+2. 點擊智慧體構建器面板中的 「Add Tools」 開啟工具對話方塊。
+3. 選取已新增的 MCP 伺服器 —— 每個伺服器會以單一項目顯示。
+4. 加入後，您可以透過啟用/停用個別工具來進行微調。
+5. 儲存您的智慧體。
+
+![智慧體構建器中的 MCP 工具](/images/agents/mcp_tools_v2.png)
+
+這種高層級的組織方式能保持介面簡潔 —— 即使是擁有 20 多個工具的伺服器（如 Spotify）也會以單一項目顯示，並可展開進行細粒度控制。
+
+### 基本配置
+
+手動將 MCP 伺服器加入您的 `librechat.yaml` 檔案：
+
+```yaml
+mcpServers:
+  # 檔案系統存取
+  filesystem:
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /您的/文件/路徑
+
+  # 網頁瀏覽器自動化
+  puppeteer:
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-puppeteer"
+
+  # 生產等級的雲端服務
+  business-api:
+    type: streamable-http
+    url: https://api.yourbusiness.com/mcp
+    headers:
+      X-User-ID: "{{LIBRECHAT_USER_ID}}"
+      Authorization: "Bearer ${API_TOKEN}"
+    timeout: 30000
+    serverInstructions: true
+```
+
+### 使用 Smithery 新增 MCP 伺服器
+
+Smithery.ai 提供了一種流暢的方式來為 LibreChat 發現並安裝 MCP 伺服器。請遵循以下步驟開始：
+
+#### 第一步：搜尋 MCP 伺服器
+
+造訪 [smithery.ai](https://smithery.ai) 並搜尋您想加入 LibreChat 實例的 MCP 伺服器。
+
+![Smithery 搜尋介面](/images/mcp/mcp_smithery_search.png)
+
+#### 第二步：選擇您的 MCP 伺服器
+
+點擊搜尋結果中的 MCP 伺服器以查看詳情與可用工具。
+
+![MCP 伺服器詳情頁面](/images/mcp/mcp_smithery_mcp_server.png)
+
+#### 第三步：針對 LibreChat 進行配置
+
+導覽至 **Connect** 區段下的 **Auto** 分頁，並選擇 **LibreChat** 作為您的用戶端。
+
+![LibreChat 整合設定](/images/mcp/mcp_smithery_librechat.png)
+
+#### 第四步：安裝 MCP 伺服器
+
+複製並在您的終端機執行產生的指令以安裝 MCP 伺服器。
+
+![安裝指令](/images/mcp/mcp_smithery_copy.png)
+
+#### 第五步：重啟並驗證
+
+您的 MCP 伺服器現已安裝並可在 `librechat.yaml` 中進行配置。重啟 LibreChat 以初始化連接，並開始使用您的新 MCP 伺服器。
+
+![MCP 伺服器成功安裝](/images/mcp/mcp_show_installed.png)
+*透過 smithery.ai 安裝並準備好在 LibreChat 中使用的 MCP 伺服器*
+
+
+如需詳細的配置選項與範例，請參閱：
+
+- [MCP 伺服器配置](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW)
+- [智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)
+- [進階智慧體功能](/docs/features/agents_zh_TW#模型上下文協定-mcp)
+
+## MCP 伺服器管理
+
+LibreChat 提供了全面的工具來管理 MCP 伺服器連接，包含連接狀態追蹤、OAuth 身份驗證以及 UI 中的初始化支援。
+
+### 連接狀態指示燈
+
+LibreChat 在聊天下拉選單與設定面板中顯示動態狀態圖標，反映每個 MCP 伺服器的當前狀態：
+
+![MCP 伺服器狀態圖標](/images/mcp/mcp_server_status_icons.png)
+
+**狀態類型：**
+
+- **Connected (已連接)**（綠色齒輪）：伺服器已連接並具備可配置的 customUserVars。
+- **OAuth Required (需要 OAuth)**（琥珀色鑰匙）：伺服器需要 OAuth 身份驗證。
+- **Disconnected (已斷開)**（橘色插頭）：伺服器連接失敗或丟失。
+- **Initializing (初始化中)**（藍色載入圖示）：伺服器正在啟動或重新連接。
+- **Error (錯誤)**（紅色三角形）：伺服器遇到錯誤。
+- **Cancelling (取消中)**（紅色 X）：OAuth 流程正在取消。
+
+### 伺服器初始化
+
+您可以直接從介面初始化或重新初始化 MCP 伺服器：
+
+**一鍵操作：**
+
+- 從 MCP 伺服器選擇下拉選單進行一鍵初始化。
+
+
+     <video
+       muted
+       controls
+     >
+    <source src="/videos/mcp_one_click_init.mp4" />
+  </video>
+
+**透過 MCP 配置對話方塊：**
+
+- 點擊聊天下拉選單中 MCP 伺服器旁的狀態圖標，開啟 MCPConfigDialog。
+- 配置自定義使用者變數，並根據伺服器驗證類型點擊 Authenticate（驗證）或 Initialize（初始化）按鈕。
+
+       <video
+         muted
+         controls
+       >
+         <source src="/videos/mcp_config_dialog_auth.mp4" />
+       </video>
+
+  **透過 MCP 設定面板：**
+
+- 點擊 MCP 設定面板伺服器清單中的任何伺服器，以存取配置與初始化控制項。
+- 配置自定義使用者變數，並根據伺服器驗證類型點擊 Authenticate 或 Initialize 按鈕。
+
+     <video
+       muted
+       controls
+     >
+    <source src="/videos/mcp_settings_init.mp4" />
+  </video>
+
+### MCP 設定面板可見性
+
+當 LibreChat 偵測到可能需要在初始化期間由使用者介入的 MCP 伺服器時，MCP 設定面板會出現在右側邊欄。當任何配置好的伺服器符合下列任一條件時，該面板將會顯示：
+
+- **自定義使用者變數 (Custom User Variables)**：伺服器定義了 `customUserVars`，可能包含使用者提供的憑證。
+- **OAuth 身份驗證**：偵測到伺服器在啟動期間需要 OAuth 身份驗證。
+- **手動初始化**：伺服器配置了 `startup: false`，需要手動初始化。
+
+## LibreChat 特有功能
+
+LibreChat 的 MCP 實作專為高可配置性、現實世界應用及多使用者環境而設計。
+
+### 使用者特定連接
+
+- 每位使用者都擁有與 MCP 伺服器的獨立隔離連接。
+- 遵循使用者的身份驗證與權限設定。
+- 個人數據與上下文保持私密。
+
+### 動態使用者上下文
+
+MCP 伺服器可以透過 **URL 與標頭**（針對 SSE 與 Streamable HTTP 傳輸）中的預留位置存取使用者資訊：
+
+```yaml
+mcpServers:
+  user-api:
+    type: streamable-http
+    url: https://api.example.com/users/{{LIBRECHAT_USER_USERNAME}}/mcp
+    headers:
+      X-User-ID: "{{LIBRECHAT_USER_ID}}"
+      X-User-Email: "{{LIBRECHAT_USER_EMAIL}}"
+      X-User-Role: "{{LIBRECHAT_USER_ROLE}}"
+      Authorization: "Bearer ${API_TOKEN}"
+```
+
+可用預留位置包括：
+
+- `{{LIBRECHAT_USER_ID}}` - 唯一使用者識別碼
+- `{{LIBRECHAT_USER_EMAIL}}` - 使用者的電子郵件地址
+- `{{LIBRECHAT_USER_ROLE}}` - 使用者角色 (admin, user 等)
+- `{{LIBRECHAT_USER_USERNAME}}` - 使用者名稱
+- 以及更多欄位 (參見 [MCP 伺服器配置](/docs/configuration/librechat_yaml/object_structure/mcp_servers_zh_TW#headers) 獲取完整清單)
+
+### 伺服器指令 (Server Instructions)
+
+`serverInstructions` 是 LibreChat 的一項功能，當選取該 MCP 伺服器的任何工具時，會動態加入配置好的指令：
+
+```yaml
+mcpServers:
+  filesystem:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "/docs"]
+    serverInstructions: |
+      存取檔案時：
+      - 務必先檢查檔案權限
+      - 為了可靠性，請使用絕對路徑
+      - 優雅地處理錯誤
+```
+
+選項：
+
+- `true`：使用伺服器提供的指令。
+- `false`：停用指令。
+- `string`：自定義指令（如上所示）。
+
+### 超時配置 (Timeout Configuration)
+
+對於耗時較長的 MCP 操作，請為初始化與工具操作配置適當的超時時間。
+
+```yaml
+mcpServers:
+  data-processor:
+    type: streamable-http
+    url: https://api.example.com/mcp
+    initTimeout: 15000    # 伺服器初始化 15 秒
+    timeout: 60000        # 工具操作 60 秒
+```
+
+**備註**：若操作仍被提前中斷，請檢查您的代理伺服器配置（例如 nginx, traefik 等），它們可能會因為預設超時設定而過早切斷連線。
+
+### 使用者提供憑證
+
+您可以透過 `customUserVars` 允許使用者為 MCP 伺服器提供自己的憑證。這實現了安全、使用者特定的身份驗證，且無需將憑證儲存在配置文件中。
+
+```yaml
+mcpServers:
+  my-api-server:
+    type: streamable-http
+    url: "https://api.example.com/mcp"
+    headers:
+      X-Auth-Token: "{{MY_API_KEY}}"  # 使用使用者提供的值
+    customUserVars:
+      MY_API_KEY:
+        title: "API 金鑰"
+        description: "請輸入來自 <a href='https://example.com/keys' target='_blank'>您帳號設定</a> 的個人 API 金鑰"
+```
+
+使用者可以透過以下方式配置這些憑證：
+
+- **從聊天區域**：點擊工具選擇下拉選單中可配置 MCP 伺服器旁的設定圖標。
+- **從 MCP 設定面板**：存取右側面板中的 「MCP Settings」 來管理所有配置伺服器的憑證。
+
+#### 使用使用者憑證重新初始化 MCP 伺服器
+
+對於需要使用者特定憑證才能使用的 MCP 伺服器（例如 [GitHub 官方 MCP 伺服器](https://github.com/github/github-mcp-server) 中的 `PAT_TOKEN`），LibreChat 允許使用者提供這些憑證，然後直接從 UI 重新初始化 MCP 伺服器，而無需重啟整個應用程式：
+
+1. 當您選擇使用 `customUserVars` 的 MCP 時，您可以在 MCP 面板內為該伺服器 **儲存 (Save)** 或 **撤銷 (Revoke)** `customUserVar` 的值。
+2. 儲存 `customUserVar` 的值後，點擊重新初始化按鈕（MCP 面板中每個伺服器名稱旁的圓形箭頭圖標）。
+3. LibreChat 會嘗試使用您提供的憑證連接伺服器，並透過通知 (toast) 告知您重新初始化是否成功。
+
+> _提示：若您已知某個伺服器需要初次啟動時無法取得的憑證，可以在其配置中加入 `startup: false`。這會告訴 LibreChat 在 UI 中手動重新初始化前，不要嘗試連接該伺服器。_
+
+**範例：**
+
+```yaml
+mcpServers:
+  github-mcp:
+    type: streamable-http
+    url: "https://api.githubcopilot.com/mcp/"
+    headers:
+      Authorization: "{{PAT_TOKEN}}"
+    customUserVars:
+      PAT_TOKEN:
+        title: "GitHub PAT Token"
+        description: "GitHub 個人存取權杖"
+    startup: false
+```
+
+### OAuth 身份驗證
+
+LibreChat 支援 MCP 伺服器的 OAuth 身份驗證，遵循 Anthropic 對於安全 MCP 連接的建議。OAuth 提供了一種標準化、安全的方式進行驗證，無需儲存長期憑證。
+
+#### 支援的 OAuth 流程
+
+LibreChat MCP 伺服器支援 OAuth 2.0 搭配：
+
+- **具備 PKCE 的授權碼流程 (Authorization Code Flow with PKCE)**：為了獲得最高安全性而推薦。
+- **用戶端發現 (Client Discovery)**：當 OAuth 供應商支援時，自動進行用戶端註冊。
+- **重新整理權杖 (Refresh Tokens)**：可用時自動更新權杖。
+
+#### 配置範例
+
+```yaml
+mcpServers:
+  # PayPal 的公開遠端 MCP 伺服器，使用 OAuth 用戶端發現
+  # ❌ 重新整理權杖：您可能需要定期重新驗證
+  # 更多資訊：https://developer.paypal.com/tools/mcp-server/
+  paypal:
+    type: "sse"
+    initTimeout: 150000 # 設定較高的超時以允許初始驗證
+    url: "https://mcp.paypal.com/sse"
+
+  # Spotify 的自行代管遠端 MCP 伺服器範例，使用 OAuth 用戶端發現
+  # ✅ 重新整理權杖：自動更新權杖進行驗證
+  # 託管於 Cloudflare Workers，更多資訊：https://github.com/LibreChat-AI/spotify-mcp
+  spotify:
+    type: "streamable-http"
+    initTimeout: 150000
+    url: "https://mcp-spotify-oauth-example.account.workers.dev/mcp"
+```
+
+#### OAuth 身份驗證流程
+
+當您首次配置啟用 OAuth 的 MCP 伺服器時：
+
+1. **初始連接**：LibreChat 嘗試連接 MCP 伺服器。
+2. **需要身份驗證**：若無有效權杖，您將在聊天下拉選單的該伺服器旁看到 OAuth 驗證指示。
+3. **按鈕介面**：點擊驗證指示按鈕開啟 MCPConfigDialog 並開始 OAuth 流程。
+4. **配置對話方塊**：點擊 MCPConfigDialog 中的 Authenticate 按鈕，在瀏覽器中開啟 OAuth 驗證頁面。
+5. **瀏覽器重新導向**：LibreChat 在您的瀏覽器中開啟 OAuth 供應商頁面。
+6. **返回處理**：一旦您完成驗證，LibreChat 會自動處理 OAuth 回呼 (callback)。
+7. **權杖儲存**：LibreChat 安全地儲存權杖供日後使用。
+8. **建立連接**：驗證完成後，MCP 伺服器將會連通，您可以在聊天中使用它。
+
+#### OAuth 回呼 URL (Callback URL)
+
+當 MCP 伺服器使用 OAuth 時，LibreChat 會公開一個回呼終端，供 OAuth 供應商在授權成功後進行重新導向。
+
+回呼 URL 必須符合下列格式：
+
+`${baseUrl}/api/mcp/${serverName}/oauth/callback`
+
+其中 `${serverName}` 是您在 `librechat.yaml` 配置中定義的 MCP 伺服器鍵名。LibreChat 會在此終端處理重新導向、完成權杖交換，並將憑證與對應的 MCP 伺服器關聯。
+
+<Callout type="info" title="OAuth 回呼 URL 範例">
+給定下列 MCP 伺服器配置：
+
+```yaml
+mcpServers:
+  # Spotify 的自行代管遠端 MCP 伺服器範例，使用 OAuth 用戶端發現
+  # ✅ 重新整理權杖：自動更新權杖進行驗證
+  # 託管於 Cloudflare Workers，更多資訊：https://github.com/LibreChat-AI/spotify-mcp
+  spotify:
+    type: 'streamable-http'
+    initTimeout: 150000
+    url: 'https://mcp-spotify-oauth-example.account.workers.dev/mcp'
+```
+
+
+則回呼 URL 為 `${baseUrl}/api/mcp/spotify/oauth/callback`。
+</Callout>
+
+備註：
+
+- 回呼 URL 必須在 OAuth 供應商處精確註冊，流程才能正常運作。
+- 其他路徑如 `/api/oauth/callback` 或 `/api/oauth/openid/callback` 對於 MCP OAuth 流程均無效。
+
+#### 權杖管理
+
+LibreChat 智慧地處理 OAuth 權杖：
+
+- **安全儲存**：權杖經過加密並安全儲存。
+- **自動重新整理**：當具備重新整理權杖時，LibreChat 會自動更新過期的存取權杖。
+- **工作階段管理**：在多使用者環境下，每位使用者維持自己的 OAuth 工作階段。
+
+每位使用者在首次使用啟用 OAuth 的 MCP 伺服器時，都會被提示使用自己的 OAuth 帳號進行驗證。這確保了連接與驗證細節對每位使用者而言都是唯一的，維護了多使用者環境下的安全性與隱私性。
+
+![使用者特定的 OAuth 身份驗證流程](/images/agents/mcp_oauth_flow.png)
+
+> 備註：應用程式啟動期間顯示的權杖僅用於應用程式層級的初始化，不用於個別使用者的連接。
+
+自動權杖重新整理範例：
+
+```bash
+[MCP][spotify] Access token missing (缺少存取權杖)
+[MCP][spotify] Attempting to refresh token (嘗試重新整理權杖)
+[MCP][spotify] Successfully refreshed and stored OAuth tokens (成功重新整理並儲存 OAuth 權杖)
+[MCP][spotify] ✓ Initialized (已初始化)
+```
+
+#### 最佳實踐
+
+1. **盡可能使用 OAuth**：為了更好的安全性，優先選擇 OAuth 而非 API 金鑰。
+2. **配置適當的超時時間**：為 OAuth 流程設定較高的 `initTimeout`（例如：150000ms）。
+3. **監控權杖過期情況**：檢查日誌以發現身份驗證問題。
+4. **規劃重新驗證**：某些供應商不支援重新整理權杖。
+
+**備註**：基於 UI 的 OAuth 配置即將推出，這將進一步簡化直接從 LibreChat 介面進行的驗證程序。
+
+## 伺服器傳輸機制 (Transports)
+
+MCP 伺服器可以配置為使用不同的傳輸機制：
+
+**STDIO 伺服器**
+
+- 適用於本地、單使用者環境。
+- 對於遠端或雲端部署不具備擴充性。
+
+**伺服器傳送事件 (SSE) 伺服器**
+
+- 遠端傳輸機制，但不建議用於生產環境。
+
+**Streamable HTTP 伺服器**
+
+- 使用 HTTP POST 發送訊息並支援串流回應。
+- 作為獨立程序執行，可處理多個用戶端連接。
+- 同時支援基礎請求與透過伺服器傳送事件 (SSE) 的串流。
+- 效能優於舊版的 HTTP+SSE 傳輸方式。
+- 支援正確的多使用者伺服器配置。
+
+**對於生產環境**，僅推薦使用具備 ["Streamable HTTP" 傳輸機制](https://modelcontextprotocol.io/specification/draft/basic/transports#streamable-http) 的 MCP 伺服器。與維持長連接的 SSE 不同，Streamable HTTP 提供無狀態選項，更適合可擴充的多使用者部署。
+
+LibreChat 站在實作靈活、可擴展 MCP 伺服器整合的前沿，以支援多樣的使用場景，並協助您建構未來的 AI 工作流。
+
+---
+
+**準備好擴充您的 AI 能力了嗎？** 從配置您的第一個 MCP 伺服器開始，探索 LibreChat 如何連接到您組織所需的幾乎任何工具或服務。

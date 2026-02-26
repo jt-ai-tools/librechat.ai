@@ -1,0 +1,129 @@
+---
+title: DigitalOcean
+icon: Server
+description: 這些說明是為在遠端 Ubuntu 伺服器上從零開始進行 Docker 安裝的人所設計的，採用最便宜的方案之一（每月 6 美元）。
+---
+
+> 這些說明加上 [Docker 指南](/docs/remote/docker_linux_zh_TW) 是為在遠端 Ubuntu 伺服器上從零開始進行 Docker 安裝的人設計的。您可以直接跳到對您有幫助的任何部分。雖然可能有更高效或具備更高擴充性的方式，但本指南對我的個人使用場景來說運作得非常好。
+
+**處理這件事的方法有很多種，但我將向您展示我所知最好且最簡單的方法。這些配置可以根據您的喜好或需求進行調整。**
+
+DigitalOcean 是一個極佳的部署選擇：您可以獲取 **免費的 [200 美元試用額度](https://m.do.co/c/4486923fcf00)**（有效期限 60 天），且每月 6 美元的最便宜方案即可在低壓力、少量使用者的環境下執行 LibreChat。若您的資源需求增加，隨時都能輕鬆升級。
+
+DigitalOcean 也是我進行部署測試的首選，因為它開箱即提供實用的資源監控與伺服器存取工具。
+
+**使用下列 DigitalOcean 推薦連結將會直接支持本專案，協助我支付部署成本！**
+
+## **點擊下方橫幅獲取 200 美元額度，並直接支持 LibreChat！**
+
+_您可以隨意使用這些額度！_
+
+[![DigitalOcean 推薦標籤](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%201.svg)](https://www.digitalocean.com/?refcode=4486923fcf00&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+_備註：註冊時需要信用卡或 PayPal。我個人可以透過 PayPal 使用預付借記卡進行結帳。_
+
+## 目錄
+
+- **[第一部分：從零開始](#第一部分從零開始)**
+  - [1. 註冊 DigitalOcean](#1-註冊-digitalocean)
+  - [2. 存取主控台](#2-存取您的-droplet-主控台)
+  - [3. 主控台使用者設定](#3-登入後立即建立一個新的非-root-使用者)
+  - [4. 防火牆設定](#4-防火牆設定)
+- **[第二部分：安裝 Docker 與其他依賴項目](#第二部分安裝-docker-與其他依賴項目)**
+
+## 第一部分：從零開始：
+
+### **1. 註冊 DigitalOcean**
+
+[點擊此處](https://m.do.co/c/4486923fcf00) 或上方橫幅即可開始。
+
+登入後，您會看到一個 [精美的歡迎畫面](https://cloud.digitalocean.com/welcome)。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/b7a71eae-770e-4c69-a5d4-d21b939d64ed)
+
+### **a) 導覽至專案 (Projects) 頁面**
+
+點擊 「Explore our control panel」 或直接前往 [專案頁面](https://cloud.digitalocean.com/projects)。
+
+在 DigitalOcean 中，伺服器實例被稱為 **「Droplets」**，它們被組織在 **「Projects (專案)」** 之下。
+
+### **b) 點擊 「Spin up a Droplet」 開始設定**
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/6046e8cd-ff59-4795-a29a-5f44ab2f0a6d)
+
+根據您的需求調整這些設定，以下我選取的是能運作的最基本/最便宜選項：
+
+- **選擇區域/資料中心 (Choose Region/Datacenter)**：選擇距離您與您的使用者最近的位置。
+- **選擇映像 (Choose an image)**：Ubuntu 22.04 (LTS) x64。
+- **選擇大小 (Choose Size)**：Shared CPU, Basic Plan。
+  - CPU 選項：Regular，每月 6 美元選項（每小時 0.009 美元，1 GB RAM / 1 CPU / 25 GB SSD / 1000 GB 傳輸量）。
+  - 無需額外儲存空間。
+- **選擇身份驗證方式 (Choose Authentication Method)**：密碼 (Password) 選項最簡單，但隨您個人偏好。
+  - 或者，您也可以設定傳統的 SSH。
+- **推薦 (Recommended)**：加入改進的指標監控與警示（免費）。
+  - 您或許可以透過不勾選此項來使用每月 4 美元的方案，但尚未測試。
+- **最後確認 (Finalize Details)**：
+  - 將主機名稱 (hostname) 更改為您喜歡的名稱，其他保持預設（1 個 Droplet，無標籤）。
+  - 最後點擊 「Create Droplet」。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/ac90d40e-3ac6-482f-885c-58058c5e3f76)
+
+建立 Droplet 後，系統會顯示進度條開始啟動。
+
+### **2. 存取您的 Droplet 主控台**
+
+啟動完成後，**點擊該 Droplet** 並點擊右側的 「Console」 連結來開啟主控台。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/47c14280-fe48-49b9-9997-ff4d9c83212c)
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/d5e518fd-4941-4b35-86cc-69f8f65ec8eb)
+
+透過這種方式啟動 Droplet 主控台是最簡單的方法，但如果您在先前步驟中有設定 SSH，也可以使用 SSH。
+
+為了保持本指南的簡潔，我們將繼續使用 Droplet 主控台。如果您對 SSH 有興趣，這裡有 [DigitalOcean 的 SSH 官方指南](https://docs.digitalocean.com/products/droplets/how-to/connect-with-ssh/)。
+
+### **3. 登入後，立即建立一個新的非 root 使用者：**
+
+**備註：** 在本指南中，若看到大於/小於符號，請將其移除。
+
+```bash
+# 範例：adduser danny
+adduser <您的使用者名稱>
+# 系統隨後會提示您輸入密碼與使用者詳細資訊
+```
+
+完成後，執行下列指令提升該使用者的權限：
+
+```bash
+# 範例：usermod -aG sudo danny
+usermod -aG sudo <您的使用者名稱>
+```
+
+**再次檢查您是否具備 sudo 權限，確保操作正確：**
+
+```bash
+getent group sudo | cut -d: -f4
+```
+
+**切換至新使用者**
+
+```bash
+# 範例：su - danny
+su - <您的使用者名稱>
+```
+
+### **4. 防火牆設定**
+
+強烈建議您為此設定配置一個簡單的防火牆。
+
+再次從專案頁面點擊您的 Droplet，並前往左側 IPv4 下方的 「Networking」 標籤：
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/20a2f31b-83ec-4052-bca7-27a672c3770a)
+
+建立一個防火牆，將您的 Droplet 加入其中，並加入下列入站規則 (inbound rules)（適用於本指南，但請依需求調整）：
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/d9bbdd7b-3702-4d2d-899b-c6457e6d221a)
+
+---
+
+初步設定至此結束。接下來的步驟請前往下一個指南：**[Docker 部署指南](/docs/remote/docker_linux_zh_TW)**，它將引導您完成剩餘的安裝程序。

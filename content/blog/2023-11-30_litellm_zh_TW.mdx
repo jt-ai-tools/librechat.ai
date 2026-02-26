@@ -1,0 +1,295 @@
+---
+title: 在 LibreChat 中使用 LiteLLM 代理 
+date: 2023-11-30
+description: LiteLLM 是一款代理伺服器，讓 LibreChat 能存取來自各個供應商的 100 多種大型語言模型 (LLM) 並進行負載平衡。
+tags:
+  - litellm
+  - proxy
+  - llm
+ogImage: /images/blog/2023-11-30_litellm.png
+author: anon
+category: guide
+---
+
+
+
+# 在 LibreChat 中使用 LiteLLM 代理 
+使用 **[LiteLLM 代理 (LiteLLM Proxy)](https://docs.litellm.ai/docs/simple_proxy)** 可實現： 
+
+* 以 OpenAI ChatCompletions 與 Completions 格式呼叫來自 Huggingface/TogetherAI 等平台的 100 多種 LLM。
+* 負載平衡 —— 在多個模型與同一模型的不同部署間進行平衡。LiteLLM 代理在壓力測試中每秒可處理 1000 多次請求。
+* 身份驗證與消費追蹤 —— 透過虛擬金鑰 (Virtual Keys) 管理。
+
+## 啟動 LiteLLM 代理伺服器 
+
+## 1. 取消 docker-compose.override.yml 中相關章節的註釋
+覆寫檔案包含下列 LiteLLM 功能的相關章節：
+
+最簡可執行的 `docker-compose.override.yml` 範例：
+
+```yaml filename="docker-compose.override.yml"
+
+  api:
+    volumes:
+      - type: bind
+        source: ./librechat.yaml
+        target: /app/librechat.yaml
+
+
+litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    volumes:
+      - ./litellm/litellm-config.yaml:/app/config.yaml
+      # 備註：針對 Google —— 需要 "GOOGLE_APPLICATION_CREDENTIALS" 環境變數與磁碟卷掛載
+      # 這也代表您需要在 ~/litellm 目錄下新增 `application_default_credentaials.json` 檔案
+      - ./litellm/application_default_credentials.json:/app/application_default_credentials.json
+    ports:
+      - "4000:8000"
+    command: [ "--config", "/app/config.yaml", "--port", "8000", "--num_workers", "8" ]
+    # 針對 Google —— 參見上方關於 auth 與掛載的說明
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /app/application_default_credentials.json
+```
+
+### 使用 Redis 進行快取
+LiteLLM 支援記憶體 (in-memory)、Redis 與 S3 快取。備註：快取目前僅適用於完全匹配的內容。
+
+### 使用 Langfuse 進行效能監控
+LiteLLM 支援多種日誌與可觀測性選項。下列設定將啟用 Langfuse，它會提供一個 `cache_hit` 標籤，顯示哪些對話使用了快取。
+
+## 2. 為 LiteLLM 代理建立配置檔 
+除了覆寫檔案外，LiteLLM 還需要一個配置檔案。在 LibreChat 中，路徑為 `litellm/litellm-config.yml`。下列檔案包含啟用各供應商的 LLM 代理、負載平衡、Redis 快取以及 Langfuse 監控的選項。請參閱官方文檔以瞭解其他配置選項。
+更多關於 LiteLLM 配置的資訊請見：**[docs.litellm.ai/docs/simple_proxy](https://docs.litellm.ai/docs/simple_proxy)**
+
+### 整合 OpenAI, Azure OpenAI 與 GCP 的實作範例
+
+請注意，`...` 代表秘密數值（API 金鑰、自定義租戶終端等），切勿外洩。
+您也可以對這些數值使用環境變數，例如：`api_key: "os.environ/AZURE_API_KEY"`（這會執行 `os.getenv("AZURE_API_KEY")`）。
+
+<Callout type="example" title="範例 A" collapsible>
+
+```yaml filename="litellm-config.yml"
+model_list:
+  # https://litellm.vercel.app/docs/proxy/quick_start
+
+  # MS Azure
+  - model_name: azure-gpt-4-turbo-preview
+    litellm_params:
+      model: azure/gpt-4-turbo-preview
+      api_base: https://您的租戶名稱.openai.azure.com/
+      api_key: ...
+
+  - model_name: azure-gpt-3.5-turbo
+    litellm_params:
+      model: azure/gpt-35-turbo
+      api_base: https://您的租戶名稱.openai.azure.com/
+      api_key: ...
+
+  - model_name: azure-gpt-4
+    litellm_params:
+      model: azure/gpt-4
+      api_base: https://您的租戶名稱.openai.azure.com/
+      api_key: ...
+
+  - model_name: azure-gpt-4o
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: https://您的租戶名稱.openai.azure.com/
+      api_key: ...
+
+  - model_name: azure-gpt-3.5-turbo-16k
+    litellm_params:
+      model: azure/gpt-35-turbo-16k
+      api_base: https://您的租戶名稱.openai.azure.com/
+      api_key: ...
+
+  - model_name: azure-gpt-4-32k
+    litellm_params:
+      model: azure/gpt-4-32k
+      api_base: https://您的租戶名稱.openai.azure.com/
+      api_key: ...
+
+
+  # OpenAI
+  - model_name: gpt-4-turbo
+    litellm_params:
+      model: gpt-4-turbo
+      api_key: ...
+
+  - model_name: old-gpt-4-turbo-preview
+    litellm_params:
+      model: gpt-4-turbo-preview
+      api_key: ...
+
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: gpt-3.5-turbo
+      api_key: ...
+
+  - model_name: gpt-4
+    litellm_params:
+      model: gpt-4
+      api_key: ...
+
+  - model_name: gpt-4o
+    litellm_params:
+      model: gpt-4o
+      api_key: ...
+
+  - model_name: gpt-3.5-turbo-16k
+    litellm_params:
+      model: gpt-3.5-turbo-16k
+      api_key: ...
+
+  - model_name: gpt-4-32k
+    litellm_params:
+      model: gpt-4-32k
+      api_key: ...
+
+  - model_name: gpt-4-vision-preview
+    litellm_params:
+      model: gpt-4-vision-preview
+      api_key: ...
+
+
+  # Google Vertex
+  # 備註：針對 Google —— 參見上方關於 auth 與掛載的說明
+  - model_name: google-chat-bison
+    litellm_params:
+      model: vertex_ai/chat-bison
+      vertex_project: gcp-專案名稱
+      vertex_location: us-central1
+
+  - model_name: google-chat-bison-32k
+    litellm_params:
+      model: vertex_ai/chat-bison-32k
+      vertex_project: gcp-專案名稱
+      vertex_location: us-central1
+
+  - model_name: google-gemini-pro-1.0
+    litellm_params:
+      model: vertex_ai/gemini-pro
+      vertex_project: gcp-專案名稱
+      vertex_location: us-central1
+
+   - model_name: google-gemini-pro-1.5-preview
+    litellm_params:
+      model: vertex_ai/gemini-1.5-pro-preview-0514
+      vertex_project: gcp-專案名稱
+      vertex_location: us-central1
+
+  - model_name: google-gemini-flash-1.5-preview
+    litellm_params:
+      model: vertex_ai/gemini-1.5-flash-preview-0514
+      vertex_project: gcp-專案名稱
+      vertex_location: us-central1
+
+# 備註：在初始測試成功前，建議先註釋掉 "success_callback"、"cache" 與 "cache_params"。
+litellm_settings:
+  success_callback: ["langfuse"]
+  cache: True
+  cache_params:
+    type: "redis"
+    supported_call_types: ["acompletion", "completion", "embedding", "aembedding"]
+general_settings:
+  master_key: sk_live_請設定一個隨機值
+```
+
+</Callout>
+
+### 不同選項的範例 (例如: rpm, stream, ollama)
+
+<Callout type="example" title="範例 B" collapsible>
+
+```yaml filename="litellm-config.yml"
+model_list:
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: azure/gpt-turbo-small-eu
+      api_base: https://my-endpoint-europe-berri-992.openai.azure.com/
+      api_key: 
+      rpm: 6      # 此部署的速率限制：每分鐘請求數 (rpm)
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: azure/gpt-turbo-small-ca
+      api_base: https://my-endpoint-canada-berri992.openai.azure.com/
+      api_key: 
+      rpm: 6
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: azure/gpt-turbo-large
+      api_base: https://openai-france-1234.openai.azure.com/
+      api_key: 
+      rpm: 1440
+  - model_name: mixtral
+    litellm_params:
+      model: openai/mixtral:8x7b-instruct-v0.1-q5_K_M      # 針對 ollama 的 openai api 相容性使用 openai/*
+      api_base: http://ollama:11434/v1
+      stream: True
+  - model_name: mistral
+    litellm_params:
+      model: openai/mistral                                # 針對 ollama 的 openai api 相容性使用 openai/*
+      api_base: http://ollama:11434/v1
+      stream: True
+litellm_settings:
+  success_callback: ["langfuse"]
+  cache: True
+  cache_params:
+    type: "redis"
+    supported_call_types: ["acompletion", "completion", "embedding", "aembedding"]
+general_settings:
+  master_key: sk_live_請設定一個隨機值
+```
+
+</Callout>
+
+## 3. 配置 LibreChat
+
+使用 `librechat.yaml` [配置文件（指南在此）](/docs/configuration/librechat_yaml/object_structure/custom_endpoint_zh_TW) 將反向代理作為獨立終端加入。
+
+以下是一個配置範例：
+
+```yaml filename="librechat.yaml"
+custom:
+    - name: "Lite LLM"
+      # 佔位符 —— 否則會變為預設的 (OpenAI) 金鑰
+      # 請改在 "litellm/litellm-config.yaml" 的每個 "model" 區塊中提供金鑰
+      apiKey: "sk-from-config-file"
+      # 參見上方「啟動 LiteLLM 代理伺服器」步驟中所需的變更
+      baseURL: "http://host.docker.internal:4000"
+      # 為新使用者預設啟用的模型。「fetch」會從 LiteLLM 獲取其餘可用模型。
+      # 此項大致上是「無關緊要」的，您可以選擇任何模型，只需確保它是您在 LiteLLM 中定義過的即可。
+      models:
+        default: ["gpt-3.5-turbo"]
+        fetch: true
+      titleConvo: true
+      titleModel: "gpt-3.5-turbo"
+      summarize: false
+      summaryModel: "gpt-3.5-turbo"
+      modelDisplayLabel: "Lite LLM"
+```
+
+## 為什麼要使用 LiteLLM？
+
+1. **存取多種 LLM**：支援透過 OpenAI 的 ChatCompletions 與 Completions 格式，呼叫來自 Huggingface、TogetherAI 等平台的 100 多種 LLM。
+
+2. **負載平衡**：具備在壓力測試中每秒處理超過 1,000 次請求的能力，能在各種模型與部署間進行負載平衡。
+
+3. **身份驗證與消費追蹤**：伺服器支援虛擬金鑰進行驗證，並能追蹤消費情況。
+
+關鍵組件與特色包括：
+
+- **安裝**：安裝簡便。
+- **測試**：提供將請求路由至特定模型的測試功能。
+- **伺服器終端**：為聊天補全、一般補全、嵌入、模型清單與金鑰產生提供多個終端。
+- **支援的 LLM**：支援廣泛的 LLM，包括 Azure OpenAI、Huggingface、AWS Sagemaker、Anthropic 等。
+- **代理配置**：允許設定多種參數，如模型清單、伺服器設定、環境變數等。
+- **多模型管理**：可配置具備備援 (fallbacks)、冷卻 (cooldowns)、重試與超時機制的多模型管理。
+- **嵌入模型支援**：針對嵌入模型提供特殊配置。
+- **身份驗證管理**：具備透過虛擬金鑰管理驗證、模型升級/降級以及追蹤消費的功能。
+- **自定義配置**：支援設定模型特定參數、回應快取與自定義提示詞模板。
+- **偵錯工具**：提供偵錯與紀錄代理輸入/輸出的選項。
+- **部署與效能**：提供部署 LiteLLM 代理的相關資訊及其效能指標。
+- **代理 CLI 參數**：提供廣泛的命令列參數供自定義使用。
+
+總體而言，LiteLLM 伺服器提供了一套全面的工具，用於管理、部署以及與各種 LLM 互動，使其成為大規模 AI 應用程式的靈活選擇。

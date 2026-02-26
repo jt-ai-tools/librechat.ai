@@ -1,0 +1,476 @@
+---
+title: 智慧體 (Agents)
+icon: Bot
+description: 學習如何建立、自定義並利用 LibreChat 的 AI 智慧體 —— 這是一個強大的框架，可用於搭配任何模型供應商構建自定義 AI 助手。
+---
+
+# 智慧體：建構自定義 AI 助手
+
+LibreChat 的 AI 智慧體 (Agents) 功能提供了一個靈活的框架，用於建立由各種模型供應商驅動的自定義 AI 助手。
+
+此功能與 OpenAI 的 Assistants API 以及 ChatGPT 的 GPTs 類似，但具備更廣泛的模型支援與無程式碼 (no-code) 實作方式，讓您能建構具備專業能力的複雜助手。
+
+## 快速入門
+
+若要建立新的智慧體，請從終端選單中選擇 「Agents」，並開啟側邊欄中的智慧體構建器 (Agent Builder) 面板。
+
+![智慧體 - 終端選單](/images/agents/endpoints_menu.png)
+
+建立表單包含：
+
+- **頭像 (Avatar)**：上傳自定義頭像以個人化您的智慧體。
+- **名稱 (Name)**：為您的智慧體取一個獨特的名稱。
+- **描述 (Description)**：關於智慧體用途的選填說明。
+- **指令 (Instructions)**：定義智慧體行為的系統指令。
+- **模型 (Model)**：從可用的供應商與模型中進行選擇。
+
+**現有的智慧體可以從側邊欄頂端的下拉選單中選取。**
+- **也可以在聊天輸入框中使用 "@" 提及 (mention) 智慧體。**
+
+![智慧體 - 提及](/images/agents/mention.png)
+
+### 模型配置
+
+模型參數介面允許微調智慧體的回應：
+
+- 溫度 (Temperature)（0-1 範圍，控制回應的創意性）
+- 最大上下文代幣數 (Max context tokens)
+- 最大輸出代幣數 (Max output tokens)
+- 額外的供應商特定設定
+
+## 智慧體能力 (Agent Capabilities)
+
+> **備註：** 所有能力皆可透過 `librechat.yaml` 配置檔案進行切換。詳情請參閱 [配置物件結構/智慧體能力](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities)。
+
+### 代碼解釋器 (Code Interpreter)
+
+啟用後，代碼解釋器能力允許您的智慧體：
+- 執行多種語言的程式碼，包括：
+  - Python, JavaScript, TypeScript, Go, C, C++, Java, PHP, Rust, 與 Fortran
+- 透過 LibreChat 代碼解釋器 API 安全地處理檔案
+- 無需本地安裝、配置或沙盒部署即可執行程式碼
+- 無縫處理檔案上傳與下載
+- [關於代碼解釋器 API 的更多資訊](/docs/features/code_interpreter_zh_TW)
+  - **需要從 [code.librechat.ai](https://code.librechat.ai/pricing) 訂閱 API 服務**
+
+### 檔案搜尋 (File Search)
+
+檔案搜尋能力啟用了：
+- RAG (檢索增強生成) 功能
+- 跨上傳文件的語意搜尋
+- 根據檔案內容提供具備上下文感知能力的回應
+- 支援智慧體層級與對話執行緒層級的檔案附件
+
+### 檔案上下文 (File Context)
+
+檔案上下文能力允許您的智慧體將從檔案中提取的文字儲存為其系統指令的一部分：
+
+- 在提取文字的同時保留文件結構與格式
+- 處理複雜佈局，包括多欄文本與混合內容
+- 處理表格、方程式與其他專業內容
+- 支援多國語言內容
+- 文字儲存於資料庫中的智慧體指令內
+- **無需 OCR 服務** —— 預設使用文字解析與備援方法
+- **OCR 增強** —— 若配置了 OCR，圖片與掃描文件的提取品質將會提升
+- 使用與「以文字上傳」相同的處理邏輯：**OCR > STT > 文字解析**
+- [關於 OCR 配置的更多資訊](/docs/features/ocr_zh_TW)
+
+**備註：** 檔案上下文會將提取的文字納入智慧體的系統指令中。對於個別對話中的臨時文件提問，請改用聊天框中的 [以文字上傳](/docs/features/upload_as_text_zh_TW)。
+
+### 模型上下文協定 (MCP)
+
+MCP 是一個開放協定，標準化了應用程式如何為大型語言模型 (LLM) 提供上下文，充當 AI 工具與數據源的通用適配器。
+
+更多資訊請參閱 [MCP 文檔](/docs/features/mcp_zh_TW)。
+
+#### 具備 MCP 工具的智慧體
+
+
+1. 在您的 `librechat.yaml` 檔案中配置 MCP 伺服器
+2. 重啟 LibreChat 以初始化連接
+3. 建立或編輯智慧體
+4. 點擊智慧體構建器面板中的 「Add Tools」 按鈕，開啟如下所示的工具對話方塊
+5. 選取您想加入的 MCP 伺服器 —— 每個伺服器會以單一項目顯示
+6. 儲存對智慧體的變更
+
+在此範例中，我們為智慧體加入了 **[Spotify MCP 伺服器](https://github.com/LibreChat-AI/spotify-mcp)**。
+
+![智慧體 - MCP](/images/agents/mcp_tools_v2.png)
+
+#### 管理 MCP 工具
+
+將 MCP 伺服器加入智慧體後，您可以微調哪些特定工具可用：
+
+- 加入 MCP 伺服器後，展開它以查看所有可用工具
+- 根據需求勾選/取消勾選個別工具
+- 例如，Spotify MCP 伺服器提供約 20 種工具（搜尋、播放控制、播放清單管理等）
+- 這種細粒度控制讓您可以限制智慧體僅使用其所需的工具
+
+![智慧體 - MCP 工具](/images/agents/mcp_agent_tools.png)
+
+瞭解更多：
+- [配置 MCP 伺服器](/docs/features/mcp_zh_TW)
+- [模型上下文協定簡介](https://modelcontextprotocol.io/introduction)
+
+### 延遲工具 (Deferred Tools)
+
+延遲工具允許智慧體存取大量的 MCP 工具，而無需預先將它們全部載入 LLM 上下文。取而代之的是，延遲工具在執行階段透過 **工具搜尋 (Tool Search)** 機制被發現。
+
+這在智慧體可存取多個具備數十種工具的 MCP 伺服器時特別有用 —— 若預先全部載入會佔用大量上下文窗口並降低回應品質。
+
+**運作方式：**
+- 標記為「延遲」的工具會從初始 LLM 上下文中排除
+- 系統會自動加入一個 `ToolSearch` 工具，允許 LLM 根據需求發現並載入延遲工具
+- 一旦被發現，該工具在剩餘的對話中即可使用
+
+**配置延遲工具：**
+1. 開啟智慧體構建器並加入 MCP 工具
+2. 點擊任何 MCP 工具上的下拉選單
+3. 切換 「Defer Loading」 (延遲載入) —— 延遲工具會顯示時鐘圖標
+
+**備註：** `deferred_tools` 能力預設為啟用。可透過 [`librechat.yaml` 智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities)進行切換。
+
+{/*
+### 程式化工具呼叫 (Programmatic Tool Calling)
+
+**備註：** 此功能目前處於私人測試階段，非所有使用者皆可使用。
+
+程式化工具呼叫 (PTC) 允許 MCP 工具在沙盒環境中透過程式碼執行，而非由 LLM 直接呼叫。這實現了更複雜的工具編排 —— 例如，依序呼叫多個工具、使用程式碼處理結果或構建動態工作流。
+
+**運作方式：**
+- 標記為「代碼執行」呼叫的工具會被導向至代碼解釋器沙盒
+- LLM 撰寫程式碼來程式化呼叫工具，允許使用迴圈、條件式與數據轉換
+- 結果透過沙盒流回給 LLM
+
+**配置程式化工具：**
+1. 開啟智慧體構建器並加入 MCP 工具
+2. 點擊任何 MCP 工具上的下拉選單
+3. 切換 「Code Execution」 呼叫 —— 程式化工具會顯示程式碼圖標
+
+**備註：** `programmatic_tools` 能力 **預設為停用**，且需要最新版的 [代碼解釋器 API](/docs/features/code_interpreter_zh_TW)。可透過 [`librechat.yaml` 智慧體配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities)進行啟用。
+*/}
+
+### 組件 (Artifacts)
+
+Artifacts 能力讓您的智慧體能產生並顯示互動式內容：
+
+- 建立 React 組件、HTML 程式碼與 Mermaid 圖表
+- 在獨立的 UI 視窗中顯示內容，以便清晰檢視與互動
+- 在智慧體層級配置組件專用的指令
+- [關於 Artifacts 的更多資訊](/docs/features/artifacts_zh_TW)
+
+啟用後，預設會加入使用組件所需的額外指令。選項包括：
+
+- **啟用 shadcn/ui 指令**：加入關於使用 shadcn/ui 組件（一套使用 Radix UI 與 Tailwind CSS 構建的可重用組件庫）的指令。
+- **自定義提示詞模式**：啟用後，將不包含預設的組件系統提示詞，允許您提供自己的自定義指令。
+
+在智慧體層級配置 Artifacts 是首選做法，因為與舊版的全域配置相比，它能提供更細粒度的控制。
+
+如果您啟用了「自定義提示詞模式」，則應在指令中至少包含基礎的組件格式。
+
+以下是所需最簡指令的範例：
+
+````md
+建立應顯示為組件 (artifact) 的內容時，請使用下列格式：
+
+:::artifact{identifier="唯一識別碼" type="mime-類型" title="組件標題"}
+```
+在此輸入您的組件內容
+```
+:::
+
+針對 type 屬性，請使用下列之一：
+- "text/html" 用於 HTML 內容
+- "application/vnd.mermaid" 用於 Mermaid 圖表
+- "application/vnd.react" 用於 React 組件
+- "image/svg+xml" 用於 SVG 圖片
+````
+
+### 工具 (Tools)
+
+智慧體還能透過各種內建工具進行強化：
+
+- **[OpenAI 圖片工具](/docs/features/image_gen_zh_TW#1--openai-圖片工具-推薦)**：使用 **[GPT-Image-1](https://platform.openai.com/docs/models/gpt-image-1)** 進行圖片產生與編輯。
+- **[DALL-E-3](/docs/features/image_gen_zh_TW#2--dalle-舊版)**：根據文字描述產生圖片。
+- **[Stable Diffusion](/docs/features/image_gen_zh_TW#3--stable-diffusion-本地)** / **[Flux](/docs/features/image_gen_zh_TW#4--flux)**：文字轉圖片產生。
+- **[Wolfram](/docs/configuration/tools/wolfram_zh_TW)**：計算與數學能力。
+- **[OpenWeather](/docs/configuration/tools/openweather_zh_TW)**：氣象數據檢索。
+- **[Google Search](/docs/configuration/tools/google_search_zh_TW)**：存取網頁搜尋功能。
+- **計算機 (Calculator)**：數學運算。
+- **Tavily Search**：具備多樣數據源整合能力的進階搜尋 API。
+- **Azure AI Search**：資訊檢索。
+- **Traversaal**：適用於 LLM 智慧體的強大搜尋 API。
+
+- 工具可以透過 [`librechat.yaml`](/docs/configuration/librechat_yaml_zh_TW) 配置檔案進行停用：
+  - [更多資訊](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities)
+
+### Actions (操作)
+
+透過 Actions 能力，您可以從 [OpenAPI 規範](https://swagger.io/specification/)動態建立工具並加入智慧體中。
+
+![智慧體 - 終端選單](/images/agents/actions.png)
+
+**點擊上方按鈕將開啟一個表單，您可以在其中輸入 OpenAPI 規範 URL 並建立一個 action：**
+
+![智慧體 - 終端選單](/images/agents/actions_panel.png)
+
+- Actions 可以透過 [`librechat.yaml`](/docs/configuration/librechat_yaml_zh_TW) 配置檔案進行停用：
+  - [更多資訊](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities)
+- 可為智慧體 actions 設定白名單網域：
+  - [更多資訊](/docs/configuration/librechat_yaml/object_structure/actions_zh_TW#alloweddomains)
+- 請注意，您可以在 OpenAPI 規範的運算層級加入 `'x-strict': true` 旗標。
+若使用支援此功能的 OpenAI 模型，這將自動產生啟用了 「strict」 模式的函式呼叫。
+  - Strict 模式僅支援 JSON 的子集。詳情請參閱 https://platform.openai.com/docs/guides/structured-outputs/some-type-specific-keywords-are-not-yet-supported。
+
+### 智慧體鏈 (Agent Chain)
+
+智慧體鏈能力啟用了智慧體混合 (Mixture-of-Agents, MoA) 方案，允許您建立一系列協同工作的智慧體：
+
+- 針對複雜任務建立專業智慧體的鏈接。
+- 鏈中的每個智慧體皆可存取前一個智慧體的輸出。
+- 配置智慧體鏈的最大步數。
+- **備註：** 從智慧體構建器中的進階設定面板存取此功能。
+- **備註：** 此功能目前處於測試階段，可能會有所變動。
+  - 當前智慧體鏈的最大鏈接數量為 10，未來可能會開放配置。
+
+<img src="https://firebasestorage.googleapis.com/v0/b/superb-reporter-407417.appspot.com/o/agent_chain.png?alt=media&token=bfa209b9-d2ab-403f-b097-6300b4017fc8" alt="Agent Chain" width={488} height={269}/>
+
+此功能為 LibreChat 引入了分層的 Mixture-of-Agents 架構，其中每個智慧體將前一層所有智慧體的輸出作為產生回應的輔助資訊，正如 [同名論文 "Mixture-of-Agents"](https://arxiv.org/abs/2406.04692) 中所述。
+
+### 進階設定
+
+位於智慧體表單「進階 (Advanced)」視圖中、除「能力」之外的進階設定。
+
+#### 最大智慧體步數 (Max Agent Steps)
+
+此設定允許您限制智慧體在一次「執行 (run)」中可採取的步數，這裡的執行指的是智慧體在給出最終回應前的循環次數。
+
+若未配置，預設為 25 步，但您可以根據需求進行調整。管理員可以在 [`librechat.yaml`](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#recursionlimit) 檔案中設定全域預設值與全域最大值。
+
+一「步」指的是一次 AI API 請求或一輪工具使用（1 個或多個工具，取決於 LLM 在單次請求中提供了多少工具呼叫）。
+
+單次、非工具的回應計為 1 步。一輪工具使用通常計為 3 步：
+
+1. API 請求 -> 2. 工具使用（1 或多個） -> 3. 後續 API 請求
+
+## 檔案管理
+
+智慧體支援多種處理檔案的方式：
+
+### 聊天介面中
+
+與智慧體聊天時，您有四種上傳選項：
+
+1. **上傳圖片 (Upload Images)**
+   - 上傳圖片以獲取原生視覺模型支援。
+   - 直接將圖片發送給模型供應商。
+
+2. **以文字上傳 (Upload as Text)**（需要 `context` 能力）
+   - 提取文件完整內容並納入對話。
+   - 預設使用文字解析；若配置了 OCR 則會獲得強化。
+   - 內容僅存於當前對話。
+   - 參見 [以文字上傳](/docs/features/upload_as_text_zh_TW)。
+
+3. **上傳用於檔案搜尋 (Upload for File Search)**（需要啟用 `file_search` 能力）
+   - 使用向量資料庫進行語意搜尋 (RAG)。
+   - 透過工具呼叫返回相關片段。
+   - 最適合大型文件/多個檔案。
+   - 對於結構化數據（CSV, Excel, JSON 等）效果欠佳。
+
+4. **上傳用於代碼解釋器 (Upload for Code Interpreter)**（需要啟用 `execute_code` 能力）
+   - 將檔案新增至代碼解釋器環境。
+   - 最適合結構化數據（CSV, Excel, JSON 等）。
+   - 更多資訊請參閱 [代碼解釋器](/docs/features/code_interpreter_zh_TW)。
+
+### 智慧體構建器中
+
+配置智慧體時，您可以附加不同類別的檔案：
+
+1. **圖片上傳 (Image Upload)**：供智慧體參考的視覺內容。
+2. **檔案搜尋上傳 (File Search Upload)**：用於 RAG 能力的文件。
+3. **代碼解釋器上傳 (Code Interpreter Upload)**：用於程式碼處理的檔案。
+4. **檔案上下文 (File Context)**：帶有提取文字的文件，用以補充智慧體指令。
+
+**檔案上下文** 使用 `context` 能力，運作方式與 [「以文字上傳」](/docs/features/upload_as_text_zh_TW) 完全相同 —— 預設使用文字解析，配置後由 OCR 強化。文字在上傳時被提取並儲存在智慧體的指令中。這非常適合讓智慧體從文件、PDF、程式碼檔案或帶有文字的圖片中獲取持久的知識。
+
+**處理優先權**：OCR > STT > 文字解析（與「以文字上傳」相同）
+
+**備註：** 提取的文字會被包含在智慧體的系統指令中。
+
+## 分享與權限
+
+### 管理員控制
+
+管理員可以在智慧體構建器 UI 中存取全域權限設定：
+
+- 啟用/停用跨所有使用者的智慧體分享。
+- 控制智慧體使用權限。
+- 管理智慧體建立權限。
+- 配置平台範圍的設定。
+
+為您的實例建立的第一個帳號即為管理員。如果您需要新增額外的管理員，您可以[存取 MongoDB](/docs/configuration/mongodb/mongodb_auth_zh_TW) 並更新使用者個人資料：
+
+```
+db.users.updateOne(
+  { email: '使用者電子郵件地址' },
+  { $set: { role: 'ADMIN' } }
+)
+```
+
+針對所有使用者的智慧體使用也可以透過配置停用，[更多資訊](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW)。
+
+### 使用者層級分享
+
+個別使用者可以：
+- 與所有使用者分享其智慧體（若已啟用）。
+- 控制共享智慧體的編輯權限。
+- 管理對其建立之智慧體的存取。
+
+### 備註
+
+- 指令、模型參數、附件檔案與工具僅在使用者擁有編輯權限時才會公開。
+  - 智慧體可能會透過對話洩漏任何附加數據（不論是指令或檔案）—— 請確保您的指令能防範此類情況。
+- 僅限原始作者與管理員可以刪除已分享的智慧體。
+- 智慧體對作者私有，除非選擇分享。
+
+## 選用配置
+
+LibreChat 允許管理員透過 [`librechat.yaml`](/docs/configuration/librechat_yaml_zh_TW) 檔案配置智慧體的使用：
+
+- 為所有使用者（包括管理員）停用智慧體：[更多資訊](/docs/configuration/librechat_yaml/object_structure/interface_zh_TW)。
+- 自定義智慧體能力：[更多資訊](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW)。
+
+## 最佳實踐
+
+- 為您的智慧體提供清晰、具體的指令。
+- 仔細考量您的使用案例需要哪些工具。
+- 在四個上傳類別中適當地組織檔案。
+- 分享智慧體前請檢閱權限設定。
+- 在部署給其他使用者前，徹底測試您的智慧體。
+
+## 總結
+
+1. 從終端下拉選單中選擇 「Agents」。
+2. 開啟智慧體構建器 (Agent Builder) 面板。
+3. 填寫智慧體必要詳情。
+4. 配置所需能力（代碼解釋器、檔案搜尋、檔案上下文等）。
+5. 加入必要的工具與檔案。
+6. 若有需要，設定分享權限。
+7. 建立並開始使用您的智慧體。
+
+與智慧體聊天時，您可以：
+- 使用「以文字上傳」將完整文件內容納入對話（預設使用文字解析，由 OCR 強化）。
+- 使用「上傳用於檔案搜尋」對文件進行語意搜尋（需要 RAG API）。
+- 將檔案加入智慧體的「檔案上下文」，以將檔案的完整內容作為智慧體系統指令的一部分。
+
+## 需要執行遷移 (v0.8.0-rc3+)
+
+<Callout type="warning" title="重要：需要智慧體權限遷移">
+從 v0.8.0-rc3 版本開始，LibreChat 為智慧體使用新的基於存取控制清單 (ACL) 的權限系統。如果您是從較舊版本升級，必須針對現有的智慧體執行權限遷移，否則將無法存取。
+</Callout>
+
+### 遷移的作用
+
+智慧體權限遷移會將您的智慧體從簡單的擁有權模型轉換為具備多個權限層級的複雜 ACL 系統：
+- **OWNER** (擁有者)：智慧體的完整控制權。
+- **EDITOR** (編輯者)：可檢視並修改智慧體。
+- **VIEWER** (檢視者)：智慧體的唯讀存取權。
+
+若不執行此遷移，現有智慧體將無法透過具備權限感知能力的新 API 終端存取。
+
+### 執行遷移
+
+根據您的部署方式選擇對應指令：
+
+#### 1. 使用預設的 `docker-compose.yml`（若您使用 `docker compose up` 啟動應用程式）：
+
+**預覽變更 (dry run)：**
+```bash
+docker-compose exec api npm run migrate:agent-permissions:dry-run
+```
+
+**執行遷移：**
+```bash
+docker-compose exec api npm run migrate:agent-permissions
+```
+
+**自定義批次大小（針對大型數據集）：**
+```bash
+docker-compose exec api npm run migrate:agent-permissions:batch
+```
+
+#### 2. 使用 `deploy-compose.yml`（若您遵循 [Ubuntu Docker 指南](/docs/remote/docker_linux_zh_TW)）：
+
+**預覽變更 (dry run)：**
+```bash
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run migrate:agent-permissions:dry-run"
+```
+
+**執行遷移：**
+```bash
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run migrate:agent-permissions"
+```
+
+**自定義批次大小（針對大型數據集）：**
+```bash
+docker exec -it LibreChat-API /bin/sh -c "cd .. && npm run migrate:agent-permissions:batch"
+```
+
+#### 3. 用於本地開發（在專案根目錄執行）：
+
+**預覽變更 (dry run)：**
+```bash
+npm run migrate:agent-permissions:dry-run
+```
+
+**執行遷移：**
+```bash
+npm run migrate:agent-permissions
+```
+
+**自定義批次大小（針對大型數據集）：**
+```bash
+npm run migrate:agent-permissions:batch
+```
+
+### 遷移期間會發生什麼
+
+- **私有智慧體**：僅對其建立者保持可用（獲得 OWNER 權限）。
+- **共享智慧體**：若智慧體先前已被分享，它將作為「公開智慧體 (Public Agent)」獲得適當的 ACL 條目（對所有使用者分享）。
+- **系統偵測**：LibreChat 在啟動時會自動偵測未遷移的智慧體並顯示警告。
+
+您可以透過智慧體構建器 UI 調整遷移後的智慧體權限。
+
+<Callout type="info" title="備註">
+相同的遷移程序也適用於提示詞 (prompts)。如果您也有現存的提示詞，請使用相同的指令執行提示詞權限遷移，只需將指令名稱中的 `agent` 替換為 `prompt`。
+</Callout>
+
+## 智慧體 API (測試版)
+
+LibreChat 智慧體也可以透過 API 進行程式化存取，讓外部應用程式與腳本能使用 OpenAI 相容的 SDK 或 Open Responses 格式與您的智慧體互動。
+
+詳情請參閱 [智慧體 API 文檔](/docs/features/agents_api_zh_TW)。
+
+## 下一步計畫
+
+LibreChat 智慧體開啟了一個新紀元，未來的流程可以透過智慧體針對特定任務與工作流進行簡化，優化您的整個 LibreChat 體驗。
+
+未來的更新將包含：
+- 對當前智慧體體驗的全面改進。
+- 針對複雜工作流的多智慧體編排。
+- 可針對各種功能自定義智慧體：標題產生（對話執行緒命名）、記憶管理（使用者上下文/歷史）與提示詞強化（輸入協助/預測）。
+- 更多工具、可配置的工具參數、動態工具建立。
+
+此外，此更新為 LibreChat 引入了新典範，其底層架構為應用程式提供了急需的更新，優化了使用者體驗與整體的應用效能。
+
+為了突顯一項顯著的優化：使用傳統終端（截至撰寫本文時，智慧體與 AWS Bedrock 之外的任何終端選項）產生約 1000 個代幣會傳輸約 1 MB 的數據。
+
+而使用智慧體，相同的產生過程僅會傳輸約 52 KB 的數據，減少了 95% 的數據傳輸量，這大大減輕了伺服器與使用者裝置的負擔。
+
+---
+
+LibreChat 中的 AI 智慧體提供了一種強大的方式，讓您無需具備編寫程式知識即可建立專業助手，同時保有與您偏好的 AI 模型與供應商配合使用的靈活性。
+
+---
+
+#LibreChat #AI助手 #無程式碼 #開源

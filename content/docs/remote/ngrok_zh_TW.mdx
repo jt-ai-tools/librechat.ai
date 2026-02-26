@@ -1,0 +1,50 @@
+---
+title: ngrok
+icon: Network
+description: 使用 ngrok 將您的本地伺服器透過隧道暴露至網際網路。
+---
+
+若要使用 ngrok 將您的本地伺服器建立隧道連接至網際網路，請遵循下列步驟：
+
+## 註冊
+
+1. 前往 **[https://ngrok.com/](https://ngrok.com/)** 並註冊一個帳號。
+
+## Docker 安裝
+
+1. 從此處複製您的驗證權杖 (auth token)：**[https://dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)**
+2. 開啟終端機並執行下列指令：`docker run -d -it -e NGROK_AUTHTOKEN=<您的權杖> ngrok/ngrok http 80`
+
+## Windows 安裝
+
+1. 從此處下載 ZIP 檔案：**[https://ngrok.com/download](https://ngrok.com/download)**
+2. 使用 7zip 或 WinRar 解壓縮 ZIP 檔案內容。
+3. 執行 `ngrok.exe`。
+4. 從此處複製您的驗證權杖：**[https://dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)**
+5. 在 `ngrok.exe` 終端機中，執行下列指令：`ngrok config add-authtoken <您的權杖>`
+6. 如果您尚未啟動，請正常啟動 LibreChat。
+7. 在 `ngrok.exe` 終端機中，執行下列指令：`ngrok http 3080`
+
+您將會看到一個可用於存取 LibreChat 的連結。
+![ngrok-1](https://github.com/danny-avila/LibreChat/assets/32828263/3cb4b063-541f-4f0a-bea8-a04dd36e6bf4)
+
+## Linux 安裝
+
+1. 從 **[https://ngrok.com/download](https://ngrok.com/download)** 複製指令，請務必選擇 **正確** 的架構。
+2. 在終端機執行該指令。
+3. 從此處複製您的驗證權杖：**[https://dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)**
+4. 執行下列指令：`ngrok config add-authtoken <您的權杖>`
+5. 如果您尚未啟動，請正常啟動 LibreChat。
+6. 執行下列指令：`ngrok http 3080`
+
+## Mac 安裝
+
+1. 從此處下載 ZIP 檔案：**[https://ngrok.com/download](https://ngrok.com/download)**
+2. 使用合適的 Mac 應用程式（如 Unarchiver）解壓縮 ZIP 檔案內容。
+3. 開啟終端機 (Terminal)。
+4. 使用 `cd` 指令導覽至您解壓縮 ngrok 的目錄。
+5. 輸入 `./ngrok` 執行 ngrok。
+6. 從此處複製您的驗證權杖：**[https://dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)**
+7. 在執行 ngrok 的終端機中，輸入下列指令：`ngrok authtoken <您的權杖>`
+8. 如果您尚未啟動，請正常啟動 LibreChat。
+9. 在執行 ngrok 的終端機中，輸入下列指令：`./ngrok http 3080`

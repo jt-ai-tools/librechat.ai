@@ -1,0 +1,319 @@
+---
+title: 以文字上傳檔案
+icon: Upload
+description: 上傳檔案並將其完整內容納入對話中，無需配置 OCR。
+---
+
+「以文字上傳 (Upload as Text)」允許您上傳文件，並將其完整內容直接納入您與 AI 的對話中。此功能開箱即用，使用文字解析方法，並提供選配的 OCR 增強功能以提升提取品質。
+
+## 概覽
+
+- **無需 OCR** —— 預設使用文字解析與備援方法。
+- **OCR 增強** —— 若配置了 OCR，圖片與掃描文件的提取品質將會提升。
+- **完整文件內容** —— 文件的全部內容皆可在對話中供模型使用。
+- **支援所有模型** —— 無需特殊的工具能力。
+- **代幣限制控制** —— 可透過 `fileTokenLimit` 配置，以管理上下文用量。
+
+## `context` 能力
+
+「以文字上傳」功能受 LibreChat 配置中的 `context` 能力控制。
+
+```yaml
+# librechat.yaml
+endpoints:
+  agents:
+    capabilities:
+      - "context"  # 啟用「以文字上傳」
+```
+
+**預設值：** `context` 能力預設已包含在內。您只有在自定義過能力清單的情況下，才需要明確加入它。
+
+## 運作原理
+
+當您使用「以文字上傳」功能上傳檔案時：
+
+1. LibreChat 會根據 `fileConfig` 模式檢查檔案的 MIME 類型。
+2. **根據優先順序決定處理方法：OCR > STT > 文字解析**。
+3. 若檔案匹配 `fileConfig.ocr.supportedMimeTypes` 且已配置 OCR：**使用 OCR**。
+4. 若檔案匹配 `fileConfig.stt.supportedMimeTypes` 且已配置 STT：**使用 STT**。
+5. 若檔案匹配 `fileConfig.text.supportedMimeTypes`：**使用文字解析**。
+6. 否則：**退而使用文字解析**。
+7. 文字會在建構提示詞前被截斷至 `fileConfig.fileTokenLimit` 設定的長度。
+8. 提取的完整文字將被納入對話上下文中。
+
+### 文字處理方法
+
+**文字解析 (預設)：**
+- 使用強大的解析函式庫（與 RAG API 相同）。
+- 處理 PDF、Word 文件、純文字檔、程式碼檔案等。
+- 無需外部服務。
+- 無需配置，立即可用。
+- 若無其他匹配項，則作為備援方法。
+
+**OCR 增強 (選配)：**
+- 提升圖片、掃描文件與複雜 PDF 的提取效果。
+- 需要配置 OCR 服務。
+- 當可用時，自動用於匹配 `fileConfig.ocr.supportedMimeTypes` 的檔案。
+- 參見 [OCR 配置](/docs/features/ocr_zh_TW)。
+
+**STT 處理 (選配)：**
+- 將音訊檔案轉換為文字。
+- 需要配置 STT 服務。
+- 參見 [語音轉文字配置](/docs/configuration/librechat_yaml/object_structure/file_config_zh_TW#stt)。
+
+## 使用方式
+
+1. 點擊聊天輸入框中的附件圖標。
+2. 從選單中選擇 「Upload as Text」。
+3. 選取您的檔案。
+4. 檔案內容將被提取並包含在您的訊息中。
+
+**備註：** 如果您沒看到 「Upload as Text」 選項，請確保已在 [`endpoints.agents.capabilities` 配置](/docs/configuration/librechat_yaml/object_structure/agents_zh_TW#capabilities)中啟用 `context` 能力。
+
+## 配置
+
+### 基礎配置
+
+`context` 能力預設為啟用。基礎的文字解析功能無需額外配置。
+
+### 檔案處理配置
+
+透過 `fileConfig` 控制文字處理行為：
+
+```yaml
+fileConfig:
+  # 文字檔在截斷前的最大代幣數
+  fileTokenLimit: 100000
+  
+  # 符合這些模式的檔案將使用 OCR（若有配置）
+  ocr:
+    supportedMimeTypes:
+      - "^image/(jpeg|gif|png|webp|heic|heif)$"
+      - "^application/pdf$"
+      - "^application/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|presentationml\.presentation|spreadsheetml\.sheet)$"
+      - "^application/vnd\.ms-(word|powerpoint|excel)$"
+      - "^application/epub\+zip$"
+  
+  # 符合這些模式的檔案將使用文字解析
+  text:
+    supportedMimeTypes:
+      - "^text/(plain|markdown|csv|json|xml|html|css|javascript|typescript|x-python|x-java|x-csharp|x-php|x-ruby|x-go|x-rust|x-kotlin|x-swift|x-scala|x-perl|x-lua|x-shell|x-sql|x-yaml|x-toml)$"
+  
+  # 符合這些模式的檔案將使用 STT（若有配置）
+  stt:
+    supportedMimeTypes:
+      - "^audio/(mp3|mpeg|mpeg3|wav|wave|x-wav|ogg|vorbis|mp4|x-m4a|flac|x-flac|webm)$"
+```
+
+**處理優先權：** OCR > STT > 文字解析 > 備援
+
+詳情請參閱 [檔案配置物件結構](/docs/configuration/librechat_yaml/object_structure/file_config_zh_TW)。
+
+### 選配：配置 OCR 以增強提取效果
+
+OCR **不是必需的**，但配置後可提升提取品質：
+
+```yaml
+# librechat.yaml
+ocr:
+  strategy: "mistral_ocr"
+  apiKey: "${OCR_API_KEY}"
+  baseURL: "https://api.mistral.ai/v1"
+  mistralModel: "mistral-ocr-latest"
+```
+
+完整細節請參閱 [OCR 配置](/docs/features/ocr_zh_TW)。
+
+## 各種上傳選項的使用時機
+
+LibreChat 提供三種上傳檔案的方式，分別適用於不同的使用情境：
+
+### 何時使用「以文字上傳」：
+- ✅ 您希望 AI 讀取文件的完整內容。
+- ✅ 處理能放入上下文窗口的小型檔案。
+- ✅ 您需要「與檔案聊天」的功能。
+- ✅ 使用不具備工具能力的模型時。
+- ✅ 您想直接存取內容，而不使用語意搜尋。
+
+### 何時使用「上傳用於檔案搜尋」：
+- ✅ 處理大型文件或多個檔案。
+- ✅ 您希望優化代幣使用。
+- ✅ 您需要對相關章節進行語意搜尋。
+- ✅ 建構知識庫。
+- ✅ 已啟用 `file_search` 能力且已切換為「開啟」。
+
+### 何時使用標準的「上傳檔案」：
+- ✅ 使用視覺模型分析圖片。
+- ✅ 使用代碼解釋器執行程式碼。
+- ✅ 檔案不需要提取文字。
+
+## 支援的檔案類型
+
+### 文字檔 (文字解析)
+- 純文字、Markdown、CSV、JSON、XML、HTML。
+- 程式語言（Python, JavaScript, Java, C++, 等）。
+- 配置文件（YAML, TOML, INI, 等）。
+- Shell 腳本、SQL 檔案。
+
+### 文件 (文字解析 或 OCR)
+- PDF 文件。
+- Word 文件 (.docx, .doc)。
+- PowerPoint 簡報 (.pptx, .ppt)。
+- Excel 試算表 (.xlsx, .xls)。
+- EPUB 電子書。
+
+### 圖片 (若配置了 OCR)
+- JPEG, PNG, GIF, WebP。
+- HEIC, HEIF (Apple 格式)。
+- 螢幕截圖、文件照片、掃描影像。
+
+### 音訊 (若配置了 STT)
+- MP3, WAV, OGG, FLAC。
+- M4A, WebM。
+- 語音錄音、Podcast。
+
+## 檔案處理優先順序
+
+LibreChat 根據 MIME 類型匹配，按下列 **優先順序** 處理檔案：
+
+1. **OCR** —— 若檔案匹配 `ocr.supportedMimeTypes` 且已配置 OCR。
+2. **STT** —— 若檔案匹配 `stt.supportedMimeTypes` 且已配置 STT。
+3. **文字解析** —— 若檔案匹配 `text.supportedMimeTypes`。
+4. **備援** —— 作為最後手段的文字解析。
+
+### 處理範例
+
+**配置了 OCR 的 PDF 檔案：**
+- 匹配 `ocr.supportedMimeTypes`。
+- **使用 OCR** 提取文字。
+- 對於掃描版 PDF 品質更佳。
+
+**未配置 OCR 的 PDF 檔案：**
+- 匹配 `text.supportedMimeTypes`（備援）。
+- **使用文字解析** 函式庫。
+- 對於數位版 PDF 效果良好。
+
+**Python 檔案：**
+- 匹配 `text.supportedMimeTypes`。
+- **使用文字解析**（無需 OCR）。
+- 直接提取文字。
+
+**配置了 STT 的音訊檔案：**
+- 匹配 `stt.supportedMimeTypes`。
+- **使用 STT** 進行轉錄。
+
+## 代幣限制
+
+檔案會被截斷至 `fileTokenLimit` 代幣，以管理上下文窗口的使用：
+
+```yaml
+fileConfig:
+  fileTokenLimit: 100000  # 預設：100,000 代幣
+```
+
+- 截斷發生在執行階段，即建構提示詞之前。
+- 有助於防止超過模型的上下文限制。
+- 可根據您的需求與模型能力進行配置。
+- 較大的限制允許更多內容，但會消耗更多代幣。
+
+## 與其他檔案功能對比
+
+| 功能 | 能力需求 | 需要服務 | 持久性 | 最適合 |
+|---------|-----------|------------------|-------------|----------|
+| **以文字上傳** | `context` | 否 (OCR 增強) | 單次對話 | 臨時的文件提問 |
+| **智慧體檔案上下文** | `context` | 否 (OCR 增強) | 智慧體系統指令 | 智慧體專業知識 |
+| **檔案搜尋** | `file_search` | 是 (向量資料庫) | 儲存於向量庫 | 大型文件、語意搜尋 |
+
+### 以文字上傳 vs 智慧體檔案上下文
+
+**以文字上傳 (`context`)：**
+- 可在任何聊天對話中使用。
+- 內容僅包含在當前對話中。
+- 無需 OCR 服務（預設使用文字解析）。
+- 最適合單次、即時的文件問題。
+
+**智慧體檔案上下文 (`context`)：**
+- 僅在智慧體構建器中可用。
+- 內容儲存於智慧體的系統指令中。
+- 無需 OCR 服務（預設使用文字解析）。
+- 最適合建立具備持久知識的專業智慧體。
+- 參見 [文件 OCR](/docs/features/ocr_zh_TW)。
+
+### 以文字上傳 vs 檔案搜尋
+
+**以文字上傳 (`context`)：**
+- 文件完整內容進入對話上下文。
+- 直接存取所有文字。
+- 代幣消耗：整個檔案（受限於上限）。
+- 無需配置 RAG API 即可運作。
+
+**檔案搜尋 (`file_search`)：**
+- 對文件進行語意搜尋。
+- 透過工具呼叫返回相關片段。
+- 代幣消耗：僅相關區段。
+- 需要配置 RAG API 與向量資料庫。
+- 參見 [RAG API](/docs/features/rag_api_zh_TW)。
+
+## 範例使用情境
+
+- **文件分析**：上傳合約、報告或文章進行分析。
+- **代碼審閱**：上傳原始碼檔案以獲取建議。
+- **數據提取**：從結構化文件中提取資訊。
+- **翻譯**：翻譯文件內容。
+- **摘要**：摘要文章、論文或報告。
+- **研究**：討論學術論文或技術文件。
+- **疑難排解**：分享日誌檔案進行分析。
+- **內容編輯**：審閱並編輯撰寫內容。
+- **數據處理**：處理 CSV 或 JSON 數據檔案。
+
+## 疑難排解
+
+### 未出現 「Upload as Text」 選項
+
+**解決方案：** 確保已啟用 `context` 能力：
+
+```yaml
+endpoints:
+  agents:
+    capabilities:
+      - "context"  # 若缺失請加入此項
+```
+
+### 檔案內容未正確提取
+
+**解決方案：**
+1. 檢查檔案類型是否支援（是否符合 `fileConfig` 模式）。
+2. 針對圖片/掃描文件：配置 OCR 以獲得更佳的提取效果。
+3. 針對音訊檔案：配置 STT 服務。
+4. 驗證檔案是否損毀。
+
+### 內容似乎被截斷了
+
+**解決方案：** 調高代幣限制：
+
+```yaml
+fileConfig:
+  fileTokenLimit: 150000  # 根據需求增加
+```
+
+### 圖片提取品質不佳
+
+**解決方案：** 配置 OCR 以增強提取：
+
+```yaml
+ocr:
+  strategy: "mistral_ocr"
+  apiKey: "${OCR_API_KEY}"
+```
+
+詳情請參閱 [OCR 配置](/docs/configuration/librechat_yaml/object_structure/ocr_zh_TW)。
+
+## 相關功能
+
+- [檔案上下文](/docs/features/agents_zh_TW#檔案上下文) —— 作為智慧體上下文使用的檔案
+- [文件 OCR](/docs/features/ocr_zh_TW) —— 瞭解並配置 OCR 服務
+- [檔案配置](/docs/configuration/librechat_yaml/object_structure/file_config_zh_TW) —— 配置檔案處理設定
+
+---
+
+「以文字上傳」提供了一種簡單且強大的方式，讓您在 LibreChat 中使用文件，而無需複雜的配置或外部服務。

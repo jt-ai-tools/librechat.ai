@@ -1,0 +1,206 @@
+---
+title: "網頁搜尋"
+icon: Search
+---
+
+LibreChat 的網頁搜尋功能讓您可以搜尋網際網路並檢索相關資訊，以增強您的對話體驗。此功能由三個主要組件組成，它們協同運作以提供全面的搜尋結果。
+
+## 快速入門
+
+若要開始使用網頁搜尋，您需要為所有三個組件配置 API 金鑰，以確保搜尋結果的有效性。您可以透過下列兩種方式進行配置：
+
+1. **環境變數**（推薦管理員使用）：
+   ```bash
+   # 搜尋供應商 (必填)
+   SERPER_API_KEY=您的_serper_api_key
+   # 或
+   SEARXNG_INSTANCE_URL=您的_searxng_實例_url
+   SEARXNG_API_KEY=您的_searxng_api_key  # 選填
+   
+   # 爬蟲 (必填)
+   FIRECRAWL_API_KEY=您的_firecrawl_api_key
+   # 選填：自定義 Firecrawl API URL
+   FIRECRAWL_API_URL=您的_firecrawl_api_url
+   # 選填：Firecrawl API 版本 (v0 或 v1)
+   # FIRECRAWL_VERSION=v1
+   
+   # 重新排序器 (必填)
+   JINA_API_KEY=您的_jina_api_key
+   # 選填：自定義 Jina API URL
+   JINA_API_URL=您的_jina_api_url
+   # 或
+   COHERE_API_KEY=您的_cohere_api_key
+   ```
+
+2. **使用者介面**（若未設定環境變數）：
+   - 使用者在首次使用網頁搜尋功能時，系統會提示其輸入所需的 API 金鑰。
+   - 使用者可以選擇要使用的搜尋供應商（Serper 或 SearXNG）以及重新排序器服務（Jina 或 Cohere）。
+
+## 獲取 API 金鑰
+
+網頁搜尋功能的每個組件都需要各自的 API 金鑰。獲取方式如下：
+
+### 搜尋供應商 (Search Providers)
+
+#### Serper
+1. 造訪 [Serper.dev](https://serper.dev)
+2. 註冊帳號
+3. 導覽至 API Key 區段
+4. 複製您的 API 金鑰
+5. 將其設定在環境變數中，或透過 UI 提供
+
+#### SearXNG
+1. 遵循 [網頁搜尋配置](/docs/configuration/librechat_yaml/object_structure/web_search_zh_TW#設定-searxng) 文檔中的設定說明。
+2. 將 `SEARXNG_INSTANCE_URL` 設定為您的實例 URL。
+3. 若您的實例需要身份驗證，請選填 `SEARXNG_API_KEY`。
+
+### 爬蟲：Firecrawl
+
+1. 造訪 [Firecrawl.dev](https://docs.firecrawl.dev/introduction#api-key)
+2. 註冊帳號
+3. 導覽至 API Key 區段
+4. 複製您的 API 金鑰
+5. 將其設定在環境變數中，或透過 UI 提供
+6. （選填）若您使用自定義的 Firecrawl 實例，還需要設定 API URL。
+
+### 重新排序器 (Rerankers)
+
+#### Jina
+1. 造訪 [Jina.ai](https://jina.ai/api-dashboard/)
+2. 註冊帳號
+3. 導覽至 API 儀表板
+4. 複製您的 API 金鑰
+5. 將其設定在環境變數中，或透過 UI 提供
+
+#### Cohere
+1. 造訪 [Cohere 儀表板](https://dashboard.cohere.com/welcome/login)
+2. 註冊帳號
+3. 導覽至 API Keys 區段
+4. 複製您的 API 金鑰
+5. 將其設定在環境變數中，或透過 UI 提供
+
+## 組件說明
+
+### 1. 搜尋供應商 (Search Providers)
+
+搜尋供應商負責執行初始的網頁搜尋並返回相關結果。
+
+**可用供應商：**
+- **Serper**：提供高品質搜尋結果的 Google 搜尋 API。
+  - 從 [Serper.dev](https://serper.dev/api-key) 獲取 API 金鑰。
+- **SearXNG**：開源、可自行代管的元搜尋引擎。
+  - 自行代管您的實例。
+  - 專注於隱私的搜尋結果。
+
+### 2. 爬蟲 (Scrapers)
+
+爬蟲負責從搜尋供應商返回的網頁中提取實際內容。
+
+**可用爬蟲：**
+- **Firecrawl**：強大的網頁爬取服務，可從網頁提取內容。
+  - 從 [Firecrawl.dev](https://docs.firecrawl.dev/introduction#api-key) 獲取 API 金鑰。
+  - API URL 是選填的（預設使用 Firecrawl 的託管服務）。
+
+**計畫中的爬蟲：**
+- **本地 Firecrawl**：Firecrawl 的自行代管版本。
+- 其他第三方爬蟲服務。
+
+### 3. 重新排序器 (Rerankers)
+
+重新排序器會分析爬取到的內容，判斷最相關的部分並重新排序，以提供更佳的搜尋結果。
+
+**可用重新排序器：**
+- **Jina**：AI 驅動的重新排序服務。
+  - 從 [Jina.ai](https://jina.ai/api-dashboard/) 獲取 API 金鑰。
+  - API URL 是選填的（預設使用 Jina 的託管服務）。
+- **Cohere**：進階的重新排序服務。
+  - 從 [Cohere 儀表板](https://dashboard.cohere.com/welcome/login) 獲取 API 金鑰。
+
+**計畫中的重新排序器：**
+- **RAG API**：使用 RAG（檢索增強生成）的開源重新排序。
+- 其他第三方重新排序服務。
+
+## 配置指引
+
+### 管理員配置
+
+管理員可以使用環境變數來配置網頁搜尋功能。YAML 配置允許您為每個組件指定自定義的環境變數名稱。
+
+⚠️ **重要提示：切勿將實際的 API 金鑰或數值放入 YAML 檔案中（它們將無法運作）—— 僅能使用環境變數名稱。**
+
+```yaml
+webSearch:
+  # 搜尋供應商配置
+  serperApiKey: "${CUSTOM_SERPER_API_KEY}"  # ✅ 正確：使用環境變數名稱
+  # serperApiKey: "sk-123..."               # ❌ 錯誤：切勿在此放入實際金鑰
+  # 或
+  searxngInstanceUrl: "${CUSTOM_SEARXNG_INSTANCE_URL}"  # ✅ 正確：使用環境變數名稱
+  searxngApiKey: "${CUSTOM_SEARXNG_API_KEY}"            # ✅ 正確：使用環境變數名稱
+  # searxngInstanceUrl: "http://..."        # ❌ 錯誤：切勿在此放入實際 URL
+  # searxngApiKey: "sk-123..."              # ❌ 錯誤：切勿在此放入實際金鑰
+
+  # 爬蟲配置
+  firecrawlApiKey: "${CUSTOM_FIRECRAWL_API_KEY}"
+  firecrawlApiUrl: "${CUSTOM_FIRECRAWL_API_URL}"
+  # firecrawlApiKey: "fc-123..."            # ❌ 錯誤：切勿在此放入實際金鑰
+  # firecrawlApiUrl: "https://..."          # ❌ 錯誤：切勿在此放入實際 URL
+
+  # 重新排序器配置
+  jinaApiKey: "${CUSTOM_JINA_API_KEY}"
+  jinaApiUrl: "${CUSTOM_JINA_API_URL}"
+  cohereApiKey: "${CUSTOM_COHERE_API_KEY}"
+  # jinaApiKey: "jn-123..."                 # ❌ 錯誤：切勿在此放入實際金鑰
+  # jinaApiUrl: "https://..."               # ❌ 錯誤：切勿在此放入實際 URL
+  # cohereApiKey: "ch-123..."               # ❌ 錯誤：切勿在此放入實際金鑰
+
+  # 一般設定
+  safeSearch: 1 # 選項：0 (關閉), 1 (中等 - 預設), 2 (嚴格)
+```
+
+**備註：** YAML 配置應僅包含環境變數名稱（格式為 `${VARIABLE_NAME}`）。這種靈活性支援：
+- 在不同環境中使用不同的變數名稱。
+- 支援針對不同使用者群組的多重配置。
+- 未來可與基於角色的配置整合。
+
+如果您想限制系統僅使用特定服務，可以指定服務類型：
+
+```yaml
+webSearch:
+  # ... 變數配置 ...
+  searchProvider: "serper"    # 僅使用 Serper 進行搜尋
+  # searchProvider: "searxng" # 僅使用 SearXNG 進行搜尋
+  scraperProvider: "firecrawl"    # 僅使用 Firecrawl 進行爬取
+  rerankerType: "jina"        # 僅使用 Jina 進行重新排序
+```
+
+### 使用者配置
+
+若管理員未配置所有必要的 API 金鑰，系統會提示使用者透過 UI 提供。介面允許使用者：
+
+1. 選擇偏好的重新排序器（Jina 或 Cohere）。
+2. 輸入所需服務的 API 金鑰。
+3. 若有需要，配置 Firecrawl API URL（選填）。
+4. 若有需要，配置 Jina API URL（選填）。
+
+## 使用方式
+
+配置完成後，您可以透過兩種方式使用網頁搜尋：
+
+1. **聊天介面**：點擊聊天介面中的網頁搜尋按鈕，為您的對話啟用網頁搜尋。
+2. **智慧體 (Agents)**：在智慧體中使用 `web_search` 能力，讓智慧體能搜尋網頁。
+
+## 備註
+
+- 為了獲得有效的搜尋結果，所有三個組件（搜尋供應商、爬蟲與重新排序器）皆為必填。
+- Firecrawl API URL 是選填的，預設使用其託管服務。
+- Jina API URL 是選填的，預設使用其託管服務。
+- 安全搜尋提供三個等級的內容過濾：關閉 (0)、中等 (1 - 預設) 與 嚴格 (2)。
+- 爬蟲超時時間預設為 7.5 秒 (7500ms)。
+- API 金鑰隨時可以透過 UI 撤銷。
+- 未來的更新將為所有組件提供更多開源、自行代管的選項。
+- 計畫增加更多自定義選項，包括：
+  - 控制要爬取的連結數量。
+  - 爬取的網域白名單/黑名單。
+  - 自定義爬取規則與過濾器。
+  - 進階的結果過濾與排名選項。
+  - 速率限制與請求節流控制。

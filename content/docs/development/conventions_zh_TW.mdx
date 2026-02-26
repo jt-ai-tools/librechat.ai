@@ -1,0 +1,198 @@
+---
+title: 代碼標準與慣例
+icon: ScrollText
+description: 為貢獻 LibreChat 所需遵循的代碼標準、工作區邊界與慣例。
+---
+
+## 工作區邊界 (Workspace Boundaries)
+
+LibreChat 採用 monorepo 結構。所有新代碼應針對正確的工作區撰寫：
+
+| 工作區 | 語言 | 側端 | 用途 |
+|---|---|---|---|
+| `/api` | JS (舊版) | 後端 | Express 伺服器 —— 盡量減少在此處的改動 |
+| `/packages/api` | **TypeScript** | 後端 | 新的後端代碼存放處 (僅限 TS，由 `/api` 使用) |
+| `/packages/data-schemas` | TypeScript | 後端 | 資料庫模型/模式 (schemas) |
+| `/packages/data-provider` | TypeScript | 共用 | API 類型、終端、數據服務 —— 供前端與後端共用 |
+| `/client` | TypeScript/React | 前端 | 前端 SPA (單頁應用程式) |
+| `/packages/client` | TypeScript | 前端 | 共用的前端工具函式 |
+
+- **所有新的後端代碼必須使用 TypeScript** 並存放在 `/packages/api`。
+- 對 `/api` 的改動應保持在最低限度（僅作為呼叫 `/packages/api` 的薄層 JS 包裝）。
+- 資料庫特定的共用邏輯屬於 `/packages/data-schemas`。
+- 前後端共用的 API 邏輯（終端、類型、數據服務）屬於 `/packages/data-provider`。
+- 從專案根目錄建置所有編譯代碼：`npm run build`。
+
+---
+
+## 一般指引
+
+- 遵循「整潔代碼 (Clean Code)」原則：保持函式與模組微型化，遵循單一職責原則，並編寫具備表達力且易讀的代碼。
+- 使用具備意義且描述性的變數與函式名稱。
+- 優先考量代碼的可讀性與可維護性，而非簡短度。
+- 使用提供的 `.eslintrc` 與 `.prettierrc` 檔案來維持一致的代碼格式。
+- 若可用，請使用自動修復功能 (auto-fix) 修正所有格式相關的 lint 錯誤。必須解決所有的 TypeScript/ESLint 警告與錯誤。
+
+### 代碼結構
+
+- **禁止深層嵌套 (Never-nesting)**：使用提前返回 (early returns)、扁平化代碼、最小化縮排。將複雜的操作拆解為命名良好的輔助函式。
+- **函數式優先 (Functional first)**：優先使用純函數 (pure functions)、不可變數據 (immutable data)，以及 `map`/`filter`/`reduce` 等方法，而非指令式的迴圈。僅在明確能改善領域建模或狀態封裝時才使用 OOP（物件導向程式設計）。
+- 除非絕對必要，否則 **不使用動態匯入 (dynamic imports)**。
+- 將重複的邏輯提取到專門的工具函式中 (遵循 DRY 原則)。
+
+### 迭代與效能
+
+- **最小化迴圈次數** —— 特別是在處理頻繁迭代的共用數據結構（如訊息陣列）時。在大規模應用下，每一次額外的遍歷都會累積成可觀的開銷。
+- 盡可能將連續的 O(n) 操作整合為單次遍歷；如果工作內容可以合併，切勿對同一集合進行兩次迴圈。
+- 選擇合適的數據結構以減少迭代需求（例如：使用 `Map`/`Set` 進行查找，而非 `Array.find`/`Array.includes`）。
+- 避免不必要的物件建立；考量空間與時間的權衡 (space-time tradeoffs)。
+- 防止記憶體洩漏：謹慎處理閉包 (closures)，釋放資源/事件監聽器，避免循環引用。
+
+### 類型安全 (Type Safety)
+
+- **嚴禁使用 `any`**。所有參數、回傳值與變數都必須具備明確的類型定義。
+- **限制 `unknown` 的使用** —— 避免使用 `unknown`、`Record<string, unknown>` 以及 `as unknown as T` 斷言。出現 `Record<string, unknown>` 通常代表缺少明確的類型定義。
+- **不重複定義類型** —— 在定義新類型前，請先檢查專案中（特別是 `packages/data-provider`）是否已存在。應重用並擴充現有類型。
+- 適當地使用聯合類型 (union types)、泛型 (generics) 與介面 (interfaces)。
+
+### 註釋與文件
+
+- 撰寫「自我紀錄 (self-documenting)」的代碼；不應使用行內註釋來描述代碼正在做什麼。
+- 僅在處理複雜/非顯而易見的邏輯時，或為了公用 API 的 IntelliSense（程式碼自動完成）時才使用 JSDoc。
+- 短文件使用單行 JSDoc，複雜情況使用多行。
+- 除非絕對必要，否則避免使用獨立的 `//` 註釋。
+
+### 匯入順序 (Import Order)
+
+匯入項目分為三個區段（依序排列）：
+
+1. **套件匯入 (Package imports)** —— 依行長度從短到長排序（`react` 始終是第一個匯入項）。
+2. **`import type` 匯入** —— 依長度從長到短排序（套件類型優先，接著是本地類型；長度排序在子組間會重新計算）。
+3. **本地/專案匯入 (Local/project imports)** —— 依長度從長到短排序。
+
+- 盡可能整合來自同一個模組的數值匯入。
+- 對於類型匯入，請務必使用獨立的 `import type { ... }`；切勿在數值匯入中使用行內 `type` 關鍵字（例如：`import { Foo, type Bar }` 是錯誤的）。
+
+### 迴圈偏好
+
+- **盡可能限制迴圈使用。** 優先考量單次遍歷的轉換，避免對相同數據重複迭代。
+- 對於效能關鍵或依賴索引的操作，使用 `for (let i = 0; ...)`。
+- 對於簡單的陣列迭代，使用 `for...of`。
+- 僅在枚舉物件屬性時使用 `for...in`。
+
+---
+
+## Node.js API 伺服器
+
+### API 設計
+
+- 設計 API 時應遵循 RESTful 原則。
+- 為路由、控制器、服務與模型使用具意義且具描述性的名稱。
+- 為每個路由使用適當的 HTTP 方法 (GET, POST, PUT, DELETE)。
+- 使用正確的狀態碼與回應結構以維持一致性（2xx 代表成功，4xx 代表用戶端錯誤請求，5xx 代表伺服器錯誤）。
+- 使用 try-catch 區塊優雅地捕捉並處理異常。
+- 實作完善的錯誤處理，並始終返回適當的錯誤回應。
+- 使用 `utils` 目錄中的日誌系統紀錄重要事件與錯誤。
+- 使用 `requireJWTAuth` 中間件進行基於 JWT 的無狀態身份驗證。
+
+### 檔案結構
+
+新的後端代碼以 TypeScript 撰寫並放在 `/packages/api`。舊版 `/api` 目錄遵循以下結構：
+
+#### 路由 (Routes)
+
+指定每個 HTTP 請求方法、要使用的中間件，以及每個路由要呼叫的控制器函式。
+
+- 針對每個資源或邏輯分組，在獨立檔案中使用 Express Router 定義路由。
+- 使用具描述性的路由名稱，並遵循 RESTful 慣例。
+- 保持路由簡潔，並專注於單一職責。
+- 所有路由皆應加上 `/api` 命名空間前綴。
+
+#### 控制器 (Controllers)
+
+包含每個路由的邏輯，包括呼叫適當的服務函式，並返回正確的回應狀態碼與 JSON 本文。
+
+- 為每個路由建立獨立的控制器檔案處理請求/回應邏輯。
+- 控制器檔案命名採用 PascalCase 慣例，並加上 "Controller" 字尾（例如：`UserController.js`）。
+- 保持控制器輕量，將複雜操作委派給服務或模型檔案。
+
+#### 服務 (Services)
+
+包含跨多個控制器共用的複雜業務邏輯或操作。
+
+- 服務檔案命名採用 PascalCase 慣例，並加上 "Service" 字尾（例如：`AuthService.js`）。
+- 避免讓服務與特定的模型或資料庫緊密耦合，以提升可重用性。
+- 在每個服務中維持單一職責原則。
+
+#### 模型 (Models)
+
+定義代表數據實體及其關係的 Mongoose 模型。
+
+- 檔案與相關集合名稱使用單數、PascalCase 慣例（例如：`User.js` 與 `users` 集合）。
+- 模型中僅包含必要的欄位、索引與驗證。
+- 避免在模型中直接引用請求/回應物件，使其獨立於 API 層。
+
+### 資料庫存取 (MongoDB 與 Mongoose)
+
+- 使用 Mongoose ([https://mongoosejs.com](https://mongoosejs.com)) 作為 MongoDB 的 ODM。
+- 為每個實體建立獨立的模型檔案，並確保職責清晰分離。
+- 使用 Mongoose 模式驗證 (Schema validation) 來確保數據完整性。
+- 有效處理資料庫連接，避免連接洩漏。
+- 使用 Mongoose 查詢構建器 (Query builders) 建立簡潔且易讀的資料庫查詢。
+
+---
+
+## React 用戶端
+
+### 一般 TypeScript 與 React 最佳實踐
+
+- 遵循 [TypeScript 最佳實踐](https://onesignal.com/blog/effective-typescript-for-react-applications/) 以受益於靜態類型與更佳的工具支援。
+- 將相關檔案歸類在功能目錄內（例如：`SidePanel/Memories/`）。
+- 組件命名採用 PascalCase 慣例。
+- 使用能準確反映組件用途的精簡且具描述性的名稱。
+- 適時將複雜組件拆分為較小且可重用的組件。
+- 保持組件內的渲染邏輯最小化。
+- 將可重用部分提取為獨立函式或 Hook。
+- 使用 TypeScript 類型或介面定義 Prop 類型。
+- 在適當處使用表單驗證（我們使用 [React Hook Form](https://react-hook-form.com/) 處理表單驗證與提交）。
+
+### 國際化 (Localization)
+
+- 所有面向使用者的文本都必須使用 `useLocalize()` Hook 進行國際化。
+- 僅能更新 `client/src/locales/en/translation.json` 中的英文鍵值（其他語言會由外部自動化處理）。
+- 使用具語義的國際化鍵值前綴：`com_ui_`、`com_assistants_` 等。
+- 務必為新的國際化鍵值提供具意義的備援文本 (fallback text)。
+
+### 數據服務 (Data Services)
+
+- 在 `client/src/data-provider/[Feature]/queries.ts` 中建立數據供應器 (data provider) Hook。
+- 從 `client/src/data-provider/[Feature]/index.ts` 匯出所有 Hook。
+- 將功能匯出項新增至主 `client/src/data-provider/index.ts`。
+- 所有 API 互動均使用 React Query (`@tanstack/react-query`)。
+- 在變動 (mutations) 時實作正確的查詢失效 (query invalidation) 機制。
+- 將 QueryKeys 與 MutationKeys 新增至 `packages/data-provider/src/keys.ts`。
+
+新增共用 API 整合時，請更新：
+
+- `packages/data-provider/src/api-endpoints.ts` (終端)
+- `packages/data-provider/src/data-service.ts` (數據服務函式)
+- `packages/data-provider/src/types/queries.ts` (TypeScript 類型)
+
+### 效能 (Performance)
+
+- 在大規模應用下優先考量記憶體與速度效率。
+- 為大數據集實作正確的游標分頁 (cursor pagination)。
+- 使用正確的依賴陣列避免不必要的重複渲染。
+- 利用 React Query 的快取與背景重新獲取功能。
+
+---
+
+## 測試與文件
+
+- 使用 Jest 為所有關鍵且複雜的功能撰寫單元測試。
+- 使用 Supertest 為所有 API 終端撰寫整合測試。
+- 使用 Playwright 為所有用戶端功能撰寫端對端測試。
+- 使用具描述性的測試案例與函式名稱，清晰表達測試目的。
+- 從其工作區目錄執行測試：`cd api && npx jest <pattern>`、`cd packages/api && npx jest <pattern>` 等。
+- 測試應涵蓋 UI/數據流的載入中、成功與錯誤狀態。
+- 在前端測試中使用 `test/layout-test-utils` 來渲染組件。

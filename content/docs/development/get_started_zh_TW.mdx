@@ -1,0 +1,179 @@
+---
+title: 貢獻者設定
+icon: Rocket
+description: 學習如何使用 GitHub Desktop、VS Code 擴充功能與 Git rebase 進行貢獻。
+---
+
+## 需求項目
+
+- [Git](https://git-scm.com/downloads) (必要)
+- [Node.js](https://nodejs.org/en/download) (必要，請使用 v20.19.0+ 或 ^22.12.0 或 >= 23.0.0)
+- [MongoDB](https://www.mongodb.com/try/download/community) (必要，用於資料庫)
+- [Git LFS](https://git-lfs.com/) (對於大型檔案很有用)
+- [GitHub Desktop](https://desktop.github.com/) (選用)
+- [VSCode](https://code.visualstudio.com/Download) (推薦的源碼編輯器)
+
+### 推薦的 VSCode 擴充功能
+
+請在 VS Code 中安裝下列擴充功能：
+
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens)
+
+## 準備環境
+
+### GitHub
+
+- 分叉 (Fork) LibreChat 儲存庫：[https://github.com/danny-avila/LibreChat/fork](https://github.com/danny-avila/LibreChat/fork)
+
+- 在您的分叉儲存庫上建立一個分支 (branch)，正確命名，並連結至原始儲存庫。
+
+- 將您的新分支下載到本地電腦
+
+```sh filename="下載您的 LibreChat 分支"
+git clone -b 分支名稱 https://github.com/您的帳號/LibreChat.git
+```
+
+> 請將 `分支名稱` 與 `您的帳號` 替換為實際資訊
+
+### 在 VS Code 中開啟
+
+- 複製分支後：
+  ```sh filename="進入 LibreChat 資料夾"
+  cd LibreChat
+  ```
+  ```sh filename="在 VS Code 中開啟"
+  code .
+  ```
+
+### 準備 LibreChat
+
+- 使用 `ctrl`+`shift`+`` ` `` 在 VS Code 中開啟終端機。
+
+  > 或者，使用 `ctrl`+`j` 開啟底部面板並選擇終端機。
+
+- ```sh filename="安裝 LibreChat 依賴項目"
+  npm run smart-reinstall
+  ```
+
+  > 或者，使用 `npm ci` 進行基於 lockfile 的全新安裝。
+
+- ```sh filename="建置所有編譯代碼"
+  npm run build
+  ```
+
+- .env 配置
+  - 建立 `.env` 檔案。若您還沒有，請複製 `.env.example` 並進行配置。
+
+<Callout type="warning" title="警告">
+  `.env.example` 中的預設值通常可以直接使用，唯獨 `MONGO_URI` 除外。請提供您自己的位址。
+  請確保已安裝 MongoDB 並正確配置 `MONGO_URI` 以連接至您的 MongoDB 實例。
+  可以使用 [MongoDB 社群版伺服器](https://www.mongodb.com/try/download/community) 或 [MongoDB Atlas 雲端版](https://www.mongodb.com/cloud/atlas/register)。
+</Callout>
+
+### 開發工作流
+
+為了在 LibreChat 上高效工作，請使用下列指令：
+
+- **啟動後端：**
+
+  - 正常運作時使用 `npm run backend`。
+  - 進行開發時，使用 `npm run backend:dev` 來監測變更。
+  - 存取位址為 `http://localhost:3080/`。
+
+- **在開發模式下執行前端：**
+
+  - **確保後端正在執行。**
+  - 使用 `npm run frontend:dev` 來監測前端變更。
+  - 檢視位址為 `http://localhost:3090/`。
+
+<Callout type="tip" title="專家提示">
+  - 在進行前端開發時，若要獲得即時更新，請執行 `npm run frontend:dev` 以避免在 3090 連接埠上同時重啟前端與後端。
+  - 在 `.env` 中將 `DEBUG_CONSOLE` 設定為 true，以便在主控台中看到詳細的伺服器輸出。
+</Callout>
+
+## 本地測試
+
+在提交變更前，請先在本地測試您的更新，詳見：[在本地執行測試](/docs/development/testing_zh_TW)
+
+透過執行測試，確保您的貢獻是穩健的且已準備好進行整合。
+
+## Commit, Push, Pull Request (PR)
+
+### 執行 Commit (提交)
+
+**Commits** 標記了開發過程中的邏輯檢查點。請包含說明變更內容的清晰訊息。
+
+**範例：**
+
+```bash filename=" "
+git add .
+git commit -m "新增登入功能"
+```
+
+### 推送變更 (Push)
+
+完成功能開發或修正問題後，將變更**推送**至遠端儲存庫。
+
+**範例：**
+
+```bash filename=" "
+git push origin 您的功能分支名稱
+```
+
+### 建立 Pull Request (PR)
+
+**Pull Request** 會將功能分支的變更合併至主分支 (main branch)。
+
+1. 從主分支拉取 (pull) 最新變更並解決衝突。
+2. 推送更新後的功能分支。
+3. 確保代碼符合專案指引。
+
+**範例：**
+
+```bash filename=" "
+git checkout main
+git pull origin main
+git checkout 您的功能分支名稱
+git merge main
+# 若有衝突請解決
+git push origin 您的功能分支名稱
+# 在 GitHub 上開啟 PR
+```
+
+在瀏覽器中存取您的儲存庫，並點擊 「Contribute」。
+
+<Callout type="info" title="備註：">
+  提供詳細的 PR 描述，說明變更內容及其價值。並引用相關的問題 (issues)。
+</Callout>
+
+<Callout type="tip" title="提示">
+  使用 GitHub Desktop 來追蹤變更。
+</Callout>
+
+<Callout type="warning" title="警告">
+  如果 `git commit` 因為 ESLint 錯誤而失敗，請理解並修正該問題。
+</Callout>
+
+## 安全地撤銷 Commit (Revert)
+
+若要撤回功能分支中的變更，請謹慎執行下列步驟：
+
+- ```bash filename="1. 從功能分支更新本地儲存庫："
+  git pull origin 您的功能分支名稱
+  ```
+
+- ```bash filename="2. 檢閱提交紀錄以決定要撤回的 commits："
+  git log
+  ```
+
+- ```bash filename="3. 針對要撤回的 'N' 個 commits 啟動互動式 rebase："
+  git rebase -i HEAD~N
+  ```
+
+  > 將要移除的 commit 前方的 `pick` 改為 `drop`。儲存並退出編輯器。
+
+- ```bash filename="4. 強制推送變更至遠端儲存庫："
+  git push --force origin 您的功能分支名稱
+  ```

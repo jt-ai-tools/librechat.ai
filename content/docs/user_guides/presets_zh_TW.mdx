@@ -1,0 +1,95 @@
+---
+title: 預設設定 (Presets)
+icon: Settings
+description: LibreChat 中的「預設設定 (presets)」功能是一項強大的工具，允許使用者儲存並載入預先定義的對話設定。使用者可以將這些預設設定匯入或匯出為 JSON 檔案、設定預設值，並在 Discord 上與他人分享。
+---
+
+# 棄用聲明
+
+**此功能已棄用。請參閱 [智慧體 (Agents) 指南](/docs/features/agents_zh_TW)，該功能為預設設定 (Presets) 的繼承者。**
+
+應用程式中的「預設設定」功能是一項強大的工具，允許使用者儲存並載入預先定義的對話設定。使用者可以將這些預設設定匯入或匯出為 JSON 檔案、設定預設值，並在 Discord 上與他人分享。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/8c39ad89-71ae-42c6-a792-3db52d539fcd)
+
+## 建立預設設定：
+
+- 進入模型設定 (model settings)
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/2fc883e9-f4a3-47ac-b375-502e82234194)
+
+- 選擇模型、為其命名、加入一些自定義指令，並視需求調整參數。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/090dc065-f9ea-4a43-9380-e6d504e64992)
+
+- 測試設定。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/8a383495-0d5e-4ab7-93a7-eca5388c3f6f)
+
+- 返回模型進階設定，進行微調。滿意結果後，點擊 「Save As Preset」（儲存為預設設定）。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/96fd88ec-b4b6-4de0-a7d7-f156fdace354)
+
+- 取一個適當的名稱，並點擊儲存。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/76ad8db4-a949-4633-8a5f-f9e8358d57f3)
+
+- 現在您可以從預設設定選單中選取它了！ 
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/81271990-2739-4f5c-b1a5-7d7deeaa385c)
+
+## 參數說明：
+
+- **預設設定名稱 (Preset Name)**：
+  - 方便您辨識預設設定的名稱。
+
+- **終端 (Endpoint)**：
+  - 選擇用於處理對話的終端（例如：openAI）。
+
+- **模型 (Model)**：
+  - 選擇用於產生回應的模型（例如：`gpt-3.5-turbo`）。
+
+- **自定義名稱 (Custom Name)**：
+  - 選填，為您的預設設定提供一個自定義名稱。這是使用時會顯示在 UI 中的名稱。
+
+- **自定義指令 (Custom Instructions)**：
+  - 定義顯示在每個提示詞前的指令或指引，用以引導 AI 提供輸入。
+
+- **溫度 (Temperature)**：
+  - 調整此參數以控制模型輸出的隨機性。較高的值會讓輸出更具創意與隨機，較低的值則讓輸出更專注且具確定性。
+
+- **Top P**：
+  - 控制核取樣參數，影響產生文本的多樣性。較低的值會讓文本更專注，較高的值則增加多樣性。
+
+- **頻率懲罰 (Frequency Penalty)**：
+  - 使用此設定來懲罰頻繁出現的代幣，促進回應的多樣性。
+
+- **存在懲罰 (Presence Penalty)**：
+  - 調整此參數以懲罰回應中出現的新代幣，控制重複性並促進一致性。
+
+## 匯入/匯出預設設定
+
+您可以點擊 「Import」 (匯入) 或 「Export」 (匯出) 按鈕，輕鬆地將預設設定匯入或匯出為 JSON 檔案。這讓您可以與他人分享您的自定義設定，或在不同配置間快速切換。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/b9ef56e2-393e-45eb-b72b-8d568a13a015)
+
+若要匯出預設設定，請先進入預設設定選單，點擊按鈕編輯選定的預設設定。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/3fb065e6-977b-49b4-9fc6-de55b9839031)
+
+接著在預設設定面板的底部，您會看到匯出的選項。
+
+<p align="left">
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/a624345f-e3e6-4192-8384-293ba6ce54cc" width="50%"/>
+</p>
+
+## 設定為預設值
+
+選擇一個預設設定作為預設值，以便在開啟新對話時自動載入。如果您經常使用特定設定，這將節省您的時間。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/5912650d-49b6-40d3-b9ad-ff2ff7fbe3e7)
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/dcfb5e27-f60b-419e-b387-25db85fa6a63)
+
+## 在 Discord 上分享
+
+歡迎加入我們的 [Discord](https://discord.librechat.ai)，並查看我們的 **[#presets ](https://discord.com/channels/1086345563026489514/1093249324797935746)** 頻道，全球使用者在那裡分享了數以千計的預設設定。別忘了查看釘選文章以獲取熱門設定！

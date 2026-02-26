@@ -1,0 +1,32 @@
+---
+title: 開發期間的測試
+icon: TestTube
+description: 如何在開發期間於本地測試應用程式。
+---
+
+## 本地單元測試
+
+在提交您的更新前，請驗證它們是否通過所有單元測試。請遵循以下步驟在本地執行測試：
+
+- 複製 `/api` 資料夾中的 `.env.example` 檔案並重新命名為 `.env`
+  ```bash filename="建立 /api/.env 檔案"
+  cp .env.example ./api/.env
+  ```
+
+- 將 `NODE_ENV=CI` 加入您的 `/api/.env` 檔案中
+- 執行 `npm run test:client`
+- 執行 `npm run test:api`
+
+### 按工作區執行測試
+
+測試是使用 Jest 在各自的工作區目錄中執行的。您可以使用模式 (patterns) 針對特定的測試檔案：
+
+```bash
+cd api && npx jest <模式>
+cd packages/api && npx jest <模式>
+cd client && npx jest <模式>
+```
+
+<Callout type="tip" title="提示">
+  在前端測試中，請使用 `test/layout-test-utils` 來渲染組件。確保涵蓋 UI/數據流的載入中 (loading)、成功 (success) 與錯誤 (error) 狀態。
+</Callout>

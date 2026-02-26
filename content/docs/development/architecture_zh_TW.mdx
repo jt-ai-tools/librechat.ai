@@ -1,0 +1,46 @@
+---
+title: 專案架構
+icon: Layers
+description: LibreChat 的 monorepo 工作區結構與套件邊界概覽。
+---
+
+## Monorepo 結構
+
+LibreChat 以 monorepo (單一儲存庫) 形式組織，具備清晰定義的工作區 (workspace) 邊界：
+
+| 工作區 | 語言 | 側端 | 依賴項目 | 用途 |
+|---|---|---|---|---|
+| `/api` | JS (舊版) | 後端 | `packages/api`, `packages/data-schemas`, `packages/data-provider`, `@librechat/agents` | Express 伺服器 —— 請盡量減少在此處的改動 |
+| `/packages/api` | **TypeScript** | 後端 | `packages/data-schemas`, `packages/data-provider` | 新的後端代碼存放處 (僅限 TS，由 `/api` 使用) |
+| `/packages/data-schemas` | TypeScript | 後端 | `packages/data-provider` | 資料庫模型/模式 (schemas) |
+| `/packages/data-provider` | TypeScript | 共用 | — | 共用的 API 類型、終端、數據服務 —— 供前端與後端共同使用 |
+| `/client` | TypeScript/React | 前端 | `packages/data-provider`, `packages/client` | 前端 SPA (單頁應用程式) |
+| `/packages/client` | TypeScript | 前端 | `packages/data-provider` | 共用的前端工具函式 |
+
+### 核心原則
+
+- **所有新的後端代碼必須使用 TypeScript** 並存放在 `/packages/api`。
+- 將對 `/api` 的改動降至最低 —— 僅作為呼叫 `/packages/api` 的薄層 JS 包裝。
+- 資料庫特定的共用邏輯屬於 `/packages/data-schemas`。
+- 前後端共用的 API 邏輯（終端、類型、數據服務）屬於 `/packages/data-provider`。
+
+### 建置與安裝
+
+| 指令 | 用途 |
+|---|---|
+| `npm run smart-reinstall` | 安裝依賴（若 lockfile 已變更） + 透過 Turborepo 建置 |
+| `npm run reinstall` | 全新安裝 —— 清除 `node_modules` 並從頭開始安裝 |
+| `npm run build` | 透過 Turborepo 建置所有編譯代碼（平行處理、具備快取） |
+| `npm run frontend` | 依序建置所有編譯代碼（舊版備援方案） |
+| `npm run build:data-provider` | 變更後重新建置 `packages/data-provider` |
+| `npm run backend` | 啟動後端伺服器 |
+| `npm run backend:dev` | 以檔案監測模式啟動後端（開發環境） |
+| `npm run frontend:dev` | 啟動具備 HMR 功能的前端開發伺服器（連接埠 3090，需先執行後端） |
+
+- Node.js: v20.19.0+ 或 ^22.12.0 或 >= 23.0.0
+- 資料庫: MongoDB
+- 後端執行於 `http://localhost:3080/`；前端開發伺服器執行於 `http://localhost:3090/`
+
+<Callout type="info" title="備註">
+  如需完整的代碼標準與慣例，請參閱 [代碼標準與慣例](/docs/development/conventions_zh_TW)。
+</Callout>

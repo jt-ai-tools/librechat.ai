@@ -1,0 +1,42 @@
+---
+title: MongoDB
+icon: Database
+description: 為什麼 LibreChat 使用 MongoDB
+---
+
+MongoDB 是一款熱門的 NoSQL 資料庫，因其靈活性、可擴充性以及高效處理多樣化數據結構的能力，被選為 LibreChat 的核心資料庫。以下是為什麼 MongoDB 非常適合 LibreChat 的幾個關鍵原因：
+
+<div style={{padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
+    <img src="https://github.com/danny-avila/LibreChat/assets/32828263/84d4a608-1f73-41c9-a026-7772a74d205b" alt="mongodb" style={{borderRadius: "10px"}} />
+</div>
+
+## 1. 靈活的數據模型
+MongoDB 以文件為基礎的數據模型，允許以靈活且動態的方式儲存與檢索數據。與傳統的關聯式資料庫不同，MongoDB 不需要固定的架構 (schema)，使其更容易適應不斷變化的數據需求。這種靈活性對於 LibreChat 至關重要，因為它需要儲存各種類型的數據，如對話歷史、使用者個人資料、預設設定、API 金鑰等，而不會受限於僵化的表格結構。
+
+## 2. 高效儲存對話歷史
+LibreChat 的主要使用情境之一是儲存與檢索對話歷史。MongoDB 能將嵌套的數據結構儲存為類 JSON 文件，使其成為儲存對話歷史的絕佳選擇，對話歷史可能包含訊息、時間戳記與元數據等複雜數據結構。
+
+## 3. 安全儲存敏感數據
+LibreChat 處理 API 金鑰與加密的使用者密碼等敏感數據。MongoDB 內建支援靜態數據加密與傳輸中加密，確保這些敏感資訊保持安全，防止未經授權的存取。
+
+## 4. 水平擴充性
+隨著 LibreChat 的成長並吸引更多使用者，其數據儲存需求將會增加。MongoDB 的水平擴充能力允許透過向叢集新增更多伺服器來實現橫向擴展，提供處理大量數據與高流量負載的能力，且不會損及效能。
+
+## 5. 跨裝置存取
+LibreChat 旨在提供跨多個裝置的無縫體驗，允許使用者從不同裝置存取其數據與對話歷史。MongoDB 的複製 (replication) 與分片 (sharding) 能力確保了數據的持續可用性與可存取性，讓使用者不論使用哪種裝置，都能從中斷處接續對話。
+
+## 6. 開發者生產力
+MongoDB 直觀的查詢語言以及豐富的工具與函式庫生態系統，有助於縮短開發週期並提高開發者生產力。這與 LibreChat 作為開源專案、鼓勵開發者社群協作與貢獻的目標高度契合。
+
+透過利用 MongoDB 的優勢，LibreChat 可以高效地管理並儲存多樣的數據結構，確保數據的安全與可用性，並為使用者提供無縫的跨裝置體驗。MongoDB 的靈活性、可擴充性與開發者友善的特性，使其成為驅動 LibreChat 核心功能的理想選擇。
+
+
+## 備註
+
+<Callout type="warning" title="CPU 相容性">
+**注意：** 如果您在不支援 SSE4.2、AVX 指令集或其他必要 CPU 特性的處理器上執行 LibreChat，則在安裝 Docker 時需要使用較舊但相容的 MongoDB 版本。具體來說，您應使用 `mongo:4.4.18` 映像，它與不具備這些特性的處理器相容。
+
+要在 LibreChat Docker 安裝中使用此舊版 MongoDB，您需要利用 `docker-compose.override.yml` 檔案。此覆寫檔案讓您可以指定想要使用的 MongoDB 版本，進而覆寫主 `docker-compose.yml` 檔案中包含的預設版本。
+
+如需更多關於使用 `docker-compose.override.yml` 檔案以及為您的 Docker 安裝配置舊版 MongoDB 的資訊，請參閱我們的 [Docker 覆寫配置指南](/docs/configuration/docker_override_zh_TW)。
+</Callout>

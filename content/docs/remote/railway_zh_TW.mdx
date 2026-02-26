@@ -1,0 +1,55 @@
+---
+title: Railway (一鍵部署)
+icon: TrainFront
+description: 在 Railway 上部署 LibreChat
+---
+
+Railway 為部署 LibreChat 提供了一鍵安裝選項，讓程序變得更加簡單。操作步驟如下：
+
+## 步驟
+
+### **造訪 LibreChat 儲存庫**
+
+前往 GitHub 上的 [LibreChat 儲存庫](https://github.com/danny-avila/LibreChat)。
+
+### **建立 Railway 帳號**
+
+如果您尚未擁有帳號，請 [註冊一個 Railway 帳號](https://railway.app?referralCode=HI9hWz)（此連結包含一個推薦代碼，可用於支持 LibreChat 專案）。
+
+### **點擊 「Deploy on Railway」 按鈕**
+
+<p align="left">
+    <a href="https://railway.app/template/b5k2mn?referralCode=HI9hWz">
+        <img src="https://railway.app/button.svg" alt="Deploy on Railway" height="30"/>
+    </a>
+</p>
+
+（此按鈕也可在儲存庫的 README 檔案中找到）
+
+
+### **配置環境變數**
+
+Railway 會自動偵測 LibreChat 所需的環境變數。請檢閱三個容器的配置，並在檢閱完每個容器後點擊 `Save Config`。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/4417e997-621c-44b6-8d2d-94d7e4e1a2bf)
+
+預設配置已足以讓您開始執行，但若需使用更進階的功能，您可以參考我們的相關文件：[環境變數](/docs/configuration/dotenv_zh_TW)
+
+### **部署**
+
+填寫完必要的環境變數後，點擊 「Deploy」 按鈕。Railway 會處理剩餘的工作，包括設定 PostgreSQL 資料庫以及建置與部署您的 LibreChat 實例。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/d94e20c6-0ae7-42af-8937-7fbd34d63a3b)
+
+### **存取您的 LibreChat 實例**
+
+部署成功後，Railway 會為您提供一個公開 URL，您可以透過該網址存取您的 LibreChat 實例。
+
+大功告成！您已成功使用一鍵安裝程序在 Railway 上部署了 LibreChat。您現在可以根據需求開始使用並自定義您的 LibreChat 實例。
+
+## 額外提示
+
+- 定期檢查 LibreChat 儲存庫的更新，並重新部署您的實例以獲取最新功能與臭蟲修復。
+- 登入 Railway 後，您可以點擊 「view logs」 按鈕右側的三個點，找到 「redeploy」 (重新部署) 選項。
+
+如需更詳細的說明與疑難排解，請參閱官方 LibreChat 文件與 Railway 指南。

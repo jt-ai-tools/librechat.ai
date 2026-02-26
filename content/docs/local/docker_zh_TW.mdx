@@ -1,0 +1,87 @@
+---
+title: Docker
+icon: Container
+description: 如何使用 Docker 在本地安裝 LibreChat
+---
+
+在大多數情況下，Docker Compose 是推薦的安裝方法，因為它簡單、易用且可靠。
+
+## 先決條件
+
+- [`Git`](https://git-scm.com/downloads)
+- [`Docker`](https://www.docker.com/products/docker-desktop/)
+
+---
+
+## 安裝步驟
+
+請遵循下列步驟以預設配置設定 LibreChat：
+
+```bash filename="複製儲存庫"
+git clone https://github.com/danny-avila/LibreChat.git
+```
+
+```bash filename="進入 LibreChat 目錄"
+cd LibreChat
+```
+
+```bash filename="從 .env.example 建立 .env 檔案"
+cp .env.example .env
+```
+
+> **備註：** **如果您使用的是 Windows，可能需要使用 `copy` 而非 `cp`。**
+
+```sh filename="啟動 LibreChat"
+docker compose up -d
+```
+
+<Callout type="success" title="存取 LibreChat！" emoji="🎉">
+  **造訪 [http://localhost:3080/](http://localhost:3080/)**
+</Callout>
+
+## 更新 LibreChat
+
+下列指令將獲取最新的 LibreChat 專案變更，包含對 docker compose 檔案的任何必要修改，以及最新的預建映像。
+
+> **備註：** 根據您的環境權限，可能需要在指令前加上 `sudo`。
+
+```bash filename="停止執行中的容器"
+docker compose down
+```
+
+```bash filename="移除所有現有的 docker 映像"
+# Linux/Mac
+docker images -a | grep "librechat" | awk '{print $3}' | xargs docker rmi
+
+# Windows (PowerShell)
+docker images -a --format "{{.ID}}" --filter "reference=*librechat*" | ForEach-Object { docker rmi $_ }
+```
+
+```bash filename="拉取最新專案變更"
+git pull
+```
+
+```bash filename="拉取最新 LibreChat 映像"
+docker compose pull
+```
+
+```bash filename="啟動 LibreChat"
+docker compose up
+```
+
+## 額外設定
+
+透過探索我們的配置指南來解鎖更多功能，學習如何設定：
+
+- 自定義終端 (Custom endpoints)
+- 其他進階配置選項
+- 以及更多
+
+這將讓您能根據選配功能自定義您的 LibreChat 體驗。
+
+**另請參閱：**
+- [Docker 覆寫](/docs/configuration/docker_override_zh_TW)
+- [使用者身份驗證系統設定](/docs/configuration/authentication_zh_TW)
+- [AI 設定](/docs/configuration/pre_configured_ai_zh_TW)
+- [自定義終端與配置](/docs/configuration/librechat_yaml_zh_TW)
+- [管理您的 MongoDB 資料庫](/blog/2023-11-30_mongoexpress_zh_TW)
