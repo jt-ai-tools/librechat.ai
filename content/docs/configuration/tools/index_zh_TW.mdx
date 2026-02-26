@@ -1,0 +1,48 @@
+---
+title: 工具與外掛程式
+icon: BookOpen
+description: 工具與外掛程式設定說明
+---
+
+**備註：** 我們已設計了一套全新方案，將從頭重構工具與外掛程式的處理機制。計畫將優先為助手 (Assistants) 實作，接著建立一套新的智慧體系統，與 Anthropic、Google 等各類終端無縫整合。
+
+## 設定說明：
+
+### Azure AI Search
+- [Azure AI Search](/docs/configuration/tools/azure_ai_search_zh_TW)
+
+### Google Search
+- [Google Search](/docs/configuration/tools/google_search_zh_TW)
+
+### OpenWeather
+- [OpenWeather](/docs/configuration/tools/openweather_zh_TW)
+
+### Stable Diffusion
+- [Stable Diffusion](/docs/features/image_gen_zh_TW#3--stable-diffusion-本地)
+
+### Flux
+- [Flux 圖片產生](/docs/features/image_gen_zh_TW#4--flux)
+
+### Wolfram|Alpha
+- [Wolfram|Alpha](/docs/configuration/tools/wolfram_zh_TW)
+
+### DALL-E
+- 您只需要一個 OpenAI 金鑰。雖然此金鑰與您用於聊天的主要 API 金鑰是分開設定的，但兩者可以使用同一個金鑰。
+
+### Zapier
+- 您需要一個 Zapier 帳號。建立帳號後，在此獲取您的 **[API 金鑰](https://nla.zapier.com/credentials/)**。
+  - 建立允許的操作 (Allowed actions) —— 遵循 Zapier 提供的 **[快速入門指南](https://nla.zapier.com/start/)** 中的第 3 步。
+    - ⚠️ 備註：Zapier 在某些操作上可能不太穩定。我發現撰寫電子郵件草稿是其最佳的使用場景。
+
+### 瀏覽器/爬蟲 (Browser/Scraper)
+- 請勿將此項與 chat.openai.com 上的 「browsing」 功能混淆（後者技術上是一套外掛程式組或多個外掛程式）。
+  - 此插件使用 OpenAI 嵌入 (embeddings)，因此需要一個 OpenAI 金鑰（類似於 DALL-E），此金鑰可與您用於聊天的主要 API 金鑰相同。
+  - 此外掛程式僅會簡單地抓取 HTML，無法處理具備動態 JavaScript 的頁面，因為那需要更複雜的解決方案。
+  - 我們計畫推出更佳的 「browsing」 方案，但目前尚無法保證發布時間。
+  - 此外掛程式最好與 Google 搜尋搭配使用，以防止 AI 幻覺出不存在的網頁位址進行存取。
+
+### SerpAPI
+- 這是 Google 搜尋的替代方案，但我個人認為其效能稍遜一籌。
+  - 您可以點此獲取 API 金鑰：**[https://serpapi.com/dashboard](https://serpapi.com/dashboard)**。
+  - 免費層級的限制為每月 100 次查詢。
+  - 而使用 Google 搜尋，免費額度為每天 100 次，這更划算，超出後的費用也僅需幾美分。

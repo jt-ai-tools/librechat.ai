@@ -1,0 +1,144 @@
+---
+title: Azure AI Search
+icon: Radar
+description: 如何配置 Azure AI Search，在 GPT 的協助下為您的問題提供答案。
+---
+透過外掛程式 (Plugins) 終端，您可以在 GPT 的協助下使用 Azure AI Search 為您的問題尋找答案。
+
+## 配置說明
+
+### 必要配置
+
+若要開始，您需要獲取 Azure AI Search 的終端 URL、索引名稱以及 API 金鑰。接著您可以在 `.env` 檔案中定義如下：
+
+```env
+AZURE_AI_SEARCH_SERVICE_ENDPOINT="..."
+AZURE_AI_SEARCH_INDEX_NAME="..."
+AZURE_AI_SEARCH_API_KEY="..."
+```
+或者，您也可以在安裝外掛程式的過程中輸入這些資訊。
+
+### AZURE_AI_SEARCH_SERVICE_ENDPOINT
+
+這是搜尋終端的 URL。您可以從 Cognitive Search 管理主控台中搜尋服務的首頁獲取（例如：`https://example.search.windows.net`）。
+
+### AZURE_AI_SEARCH_INDEX_NAME
+
+這是要搜尋的索引名稱（例如：`hotels-sample-index`）。
+
+### AZURE_AI_SEARCH_API_KEY
+
+這是使用搜尋終端時所需的身份驗證金鑰。請從管理主控台核發。請使用金鑰的「值 (Value)」，而非金鑰的名稱。
+
+# 教學指南
+
+## 在 Azure 入口網站建立或登入帳號
+
+**1.** 造訪 **[https://azure.microsoft.com/zh-tw/](https://azure.microsoft.com/zh-tw/)** 並點擊 「立即開始」 或 「免費試用 Azure」 以建立帳號並登入。
+
+**2.** 選擇按量計費 (pay per use) 或包含 200 美元額度的 Azure 免費帳號。
+
+![image](/images/azure-ai-search/azure_portal_welcome.png)
+
+## 建立 Azure AI Search 服務
+
+**1.** 進入您的控制面板。
+
+**2.** 點擊 「建立資源 (Create a resource)」。
+
+![image](/images/azure-ai-search/azure_portal_menu.png)
+
+**3.** 在搜尋列輸入 「Azure Search」 並按回車。
+
+![image](/images/azure-ai-search/azure_ai_search_in_marketplace.png)
+
+**4.** 現在，點擊 「建立 (Create)」。
+
+**5.** 配置基本設定：建立一個新的或選取現有的資源群組 (Resource Group)，為服務名稱 (Service Name) 取一個您喜歡的名稱，然後選取地點。
+
+![image](/images/azure-ai-search/create_azure_ai_search.png)
+
+**6.** 點擊 「變更定價層 (Change Pricing Tier)」。
+
+![image](/images/azure-ai-search/azure_ai_tier.png)
+
+在此選取免費選項，或選取您偏好的選項（可能產生費用）。
+
+![image](/images/azure-ai-search/azure_ai_free_tier.png)
+
+**7.** 點擊 「檢閱 + 建立 (Review + create)」 並等待資源建立完成。
+
+![image](/images/azure-ai-search/create_azure_ai_search_button.png)
+
+## 建立您的索引 (Index)
+
+**1.** 點擊 「匯入資料 (Import data)」。
+
+![image](/images/azure-ai-search/azure_ai_search_instance_info.png)
+
+**2.** 遵循 Microsoft 官方教學：**[https://learn.microsoft.com/zh-tw/azure/search/search-get-started-portal](https://learn.microsoft.com/zh-tw/azure/search/search-get-started-portal)**。完成後，記下您為索引取的名稱。
+
+**3.** 現在您有了 `AZURE_AI_SEARCH_INDEX_NAME`，請將其複製並儲存在本地安全的地方。
+
+## 獲取終端位址 (Endpoint)
+
+**1.** 在 「Url:」 欄位處即為您的 `AZURE_AI_SEARCH_SERVICE_ENDPOINT`，請將其複製並儲存在本地安全的地方。
+
+![image](/images/azure-ai-search/azure_ai_search_instance_info.png)
+
+**2.** 在左側面板，點擊 「金鑰 (keys)」。
+
+![image](/images/azure-ai-search/azure_ai_search_menu.png)
+
+**3.** 點擊 「新增 (Add)」 並為您的金鑰命名。
+
+**4.** 複製該金鑰以獲取 `AZURE_AI_SEARCH_API_KEY`。
+
+![image](/images/azure-ai-search/azure_ai_search_keys.png)
+
+# 在 LibreChat 中配置：
+
+**1.** 進入外掛程式 (Plugins) 選單，點擊安裝 Azure AI Search。
+
+![image](/images/azure-ai-search/librechat_settings.png)
+
+
+**2.** 填入終端位址 (Endpoint)、索引名稱 (Index Name) 與 API 金鑰，接著點擊 「儲存 (Save)」。
+
+# 結論
+
+![image](/images/azure-ai-search/chat_with_azure_ai_search.png)
+
+現在，您就可以使用 Azure AI Search 進行搜尋了。恭喜！ 🎉🎉
+
+## 選配配置
+
+下列為非必要配置，但可在搜尋時作為參數指定。
+
+如果您擔心搜尋結果數據過大導致超過提示詞限制，可以考慮使用 `AZURE_AI_SEARCH_SEARCH_OPTION_TOP` 與 `AZURE_AI_SEARCH_SEARCH_OPTION_SELECT` 來縮減搜尋結果的大小。
+
+關於各項參數的詳細資訊，請參考下列文件：
+**[https://learn.microsoft.com/zh-tw/rest/api/searchservice/search-documents](https://learn.microsoft.com/zh-tw/rest/api/searchservice/search-documents)**
+
+```env
+AZURE_AI_SEARCH_API_VERSION=2023-10-01-Preview
+AZURE_AI_SEARCH_SEARCH_OPTION_QUERY_TYPE=simple
+AZURE_AI_SEARCH_SEARCH_OPTION_TOP=3
+AZURE_AI_SEARCH_SEARCH_OPTION_SELECT=field1, field2, field3
+```
+
+#### AZURE_AI_SEARCH_API_VERSION
+
+指定搜尋 API 的版本。當使用語義搜尋或向量搜尋等新功能時，您可能需要指定預覽版本。預設值為 `2023-11-1`。
+
+#### AZURE_AI_SEARCH_SEARCH_OPTION_QUERY_TYPE
+
+指定 `simple` (簡單) 或 `full` (完整)。預設值為 `simple`。
+
+#### AZURE_AI_SEARCH_SEARCH_OPTION_TOP
+
+指定要搜尋的項目數量。預設值為 5。
+
+#### AZURE_AI_SEARCH_SEARCH_OPTION_SELECT
+
+指定要獲取的索引欄位，以逗號分隔。請注意，這些並非要被搜尋的欄位。

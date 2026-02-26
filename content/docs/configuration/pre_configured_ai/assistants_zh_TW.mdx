@@ -1,0 +1,128 @@
+---
+title: "Assistants"
+icon: Bot
+---
+
+- [OpenAI 的 Assistants API](https://platform.openai.com/docs/assistants/overview) 具備專屬的終端。
+- Assistants API 支援建立 AI 助手，提供如代碼解釋器 (code interpreter)、檔案知識檢索與函式執行等功能。
+    - [點此閱讀關於此功能的深入文檔](https://platform.openai.com/docs/assistants/overview)，瞭解其運作方式與能力。
+- 與一般 [OpenAI API](/docs/configuration/pre_configured_ai/openai_zh_TW) 相同，請前往 **[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)** 獲取金鑰。
+- 您需要將下列環境變數設定為您的金鑰，或者可以將其設定為 `user_provided` 以允許使用者提供其自有的金鑰。
+
+```bash filename=".env"
+ASSISTANTS_API_KEY=您的-金鑰
+```
+
+- 您可以透過 `ASSISTANTS_MODELS` 決定想提供哪些模型；否則，系統將使用從 OpenAI 獲取的模型清單（僅顯示與 Assistants API 相容的模型）。
+
+```bash filename=".env"
+ASSISTANTS_MODELS=gpt-3.5-turbo-0125,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-16k,gpt-3.5-turbo,gpt-4,gpt-4-0314,gpt-4-32k-0314,gpt-4-0613,gpt-3.5-turbo-0613,gpt-3.5-turbo-1106,gpt-4-0125-preview,gpt-4-turbo-preview,gpt-4-1106-preview
+```
+
+- 若有需要，您也可以透過 `ASSISTANTS_BASE_URL` 設定替代的基礎 URL，這與 OpenAI 對應的 `OPENAI_REVERSE_PROXY` 類似：
+
+```bash filename=".env"
+ASSISTANTS_BASE_URL=http://您的-替代-baseURL:3080/
+```
+
+- 根據您的需求，還有一些選配的配置可透過 `librechat.yaml` [自定義配置檔案](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW) 進行設定，例如停用助手構建器 UI：
+    - 控制助手構建器介面的可見性與使用。[更多資訊](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW#disablebuilder)
+    - 指定檢查執行更新或助手執行狀態變更的輪詢間隔（毫秒）。[更多資訊](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW#pollintervalms)
+    - 設定助手執行的超時時間（毫秒）。透過限制總執行操作時間來協助管理系統負載。[更多資訊](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW#timeoutms)
+    - 指定哪些助手 ID 是被支援或排除的。[更多資訊](/docs/configuration/librechat_yaml/object_structure/assistants_endpoint_zh_TW#supportedids)
+
+## 嚴格函式呼叫 (Strict function calling)
+透過 LibreChat，您可以在 Actions 的 OpenAPI 規範中的運算層級 (operation-level) 加入 `'x-strict': true` 旗標。
+這將自動產生啟用了 「strict」 模式的函式呼叫。
+請注意，strict 模式僅支援 JSON 的一個子集。詳情請參閱 https://platform.openai.com/docs/guides/structured-outputs/some-type-specific-keywords-are-not-yet-supported。
+
+範例：
+```json filename="mathapi.json"
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Math.js API",
+    "description": "執行數學運算的 API，例如加法、減法等。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.mathjs.org/v4"
+    }
+  ],
+  "paths": {
+    "/": {
+      "post": {
+        "summary": "計算數學表達式",
+        "description": "在請求主體中傳送數學表達式進行計算。",
+"operationId": "math",
+"x-strict": true,
+"parameters": [
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expr": {
+                    "type": "string",
+                    "description": "要計算的數學表達式 (例如: `2+3`)。"
+                  }
+                },
+                "required": ["expr"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "表達式的計算結果。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "number",
+                      "description": "計算出的結果數值。"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "提供的表達式無效。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "說明無效表達式的錯誤訊息。"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+<Callout type="note" title="備註">
+**備註：**
+- 截至撰寫本文時，僅下列模型支援 [檢索 (Retrieval)](https://platform.openai.com/docs/assistants/tools/knowledge-retrieval) 能力：
+    - gpt-3.5-turbo-0125
+    - gpt-4-0125-preview
+    - gpt-4-turbo-preview
+    - gpt-4-1106-preview
+    - gpt-3.5-turbo-1106
+- 目前尚不支援視覺能力。
+- 如果您先前在 .env 檔案中設定過 [`ENDPOINTS` 數值](./dotenv_zh_TW#endpoints)，您需要將 `assistants` 加入其中。
+</Callout>

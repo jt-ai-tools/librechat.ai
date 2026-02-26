@@ -1,0 +1,67 @@
+---
+title: Stable Diffusion
+icon: PenTool
+description: 如何設定並配置 Stable Diffusion 外掛程式
+---
+
+若要在本專案中使用 Stable Diffusion，您需要下載並安裝 **[AUTOMATIC1111 - Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)**；對於 Docker 化部署，您也可以使用 **[stable-diffusion-webui-docker](https://github.com/AbdBarho/stable-diffusion-webui-docker)**。
+
+若採用 Docker 部署，您可以跳過第 2 步與第 3 步，改為參考該儲存庫中的設定說明。
+
+- 備註：您需要一個相容的 GPU（「僅限 CPU」模式可行但速度極慢）。推薦使用 Nvidia，雖然目前沒有關於不相容 GPU 的明確清單，但任何效能尚可的 GPU 應該都能運作。
+
+### 1. 遵循 **[stable-diffusion-webui readme](https://github.com/AUTOMATIC1111/stable-diffusion-webui)** 中的下載與安裝說明。
+
+### 2. 編輯您的執行腳本設定
+
+#### Windows
+
+ - 編輯您的 **webui-user.bat** 檔案，在 call 指令前加入下列這一行：
+- `set COMMANDLINE_ARGS=--api`
+
+    - 在其他設定維持預設的情況下，您的 .bat 檔案應看起來如下所示：
+    ```shell 
+    @echo off
+
+    set PYTHON=
+    set GIT=
+    set VENV_DIR=
+    set COMMANDLINE_ARGS=--api
+
+    call webui.bat
+    ```
+#### 其他系統（未經測試，但應該可行）
+
+ - 編輯您的 **webui-user.sh** 檔案，加入下列這一行：
+ - `export COMMANDLINE_ARGS="--api"`
+
+     - 在其他設定維持預設的情況下，您的 .sh 檔案應看起來如下所示：
+    ```bash 
+
+    export COMMANDLINE_ARGS="--api"
+
+    #!/bin/bash
+    #########################################################
+    # 取消註釋並根據需求更改下列變數：#
+    #########################################################
+
+    # ...其餘部分
+    ```
+
+### 3. 執行 Stable Diffusion（根據您的作業系統執行 .sh 或 .bat 檔案）。
+
+### 4. 在應用程式中，選取外掛程式 (Plugins) 終端，開啟外掛程式商店，並安裝 Stable Diffusion。
+> **備註：Gradio 的預設連接埠為 `7860`。如果您更改過，請相應地更新數值。**
+
+#### Docker 安裝
+- 在 `.env` 檔案中使用 `SD_WEBUI_URL=http://host.docker.internal:7860`。
+- 或在網頁介面輸入 `http://host.docker.internal:7860`。
+
+#### 本地安裝
+- 在 `.env` 檔案中使用 `SD_WEBUI_URL=http://127.0.0.1:7860`。
+- 或在網頁介面輸入 `http://127.0.0.1:7860`。
+
+
+#### 將工具加入智慧體 (Agent)
+
+請參閱 [智慧體 (Agents)](/docs/features/agents_zh_TW#工具-tools) 章節，獲取關於如何將工具加入智慧體的更多資訊。

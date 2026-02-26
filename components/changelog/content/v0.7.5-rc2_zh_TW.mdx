@@ -1,0 +1,65 @@
+---
+date: 2024-09-10
+title: 🚀 LibreChat v0.7.5-rc2
+description: LibreChat 的 v0.7.5-rc2 版本發布
+version: "0.7.5-rc2"
+---
+
+## 更新內容
+
+v0.7.5 發布候選版
+
+## 更新內容
+
+### ✨ 新功能
+
+* 🪄 feat: 實作代碼組件 (Code Artifacts)，由 [@danny-avila](https://github.com/danny-avila) 於 [#3798](https://github.com/danny-avila/LibreChat/pull/3798) 提交
+* 🚀 feat: 強化 PWA 與資產快取策略，由 [@danny-avila](https://github.com/danny-avila) 於 [#3822](https://github.com/danny-avila/LibreChat/pull/3822) 提交
+* 🚨 feat: 實作 `INPUT_LENGTH` (輸入長度) 錯誤類型，由 [@danny-avila](https://github.com/danny-avila) 於 [#3866](https://github.com/danny-avila/LibreChat/pull/3866) 提交
+* 💬 feat: 實作助手對話啟動器 (Conversation Starter)，由 [@berry-13](https://github.com/berry-13) 於 [#3699](https://github.com/danny-avila/LibreChat/pull/3699) 提交
+* ⚖️ feat: 實作服務條款對話框，由 [@maxesse](https://github.com/maxesse) 於 [#3712](https://github.com/maxesse) 提交
+* 🪨 feat: 新增 AWS Bedrock 支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#3935](https://github.com/danny-avila/LibreChat/pull/3935) 提交
+* 🔒 feat: 為多重對話功能加入基於角色的存取控制 (RBAC)，由 [@danny-avila](https://github.com/danny-avila) 於 [#3964](https://github.com/danny-avila/LibreChat/pull/3964) 提交
+
+### 🔧 臭蟲修復
+
+* 🗣️ fix: 修正 Azure OpenAI 語音轉文字 (STT) 問題，由 [@maxesse](https://github.com/maxesse) 於 [#3731](https://github.com/danny-avila/LibreChat/pull/3731) 提交
+* 🧩 fix: 優化外掛程式建置選項，防止未定義工具導致的錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#3876](https://github.com/danny-avila/LibreChat/pull/3876) 提交
+* 🪟 fix: 修正 [#3798](https://github.com/danny-avila/LibreChat/pull/3798) 引入的 Windows 建置 (npm) 問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3889](https://github.com/danny-avila/LibreChat/pull/3889) 提交
+* 🛠️ fix: 處理補全 (Completion) 的邊緣案例並提升錯誤處理 UX，由 [@danny-avila](https://github.com/danny-avila) 於 [#3968](https://github.com/danny-avila/LibreChat/pull/3968) 提交
+* 🪨 fix: 修正 AWS Bedrock 及多項微小改進，由 [@danny-avila](https://github.com/danny-avila) 於 [#3974](https://github.com/danny-avila/LibreChat/pull/3974) 提交
+
+### ⚙️ 其他變動
+
+* 🔨 refactor: 為 index.html 加入快取破壞 (Cache Busting) 機制，由 [@danny-avila](https://github.com/danny-avila) 於 [#3824](https://github.com/danny-avila/LibreChat/pull/3824) 提交
+* 🔊 refactor: 針對 macOS VoiceOver 優化 Aria-Live 播報功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#3851](https://github.com/danny-avila/LibreChat/pull/3851) 提交
+* 🚧 chore: 將最新開發建置版本合併至主儲存庫，由 [@danny-avila](https://github.com/danny-avila) 於 [#3844](https://github.com/danny-avila/LibreChat/pull/3844) 提交
+* 🎨 refactor: 防止 Vite 配置中對字體資產進行雜湊處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#3865](https://github.com/danny-avila/LibreChat/pull/3865) 提交
+* 🔒 refactor: 將介面設定套用於所有角色，由 [@danny-avila](https://github.com/danny-avila) 於 [#3967](https://github.com/danny-avila/LibreChat/pull/3967) 提交
+
+### 👐 無障礙性 (Accessibility)
+* 🎙️ a11y: 更新 HTML lang 屬性，由 [@jacobcolyvan](https://github.com/jacobcolyvan) 於 [#3636](https://github.com/danny-avila/LibreChat/pull/3636) 提交
+* 👐 a11y: 提升對話選單選項的無障礙性，由 [@danny-avila](https://github.com/danny-avila) 於 [#3864](https://github.com/danny-avila/LibreChat/pull/3864) 提交
+* 👐 a11y: 多項無障礙改進，由 [@Tanvez](https://github.com/Tanvez) 於 [#3910](https://github.com/danny-avila/LibreChat/pull/3910) 提交
+* ⌨️ a11y(設定): 提升鍵盤導覽體驗並統一樣式，由 [@berry-13](https://github.com/berry-13) 於 [#3975](https://github.com/danny-avila/LibreChat/pull/3975) 提交
+
+### 🌍 國際化 (i18n)
+
+* 🌍 i18n: 更新中文翻譯，由 [@zjjxwhh](https://github.com/zjjxwhh) 於 [#3871](https://github.com/danny-avila/LibreChat/pull/3871) 提交
+* 🌍 i18n: 更新日語翻譯，由 [@hide361](https://github.com/hide361) 於 [#3877](https://github.com/danny-avila/LibreChat/pull/3877) 提交
+* 🌍 i18n: 優化 Artifacts 等功能的德語翻譯及多項微小變動，由 [@marlonka](https://github.com/marlonka) 於 [#3924](https://github.com/danny-avila/LibreChat/pull/3924) 提交
+* 🌍 i18n: 優化巴西葡萄牙語翻譯，由 [@itzraiss](https://github.com/itzraiss) 於 [#3947](https://github.com/danny-avila/LibreChat/pull/3947) 提交
+
+## 新貢獻者
+* [@maxesse](https://github.com/maxesse) 於 [#3731](https://github.com/danny-avila/LibreChat/pull/3731) 提交了其首份貢獻
+* [@zjjxwhh](https://github.com/zjjxwhh) 於 [#3871](https://github.com/danny-avila/LibreChat/pull/3871) 提交了其首份貢獻
+* [@hide361](https://github.com/hide361) 於 [#3877](https://github.com/danny-avila/LibreChat/pull/3877) 提交了其首份貢獻
+
+
+### 👀 下步計畫
+
+**[追蹤 v0.7.5 剩餘的變更項目](https://github.com/danny-avila/LibreChat/milestone/7)**
+
+---
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.7.5-rc1...v0.7.5-rc2

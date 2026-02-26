@@ -1,0 +1,66 @@
+---
+date: 2024-02-14
+title: ⚠️ 重大變更 v0.6.9+
+description: LibreChat v0.6.9+ 版本的重大變更
+version: "0.6.9-breaking-changes"
+---
+
+<Callout type="warning" title=".env 變數變動 v0.6.6 → v0.6.9" emoji='⚙️' collapsible>
+
+```sh filename="終端 (Endpoints)"
+# ENDPOINTS=openAI,assistants,azureOpenAI,bingAI,chatGPTBrowser,google,gptPlugins,anthropic
+```
+
+```sh filename="OpenAI 模型"
+# OPENAI_MODELS=gpt-3.5-turbo-0125,gpt-3.5-turbo-0301,gpt-3.5-turbo,gpt-4,gpt-4-0613,gpt-4-vision-preview,gpt-3.5-turbo-0613,gpt-3.5-turbo-16k-0613,gpt-4-0125-preview,gpt-4-turbo-preview,gpt-4-1106-preview,gpt-3.5-turbo-1106,gpt-3.5-turbo-instruct,gpt-3.5-turbo-instruct-0914,gpt-3.5-turbo-16k
+```
+
+```sh filename="Assistants API"
+#====================#
+#   Assistants API   #
+#====================#
+
+ASSISTANTS_API_KEY=user_provided
+# ASSISTANTS_BASE_URL=
+# ASSISTANTS_MODELS=gpt-3.5-turbo-0125,gpt-3.5-turbo-16k-0613,gpt-3.5-turbo-16k,gpt-3.5-turbo,gpt-4,gpt-4-0314,gpt-4-32k-0314,gpt-4-0613,gpt-3.5-turbo-0613,gpt-3.5-turbo-1106,gpt-4-0125-preview,gpt-4-turbo-preview,gpt-4-1106-preview
+```
+
+```sh filename="外掛程式模型"
+# PLUGIN_MODELS=gpt-4,gpt-4-turbo-preview,gpt-4-0125-preview,gpt-4-1106-preview,gpt-4-0613,gpt-3.5-turbo,gpt-3.5-turbo-0125,gpt-3.5-turbo-1106,gpt-3.5-turbo-0613
+```
+
+```sh filename="生日帽"
+# SHOW_BIRTHDAY_ICON=true
+```
+
+```sh filename="DALL·E"
+# DALL·E
+#----------------
+# DALLE_API_KEY=
+# DALLE3_API_KEY=
+# DALLE2_API_KEY=
+# DALLE3_SYSTEM_PROMPT=
+# DALLE2_SYSTEM_PROMPT=
+# DALLE_REVERSE_PROXY=
+# DALLE3_BASEURL=
+# DALLE2_BASEURL=
+
+# DALL·E (透過 Azure OpenAI)
+# 備註：需先設定上述部分變數
+#----------------
+# DALLE3_AZURE_API_VERSION=
+# DALLE2_AZURE_API_VERSION=
+```
+
+</Callout>
+
+<Callout type="success" title="Ninja" emoji="🥷">
+  - 現已記錄了一種使用 ChatGPT 終端的新方法，使用了 「Ninja」。欲瞭解更多：
+  - ~~[Ninja 部署指南]()~~ - [Ninja GitHub 儲存庫](https://github.com/gngpp/ninja/tree/main)
+</Callout>
+
+<Callout type="error" title="PandoraNext" emoji="🪦">
+  - 由於 PandoraNext 已停止服務，ChatGPTbrowser 終端在 LibreChat 中已不再可用。欲瞭解更多：
+  - [https://github.com/danny-avila/LibreChat/discussions/1663](https://github.com/danny-avila/LibreChat/discussions/1663#discussioncomment-8314025)
+  - [https://linux.do/t/topic/1051](https://linux.do/t/topic/1051)
+</Callout>

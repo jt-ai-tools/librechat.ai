@@ -1,0 +1,124 @@
+---
+title: Flux 圖片產生
+icon: Wand2
+description: Flux 圖片產生的設定與使用說明
+---
+
+Flux 是一款強大的圖片產生工具，能根據文字描述建立高品質圖片。它支援多種藝術風格，並提供廣泛的自定義選項。
+
+## 設定說明
+
+1. 從 [bfl.ml](https://bfl.ml) 獲取您的 API 金鑰。
+2. 在 `.env` 檔案中設定 `FLUX_API_KEY` 環境變數：
+```bash
+FLUX_API_KEY=在此輸入您的_api_key
+```
+
+## 功能特色
+
+### 核心能力
+- 根據詳細的文字描述產生高品質圖片。
+- 支援多種藝術風格。
+- 可自定義圖片尺寸。
+- 可調整產生參數。
+- 提供多個終端選項以因應不同使用情境。
+- 支援批次產生（一次最多 24 張）。
+
+### 可用終端
+- `/v1/flux-pro` —— 標準終端（預設）。
+- `/v1/flux-pro-1.1` —— 增強版本。
+- `/v1/flux-dev` —— 開發版本。
+- `/v1/flux-pro-1.1-ultra` —— 極致品質終端。
+
+### 參數說明
+
+Flux 工具支援三種主要操作：
+
+1. **generate** —— 根據文字提示詞建立新圖片。
+2. **generate_finetuned** —— 使用微調模型建立圖片。
+3. **list_finetunes** —— 為使用者列出可用的自定義模型。
+
+
+針對 `generate` 操作：
+
+• **prompt** – 圖片的文字描述（必填）。
+• **width** – 寬度（像素，必須是 32 的倍數）。
+• **height** – 高度（像素，必須是 32 的倍數）。
+• **prompt_upsampling** – 是否對提示詞執行上取樣優化（預設：false）。
+• **steps** – 擴散步數（1-50，預設：40）。
+• **seed** – 選填種子值以實現結果可重現性。
+• **safety_tolerance** – 審核容忍等級（0-6，預設：6）。
+• **endpoint** – 要使用的模型終端：
+  - `/v1/flux-pro-1.1`（預設）
+  - `/v1/flux-pro`
+  - `/v1/flux-dev`
+  - `/v1/flux-pro-1.1-ultra`
+• **raw** – 產生較少加工、更自然的圖片（僅限 ultra 終端，預設：false）。
+
+針對 `generate_finetuned` 操作：
+
+• 包含 `generate` 的所有參數，再加上：
+• **finetune_id** – 微調模型的 ID（必填）。
+• **finetune_strength** – 微調效果強度（0.1-1.2，預設：1.1）。
+• **guidance** – 引導尺度（預設：2.5）。
+• **aspect_ratio** – ultra 模型的寬高比（預設："16:9"）。
+• **endpoint** – 必須為下列之一：
+  - `/v1/flux-pro-finetuned`（預設）
+  - `/v1/flux-pro-1.1-ultra-finetuned`
+
+
+## 最佳實踐
+
+### 提示詞撰寫
+1. 描述應具體且詳細。
+2. 包含關鍵元素：
+   - 主體內容
+   - 風格與藝術手法
+   - 構圖細節
+   - 光線與氛圍
+   - 色彩偏好
+   - 技術規格
+
+### 獲得最佳效果的秘訣
+- 建議使用英文撰寫提示詞。
+- 在具體描述與創意發揮間取得平衡。
+- 避免使用相互矛盾的概念。
+- 專注於視覺化描述。
+- 考量構圖層次（前景、中景、背景）。
+
+## 技術細節
+
+### 圖片處理
+- 圖片會自動儲存並管理。
+- 支援 PNG 輸出格式。
+- 內建審核與安全功能。
+- 具備狀態追蹤的非同步產生機制。
+
+### 整合特色
+- 與聊天介面無縫整合。
+- 輸出結果為 Markdown 格式。
+- 內建錯誤處理與日誌紀錄。
+- 支援批次處理。
+
+## 使用範例
+
+以下是一些適用於 Flux 的提示詞範例：
+
+> A serene mountain landscape at sunset, with snow-capped peaks reflected in a crystal-clear alpine lake. Warm golden light illuminates wispy clouds, creating a dramatic atmosphere. Photorealistic style with rich colors and sharp details.
+> (夕陽下寧靜的山脈景觀，白雪覆蓋的山峰映照在清澈見底的高山湖泊中。溫暖的金光照亮了絲縷雲彩，營造出充滿戲劇感的氛圍。寫實風格，色彩豐富且細節銳利。)
+
+> A futuristic cityscape at night, featuring neon-lit skyscrapers and flying vehicles. Cyberpunk style with deep blues and purples, accented by bright neon colors. Rain-slicked streets reflect the city lights, creating a moody atmosphere.
+> (夜晚的未來城市景觀，有霓虹閃爍的摩天大樓與飛行載具。賽博龐克風格，以深藍與紫色為主調，配以明亮的霓虹色彩。雨水打濕的街道倒映著城市燈光，營造出憂鬱的氛圍。)
+
+## 錯誤處理
+
+常見錯誤訊息與解決方案：
+- API 金鑰問題：驗證您的 API 金鑰是否已正確設定在環境變數中。
+- 產生失敗：檢查提示詞長度與內容是否符合規範。
+- 超時錯誤：可能發生在伺服器負載過高時，請稍候片刻再重試。
+
+## 速率限制與使用量
+
+- 免費層級包含寬裕的使用限制。
+- 單次請求可產生多張圖片。
+- 在測試期間，可考慮使用較低的步數以加快產生速度。

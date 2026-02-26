@@ -1,0 +1,117 @@
+---
+date: 2024-02-13
+title: 🚀 LibreChat v0.6.9
+description: LibreChat 生日快樂！🎂、無限捲動、安全性增強，以及更多...
+version: "0.6.9"
+---
+
+# 更新內容
+
+根據要求更新後的內容如下：
+
+## 🏞️ 亮點介紹
+
+- **LibreChat 生日快樂！** LibreChat 正式滿一週年了！
+- **無限捲動 (Infinite Scrolling)：** 向下捲動可載入更多對話，現在已按日期與使用情況排序。
+- **Docker**
+  - **支援 ARM64v8 建置：** 確保與更多硬體相容，包括 Raspberry Pi 以及其他基於 ARM 的系統。
+  - **Docker Hub 映像：** 預建映像現在可以在 [@librechat](https://hub.docker.com/u/librechat) 以及 [@danny-avila](https://github.com/danny-avila?tab=packages&repo_name=LibreChat) 獲取。
+- **支援 GPT-4 與 GPT-3.5 Turbo/0125 模型：** 現已支援最新的 GPT 模型。
+- **安全性增強：** 持續改進安全措施，以保護使用者數據與隱私。
+- **OpenRouter：** 現在會根據 OpenRouter 的所有模型動態使用代幣成本來更新代幣餘額。
+- Assistants API 整合將在此版本發布後不久合併至主分支，此版本標誌著重大更新前的「最新穩定版」。
+
+## ✨ 新功能
+
+- feat: 支援限制僅允許特定網域註冊，由 [@Berry-13](https://github.com/Berry-13) 於 [#1562](https://github.com/danny-avila/LibreChat/pull/1562) 提交
+- feat: 支援 iOS 上的 PWA，由 [@fuegovic](https://github.com/fuegovic) 於 [#1602](https://github.com/danny-avila/LibreChat/pull/1602) 提交
+- feat: 提供 Nginx SSL 安全配置範例，由 [@bsu3338](https://github.com/bsu3338) 於 [#1615](https://github.com/danny-avila/LibreChat/pull/1615) 提交
+- feat: 為後端新增健康檢查 (Health Check) 路由，由 [@danny-avila](https://github.com/danny-avila) 於 [#1623](https://github.com/danny-avila/LibreChat/pull/1623) 提交
+- feat: 支援 GPT-4 Turbo/0125 模型，由 [@danny-avila](https://github.com/danny-avila) 於 [#1643](https://github.com/danny-avila/LibreChat/pull/1643) 提交
+- feat: 實作捲動至底部與行動端優化；更新翻譯，由 [@itzraiss](https://github.com/itzraiss) 於 [#1651](https://github.com/danny-avila/LibreChat/pull/1651) 提交
+- feat: 紀錄自定義配置檔案並為自定義終端新增已知模型限制，由 [@danny-avila](https://github.com/danny-avila) 於 [#1657](https://github.com/danny-avila/LibreChat/pull/1657) 提交
+- feat: 多項安全性增強，由 [@danny-avila](https://github.com/danny-avila) 於 [#1681](https://github.com/danny-avila/LibreChat/pull/1681) 提交
+- feat: 支援 GPT-3.5 Turbo/0125 模型，由 [@danny-avila](https://github.com/danny-avila) 於 [#1704](https://github.com/danny-avila/LibreChat/pull/1704) 提交
+- feat: 使用 OpenRouter 模型數據進行代幣計費與上下文計算，由 [@danny-avila](https://github.com/danny-avila) 於 [#1703](https://github.com/danny-avila/LibreChat/pull/1703) 提交
+- style: 實作無限捲動導覽並按日期/使用情況排序對話，由 [@danny-avila](https://github.com/danny-avila) 於 [#1708](https://github.com/danny-avila/LibreChat/pull/1708) 提交
+- feat: 在模型查詢中加入使用者 ID；chore: 清理 ModelService，由 [@danny-avila](https://github.com/danny-avila) 於 [#1753](https://github.com/danny-avila/LibreChat/pull/1753) 提交
+- feat: 外掛程式 (Plugins) 支援替代的 API 金鑰，由 [@danny-avila](https://github.com/danny-avila) 於 [#1760](https://github.com/danny-avila/LibreChat/pull/1760) 提交
+- feat: 將容器映像推送至 DockerHub，由 [@danny-avila](https://github.com/danny-avila) 於 [#1762](https://github.com/danny-avila/LibreChat/pull/1762) 提交
+- LibreChat 生日快樂，由 [@Berry-13](https://github.com/Berry-13) 於 [#1768](https://github.com/danny-avila/LibreChat/pull/1768) 提交
+
+## ⚙️ 其他變動
+
+- refactor: 身份驗證功能重構；style: 匹配 OpenAI 樣式；feat: 支援自定義社群登入順序，由 [@Berry-13](https://github.com/Berry-13) 於 [#1421](https://github.com/danny-avila/LibreChat/pull/1421) 提交
+- 清理 OpenAI 配置並為外掛程式顯示 「Set Azure Key」，由 [@danny-avila](https://github.com/danny-avila) 於 [#1649](https://github.com/danny-avila/LibreChat/pull/1649) 提交
+- style: 行動端設定 UI 優化，由 [@machinsoft](https://github.com/machinsoft) 於 [#1721](https://github.com/danny-avila/LibreChat/pull/1721) 提交
+- refactor(convoSchema): 為 `updatedAt` 欄位建立索引，由 [@danny-avila](https://github.com/danny-avila) 於 [#1732](https://github.com/danny-avila/LibreChat/pull/1732) 提交
+- style: 圓形串流游標效果，由 [@itzraiss](https://github.com/itzraiss) 於 [#1736](https://github.com/danny-avila/LibreChat/pull/1736) 提交
+- chore: 重構更新腳本以利用 Docker Compose v2，由 [@danny-avila](https://github.com/danny-avila) 於 [#1752](https://github.com/danny-avila/LibreChat/pull/1752) 提交
+- style: 更新對話歷史分組方式，由 [@trevorswanson](https://github.com/trevorswanson) 於 [#1770](https://github.com/danny-avila/LibreChat/pull/1770) 提交
+- ci: 修正對話分組測試，由 [@danny-avila](https://github.com/danny-avila) 於 [#1773](https://github.com/danny-avila/LibreChat/pull/1773) 提交
+
+## 🔧 臭蟲修復
+
+- fix: 將 Azure AI Search 外掛程式的 getter 屬性 `name` 與 `description` 轉換為一般屬性，由 [@zentooo](https://github.com/zentooo) 於 [#1599](https://github.com/danny-avila/LibreChat/pull/1599) 提交
+- fix(Root.tsx): 更新樣式，改用 `h-dvh` 代替 `h-screen`，由 [@danny-avila](https://github.com/danny-avila) 於 [#1608](https://github.com/danny-avila/LibreChat/pull/1608) 提交
+- feat: 為 arm64v8 支援 CI Docker 建置，由 [@fidoriel](https://github.com/fidoriel) 於 [#1607](https://github.com/danny-avila/LibreChat/pull/1607) 提交
+- fix: 保留代碼區塊中的錢字號，以支援 LaTeX 解析，由 [@danny-avila](https://github.com/danny-avila) 於 [#1612](https://github.com/danny-avila/LibreChat/pull/1612) 提交
+- fix: 升級 `@langchain/google-genai` 以解決中文文字錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#1654](https://github.com/danny-avila/LibreChat/pull/1654) 提交
+- fix: 使用者驗證中的大頭照檢查修正，由 [@ineiti](https://github.com/ineiti) 於 [#1677](https://github.com/danny-avila/LibreChat/pull/1677) 提交
+- fix: Mistral API 負載中將系統訊息移至最頂端，由 [@danny-avila](https://github.com/danny-avila) 於 [#1678](https://github.com/danny-avila/LibreChat/pull/1678) 提交
+- fix: 使用 CDN URL 時，將 Base64 傳遞給 Gemini Vision 負載，由 [@danny-avila](https://github.com/danny-avila) 於 [#1705](https://github.com/danny-avila/LibreChat/pull/1705) 提交
+- fix(getModelMaxTokens): 為 Azure OpenAI 獲取正確的上下文代幣，由 [@danny-avila](https://github.com/danny-avila) 於 [#1710](https://github.com/danny-avila/LibreChat/pull/1710) 提交
+- fix: 修復不正確的套件安裝，由 [@danny-avila](https://github.com/danny-avila) 於 [#1720](https://github.com/danny-avila/LibreChat/pull/1720) 提交
+- fix: 更新 `.devcontainer` 檔案，由 [@ryohei-kamiya](https://github.com/ryohei-kamiya) 於 [#1712](https://github.com/danny-avila/LibreChat/pull/1712) 提交
+- fix: 修正 socialLogins 的預設值，由 [@danny-avila](https://github.com/danny-avila) 於 [#1730](https://github.com/danny-avila/LibreChat/pull/1730) 提交
+- fix: 外掛程式多項微小改進，由 [@danny-avila](https://github.com/danny-avila) 於 [#1766](https://github.com/danny-avila/LibreChat/pull/1766) 提交
+
+## 📝 文檔
+
+- docs: 更新 litellm.md 以加入 Ollama，由 [@bsu3338](https://github.com/bsu3338) 於 [#1616](https://github.com/danny-avila/LibreChat/pull/1616) 提交
+- docs: 更新 litellm.md 並加入 Redis 與 Langfuse 資訊，由 [@bsu3338](https://github.com/bsu3338) 於 [#1618](https://github.com/danny-avila/LibreChat/pull/1618) 提交
+- docs: 更新 `multilingual_information.md`，由 [@jo-s-eph](https://github.com/jo-s-eph) 於 [#1622](https://github.com/danny-avila/LibreChat/pull/1622) 提交
+- docs update: 移除 ChatGPTbrowser 並進行其他微修復，由 [@fuegovic](https://github.com/fuegovic) 於 [#1686](https://github.com/danny-avila/LibreChat/pull/1686) 提交
+- docs: 新增 「copilot-gpt4-service」 AI 設定資訊，由 [@zimmra](https://github.com/zimmra) 於 [#1695](https://github.com/danny-avila/LibreChat/pull/1695) 提交
+- docs: Ninja —— ChatGPT-browser 反向代理文檔，由 [@fuegovic](https://github.com/fuegovic) 於 [#1697](https://github.com/danny-avila/LibreChat/pull/1697) 提交
+- README.md: 更新按鈕佈局，由 [@fuegovic](https://github.com/fuegovic) 於 [#1709](https://github.com/danny-avila/LibreChat/pull/1709) 提交
+- docs: 如何進行 MongoDB 身份驗證，由 [@danny-avila](https://github.com/danny-avila) 於 [#1724](https://github.com/danny-avila/LibreChat/pull/1724) 提交
+- docs: 修正格式問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#1725](https://github.com/danny-avila/LibreChat/pull/1725) 提交
+- docs: 修正格式問題，由 [@fuegovic](https://github.com/fuegovic) 於 [#1726](https://github.com/danny-avila/LibreChat/pull/1726) 提交
+- docs: 新增部署至 Zeabur 的按鈕與指南，由 [@yuaanlin](https://github.com/yuaanlin) 於 [#1727](https://github.com/danny-avila/LibreChat/pull/1727) 提交
+- docs: 修正指向 dotenv 指南的連結，由 [@Nihisil](https://github.com/Nihisil) 於 [#1739](https://github.com/danny-avila/LibreChat/pull/1739) 提交
+- 更新 dotenv.md，由 [@fuegovic](https://github.com/fuegovic) 於 [#1740](https://github.com/danny-avila/LibreChat/pull/1740) 提交
+- docs: Ollama 文檔更新，由 [@bsu3338](https://github.com/bsu3338) 於 [#1756](https://github.com/danny-avila/LibreChat/pull/1756) 提交
+- docs: 更新至 Docker Compose v2，由 [@fuegovic](https://github.com/fuegovic) 於 [#1767](https://github.com/danny-avila/LibreChat/pull/1767) 提交
+- 更新 custom_config.md，由 [@fuegovic](https://github.com/fuegovic) 於 [#1774](https://github.com/danny-avila/LibreChat/pull/1774) 提交
+- docs: 釐清覆寫檔案 (override file) 與餘額/代幣計數相關說明，由 [@fuegovic](https://github.com/fuegovic) 於 [#1783](https://github.com/danny-avila/LibreChat/pull/1783) 提交
+
+## 🌐 國際化
+
+- 更新印尼語翻譯，由 [@wahitftry](https://github.com/wahitftry) 於 [#1601](https://github.com/danny-avila/LibreChat/pull/1601) 提交
+- 更新日語翻譯，由 [@Kakenyan](https://github.com/Kakenyan) 於 [#1666](https://github.com/danny-avila/LibreChat/pull/1666) 提交
+- 更新德語翻譯，由 [@marlonka](https://github.com/marlonka) 於 [#1683](https://github.com/danny-avila/LibreChat/pull/1683) 提交
+
+## 👀 下步計畫
+
+- 此版本標記後不久將發布 Assistants API。
+- 管理面板 (Admin Panel)（詳情即將公布）
+- 強化提示工程 (Prompt Engineering)
+  - 建立預設設定嚮導 (Preset wizard)
+  - 可以在對話中任何位置新增/刪除訊息
+  - 支援多重回應串流
+- 用於使用預設設定/助手/切換終端的行內文字指令
+
+## 新貢獻者
+
+- [@fidoriel](https://github.com/fidoriel) 於 [#1607](https://github.com/danny-avila/LibreChat/pull/1607) 提交了其首份貢獻
+- [@jo-s-eph](https://github.com/jo-s-eph) 於 [#1622](https://github.com/danny-avila/LibreChat/pull/1622) 提交了其首份貢獻
+- [@Kakenyan](https://github.com/Kakenyan) 於 [#1666](https://github.com/danny-avila/LibreChat/pull/1666) 提交了其首份貢獻
+- [@zimmra](https://github.com/zimmra) 於 [#1695](https://github.com/danny-avila/LibreChat/pull/1695) 提交了其首份貢獻
+- [@marlonka](https://github.com/marlonka) 於 [#1683](https://github.com/danny-avila/LibreChat/pull/1683) 提交了其首份貢獻
+- [@ryohei-kamiya](https://github.com/ryohei-kamiya) 於 [#1712](https://github.com/danny-avila/LibreChat/pull/1712) 提交了其首份貢獻
+- [@yuaanlin](https://github.com/yuaanlin) 於 [#1727](https://github.com/danny-avila/LibreChat/pull/1727) 提交了其首份貢獻
+- [@Nihisil](https://github.com/Nihisil) 於 [#1739](https://github.com/danny-avila/LibreChat/pull/1739) 提交了其首份貢獻
+- [@trevorswanson](https://github.com/trevorswanson) 於 [#1770](https://github.com/danny-avila/LibreChat/pull/1770) 提交了其首份貢獻
+
+**完整變更紀錄**: [v0.6.6...v0.6.9](https://github.com/danny-avila/LibreChat/compare/v0.6.6...v0.6.9)

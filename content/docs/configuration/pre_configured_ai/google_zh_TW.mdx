@@ -1,0 +1,186 @@
+---
+title: "Google"
+icon: Bot
+---
+
+針對 Google 終端，您可以選擇使用 **Generative Language API**（適用於 Gemini 模型），或是 **Vertex AI API**（適用於 Gemini、PaLM2 與 Codey 模型）。
+
+Generative Language API 使用 API 金鑰，您可以從 **Google AI Studio** 獲取。
+
+針對 Vertex AI，您需要一個具備適當存取權限的服務帳號 JSON 金鑰檔案。
+
+下方提供這兩種方式的設定說明。
+
+## Generative Language API (Gemini)
+
+**[點此查看 Gemini API 的定價與速率限制](https://ai.google.dev/pricing)**
+
+⚠️ 雖然 Google 模型目前提供免費使用，但他們會利用您的輸入/輸出內容來協助改進模型，不過數據會與您的 Google 帳號及 API 金鑰去識別化。
+⚠️ 在此期間，您的訊息「可能會被經過訓練的審查員存取」。
+
+若要透過 Google AI Studio 使用 Gemini 模型，您需要一個 API 金鑰。如果您還沒有金鑰，請在 Google AI Studio 中建立一個。
+
+在此獲取 API 金鑰：**[aistudio.google.com](https://aistudio.google.com/app/apikey)**
+
+獲得金鑰後，將其填入您的 .env 檔案中，這將允許您實例的所有使用者使用該金鑰。
+
+```bash filename=".env"
+GOOGLE_KEY=您的_秘密_金鑰
+```
+
+或者，您可以透過下列設定，讓使用者從前端自行提供金鑰：
+```bash filename=".env"
+GOOGLE_KEY=user_provided
+```
+
+某些反向代理不支援 `X-goog-api-key` 標頭。您可以配置 LibreChat 改用 `Authorization` 標頭：
+```bash filename=".env"
+GOOGLE_AUTH_HEADER=true
+```
+
+由於目前尚不支援獲取模型清單，您應在 .env 檔案中設定想要使用的模型。
+
+為方便起見，以下是截至 2024/5/18 可搭配 Generative Language API 使用的最新模型：
+
+```bash filename=".env"
+GOOGLE_MODELS=gemini-1.5-flash-latest,gemini-1.0-pro,gemini-1.0-pro-001,gemini-1.0-pro-latest,gemini-1.0-pro-vision-latest,gemini-1.5-pro-latest,gemini-pro,gemini-pro-vision
+```
+
+<Callout type="note" title="備註：">
+備註：
+- 您的清單中必須包含 `gemini-pro` 或 `gemini-pro-vision` 模型才能附加圖片。
+- 透過 LibreChat，PaLM2 與 Codey 模型僅能透過 Vertex AI 存取，無法透過 Generative Language API 存取。
+    - 僅支援 `generateContent` 方法的模型才能與 LibreChat + Gen AI API 原生配合使用。
+- 針對附帶附件的訊息，無需特意選取 `gemini-pro-vision`，因為系統會在幕後自動為您切換。
+- 由於 `gemini-pro-vision` 不接受不含附件的訊息，無附件訊息會自動切換為使用 `gemini-pro`（否則 Google 會返回錯誤）。
+- 對於 Google 終端，您不能同時使用 Vertex AI 與 Generative Language API。您必須擇一使用。
+- 當 `maxOutputTokens` 設定為較大數值時，某些 PaLM/Codey 模型與 `gemini-pro-vision` 可能會失敗。若遇到此問題，請嘗試調降對話參數中的該數值。
+</Callout>
+
+在 .env 檔案中設定 `GOOGLE_KEY=user_provided` 會同時將 Vertex AI 服務帳號 JSON 金鑰檔案與 Generative Language API 金鑰設定為由前端提供，如下圖所示：
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/728cbc04-4180-45a8-848c-ae5de2b02996)
+
+## Vertex AI
+
+**[點此查看 Vertex API 的定價與速率限制](https://cloud.google.com/vertex-ai/generative-ai/pricing)**
+
+若要設定 Google LLM（透過 Google Cloud Vertex AI），首先請註冊 Google Cloud：**[cloud.google.com](https://cloud.google.com/)**
+
+您通常可以獲得 **300 美元的初始額度**，這使得此選項在 90 天內是免費的。
+
+1. 註冊後，在 Google Cloud 上啟用 Vertex AI API：
+  - 前往 **[Google Cloud 主控台的 Vertex AI 頁面](https://console.cloud.google.com/vertex-ai)**。
+  - 若有提示，請點擊 `Enable API`。
+2. 建立具備 Vertex AI 角色的服務帳號：
+  - **[點擊此處建立服務帳號](https://console.cloud.google.com/projectselector/iam-admin/serviceaccounts/create?walkthrough_id=iam--create-service-account#step_index=1)**。
+  - **選取或建立一個專案**。
+  - 輸入服務帳號 ID（必填），名稱與描述為選填。
+      - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/0c5cd177-029b-44fa-a398-a794aeb09de6)
+  - 點擊 「Create and Continue」 以至少賦予 「Vertex AI User」 角色。
+      - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/22d3a080-e71e-446e-8485-bcc5bf558dbb)
+  - **點擊 「Continue/Done」**。
+3. 建立 JSON 金鑰並儲存至您的專案目錄：
+  - **回到 [服務帳號頁面](https://console.cloud.google.com/projectselector/iam-admin/serviceaccounts)**。
+  - **選取您的服務帳號**。
+  - 點擊 「Keys」。
+       - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/735a7bbe-25a6-4b4c-9bb5-e0d8aa91be3d)
+  - 點擊 「Add Key」 接著點擊 「Create new key」。
+       - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/cfbb20d3-94a8-4cd1-ac39-f9cd8c2fceaa)
+  - **選擇 JSON 作為金鑰類型並點擊 「Create」**。
+  - **下載金鑰檔案並將其重新命名為 「auth.json」**。
+  - **將其儲存在專案目錄下的 `/api/data/` 中**。
+       - ![image](https://github.com/danny-avila/LibreChat/assets/110412045/f5b8bcb5-1b20-4751-81a1-d3757a4b3f2f)
+
+<Callout type="info" title="替代方案：使用 GOOGLE_SERVICE_KEY_FILE">
+除了將金鑰檔案儲存為 `/api/data/auth.json` 外，您還可以使用 `GOOGLE_SERVICE_KEY_FILE` 環境變數來指定服務帳號金鑰檔案的路徑。這在憑證管理上提供了更多彈性。詳情請參閱下方的環境變數章節。
+</Callout>
+
+**將您的 JSON 金鑰檔案儲存在專案目錄中，將允許您 LibreChat 實例的所有使用者使用它。**
+
+或者，您可以透過下列設定，讓使用者從前端自行提供金鑰：
+
+```bash filename=".env"
+# 備註：這會將 Vertex AI 服務帳號 JSON 金鑰檔案
+# 與 Generative Language API 金鑰均設定為從前端提供。
+GOOGLE_KEY=user_provided
+```
+
+您也可以使用 `GOOGLE_SERVICE_KEY_FILE` 環境變數指定服務帳號金鑰檔案：
+
+```bash filename=".env"
+# 服務帳號 JSON 金鑰檔案的路徑
+GOOGLE_SERVICE_KEY_FILE=/path/to/auth.json
+
+# 或提供為 URL
+GOOGLE_SERVICE_KEY_FILE=https://example.com/path/to/auth.json
+
+# 或提供為字串化 JSON
+GOOGLE_SERVICE_KEY_FILE='{"type":"service_account","project_id":"your-project",...}'
+
+# 或提供為 Base64 編碼的 JSON
+GOOGLE_SERVICE_KEY_FILE=eyJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsICJwcm9qZWN0X2lkIjogInlvdXItcHJvamVjdC1pZCIsIC4uLn0=
+```
+
+這對於需要 Vertex AI 身份驗證的功能（例如 OCR 能力）特別有用。
+
+您還可以為 Vertex AI API 請求指定 Google Cloud 地點：
+
+```bash filename=".env"
+# Vertex AI 的 Google Cloud 區域
+GOOGLE_LOC=us-central1
+
+# Gemini 圖片產生用的替代區域（預設為 global）
+GOOGLE_CLOUD_LOCATION=global
+```
+
+由於目前尚不支援獲取模型清單，您應在 .env 檔案中設定想要使用的模型。
+
+為方便起見，以下是截至 2024/5/18 可搭配 Generative Language API 使用的最新模型：
+
+```bash filename=".env"
+GOOGLE_MODELS=gemini-1.5-flash-preview-0514,gemini-1.5-pro-preview-0514,gemini-1.0-pro-vision-001,gemini-1.0-pro-002,gemini-1.0-pro-001,gemini-pro-vision,gemini-1.0-pro
+```
+
+<Callout type="note" title="如果您使用 Docker">
+如果您使用 Docker 且想提供 `auth.json` 檔案，您還需要在 docker-compose.override.yml 中掛載該磁碟卷。
+
+```yaml filename="docker-compose.override.yml"
+version: '3.4'
+
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ./api/data/auth.json
+        target: /app/api/data/auth.json
+```
+</Callout>
+
+## Google 安全設定 (Safety Settings)
+
+若要為 Vertex AI 與 Generative Language API 設定安全設定，您可以在 .env 檔案中設定下列內容：
+
+```bash filename=".env"
+GOOGLE_SAFETY_SEXUALLY_EXPLICIT=BLOCK_ONLY_HIGH
+GOOGLE_SAFETY_HATE_SPEECH=BLOCK_ONLY_HIGH
+GOOGLE_SAFETY_HARASSMENT=BLOCK_ONLY_HIGH
+GOOGLE_SAFETY_DANGEROUS_CONTENT=BLOCK_ONLY_HIGH
+GOOGLE_SAFETY_CIVIC_INTEGRITY=BLOCK_ONLY_HIGH
+```
+
+您也可以透過在 .env 檔案中設定下列變數來排除安全設定，這將使用供應商預設值。如果您在特定的安全設定上遇到問題，這會很有幫助。
+
+```bash filename=".env"
+GOOGLE_EXCLUDE_SAFETY_SETTINGS=true
+```
+
+備註：您預設無法存取 `BLOCK_NONE` 設定。
+若要使用此受限的 `HarmBlockThreshold` 設定，您需要：
+- (a) 透過您的 Google 帳號團隊獲取白名單存取權限。
+- (b) 按照下列說明將您的帳號類型切換為每月發票結算：
+    https://cloud.google.com/billing/docs/how-to/invoiced-billing
+
+**備註：**
+
+- Google 終端支援透過 `librechat.yaml` 配置文件設定所有[共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW)，包含 `streamRate`、`titleModel`、`titleMethod`、`titlePrompt`、`titlePromptTemplate` 與 `titleEndpoint`。

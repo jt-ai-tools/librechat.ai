@@ -1,0 +1,56 @@
+---
+date: 2026-01-17
+title: 🚀 LibreChat v0.8.2-rc3
+description: LibreChat 的 v0.8.2-rc3 版本發布
+version: "0.8.2-rc3"
+---
+
+## 更新內容
+
+### ✨ 新功能
+
+* 🌙 新增 Moonshot Kimi K2 Bedrock 支援，由 [@KarthiDreamr](https://github.com/KarthiDreamr) 於 [#11288](https://github.com/danny-avila/LibreChat/pull/11288) 提交
+* 🪨 支援 Bedrock 的 Anthropic Beta 功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#11371](https://github.com/danny-avila/LibreChat/pull/11371) 提交
+
+### 🐛 修復
+
+* 🔧 修正智慧體構建器面板中的模型列表查詢數據，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11260](https://github.com/danny-avila/LibreChat/pull/11260) 提交
+* 🔧 建立聊天時使 MCP 工具的額外查詢失效，由 [@danny-avila](https://github.com/danny-avila) 於 [#11272](https://github.com/danny-avila/LibreChat/pull/11272) 提交
+* ⏭️ 暫時對話跳過標題產生，由 [@ynori7](https://github.com/ynori7) 於 [#11282](https://github.com/danny-avila/LibreChat/pull/11282) 提交
+* 🏞️ 修復 Gemini 圖片檔案名稱並加入工具快取安全性，由 [@danny-avila](https://github.com/danny-avila) 於 [#11306](https://github.com/danny-avila/LibreChat/pull/11306) 提交
+* 🌉 為 Gemini 圖片產生工具新增代理支援，由 [@usnavy13](https://github.com/usnavy13) 於 [#11302](https://github.com/danny-avila/LibreChat/pull/11302) 提交
+* 🧹 修復 UI 重構後的 MCP 面板問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#11312](https://github.com/danny-avila/LibreChat/pull/11312) 提交
+* 📜 修正分享視圖中的佈局/溢出處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#11314](https://github.com/danny-avila/LibreChat/pull/11314) 提交
+* 🪪 修正容易誤導的 MCP 伺服器查找方法名稱，由 [@danny-avila](https://github.com/danny-avila) 於 [#11315](https://github.com/danny-avila/LibreChat/pull/11315) 提交
+* 🪙 修正收集的用量與 Anthropic 提示詞快取邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#11319](https://github.com/danny-avila/LibreChat/pull/11319) 提交
+* 🌅 實作智慧體大頭照 S3 URL 重新整理的分頁與持久化，由 [@darthhexx](https://github.com/darthhexx) 於 [#11323](https://github.com/danny-avila/LibreChat/pull/11323) 提交
+* 🧭 修正 SSE 與收藏終端的子路徑路由問題，由 [@SpectralOne](https://github.com/SpectralOne) 於 [#11339](https://github.com/danny-avila/LibreChat/pull/11339) 提交
+* 🛠️ 優化已知伺服器發送錯誤的 UI/UX，由 [@danny-avila](https://github.com/danny-avila) 於 [#11343](https://github.com/danny-avila/LibreChat/pull/11343) 提交
+* 🪨 記憶智慧體支援 Bedrock 供應商，由 [@danny-avila](https://github.com/danny-avila) 於 [#11353](https://github.com/danny-avila/LibreChat/pull/11353) 提交
+* 🛠️ 提升 Meili 同步期間的重試邏輯與批次處理，由 [@ablizorukov](https://github.com/ablizorukov) 於 [#11373](https://github.com/danny-avila/LibreChat/pull/11373) 提交
+* 🔧 更新導覽與遮罩層的 Z-index 數值，由 [@danny-avila](https://github.com/danny-avila) 於 [#11375](https://github.com/danny-avila/LibreChat/pull/11375) 提交
+* 🫙 為多智慧體實作快取控制不可變性，由 [@danny-avila](https://github.com/danny-avila) 於 [#11383](https://github.com/danny-avila/LibreChat/pull/11383) 提交
+
+### ⚙️ 其他變動
+
+* 🔧 處理資源分享的權限邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#11283](https://github.com/danny-avila/LibreChat/pull/11283) 提交
+* 📊 Meilisearch 同步改用預估的文件計數，由 [@ablizorukov](https://github.com/ablizorukov) 於 [#11329](https://github.com/danny-avila/LibreChat/pull/11329) 提交
+* 🔀 圖片路由中的檔案上傳新增終端檢查，由 [@danny-avila](https://github.com/danny-avila) 於 [#11352](https://github.com/danny-avila/LibreChat/pull/11352) 提交
+* 🪵 為晚到的串流訂閱者保留工作錯誤狀態，由 [@danny-avila](https://github.com/danny-avila) 於 [#11372](https://github.com/danny-avila/LibreChat/pull/11372) 提交
+* 🚏 移除可恢復串流 (Resumable Stream) 切換開關，由 [@danny-avila](https://github.com/danny-avila) 於 [#11258](https://github.com/danny-avila/LibreChat/pull/11258) 提交
+* 📦 升級 `react-router` 與 `@remix-run/router`，由 [@danny-avila](https://github.com/danny-avila) 於 [#11273](https://github.com/danny-avila/LibreChat/pull/11273) 提交
+* 🌵 移除已棄用的 'prompt-caching' Anthropic 標頭，由 [@danny-avila](https://github.com/danny-avila) 於 [#11313](https://github.com/danny-avila/LibreChat/pull/11313) 提交
+* 🗑️ 移除 YouTube API 整合功能，由 [@leondape](https://github.com/leondape) 於 [#11331](https://github.com/danny-avila/LibreChat/pull/11331) 提交
+* 📦 執行 `npm audit fix`，由 [@danny-avila](https://github.com/danny-avila) 於 [#11346](https://github.com/danny-avila/LibreChat/pull/11346) 提交
+* 📦 清理未使用的套件，由 [@danny-avila](https://github.com/danny-avila) 於 [#11369](https://github.com/danny-avila/LibreChat/pull/11369) 提交
+
+### 🌍 國際化 (i18n)
+
+* 🌍 i18n: 使用最新翻譯更新 `translation.json`，由 [@github-actions[bot]](https://github.com/apps/github-actions) 提交
+
+## 新貢獻者
+
+* [@ynori7](https://github.com/ynori7) 於 [#11282](https://github.com/danny-avila/LibreChat/pull/11282) 提交了其首份貢獻
+* [@darthhexx](https://github.com/darthhexx) 於 [#11323](https://github.com/danny-avila/LibreChat/pull/11323) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.8.2-rc2...v0.8.2-rc3

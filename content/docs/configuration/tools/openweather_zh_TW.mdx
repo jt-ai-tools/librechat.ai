@@ -1,0 +1,99 @@
+---
+title: OpenWeather
+icon: CloudSun
+description: 為 LibreChat 配置 OpenWeather 外掛程式
+---
+
+OpenWeather 外掛程式讓您可以利用 OpenWeather 的 One Call API 3.0 獲取天氣數據，包括當前天氣狀況、預報、歷史數據以及每日摘要。
+
+## 先決條件
+
+- 一個 OpenWeather 帳號。
+- 一個 OpenWeather API 金鑰（特別是針對 One Call API 3.0 的金鑰）。
+
+## 獲取 API 金鑰
+
+1. 在 [OpenWeather](https://home.openweathermap.org/users/sign_up) 註冊帳號。
+2. 登入後，前往您的 [API keys](https://home.openweathermap.org/api_keys) 頁面。
+3. 如果您還沒有金鑰，請產生一個新的 API 金鑰。
+4. 訂閱 [One Call API 3.0](https://openweathermap.org/api/one-call-3) 方案。
+5. 等待您的 API 金鑰啟動（可能需要長達 2 小時）。
+
+## 配置
+
+### 環境變數
+
+將下列內容新增至您的 `.env` 檔案中：
+
+```bash
+OPENWEATHER_API_KEY=在此輸入您的_api_key
+```
+
+### 外掛程式配置
+
+將此外掛程式新增至任何 [智慧體 (Agent)](https://www.librechat.ai/docs/features/agents_zh_TW) 中。
+
+## 使用方式
+
+OpenWeather 外掛程式支援下列操作：
+
+- `current_forecast`：獲取當前天氣與預報數據。
+- `timestamp`：獲取特定日期的歷史天氣數據。
+- `daily_aggregation`：獲取特定日期的匯總天氣數據。
+- `overview`：獲取易於閱讀的天氣摘要。
+
+### 提示詞範例
+
+```
+倫敦現在的天氣如何？
+巴黎 2023-01-01 的天氣怎麼樣？
+給我一份東京的天氣摘要。
+紐約現在的華氏溫度是多少？
+```
+
+### 參數說明
+
+- `city`：城市名稱（若未提供經緯度則必填）。
+- `lat`：緯度座標（選填，若已提供城市名稱）。
+- `lon`：經度座標（選填，若已提供城市名稱）。
+- `units`：溫度單位（"Celsius" (攝氏), "Kelvin" (克氏), 或 "Fahrenheit" (華氏)）。
+- `lang`：天氣描述的語言代碼（例如："zh_tw", "en", "ja"）。
+- `date`：格式為 YYYY-MM-DD 的日期（針對 timestamp 與 daily_aggregation 操作為必填）。
+- `tz`：時區（選填，用於 daily_aggregation 操作）。
+
+## 疑難排解
+
+常見問題與解決方案：
+
+1. **403 Unauthorized 錯誤**
+   - 驗證您的 API 金鑰是否正確。
+   - 檢查 API 金鑰是否已啟動（建立後需等待 2 小時）。
+   - 確保您已訂閱 One Call API 3.0。
+
+2. **找不到城市 (City Not Found)**
+   - 檢查城市名稱的拼字。
+   - 嘗試加入國家代碼（例如："London,UK"）。
+   - 改用經緯度座標。
+
+3. **無效的日期格式**
+   - 確保日期格式為 YYYY-MM-DD。
+   - 歷史數據僅支援 1979-01-01 之後。
+   - 未來數據限制在 1.5 年內。
+
+## API 限制
+
+- 請查閱您的 [OpenWeather 訂閱詳情](https://home.openweathermap.org/subscriptions) 瞭解具體的限制。
+- 在高流量環境下請考量實作速率限制。
+
+## 支援
+
+若外掛程式出現問題：
+- 您可以在 https://github.com/jmaddington/LibreChat/issues 開啟 issue。
+- 檢查 [LibreChat Issues](https://github.com/danny-avila/LibreChat/issues)。
+- 參考 OpenWeather 的 [API 文檔](https://openweathermap.org/api/one-call-3)。
+- 針對 API 特定問題，請聯繫 OpenWeather [技術支援](https://openweathermap.org/support)。
+
+## 備註
+
+- 溫度值會自動四捨五入至最接近的整數。
+- 若未指定，預設溫度單位為攝氏 (Celsius)。

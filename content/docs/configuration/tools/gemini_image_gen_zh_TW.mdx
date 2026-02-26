@@ -1,0 +1,154 @@
+---
+title: Gemini 圖片產生
+icon: Image
+description: Google Gemini 圖片產生的設定與使用說明
+---
+
+Gemini 圖片產生功能是一款強大的工具，整合了 Google 的 Gemini 圖片模型，用於高品質的文字轉圖片產生以及具備圖片上下文感知的編輯功能。它同時支援簡單的 Gemini API 與 Google Cloud Vertex AI。
+
+## 設定說明
+
+您可以選擇使用 Gemini API（推薦大多數使用者使用）或具備服務帳號的 Vertex AI。
+
+### 選項 1：Gemini API (推薦)
+
+1. 從 [Google AI Studio](https://aistudio.google.com/app/apikey) 獲取您的 API 金鑰。
+2. 在 `.env` 檔案中設定 `GEMINI_API_KEY` 環境變數：
+
+```bash
+GEMINI_API_KEY=在此輸入您的_api_key
+```
+
+### 選項 2：Vertex AI (針對企業版/GCP 使用者)
+
+1. 在 Google Cloud 主控台中建立一個具備 Vertex AI 權限的服務帳號。
+2. 下載服務帳號的 JSON 金鑰檔案。
+3. 將該 JSON 檔案放置在專案目錄中（例如：`api/data/auth.json`），或設定其路徑：
+
+```bash
+# 服務帳號 JSON 檔案的路徑（預設：api/data/auth.json）
+GOOGLE_SERVICE_KEY_FILE=/path/to/service-account.json
+
+# 選填：設定地點（預設：global）
+GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+當未配置 `GEMINI_API_KEY` 或 `GOOGLE_KEY` 時，該工具將自動退而使用服務帳號檔案透過 Vertex AI 運作。
+
+## 配置選項
+
+### 模型選取
+
+您可以透過環境變數選擇要使用的 Gemini 圖片模型：
+
+```bash
+# 預設模型
+GEMINI_IMAGE_MODEL=gemini-2.5-flash-image
+
+# 或使用較新的 Gemini 3 Pro 圖片模型
+GEMINI_IMAGE_MODEL=gemini-3-pro-image-preview
+```
+
+### 可用模型
+
+| 模型 | 描述 |
+|-------|-------------|
+| `gemini-2.5-flash-image` | 預設模型，快速且高效。 |
+| `gemini-3-pro-image-preview` | 品質更高，產生結果更具細節。 |
+
+## 功能特色
+
+### 核心能力
+
+- **文字轉圖片產生**：根據詳細的文字描述建立圖片。
+- **圖片上下文支援**：將現有圖片作為新產生內容的上下文或靈感。
+- **圖片編輯**：根據對現有圖片的修改要求產生新圖片。
+- **安全過濾**：內建內容安全過濾，並提供友善的錯誤訊息。
+
+### 參數說明
+
+Gemini 圖片產生工具接受下列參數：
+
+- **prompt**（必填） – 所需圖片的詳細文字描述，最多 32,000 字元。
+- **image_ids**（選填） – 用作產生時視覺上下文的圖片 ID 陣列。
+
+## 最佳實踐
+
+### 提示詞撰寫
+
+1. **描述應具體且詳細**。
+2. **從圖片類型開始**：照片 (photo)、油畫 (oil painting)、水彩畫 (watercolor)、插畫 (illustration)、卡通 (cartoon)、素描 (drawing)、向量圖 (vector)、渲染圖 (render) 等。
+3. **包含關鍵元素**：
+   - 主體內容與構圖。
+   - 風格與藝術手法。
+   - 光線與氛圍。
+   - 色彩偏好。
+   - 技術規格。
+
+### 圖片編輯技巧
+
+編輯現有圖片時：
+
+1. **在 `image_ids` 陣列中包含原始圖片 ID**。
+2. **使用直接的編輯指令**：
+   - "Remove the background from this image" (移除此圖片的背景)
+   - "Add sunglasses to the person in this image" (為此圖片中的人戴上太陽眼鏡)
+   - "Change the color of the car to red" (將車子的顏色改為紅色)
+3. **不要重複描述原始提示詞** —— 請使用簡單、直接的修改指令。
+
+## 使用範例
+
+### 基礎圖片產生
+
+> A serene Japanese garden at golden hour, featuring a traditional red bridge over a koi pond. Cherry blossom trees frame the scene with soft pink petals falling. Photorealistic style with warm, diffused lighting and rich colors.
+> (黃金時分寧靜的日式庭園，有一座跨越錦鯉池的傳統紅橋。櫻花樹環繞四周，粉色花瓣緩緩飄落。寫實風格，光線溫暖柔和，色彩豐富。)
+
+### 具備上下文的圖片產生
+
+當您有一張現有圖片，並想根據它建立受其啟發的內容時：
+
+1. 在 `image_ids` 參數中引用該圖片 ID。
+2. 描述您的需求："Create a winter version of this landscape scene with snow-covered trees and a frozen lake" (為此風景照建立一個冬季版本，包含白雪覆蓋的樹木與結冰的湖泊)
+
+### 圖片編輯
+
+修改現有圖片：
+
+1. 在 `image_ids` 中包含該圖片 ID。
+2. 描述變更："Remove the person from the background of this image" (將此圖片背景中的人移除)
+
+## 錯誤處理
+
+### 常見問題
+
+| 錯誤訊息 | 解決方案 |
+|-------|----------|
+| "Image blocked by content safety filters" | 修改您的提示詞，避免包含違反安全政策的內容。 |
+| "No image was generated" | 嘗試更換提示詞或簡化您的請求。 |
+| "GEMINI_API_KEY or service account required" | 確保您已配置 API 金鑰或 Vertex AI 憑證。 |
+
+### 安全過濾
+
+Gemini 內建安全過濾器。如果您的圖片被封鎖：
+
+- 檢視提示詞中是否含有潛在的問題內容。
+- 嘗試換一種說法，更具體地描述藝術意圖。
+- 避免要求產生有害、暴力或露骨內容。
+
+## 技術細節
+
+### 儲存整合
+
+產生的圖片會根據您配置的檔案策略（本地、S3、Azure 或 Firebase）自動儲存。這是由框架處理的 —— 工具返回圖片數據，智慧體回呼系統會將其持久化為訊息附件。
+
+### 圖片格式
+
+- 輸出格式預設為 PNG，可透過應用程式的 `imageOutputType` 設定進行配置。
+- 圖片包含唯一識別碼，供後續請求引用。
+
+## 速率限制
+
+速率限制取決於您的 API 等級：
+
+- **Gemini API**：請查閱 [Google AI Studio](https://aistudio.google.com/) 獲取目前的限制資訊。
+- **Vertex AI**：根據您的 Google Cloud 專案配額而定。

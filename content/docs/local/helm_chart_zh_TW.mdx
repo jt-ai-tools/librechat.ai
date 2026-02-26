@@ -1,0 +1,88 @@
+---
+title: Helm Chart
+icon: Ship
+description: 使用 Helm 在 Kubernetes 上部署 LibreChat 的說明
+---
+
+請遵循此指引使用 Helm 在 Kubernetes 上部署 LibreChat，並根據您的具體使用情境進行調整。由社群貢獻的其他 Helm Chart 列於下方的 [社群 Helm Chart](#社群-helm-charts) 章節中。
+
+## 先決條件
+
+* 一個正在執行的 Kubernetes 叢集
+* 在「本地」安裝好 `kubectl` 與 Helm
+
+## 配置
+
+1. 使用 [憑證產生器](/toolkit/creds_generator_zh_TW) 為 `CREDS_KEY`、`JWT_SECRET`、`JWT_REFRESH_SECRET` 與 `MEILI_MASTER_KEY` 產生安全數值。
+將它們放入 Kubernetes Secret 中，如下所示（若您更改了 Secret 名稱，請記得更新您的 Helm values）：
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: librechat-credentials-env
+  namespace: <librechat-chart-命名空間>
+type: Opaque
+stringData:
+  CREDS_KEY: <產生的數值>
+  JWT_SECRET: <產生的數值>
+  JWT_REFRESH_SECRET: <產生的數值>
+  MEILI_MASTER_KEY: <產生的數值>
+```
+2. 為 Kubernetes Secret 加入憑證（視您選用的供應商而定）：
+
+```yaml
+apiVersion: v1
+kind: Secret
+. . . .
+
+  OPENAI_API_KEY: <您的金鑰數值>
+```
+3. 將 Secret 套用 (Apply) 至叢集。
+
+## 安裝 Helm Chart
+
+若要安裝 Helm Chart，請執行：
+
+`helm install <部署名稱> oci://ghcr.io/danny-avila/librechat-chart/librechat`
+
+<details>
+  <summary>開發版本 (Development version)</summary>
+
+在儲存庫根目錄下，執行：
+
+`helm install <部署名稱> ./helm/librechat`
+</details>
+
+與其他 Helm Chart 類似，專案提供了一個 [values 檔案](https://github.com/danny-avila/LibreChat/blob/main/helm/librechat/values.yaml)，列出了預設設定並標明哪些配置選項可以被修改。
+
+建立一個 `values.yaml` 檔案，並填入您想從預設值修改的內容。
+
+安裝 Helm Chart：`helm install librechat oci://ghcr.io/danny-avila/librechat-chart/librechat --values <values-覆寫檔案>`
+
+## 卸載 Helm Chart
+
+若要卸載 Helm Chart，請執行：`helm uninstall <部署名稱>`
+
+範例：`helm uninstall librechat`
+
+## 遷移 1.x -> 2.x
+如果您在 2.x 版本前就已使用此 Chart，可能需要更新 `value` 結構。
+
+1. 將 Config 移至 `librechat.configEnv`：
+```diff
+- env:
+-     ALLOW_EMAIL_LOGIN: "true"
+-     ALLOW_REGISTRATION: "true"
++ librechat:
++   configEnv:
++     ALLOW_REGISTRATION: "true"
++     ALLOW_EMAIL_LOGIN: "true"
+```
+
+2. 將所有 Secret 數值整合至單一 Secret 中，如 [配置步驟 1](#配置) 所述。
+3. 若要利用外部 MongoDB 實例，請參考 Chart 的 [values 檔案](https://github.com/danny-avila/LibreChat/blob/main/helm/librechat/values.yaml)，相應地停用內建組件並更改 MongoDB 實例的 FQDN。若該外部管理的 MongoDB 實例中已存在數據，推薦採用此方式。
+  
+## 社群 Helm Chart
+- [Blue Atlas 維護的 LibreChat Helm Chart](https://github.com/bat-bs/helm-charts/tree/main/charts/librechat) # 即將棄用，因其已遷移至此。
+- 由 GitHub 使用者 [@dimaby](https://github.com/dimaby) 提交：[PR #2879](https://github.com/danny-avila/LibreChat/pull/2879)

@@ -1,0 +1,123 @@
+---
+date: 2026-01-07
+title: 🚀 LibreChat v0.8.2-rc2
+description: LibreChat 的 v0.8.2-rc2 版本發布
+version: "0.8.2-rc2"
+---
+
+## 更新內容
+
+### ✨ 新功能
+
+* 💾 為 CI 單元測試新增記憶體配置選項，由 [@chrisdoyle](https://github.com/chrisdoyle) 於 [#10567](https://github.com/danny-avila/LibreChat/pull/10567) 提交
+* 🍌 新增 Gemini 圖片產生工具 (Nano Banana)，由 [@usnavy13](https://github.com/usnavy13) 於 [#10676](https://github.com/danny-avila/LibreChat/pull/10676) 提交
+* 🤖 支援 Anthropic Vertex AI，由 [@usnavy13](https://github.com/usnavy13) 於 [#10780](https://github.com/danny-avila/LibreChat/pull/10780) 提交
+* 🪧 模型規範 (Model Specs) 支援自定義群組圖標，由 [@Odrec](https://github.com/Odrec) 於 [#10782](https://github.com/danny-avila/LibreChat/pull/10782) 提交
+* 🌊 實作具備水平擴充能力的 LLM 可恢復串流，由 [@danny-avila](https://github.com/danny-avila) 於 [#10926](https://github.com/danny-avila/LibreChat/pull/10926) 提交
+* 🏃 下拉選單中按下 Escape 鍵時維持對話框開啟，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#10975](https://github.com/danny-avila/LibreChat/pull/10975) 提交
+* ⛓️‍💥 提升登入頁面連結的無障礙性，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#10997](https://github.com/danny-avila/LibreChat/pull/10997) 提交
+* 🔒 為遠端傳輸新增 MCP 伺服器網域限制，由 [@atefbellaaj-at-slalom](https://github.com/atefbellaaj-at-slalom) 於 [#11013](https://github.com/danny-avila/LibreChat/pull/11013) 提交
+* ⚡ 為 MCPServersRegistry 加入 Keyv 記憶體快取預讀機制，由 [@atefbellaaj-at-slalom](https://github.com/atefbellaaj-at-slalom) 於 [#11030](https://github.com/danny-avila/LibreChat/pull/11030) 提交
+* 🥂 實作高對比度 Toast 通知，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11035](https://github.com/danny-avila/LibreChat/pull/11035) 提交
+* 🎞️ 支援 OpenRouter 音訊/影片檔案上傳，由 [@papasaidfine](https://github.com/papasaidfine) 於 [#11070](https://github.com/danny-avila/LibreChat/pull/11070) 提交
+* 🏞️ 新增可修改的 OpenAI 圖片產生模型環境變數，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11082](https://github.com/danny-avila/LibreChat/pull/11082) 提交
+* 🪙 更新 GPT-5.1 與 GPT-5.2 的代幣定價，由 [@danny-avila](https://github.com/danny-avila) 於 [#11101](https://github.com/danny-avila/LibreChat/pull/11101) 提交
+* 🛜 離線模式下仍可啟用網路請求，由 [@danny-avila](https://github.com/danny-avila) 於 [#11107](https://github.com/danny-avila/LibreChat/pull/11107) 提交
+* 📊 支援行內渲染 Mermaid 圖表，由 [@danny-avila](https://github.com/danny-avila) 於 [#11112](https://github.com/danny-avila/LibreChat/pull/11112) 提交
+* 📋 為程式碼區塊新增浮動複製按鈕，由 [@danny-avila](https://github.com/danny-avila) 於 [#11113](https://github.com/danny-avila/LibreChat/pull/11113) 提交
+* 🪟 將聊天標頭設定為透明效果，由 [@lemonTree43](https://github.com/lemonTree43) 於 [#11122](https://github.com/danny-avila/LibreChat/pull/11122) 提交
+* ✨ 新增支援思考過程的 Claude 對話匯入器，由 [@RisingOrange](https://github.com/RisingOrange) 於 [#11124](https://github.com/danny-avila/LibreChat/pull/11124) 提交
+* 🚧 新增 Bedrock 護欄 (Guardrails) 支援，由 [@nealedj](https://github.com/nealedj) 於 [#11141](https://github.com/danny-avila/LibreChat/pull/11141) 提交
+* 📊 優化行內 Mermaid 的互動體驗，由 [@lemonTree43](https://github.com/lemonTree43) 於 [#11170](https://github.com/danny-avila/LibreChat/pull/11170) 提交
+* 🧠 新增 OpenAI 「極高 (Extra High)」推理投入度參數支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#11171](https://github.com/danny-avila/LibreChat/pull/11171) 提交
+* 🧩 標準化空白狀態、提升 MCP 圖標上傳無障礙性並精煉 UI 佈局，由 [@berry-13](https://github.com/berry-13) 於 [#11195](https://github.com/danny-avila/LibreChat/pull/11195) 提交
+* 💾 記憶 LLM 配置支援自定義終端，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11214](https://github.com/danny-avila/LibreChat/pull/11214) 提交
+* 🪐 針對 Redis 模式在 `GenerationJobManager` 中實作跨實例支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#11233](https://github.com/danny-avila/LibreChat/pull/11233) 提交
+
+### 🐛 修復
+
+* 📂 擴展開發者代碼檔案的 MIME 類型支援 (#10908)，由 [@Gerald-M](https://github.com/Gerald-M) 於 [#10908](https://github.com/danny-avila/LibreChat/pull/10908) 提交
+* 🚧 修正 #10952 與 #11008 導致的對話框工具提示與下拉選單問題 (#10975)，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#10975](https://github.com/danny-avila/LibreChat/pull/10975) 提交
+* 🪵 透過環境感知解析標準化日誌目錄 (#11000)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11000](https://github.com/danny-avila/LibreChat/pull/11000) 提交
+* 🔄 解決切換 OpenID 供應商/資料庫時的無限重新整理迴圈問題 (#11002)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11002](https://github.com/danny-avila/LibreChat/pull/11002) 提交
+* 💬 提升 `OriginalDialog` 的 Z-index 以修正面層順序問題 (#11008)，由 [@alessiopelliccione](https://github.com/alessiopelliccione) 於 [#11008](https://github.com/danny-avila/LibreChat/pull/11008) 提交
+* 👁️ 「我的檔案」對話框關閉後恢復焦點 (#11032)，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11032](https://github.com/danny-avila/LibreChat/pull/11032) 提交
+* 🖲️ 將建立與編輯提示詞的按鈕改為連結形式 (#11056)，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11056](https://github.com/danny-avila/LibreChat/pull/11056) 提交
+* ♻️ MCP OAuth 重新導向改用 DOMAIN_CLIENT 變數 (#11057)，由 [@SpectralOne](https://github.com/SpectralOne) 於 [#11057](https://github.com/danny-avila/LibreChat/pull/11057) 提交
+* 🎫 為相容 FastMCP 2.14+ 優化 OAuth 權杖終端驗證方法處理 (#11067)，由 [@owengo](https://github.com/owengo) 於 [#11067](https://github.com/danny-avila/LibreChat/pull/11067) 提交
+* 🧈 讓控制面板分頁展開動畫更流暢 (#11077)，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11077](https://github.com/danny-avila/LibreChat/pull/11077) 提交
+* 📤 為 Azure 與智慧體終端顯示正確的上傳選項 (#11081)，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11081](https://github.com/danny-avila/LibreChat/pull/11081) 提交
+* 🔗 共享連結現已遵循自定義基礎路徑 (#11087)，由 [@Nk-rodrigues](https://github.com/Nk-rodrigues) 於 [#11087](https://github.com/danny-avila/LibreChat/pull/11087) 提交
+* ✍️ 為對話標題更新加入驗證機制 (#11099)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11099](https://github.com/danny-avila/LibreChat/pull/11099) 提交
+* 🐛 修正 ChatGPT 匯入時產生零碎對話樹的問題 (#11123)，由 [@RisingOrange](https://github.com/RisingOrange) 於 [#11123](https://github.com/danny-avila/LibreChat/pull/11123) 提交
+* 🧜‍♀️ Mermaid 對話框 UI 優化 (#11125)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11125](https://github.com/danny-avila/LibreChat/pull/11125) 提交
+* 🧠 修正 #11142 導致的訊息視圖高度問題，並優化思考內容與代碼區塊 UX (#11142)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11142](https://github.com/danny-avila/LibreChat/pull/11142) 提交
+* 🔒 強化 Actions 的 SSRF 防護機制 (#11143)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11143](https://github.com/danny-avila/LibreChat/pull/11143) 提交
+* 🔧 實作智慧體檔案上傳權限檢查 (#11144)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11144](https://github.com/danny-avila/LibreChat/pull/11144) 提交
+* 🔒 針對智慧體權限查詢實作存取控制 (#11145)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11145](https://github.com/danny-avila/LibreChat/pull/11145) 提交
+* 🎨 為頁首按鈕使用呈現用背景色 (#11147)，由 [@lemonTree43](https://github.com/lemonTree43) 於 [#11147](https://github.com/danny-avila/LibreChat/pull/11147) 提交
+* 🔧 修正 meilisearch 同步中不正確的計數查詢 (#11157)，由 [@ablizorukov](https://github.com/ablizorukov) 於 [#11157](https://github.com/danny-avila/LibreChat/pull/11157) 提交
+* 🧰 在未配置伺服器的情況下仍允許基於 UI 的 MCP 管理 (#11158)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11158](https://github.com/danny-avila/LibreChat/pull/11158) 提交
+* 🪜 解決面層衝突並進行 UX 拋光 (#11177)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11177](https://github.com/danny-avila/LibreChat/pull/11177) 提交
+* 🏺 透過專屬終端恢復封存功能 (#11183)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11183](https://github.com/danny-avila/LibreChat/pull/11183) 提交
+* 🔒 限制透過 API 進行 MCP Stdio 傳輸 (#11184)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11184](https://github.com/danny-avila/LibreChat/pull/11184) 提交
+* 🐋 修正 `Dockerfile.multi` 中 `client build` 階段未套用 NODE_MAX_OLD_SPACE_SIZE 參數的問題 (#11200)，由 [@shtayeb](https://github.com/shtayeb) 於 [#11200](https://github.com/danny-avila/LibreChat/pull/11200) 提交
+* 📎 允許具備智慧體檢視權限的使用者附加訊息附件 (#11210)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11210](https://github.com/danny-avila/LibreChat/pull/11210) 提交
+* 🧵 從 Gemini API 負載中移除空字串值 (#11213)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11213](https://github.com/danny-avila/LibreChat/pull/11213) 提交
+* 🎯 處理 Actions 允許網域邏輯 (#11215)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11215](https://github.com/danny-avila/LibreChat/pull/11215) 提交
+* 🏞️ 重構圖片預覽功能並強化無障礙性 (#11217)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11217](https://github.com/danny-avila/LibreChat/pull/11217) 提交
+* 🌙 提升智慧體構建器中 MCP 工具移除按鈕的文字對比度 (#11223)，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#11223](https://github.com/danny-avila/LibreChat/pull/11223) 提交
+* 🔥 為 Nano Banana 工具提供 Firebase 支援 (#11228)，由 [@lurkerCha](https://github.com/lurkerCha) 於 [#11228](https://github.com/danny-avila/LibreChat/pull/11228) 提交
+* 🔒 強化 MCP 伺服器配置中的 SSRF 防護與網域處理 (#11234)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11234](https://github.com/danny-avila/LibreChat/pull/11234) 提交
+* 🔧 修正對話的排序與分頁邏輯 (#11242)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11242](https://github.com/danny-avila/LibreChat/pull/11242) 提交
+* 🔧 清理智慧體/OpenAI 的 `model_parameters` 中的空字串 (#11248)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11248](https://github.com/danny-avila/LibreChat/pull/11248) 提交
+
+### 📦 依賴與雜項
+
+* 📦 升級 `@librechat/agents` 至 v3.0.52 (#11003)，由 [@danny-avila](https://github.com/danny-avila) 提交
+* 📦 升級 MCP SDK 至 v1.25.1 並修正 `packages/api` 的幽靈依賴問題 (#11128)，由 [@danny-avila](https://github.com/danny-avila) 提交
+* 🐋 在預設 Docker 檔案中固定 MongoDB 映像版本 (#11151)，由 [@danny-avila](https://github.com/danny-avila) 提交
+* 📦 升級多項套件並修正 `@librechat/api` 建置中的遞迴問題 (#11166)，由 [@danny-avila](https://github.com/danny-avila) 提交
+* 📦 升級 MCP SDK 至 v1.25.2 (#11247)，由 [@danny-avila](https://github.com/danny-avila) 提交
+
+### 🔧 重構
+
+* ⏳ 從 Meilisearch 索引中排除暫時對話與訊息 (#10872)，由 [@dlew](https://github.com/dlew) 於 [#10872](https://github.com/danny-avila/LibreChat/pull/10872) 提交
+* 🧰 為快取工具設定預設 TTL (#11033)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11033](https://github.com/danny-avila/LibreChat/pull/11033) 提交
+* ⏸ 提升並行串流（多重對話）的 UX 體驗 (#11096)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11096](https://github.com/danny-avila/LibreChat/pull/11096) 提交
+* 🧮 使用安全的數學表達式解析器取代 Eval (#11098)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11098](https://github.com/danny-avila/LibreChat/pull/11098) 提交
+* 🪄 UI 拋光與管理對話框統一化 (#11108)，由 [@berry-13](https://github.com/berry-13) 於 [#11108](https://github.com/danny-avila/LibreChat/pull/11108) 提交
+* 🔌 優化 MCP UI 無障礙性並提供可重用組件 (#11118)，由 [@berry-13](https://github.com/berry-13) 於 [#11118](https://github.com/danny-avila/LibreChat/pull/11118) 提交
+* 📡 優化 SSE 連線設定與錯誤處理 (#11129)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11129](https://github.com/danny-avila/LibreChat/pull/11129) 提交
+* 🔊 優化 STT 的音訊塊處理 (#11140)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11140](https://github.com/danny-avila/LibreChat/pull/11140) 提交
+* 🔧 優化並行回應中的名稱顯示邏輯 (#11149)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11149](https://github.com/danny-avila/LibreChat/pull/11149) 提交
+* 🔧 Meili 索引重置時支援批次處理文件 (#11165)，由 [@ablizorukov](https://github.com/ablizorukov) 於 [#11165](https://github.com/danny-avila/LibreChat/pull/11165) 提交
+* 🚦 為可恢復串流實作並行請求限制器 (#11167)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11167](https://github.com/danny-avila/LibreChat/pull/11167) 提交
+* 🫱🏼‍🫲🏽 優化智慧體轉接 (Handoffs) 功能 (#11172)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11172](https://github.com/danny-avila/LibreChat/pull/11172) 提交
+* 🔀 多重對話（並行）訊息支援條件式映射 (#11180)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11180](https://github.com/danny-avila/LibreChat/pull/11180) 提交
+* 🧜 優化 Mermaid 圖表的焦點渲染 (#11181)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11181](https://github.com/danny-avila/LibreChat/pull/11181) 提交
+* 🍪 將 OpenID 權杖從 Cookie 遷移至伺服器端工作階段 (#11236)，由 [@danny-avila](https://github.com/danny-avila) 於 [#11236](https://github.com/danny-avila/LibreChat/pull/11236) 提交
+
+### 🎨 UI/UX
+
+* 🧠 展開思考過程頁尾、橫幅連結及思考內容複製無障礙優化 (#11142)，由 [@berry-13](https://github.com/berry-13) 提交
+
+### 🌍 國際化 (i18n)
+
+* 🌍 i18n: 使用最新翻譯更新 `translation.json` (#10995)，由 [@github-actions[bot]](https://github.com/apps/github-actions) 提交
+
+## 新貢獻者
+
+* [@Gerald-M](https://github.com/Gerald-M) 於 [#10908](https://github.com/danny-avila/LibreChat/pull/10908) 提交了其首份貢獻
+* [@Nk-rodrigues](https://github.com/Nk-rodrigues) 於 [#11087](https://github.com/danny-avila/LibreChat/pull/11087) 提交了其首份貢獻
+* [@RisingOrange](https://github.com/RisingOrange) 於 [#11123](https://github.com/danny-avila/LibreChat/pull/11123) 提交了其首份貢獻
+* [@SpectralOne](https://github.com/SpectralOne) 於 [#11057](https://github.com/danny-avila/LibreChat/pull/11057) 提交了其首份貢獻
+* [@ablizorukov](https://github.com/ablizorukov) 於 [#11157](https://github.com/danny-avila/LibreChat/pull/11157) 提交了其首份貢獻
+* [@alessiopelliccione](https://github.com/alessiopelliccione) 於 [#11008](https://github.com/danny-avila/LibreChat/pull/11008) 提交了其首份貢獻
+* [@chrisdoyle](https://github.com/chrisdoyle) 於 [#10567](https://github.com/danny-avila/LibreChat/pull/10567) 提交了其首份貢獻
+* [@lurkerCha](https://github.com/lurkerCha) 於 [#11228](https://github.com/danny-avila/LibreChat/pull/11228) 提交了其首份貢獻
+* [@nealedj](https://github.com/nealedj) 於 [#11141](https://github.com/danny-avila/LibreChat/pull/11141) 提交了其首份貢獻
+* [@papasaidfine](https://github.com/papasaidfine) 於 [#11070](https://github.com/danny-avila/LibreChat/pull/11070) 提交了其首份貢獻
+* [@shtayeb](https://github.com/shtayeb) 於 [#11200](https://github.com/danny-avila/LibreChat/pull/11200) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.8.2-rc1...v0.8.2-rc2
