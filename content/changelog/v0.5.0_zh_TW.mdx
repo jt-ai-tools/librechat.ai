@@ -1,0 +1,70 @@
+---
+date: 2023-06-10
+title: 🚀 LibreChat v0.5.0
+description: 透過 LangChain 🦜️ 引入外掛程式 (Plugins)
+ogImage: /images/changelog/v0.5.0.png
+version: "0.5.0"
+---
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.4.8...v0.5.0
+
+#### 本次發布的關鍵貢獻者：[@danny-avila](https://github.com/danny-avila) [@fuegovic](https://github.com/fuegovic) [@danorlando](https://github.com/danorlando) [@ClaraLeigh](https://github.com/ClaraLeigh) [@dncc89](https://github.com/dncc89)
+
+---
+
+**全新外掛程式 (Plugins) 終端** 開啟了除了傳統輸入/輸出提示外，與 LLM 互動的新方式。
+
+首要步驟是使用思維鏈 (chain-of-thought) 提示，以模仿官方 ChatGPT 外掛程式功能的方式來使用外掛程式/工具。
+
+**除此之外，您還可以使用此終端在對話中途變更對話設定。** 不同於官方 ChatGPT 網站與所有其他終端，您可以在對話中途切換模型、預設設定與參數，即使未選取任何外掛程式亦可。如果您希望先獲得來自 GPT-4 的創意回應，接著再獲得來自 GPT-3 的確定性、低成本回應，這項功能將非常有用。
+
+很快地，您將能以同樣的模組化方式在此終端中使用本地 LLM、PaLM2 與 HuggingFace 模型。
+
+---
+
+## 即時開發藍圖 (Immediate Roadmap)
+
+- **向量索引與記憶 —— 文件對話 (Chat with Documents)**
+  - 啟動開發
+- **利用最新 Python 特色/工具（包含 Langchain 等）的 Python API**
+  - 已在進行中：https://github.com/danny-avila/ai-services
+- **OpenAPI 支援 (ChatGPT 外掛程式)**
+  - 已在進行中，正測試可行方案
+- **本地 LLM 支援**
+  - 處於規劃階段，已初步擬定方案
+- **HuggingFace 模型支援**
+  - 處於規劃階段，已初步擬定方案
+- **Code-Bison 相容性**
+  - 處於規劃階段，已初步擬定方案
+- **更多測試與 CI/CD 流程**
+  - 已在進行中，此更新已加入涵蓋全棧的多個測試套件
+
+ℹ️ 如果您想對上述項目或以任何其他身份提供貢獻，我們很快就會將這些任務加入 GitHub Projects 分頁。也歡迎加入我們的 [Discord](https://discord.gg/CEe6vDg9Ky) 參與開發者討論。
+
+**備註：** 您現在可以透過省略此環境變數或將其設為 false 來關閉註冊功能：
+
+```sh
+ALLOW_REGISTRATION=true
+```
+
+## ⚠️ **重大變更 (Breaking Changes)** ⚠️
+
+備註：這些變更僅適用於從舊版本升級的使用者。
+
+- 我們簡化了配置流程，現在改用根目錄下的單一 `.env` 檔案，而非原本分開的 `/api/.env` 與 `/client/.env` 檔案。
+- 如果您先前已安裝過舊版本，可以執行 `npm run upgrade` 自動將兩個檔案的內容複製到新的 `.env` 檔案中，並在根目錄備份舊檔案。
+- 如果您是第一次安裝此專案，建議執行安裝腳本 `npm run install` 來引導本地設定（否則請繼續使用 Docker）。
+- Docker Compose 檔案有一些變動。請檢閱新的 Docker 說明以確保設定正確。這仍是最簡單且最有效的方法。
+- 升級腳本需要同時具備 `/api/.env` 與 `/client/.env` 檔案才能正常執行。如果您收到缺少客戶端環境變數檔案的錯誤，只需將 `/client/.env.example` 重新命名為 `/client/.env` 並再次執行腳本即可。
+- 我們將 `OPENAI_KEY` 變數重新命名為 `OPENAI_API_KEY` 以符合官方文檔。升級腳本應會自動為您處理，但請再次檢查新 `.env` 檔案中的金鑰是否正確。
+- 執行升級腳本後，`OPENAI_API_KEY` 變數在新 `.env` 檔案中的位置可能與先前不同。這不會影響應用程式的功能，但如果您想保持整潔，可以將其移至習慣的位置。
+
+##
+
+- 為了增強安全性，我們現在要求在 `.env` 檔案中設定加密金鑰，以便安全地儲存憑證。加密金鑰用於加密與解密敏感數據，如密碼與存取金鑰。若未設定，應用程式將在啟動時崩潰。
+- 您需要在 `.env` 檔案中填寫下列變數，數值為 32 位元組（64 個十六進位字元）或 16 位元組（32 個十六進位字元）：
+  - `CREDS_KEY` (32 位元組)
+  - `CREDS_IV` (16 位元組)
+  - `JWT_SECRET` (32 位元組，選填但建議設定)
+- 您可以使用此 Replit 快速產生加密金鑰：https://replit.com/@daavila/crypto#index.js
+- 請務必妥善保管您的加密金鑰，切勿與他人分享。

@@ -1,0 +1,46 @@
+---
+date: 2024-02-16
+title: 🚀 LibreChat v0.6.10
+description: 字體更新，以及更多...
+version: "0.6.10"
+---
+
+## ⚠️ 重要更新
+
+各位 LibreChat 社群成員好：
+
+我寫這封信是為了分享關於我們專案的一個關鍵更新。今天我進行了授權審查，以確保專案符合規範。除了以下這點外，一切都很順利。我得知 LibreChat 中使用的 Söhne 字體需要適當的授權才能合法使用。這些字體是專案早期由社群貢獻加入的，目的是為了在美學上與 ChatGPT 保持一致，但在未充分瞭解的情況下允許使用它們是我的疏忽。
+
+**我已採取的行動：** 我已從專案中移除 Söhne 字體，並以開源字體取代。此變更已在 GitHub 儲存庫的最新版本中立即生效。我已隨即聯繫相關字體公司，討論在 LibreChat 的情況下最適合購買哪種授權，並尋求解決方案。
+
+**您需要配合的行動：** 對於任何使用或分叉 (fork) 過 LibreChat 的人，請更新至最新版本以符合字體授權法。如果您偏好繼續使用 Söhne 字體，您需要自行取得授權。關於購買後如何整合授權字體的說明可以在[此處](https://gist.github.com/danny-avila/e1d623e51b24cf0989865197bb788102)找到。
+
+待收到字體公司進一步的回覆與說明後，我會再次發布更新。
+
+**後續步驟：** 我相信我們可以繼續前進，我也願意在需要時協助任何人處理此情況。我很高興我審查了目前的依賴項狀態，並承諾確保 LibreChat 保持合規、無障礙並持續改進。需要說明的是，字體公司並未聯繫我，我是在審查中主動發現此問題並正尋求糾正。
+
+為了匹配 OpenAI ChatGPT 樣式所做的努力初衷是好的，但執行欠佳；往後我將確保專案的所有面向都符合法律與許可標準。
+
+這是一個令人尷尬的處境，但我相信這樣做是正確的。感謝您的理解與配合完成這些必要的調整。如需關於這些變更的更新或指引，歡迎隨時聯繫。
+
+感謝您對 LibreChat 的支持。
+
+- [@danny-avila](https://github.com/danny-avila)
+
+## 自 v0.6.9 以來的其他變動
+
+- chore: 更新 Docker 建置與推送動作，由 [@danny-avila](https://github.com/danny-avila) 於 [#1790](https://github.com/danny-avila/LibreChat/pull/1790) 提交
+- chore: 為 CI/CD Docker 建置新增 `latest` 標籤，由 [@danny-avila](https://github.com/danny-avila) 於 [#1791](https://github.com/danny-avila/LibreChat/pull/1791) 提交
+- feat: 支援 Assistants API、通用檔案支援、側邊面板、檔案總覽功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#1696](https://github.com/danny-avila/LibreChat/pull/1696) 提交
+- fix(data-provider): 新增 openapi-types 依賴，由 [@danny-avila](https://github.com/danny-avila) 於 [#1797](https://github.com/danny-avila/LibreChat/pull/1797) 提交
+- docs(assistants): 增加額外的設定與工具選取資訊，由 [@danny-avila](https://github.com/danny-avila) 於 [#1798](https://github.com/danny-avila/LibreChat/pull/1798) 提交
+- docs: 強化 LibreChat Docker 部署指南，由 [@CXwudi](https://github.com/CXwudi) 於 [#1796](https://github.com/danny-avila/LibreChat/pull/1796) 提交
+- fix(Convo): 優化重新命名標題的 UX，由 [@walbercardoso](https://github.com/walbercardoso) 於 [#1793](https://github.com/danny-avila/LibreChat/pull/1793) 提交
+- chore: 改進助手的執行日誌紀錄，由 [@danny-avila](https://github.com/danny-avila) 於 [#1801](https://github.com/danny-avila/LibreChat/pull/1801) 提交
+- fix: 恢復預設的社群登入數值，由 [@danny-avila](https://github.com/danny-avila) 於 [#1811](https://github.com/danny-avila/LibreChat/pull/1811) 提交
+
+## 新貢獻者
+
+- [@CXwudi](https://github.com/CXwudi) 於 [#1796](https://github.com/danny-avila/LibreChat/pull/1796) 提交了其首份貢獻
+
+**完整變更紀錄**: [https://github.com/danny-avila/LibreChat/compare/v0.6.9...v0.6.10](https://github.com/danny-avila/LibreChat/compare/v0.6.9...v0.6.10)

@@ -1,0 +1,76 @@
+---
+date: 2025-08-04
+title: 🚀 LibreChat v0.8.0-rc1
+description: LibreChat 的 v0.8.0-rc1 版本發布
+version: "0.8.0-rc1"
+---
+
+## 更新內容
+
+### ✨ 新功能
+
+* ✨ feat: 新增 `REDIS_PING_INTERVAL` 配置以控制 Redis ping 行為，由 [@nhtruong](https://github.com/nhtruong) 於 [#8648](https://github.com/danny-avila/LibreChat/pull/8648) 提交
+* 📦 feat: 將共用組件遷移至 `@librechat/client`，由 [@danny-avila](https://github.com/danny-avila) 於 [#8685](https://github.com/danny-avila/LibreChat/pull/8685) 提交
+* 📻 feat: 新增單選框 (Radio) 組件，由 [@berry-13](https://github.com/berry-13) 於 [#8692](https://github.com/danny-avila/LibreChat/pull/8692) 提交
+* 🪟 feat: 為 `amazon.nova-premier` 模型設定上下文窗口，由 [@ryanh-ai](https://github.com/ryanh-ai) 於 [#8689](https://github.com/danny-avila/LibreChat/pull/8689) 提交
+* 🏹 feat: 支援併行 MCP 初始化，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8677](https://github.com/danny-avila/LibreChat/pull/8677) 提交
+* ✨ feat: 強化 Redis 配置與錯誤處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#8709](https://github.com/danny-avila/LibreChat/pull/8709) 提交
+* ✨ feat: 「args」 欄位支援 `customUserVar` 變數替換，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8743](https://github.com/danny-avila/LibreChat/pull/8743) 提交
+* 🔒 feat: MCP OAuth 支援元資料參數配置，由 [@wartek69](https://github.com/wartek69) 於 [#8691](https://github.com/danny-avila/LibreChat/pull/8691) 提交
+* 🛠️ feat: 新增用於 MongoDB 標記的 `reset-meili-sync` 腳本，由 [@danny-avila](https://github.com/danny-avila) 於 [#8823](https://github.com/danny-avila/LibreChat/pull/8823) 提交
+* 🧹 feat: 實作 Mistral OCR 上傳檔案的自動清理，由 [@danny-avila](https://github.com/danny-avila) 於 [#8827](https://github.com/danny-avila/LibreChat/pull/8827) 提交
+* 🖌️ feat: 為彈出視窗 (Popovers) 與工具提示 (Tooltips) 加入動畫樣式，由 [@berry-13](https://github.com/berry-13) 於 [#8831](https://github.com/danny-avila/LibreChat/pull/8831) 提交
+* ✨ feat: 新增 OpenID Audience 參數支援，由 [@SollalF](https://github.com/SollalF) 於 [#8837](https://github.com/danny-avila/LibreChat/pull/8837) 提交
+
+### ⚙️ 其他變動
+
+* 🔄 refactor: 優化預設補全標題提示詞與標題模型選取邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#8646](https://github.com/danny-avila/LibreChat/pull/8646) 提交
+* 📱 refactor: 改進 Redis 客戶端錯誤紀錄，且僅在準備就緒時才發送 ping，由 [@danny-avila](https://github.com/danny-avila) 於 [#8671](https://github.com/danny-avila/LibreChat/pull/8671) 提交
+* 🗂️ refactor: 讓 `MCPSubMenu` 與 `MCPSelect` 保持一致，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8650](https://github.com/danny-avila/LibreChat/pull/8650) 提交
+* 🪵 refactor: 為日誌紀錄器實作動態 `getLogDirectory` 工具，由 [@danny-avila](https://github.com/danny-avila) 於 [#8686](https://github.com/danny-avila/LibreChat/pull/8686) 提交
+* 🧗 refactor: 使用更輕量的遍歷邏輯取代 `traverse` 套件進行日誌處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#8687](https://github.com/danny-avila/LibreChat/pull/8687) 提交
+* 🔑 refactor: 優化具備 OAuth 伺服器的 MCP 設定渲染邏輯，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8718](https://github.com/danny-avila/LibreChat/pull/8718) 提交
+* 🛂 refactor: MCP OAuth 改用 `discoverAuthorizationServerMetadata` 方法，由 [@jhrozek](https://github.com/jhrozek) 於 [#8723](https://github.com/danny-avila/LibreChat/pull/8723) 提交
+* 🔨 style: 優化 MCP UI，由 [@berry-13](https://github.com/berry-13) 於 [#8745](https://github.com/danny-avila/LibreChat/pull/8745) 提交
+
+### 🐛 臭蟲修復
+
+* 🐛 fix: 修正 MCP 名稱正規化導致使用者提供變數失效的問題，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8644](https://github.com/danny-avila/LibreChat/pull/8644) 提交
+* 🐛 fix: 根據聊天選單設定正確顯示 OAuth MCP 伺服器，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8643](https://github.com/danny-avila/LibreChat/pull/8643) 提交
+* 🐛 fix: 修正暫時對話在側邊欄仍可見的問題，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8688](https://github.com/danny-avila/LibreChat/pull/8688) 提交
+* 🐜 fix: 修正 `MCPSubMenu` 與 `ArtifactsSubMenu` 的 Ref 轉發問題，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8696](https://github.com/danny-avila/LibreChat/pull/8696) 提交
+* 🔧 fix: 更新 OpenAI 圖片工具的代理配置，由 [@danny-avila](https://github.com/danny-avila) 於 [#8712](https://github.com/danny-avila/LibreChat/pull/8712) 提交
+* 🔀 fix: 解決遷移至共用套件後的重新渲染邊緣案例，由 [@danny-avila](https://github.com/danny-avila) 於 [#8713](https://github.com/danny-avila/LibreChat/pull/8713) 提交
+* ⚒️ fix: 修復 MCP 初始化流程，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8734](https://github.com/danny-avila/LibreChat/pull/8734) 提交
+* 🔑 fix: 修正對話變動 (mutation) 使用 Payload 中的 ID，由 [@berry-13](https://github.com/berry-13) 於 [#8758](https://github.com/danny-avila/LibreChat/pull/8758) 提交
+* 🐦 fix: 優先採用 OIDC 使用者名稱聲明，防止出現以名字作為使用者名稱的情況，由 [@plasticlobster](https://github.com/plasticlobster) 於 [#8695](https://github.com/danny-avila/LibreChat/pull/8695) 提交
+* ✂️ fix: 記憶處理過程中移除圖片負載內容，由 [@danny-avila](https://github.com/danny-avila) 於 [#8770](https://github.com/danny-avila/LibreChat/pull/8770) 提交
+* 🔧 fix: 對話匯入的檔案名稱過濾應於匯出時套用，而非輸入時，由 [@azamara](https://github.com/azamara) 於 [#8779](https://github.com/danny-avila/LibreChat/pull/8779) 提交
+* 🔧 fix: 更新 Assistants API SDK 呼叫以匹配最新參數，由 [@danny-avila](https://github.com/danny-avila) 於 [#8818](https://github.com/danny-avila/LibreChat/pull/8818) 提交
+
+### 📦 依賴與雜項
+
+* 🚇 chore: 移除覆寫的傳輸錯誤監聽器，由 [@sbruel](https://github.com/sbruel) 於 [#8656](https://github.com/danny-avila/LibreChat/pull/8656) 提交
+* 📦 chore: 升級 `mongodb-memory-server` 至 v10.1.4，由 [@danny-avila](https://github.com/danny-avila) 於 [#8669](https://github.com/danny-avila/LibreChat/pull/8669) 提交
+* 📦 chore: 升級 `@node-saml/passport-saml` 至 v5.1.0，由 [@danny-avila](https://github.com/danny-avila) 於 [#8670](https://github.com/danny-avila/LibreChat/pull/8670) 提交
+* 🗑️ chore: 移除更新日誌工作流，由 [@danny-avila](https://github.com/danny-avila) 於 [#8673](https://github.com/danny-avila/LibreChat/pull/8673) 提交
+* 📦 chore: 升級 `@modelcontextprotocol/sdk` 至 v1.17.0，由 [@danny-avila](https://github.com/danny-avila) 於 [#8674](https://github.com/danny-avila/LibreChat/pull/8674) 提交
+* 📦 chore: 升級 `@librechat/agents` 至 v2.4.69，由 [@danny-avila](https://github.com/danny-avila) 於 [#8769](https://github.com/danny-avila/LibreChat/pull/8769) 提交
+* 🧪 ci: 實作 MCP 路由的單元測試，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8803](https://github.com/danny-avila/LibreChat/pull/8803) 提交
+* 📦 chore: 升級 `@modelcontextprotocol/sdk` 至 v1.17.1，由 [@danny-avila](https://github.com/danny-avila) 於 [#8809](https://github.com/danny-avila/LibreChat/pull/8809) 提交
+
+### 🌍 國際化 (i18n)
+
+* 🌍 i18n: 更新在地化翻譯資訊，由多位貢獻者提交
+* 🌍 i18n: 新增藏語與烏克蘭語支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#8819](https://github.com/danny-avila/LibreChat/pull/8819) 提交
+
+## 新貢獻者
+
+* **[@ryanh-ai](https://github.com/ryanh-ai)** 於 [#8689](https://github.com/danny-avila/LibreChat/pull/8689) 提交了其首份貢獻
+* **[@jhrozek](https://github.com/jhrozek)** 於 [#8723](https://github.com/danny-avila/LibreChat/pull/8723) 提交了其首份貢獻
+* **[@plasticlobster](https://github.com/plasticlobster)** 於 [#8695](https://github.com/danny-avila/LibreChat/pull/8695) 提交了其首份貢獻
+* **[@wartek69](https://github.com/wartek69)** 於 [#8691](https://github.com/danny-avila/LibreChat/pull/8691) 提交了其首份貢獻
+* **[@azamara](https://github.com/azamara)** 於 [#8779](https://github.com/danny-avila/LibreChat/pull/8779) 提交了其首份貢獻
+* **[@SollalF](https://github.com/SollalF)** 於 [#8837](https://github.com/danny-avila/LibreChat/pull/8837) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.7.9...v0.8.0-rc1

@@ -1,0 +1,49 @@
+---
+date: 2023-07-14
+title: 🚀 LibreChat v0.5.4
+description: Anthropic、國際化 (i18n)...
+version: "0.5.4"
+---
+
+# 更新內容
+
+這是一個重大的功能更新，為專案引入了 Anthropic (Claude) 模型，該模型具備 100k 的上下文空間！
+
+## ✨ 功能
+
+- 整合 Anthropic API，由 [@danorlando](https://github.com/danorlando) 與 [@danny-avila](https://github.com/danny-avila) 於 [#552](https://github.com/danny-avila/LibreChat/pull/552) 提交。
+- 支援在 Anthropic、Google、OpenAI 的對話中途變更設定/預設設定，由 [@danny-avila](https://github.com/danny-avila) 於 [#636](https://github.com/danny-avila/LibreChat/pull/636) 提交。
+- 使用 Bing 產生 Bing 的對話標題，由 [@HyunggyuJang](https://github.com/HyunggyuJang) 於 [#612](https://github.com/danny-avila/LibreChat/pull/612) 提交。
+- 實作國際化 (i18n) 支援，由 [@NoahDragon](https://github.com/NoahDragon) 於 [#557](https://github.com/danny-avila/LibreChat/pull/557) 提交。
+- 整合 Discord 登入，由 [@Berry-13](https://github.com/Berry-13) 於 [#615](https://github.com/danny-avila/LibreChat/pull/615) 提交。
+- 新增停用社群登入的功能，若停用則顯示警告訊息（預設行為），由 [#615](https://github.com/danny-avila/LibreChat/pull/615) 與 [#635](https://github.com/danny-avila/LibreChat/pull/635) 提交。
+- Meilisearch：新增批次索引功能，由 [@HyunggyuJang](https://github.com/HyunggyuJang) 於 [#606](https://github.com/danny-avila/LibreChat/pull/606) 提交。
+
+## 🔧 臭蟲修復
+
+- 優化 Meilisearch 同步處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#600](https://github.com/danny-avila/LibreChat/pull/600) 提交。
+- 在瀏覽器外掛程式嵌入中使用使用者提供的 OpenAI 憑證，由 [@danny-avila](https://github.com/danny-avila) 於 [#603](https://github.com/danny-avila/LibreChat/pull/603) 提交。
+- 修正對話標題產生問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#637](https://github.com/danny-avila/LibreChat/pull/637) 提交。
+- 為 BingAI 顯示已審核訊息並修正 toneStyle UI 臭蟲，由 [@danny-avila](https://github.com/danny-avila) 於 [#644](https://github.com/danny-avila/LibreChat/pull/644) 提交。
+- 實作多項微小 UI 變動，由 [@techwithanirudh](https://github.com/techwithanirudh) 於 [#643](https://github.com/danny-avila/LibreChat/pull/643) 提交。
+
+## 📗 文檔
+
+- 更新 Docker 安裝與配置指南，由 [@ywkim](https://github.com/ywkim) 於 [#601](https://github.com/danny-avila/LibreChat/pull/601) 提交。
+- 更新 docker_install.md，使用新的容器 URL，由 [@danny-avila](https://github.com/danny-avila) 於 [#604](https://github.com/danny-avila/LibreChat/pull/604) 提交。
+- 更新文檔、修正部分 i18n 問題、新增義大利語翻譯，並建立更真實的 「chat.openai.com」 登入頁面，由 [@Berry-13](https://github.com/Berry-13) 於 [#634](https://github.com/danny-avila/LibreChat/pull/634) 提交。
+- 新增在 render.com 部署的說明，由 [@fuegovic](https://github.com/fuegovic) 於 [#638](https://github.com/danny-avila/LibreChat/pull/638) 提交。
+- 修正外掛程式文檔中的拼字錯誤，由 [@jhcao23](https://github.com/jhcao23) 於 [#607](https://github.com/danny-avila/LibreChat/pull/607) 提交。
+
+## ⚙️ 通用更新
+
+- 以 SVG 格式新增多個終端圖標，由 [@danny-avila](https://github.com/danny-avila) 於 [#600](https://github.com/danny-avila/LibreChat/pull/600) 提交。
+- 更新 Bing 聊天圖標，由 [@fuegovic](https://github.com/fuegovic) 於 [#627](https://github.com/danny-avila/LibreChat/pull/627) 提交。
+- 在後端審查工作流中加入 linter 步驟，由 [@danny-avila](https://github.com/danny-avila) 於 [#625](https://github.com/danny-avila/LibreChat/pull/625) 提交。
+
+## 新貢獻者
+
+- [@ywkim](https://github.com/ywkim) 於 [#601](https://github.com/danny-avila/LibreChat/pull/601) 提交了其首份貢獻
+- [@NoahDragon](https://github.com/NoahDragon) 於 [#557](https://github.com/danny-avila/LibreChat/pull/557) 提交了其首份貢獻
+
+**完整變更紀錄**: [https://github.com/danny-avila/LibreChat/compare/v0.5.3...v0.5.4](https://github.com/danny-avila/LibreChat/compare/v0.5.3...v0.5.4)

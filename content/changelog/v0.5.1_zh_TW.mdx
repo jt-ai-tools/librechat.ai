@@ -1,0 +1,51 @@
+---
+date: 2023-06-17
+title: 🚀 LibreChat v0.5.1
+description: OpenAI Functions、新模型、腳本...
+version: "0.5.1"
+---
+
+# 更新內容
+
+## **功能特色**：
+
+- 在外掛程式 (Plugins) 智慧體中新增使用 **OpenAI Functions** 的選項，由 [@danny-avila](https://github.com/danny-avila) 於 [#521](https://github.com/danny-avila/LibreChat/pull/521) 提交。
+- feat(OpenAI, PaLM)：新增對 **[新 OpenAI 模型](https://openai.com/blog/function-calling-and-other-api-updates)** 與 **codechat-bison** 的支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#516](https://github.com/danny-avila/LibreChat/pull/516) 提交。
+- 命令列功能：新增建立使用者與更多安裝選項，由 [@ClaraLeigh](https://github.com/ClaraLeigh) 於 [#487](https://github.com/danny-avila/LibreChat/pull/487) 提交。
+- Feat/啟動配置 API：以更可靠的方式處理前端環境變數，由 [@danorlando](https://github.com/danorlando) 於 [#518](https://github.com/danny-avila/LibreChat/pull/518) 提交。
+
+## **臭蟲修復**：
+
+- fix(logout.controller.js)：解構 logoutUser 函式，由 [@danny-avila](https://github.com/danny-avila) 於 [#482](https://github.com/danny-avila/LibreChat/pull/482) 提交。
+- fix(DALL-E.js)：在所有情況下均應僅使用 DALLE_API_KEY，由 [@danny-avila](https://github.com/danny-avila) 於 [#506](https://github.com/danny-avila/LibreChat/pull/506) 提交。
+- fix：準備腳本不再破壞本地安裝環境，由 [@danny-avila](https://github.com/danny-avila) 於 [#512](https://github.com/danny-avila/LibreChat/pull/512) 提交。
+- style(Input)：從輸入欄位中移除不必要的 z-index 類別，由 [@danny-avila](https://github.com/danny-avila) 於 [#522](https://github.com/danny-avila/LibreChat/pull/522) 提交。
+
+## **文檔更新**：
+
+- docs：修正過時的引用內容，由 [@fuegovic](https://github.com/fuegovic) 於 [#480](https://github.com/danny-avila/LibreChat/pull/480) 提交。
+- 文檔更新，由 [@fuegovic](https://github.com/fuegovic) 於 [#508](https://github.com/danny-avila/LibreChat/pull/508) 提交。
+- 建立 HetznerUbuntuSetup.md，由 [@heathriel](https://github.com/heathriel) 於 [#492](https://github.com/danny-avila/LibreChat/pull/492) 提交。
+- docs：多項修復與更新，由 [@fuegovic](https://github.com/fuegovic) 於 [#525](https://github.com/danny-avila/LibreChat/pull/525) 提交。
+
+## **測試與重構**：
+
+- test：前端 Jest CI/CD 以及發布後的微小修復，由 [@danny-avila](https://github.com/danny-avila) 於 [#478](https://github.com/danny-avila/LibreChat/pull/478) 提交。
+- refactor：將設定 (Settings)、一般分頁與 DialogTemplate 轉換為 TS，修正對話清除臭蟲並加入測試，由 [@danny-avila](https://github.com/danny-avila) 於 [#485](https://github.com/danny-avila/LibreChat/pull/485) 提交。
+- tests(api)：重構以模擬資料庫與網路操作，由 [@danny-avila](https://github.com/danny-avila) 於 [#494](https://github.com/danny-avila/LibreChat/pull/494) 提交。
+
+## **Docker 與開發環境**：
+
+- 修改準備腳本，使其不在 CI 模式下執行，並從工作流中移除 --ignore-scripts 旗標，由 [@danorlando](https://github.com/danorlando) 於 [#491](https://github.com/danny-avila/LibreChat/pull/491) 提交。
+- 更新 .dockerignore，由 [@thunderbug1](https://github.com/thunderbug1) 於 [#510](https://github.com/danny-avila/LibreChat/pull/510) 提交。
+- fix(nodemon)：現在將遵循 package 檔案中的 nodemonConfig，由 [@danny-avila](https://github.com/danny-avila) 於 [#514](https://github.com/danny-avila/LibreChat/pull/514) 提交。
+- 實作搭配 VS-Code devcontainers 的全 Docker 化開發環境，由 [@thunderbug1](https://github.com/thunderbug1) 於 [#524](https://github.com/danny-avila/LibreChat/pull/524) 提交。
+- 更新 stable_diffusion.md，由 [@thunderbug1](https://github.com/thunderbug1) 於 [#523](https://github.com/danny-avila/LibreChat/pull/523) 提交。
+- 更新 Docker，並修復微小樣式問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#528](https://github.com/danny-avila/LibreChat/pull/528) 提交。
+
+## **新貢獻者**：
+
+- [@thunderbug1](https://github.com/thunderbug1) 於 [#510](https://github.com/danny-avila/LibreChat/pull/510) 提交了其首份貢獻
+- [@heathriel](https://github.com/heathriel) 於 [#492](https://github.com/danny-avila/LibreChat/pull/492) 提交了其首份貢獻
+
+> **完整變更紀錄**: [https://github.com/danny-avila/LibreChat/compare/v0.5.0...v0.5.1](https://github.com/danny-avila/LibreChat/compare/v0.5.0...v0.5.1)

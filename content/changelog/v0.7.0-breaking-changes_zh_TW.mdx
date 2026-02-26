@@ -1,0 +1,135 @@
+---
+date: 2024-04-02
+title: ⚠️ 重大變更 v0.7.0+
+description: LibreChat v0.7.0+ 版本的重大變更
+version: "0.7.0-breaking-changes"
+---
+
+<Callout type="error" title="錯誤訊息 (UI)" emoji="⚠️">
+面向用戶端的錯誤訊息現在會顯示此警告，要求聯繫管理員。
+
+若要查看完整錯誤，請查閱主控台日誌或位於 `./logs` 的額外日誌。
+
+![image](https://github.com/danny-avila/LibreChat/assets/32828263/93c9ad18-c2cb-4862-9e76-546e84671411)
+
+</Callout>
+
+<Callout type="warning" title="日誌位置" emoji="🪵">
+  - 完整日誌現在位於 `./logs`（對於本地非 Docker 安裝，仍位於 `./api/logs`）。
+</Callout>
+
+<Callout type="warning" title="Google 搜尋外掛程式" emoji="🔍">
+  - **[Google 搜尋外掛程式]()**：此外掛程式的環境變數已由 `GOOGLE_API_KEY` 變更為 `GOOGLE_SEARCH_API_KEY`，這是因為與 Google Generative AI 函式庫自動獲取該變數的行為發生衝突。如果您正使用此外掛程式，請相應地更新您的 `.env` 檔案。
+</Callout>
+
+<Callout type="info" title="RAG API (檔案對話)" emoji="🗃️">
+  - **RAG API 更新**：預設的 Docker Compose 檔案現在包含一個 Python API 與向量資料庫，用以實現 RAG (檢索增強生成)。詳情請參閱 **[RAG API 頁面]()**。
+</Callout>
+
+<Callout type="warning" title=".env 變數變動 v0.6.10 → v0.7.0" emoji='⚙️' collapsible>
+
+```sh filename="➕ JSON 日誌紀錄"
+#===============#
+# JSON 日誌紀錄  #
+#===============#
+
+# 用於處理 GCP/AWS 等雲端部署中的主控台日誌
+CONSOLE_JSON=false
+```
+
+```sh filename="➕ LibreChat.yaml 路徑"
+#===============#
+# 項目配置      #
+#===============#
+# 使用絕對路徑、相對路徑或 URL
+
+# CONFIG_PATH="/alternative/path/to/librechat.yaml"
+```
+
+```sh filename="❌ 移除 chatGPTBrowser"
+# ENDPOINTS=openAI,assistants,azureOpenAI,bingAI,google,gptPlugins,anthropic
+```
+
+```sh filename="➕ 為已知終端新增預留位置"
+#===================================#
+# 已知終端 - librechat.yaml         #
+#===================================#
+# https://docs.librechat.ai/install/configuration/ai_endpoints.html
+
+# GROQ_API_KEY=
+# SHUTTLEAI_KEY=
+# OPENROUTER_KEY=
+# MISTRAL_API_KEY=
+# ANYSCALE_API_KEY=
+# FIREWORKS_API_KEY=
+# PERPLEXITY_API_KEY=
+# TOGETHERAI_API_KEY=
+# DEEPSEEK_API_KEY=
+```
+
+```sh filename="✨ 更新 Anthropic 模型"
+# ANTHROPIC_MODELS=claude-3-opus-20240229,claude-3-sonnet-20240229,claude-3-haiku-20240307,claude-2.1,claude-2,claude-1.2,claude-1,claude-1-100k,claude-instant-1,claude-instant-1-100k
+```
+
+```sh filename="❌ Azure 環境配置已棄用"
+#============#
+# Azure      #
+#============#
+
+
+# 備註：下列變數已「棄用」
+# 請改為 `azureOpenAI` 使用 `librechat.yaml` 配置
+# 如果您選擇不使用 `librechat.yaml` 配置，仍可繼續使用它們
+
+# AZURE_OPENAI_DEFAULT_MODEL=gpt-3.5-turbo # 棄用
+# AZURE_OPENAI_MODELS=gpt-3.5-turbo,gpt-4 # 棄用
+# AZURE_USE_MODEL_AS_DEPLOYMENT_NAME=TRUE # 棄用
+# AZURE_API_KEY= # 棄用
+# AZURE_OPENAI_API_INSTANCE_NAME= # 棄用
+# AZURE_OPENAI_API_DEPLOYMENT_NAME= # 棄用
+# AZURE_OPENAI_API_VERSION= # 棄用
+# AZURE_OPENAI_API_COMPLETIONS_DEPLOYMENT_NAME= # 棄用
+# AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME= # 棄用
+# PLUGINS_USE_AZURE="true" # 棄用
+## v0.6.10+ (-dev 建置版)
+```
+
+```sh filename="❌ 移除 ChatGPT"
+#============#
+# ChatGPT    #
+#============#
+
+CHATGPT_TOKEN=
+CHATGPT_MODELS=text-davinci-002-render-sha
+# CHATGPT_REVERSE_PROXY=
+```
+
+```sh filename="✨ Assistants 現在預設為 "user_provided""
+ASSISTANTS_API_KEY=user_provided
+```
+
+```sh filename="⚠️ GOOGLE_API_KEY 已重新命名為 GOOGLE_SEARCH_API_KEY="
+GOOGLE_SEARCH_API_KEY=
+```
+
+```sh filename="➕ Tavily 與 Traversaal API 金鑰"
+# Tavily
+#-----------------
+TAVILY_API_KEY=
+
+# Traversaal
+#-----------------
+TRAVERSAAL_API_KEY=
+```
+
+```sh filename="➕ 審核系統：非法模型請求分數"
+ILLEGAL_MODEL_REQ_SCORE=5
+```
+
+```sh filename="➕ OpenID 驗證更新"
+OPENID_REQUIRED_ROLE=
+OPENID_REQUIRED_ROLE_TOKEN_KIND=
+OPENID_REQUIRED_ROLE_PARAMETER_PATH=
+```
+
+</Callout>

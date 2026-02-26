@@ -1,0 +1,63 @@
+---
+date: 2025-08-12
+title: 🚀 LibreChat v0.8.0-rc2
+description: LibreChat 的 v0.8.0-rc2 版本發布
+version: "0.8.0-rc2"
+---
+
+## 更新內容
+
+### ✨ 新功能
+
+* ✨ feat: GPT-5 代幣限制、費率、圖標與推理支援，由 [@danny-avila](https://github.com/danny-avila) 於 [`aa37f2f`](https://github.com/danny-avila/LibreChat/commit/aa37f2fb1eafad98b3071bf40b67c7b19ef0b5f2) 提交
+* 🧠 feat: 新增 `minimal`（最低）推理投入度選項，由 [@danny-avila](https://github.com/danny-avila) 於 [`2f6a96d`](https://github.com/danny-avila/LibreChat/commit/2f6a96dbdc8e8e1b6ecaeee8a717f34c9f0c3eab) 提交
+* ✨ feat: 新增 OpenAI 冗長度 (Verbosity) 參數，由 [@danny-avila](https://github.com/danny-avila) 於 [#8929](https://github.com/danny-avila/LibreChat/pull/8929) 提交
+* ✨ feat: GPT-OSS 模型代幣限制與費率設定，由 [@danny-avila](https://github.com/danny-avila) 於 [`a5f4c9b`](https://github.com/danny-avila/LibreChat/commit/a5f4c9be9c5d11b93a7b61c76b9e1f4a3d8a4e6f) 提交
+* 🛂 feat: 為使用者建立的記憶實作負載限制與驗證，由 [@danny-avila](https://github.com/danny-avila) 於 [#8974](https://github.com/danny-avila/LibreChat/pull/8974) 提交
+* 🧑‍💼 feat: 新增智慧體模型驗證功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#8995](https://github.com/danny-avila/LibreChat/pull/8995) 提交
+
+### 🐛 臭蟲修復
+
+* 🔒 fix: 針對社群登入、OpenID、SAML 與 LDAP 登入實作供應商驗證，由 [@danny-avila](https://github.com/danny-avila) 於 [#8999](https://github.com/danny-avila/LibreChat/pull/8999) 提交
+* 📸 fix: 修正社群登入的大頭照處理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#8993](https://github.com/danny-avila/LibreChat/pull/8993) 提交
+* 🛡️ fix: 停用 2FA 操作時增加 OTP 驗證，由 [@danny-avila](https://github.com/danny-avila) 於 [#8975](https://github.com/danny-avila/LibreChat/pull/8975) 提交
+* 🪙 fix: 重構 Responses API 的最大輸出代幣處理，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8972](https://github.com/danny-avila/LibreChat/pull/8972) 提交
+* 🔮 fix: 修正 Artifacts 的 `readOnly` 屬性使其能正確觸發重新渲染，由 [@danny-avila](https://github.com/danny-avila) 於 [#8954](https://github.com/danny-avila/LibreChat/pull/8954) 提交
+* 🧪 fix: 修正編輯器樣式、不完整的 Artifact 編輯問題，並優化 Artifact 上下文，由 [@danny-avila](https://github.com/danny-avila) 於 [#8953](https://github.com/danny-avila/LibreChat/pull/8953) 提交
+* 🛣️ fix: 移除 GPT-5 模型的標題代幣限制，由 [@danny-avila](https://github.com/danny-avila) 於 [#8948](https://github.com/danny-avila/LibreChat/pull/8948) 提交
+* 🟢 fix: 修正 `customUserVars` 的狀態設定錯誤，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8905](https://github.com/danny-avila/LibreChat/pull/8905) 提交
+* 📂 fix: 修正已上傳「智慧體」檔案的清理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#8900](https://github.com/danny-avila/LibreChat/pull/8900) 提交
+* 🔧 fix: 修正 MCP 查詢與連線問題，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8870](https://github.com/danny-avila/LibreChat/pull/8870) 提交
+
+### 🔧 重構
+
+* 🔧 refactor: 將外掛程式相關 Helper 遷移至 TypeScript API 並加入測試，由 [@danny-avila](https://github.com/danny-avila) 於 [#8961](https://github.com/danny-avila/LibreChat/pull/8961) 提交
+* 🧠 refactor: 優化補全後的記憶超時處理，確保串流最終事件發送，由 [@danny-avila](https://github.com/danny-avila) 於 [#8955](https://github.com/danny-avila/LibreChat/pull/8955) 提交
+* 🔧 refactor: `customUserVar` 錯誤格式正規化，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#8950](https://github.com/danny-avila/LibreChat/pull/8950) 提交
+* 🎚️ refactor: 更新 OpenAI 參數的最小值限制，由 [@usnavy13](https://github.com/usnavy13) 於 [#8922](https://github.com/danny-avila/LibreChat/pull/8922) 提交
+* 🔄 refactor: 根據 `baseURL` 動態選取 OpenRouter LLM 類別，由 [@danny-avila](https://github.com/danny-avila) 於 [#8898](https://github.com/danny-avila/LibreChat/pull/8898) 提交
+* 🥞 refactor: 智慧體版本重複僅視為資訊提示而非錯誤，由 [@sbruel](https://github.com/sbruel) 於 [#8881](https://github.com/danny-avila/LibreChat/pull/8881) 提交
+
+### 🌍 國際化 (i18n)
+
+* 🌍 i18n: 使用最新翻譯更新 `translation.json`，由 [@github-actions[bot]](https://github.com/apps/github-actions) 提交
+
+### 🎨 UI/UX
+
+* 🎨 style: 為 CSS 補回缺失的 Markdown 字體大小變數，由 [@danny-avila](https://github.com/danny-avila) 於 [#9011](https://github.com/danny-avila/LibreChat/pull/9011) 提交
+* 💬 style: Tooltip 支援 HTML 並優化樣式設計，由 [@berry-13](https://github.com/berry-13) 於 [#8915](https://github.com/danny-avila/LibreChat/pull/8915) 提交
+
+### 🛠️ 其他變動
+
+* 🪖 ci: 實作 Helm OCI 發布工作流，由 [@clayrosenthal](https://github.com/clayrosenthal) 於 [#7256](https://github.com/danny-avila/LibreChat/pull/7256) 提交
+* 📦 chore: 升級 `@librechat/agents` 版本，由 [@danny-avila](https://github.com/danny-avila) 提交
+* 🪖 chore: 修正 `helm/librechat/values.yaml` 中的拼字錯誤，由 [@alkshmir](https://github.com/alkshmir) 於 [#8960](https://github.com/danny-avila/LibreChat/pull/8960) 提交
+* 📑 docs: 修正 JSDoc 與文檔檔案中的拼字錯誤，由 [@0xjeffreybulanadi](https://github.com/0xjeffreybulanadi) 於 [#8998](https://github.com/danny-avila/LibreChat/pull/8998) 提交
+
+## 新貢獻者
+* [@usnavy13](https://github.com/usnavy13) 於 [#8922](https://github.com/danny-avila/LibreChat/pull/8922) 提交了其首份貢獻
+* [@alkshmir](https://github.com/alkshmir) 於 [#8960](https://github.com/danny-avila/LibreChat/pull/8960) 提交了其首份貢獻
+* [@clayrosenthal](https://github.com/clayrosenthal) 於 [#7256](https://github.com/danny-avila/LibreChat/pull/7256) 提交了其首份貢獻
+* [@0xjeffreybulanadi](https://github.com/0xjeffreybulanadi) 於 [#8998](https://github.com/danny-avila/LibreChat/pull/8998) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.8.0-rc1...v0.8.0-rc2

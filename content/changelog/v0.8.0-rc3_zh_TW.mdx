@@ -1,0 +1,94 @@
+---
+date: 2025-08-25
+title: 🚀 LibreChat v0.8.0-rc3
+description: LibreChat 的 v0.8.0-rc3 版本發布
+version: "0.8.0-rc3"
+---
+
+## 更新內容
+
+### 🛣️ 亮點介紹
+
+* 🔐 **細粒度權限系統 (Granular Permissions System)**，由 [@danny-avila](https://github.com/danny-avila) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654)、[#9068](https://github.com/danny-avila/LibreChat/pull/9068) 提交
+  - 全面重構權限系統，具備細粒度存取控制。
+  - 實作 Entra ID 群組發現與整合。
+  - 基於 ACL (存取控制清單) 的資源權限管理，支援權限位元 (permission bits) 控制。
+
+* 🏪 **具備進階分享功能的智慧體市集 (Agent Marketplace)**，由 [@danny-avila](https://github.com/danny-avila) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654) 提交
+  - 建立智慧體市集生態系統，用於發現並分享智慧體。
+  - 實作智慧體分類與推廣系統。
+  - 提供具備角色存取控制 (RBAC) 的進階分享對話框。
+  - 人員選擇器 (People picker) UI 支援使用者/群組/角色搜尋。
+
+### ✨ 新功能
+
+* 🗨️ feat: 提示詞支援基於 ACL 的細粒度分享，由 [@danny-avila](https://github.com/danny-avila) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654) 提交
+* 🔒 feat: 進階檔案儲存與存取控制，結合基於智慧體的權限管理，由 [@nagago](https://github.com/nagago) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654) 提交
+* 📁 feat: 透過 Microsoft Graph API 整合 SharePoint 檔案選擇器，由 [@danny-avila](https://github.com/danny-avila) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654) 提交
+* 📚 feat: 智慧體檔案搜尋支援來源引用 (Source Citations)，具備角色存取控制，由 [@nagago](https://github.com/nagago) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654) 提交
+* 🍃 feat: 提供 MongoDB 連接池配置選項，由 [@JordiHigueraDT](https://github.com/JordiHigueraDT) 於 [#8654](https://github.com/danny-avila/LibreChat/pull/8654) 提交
+* 🌐 feat: 可配置的 Redis 叢集模式，支援單一 URI，由 [@luiscga](https://github.com/luiscga) 於 [#9039](https://github.com/danny-avila/LibreChat/pull/9039) 提交
+* 🔎 feat: 新增提示詞與智慧體權限遷移檢查，由 [@danny-avila](https://github.com/danny-avila) 於 [#9063](https://github.com/danny-avila/LibreChat/pull/9063) 提交
+* 🔐 feat: 支援群組結構、精煉使用者結構安全性並優化類型定義，由 [@berry-13](https://github.com/berry-13) 於 [#9070](https://github.com/danny-avila/LibreChat/pull/9070) 提交
+* 🧪 feat: 支援 Claude Sonnet 4 —— 提供 1M 上下文窗口 (Beta 標頭)，由 [@danny-avila](https://github.com/danny-avila) 於 [#9093](https://github.com/danny-avila/LibreChat/pull/9093) 提交
+* 🏷️ feat: 自定義終端與 MCP 標頭支援請求預留位置，由 [@danny-avila](https://github.com/danny-avila) 於 [#9095](https://github.com/danny-avila/LibreChat/pull/9095) 提交
+* 📬 feat: 實作智慧體支援電子郵件地址驗證，由 [@dustinhealy](https://github.com/dustinhealy) 於 [#9128](https://github.com/danny-avila/LibreChat/pull/9128) 提交
+* 🆔 feat: 在 Anthropic API 負載中以元數據形式加入使用者 ID，由 [@danny-avila](https://github.com/danny-avila) 於 [#9174](https://github.com/danny-avila/LibreChat/pull/9174) 提交
+* 🛣️ feat: 自定義終端支援 `directEndpoint` 獲取覆寫，由 [@danny-avila](https://github.com/danny-avila) 於 [#9179](https://github.com/danny-avila/LibreChat/pull/9179) 提交
+* ✨ feat: 為使用者/群組/角色新增游標分頁工具，由 [@berry-13](https://github.com/berry-13) 於 [#9218](https://github.com/danny-avila/LibreChat/pull/9218) 提交
+
+
+### 🔧 重構
+
+* 📛 refactor: 將 MCP 對話框 UI 與 `BadgeRowContext` 解耦，由 [@ruggishop](https://github.com/ruggishop) 於 [#8920](https://github.com/danny-avila/LibreChat/pull/8920) 提交
+* ♻️ refactor: 提升 MCP 擴充性、修復應用程式級別偵測、新增延遲連線，由 [@nhtruong](https://github.com/nhtruong) 於 [#8930](https://github.com/danny-avila/LibreChat/pull/8930) 提交
+* 🪙 refactor: 移除標題 `maxTokens` 並支援 LMStudio/Ollama 推理，由 [@danny-avila](https://github.com/danny-avila) 於 [#9085](https://github.com/danny-avila/LibreChat/pull/9085) 提交
+* 🧑‍💻 refactor: 安全化 2FA 欄位選取及 API 建置 Source Map，由 [@danny-avila](https://github.com/danny-avila) 於 [#9087](https://github.com/danny-avila/LibreChat/pull/9087) 提交
+* ⚙️ refactor: 僅在配置成功時才註冊 OpenID 策略，由 [@danny-avila](https://github.com/danny-avila) 於 [#9094](https://github.com/danny-avila/LibreChat/pull/9094) 提交
+* 🏷️ refactor: 在 `setRequestHeaders` 中正規化請求標頭，由 [@danny-avila](https://github.com/danny-avila) 於 [#9106](https://github.com/danny-avila/LibreChat/pull/9106) 提交
+* 🛠️ refactor: 整合 MCP 工具快取邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#9172](https://github.com/danny-avila/LibreChat/pull/9172) 提交
+* 🏄‍♂️ refactor: 優化待處理身份驗證時的取消串流處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#9235](https://github.com/danny-avila/LibreChat/pull/9235) 提交
+* 🗄️ refactor: 實作資源遷移腳本以支援 DocumentDB 相容性，由 [@danny-avila](https://github.com/danny-avila) 於 [#9249](https://github.com/danny-avila/LibreChat/pull/9249) 提交
+
+
+### ⚙️ 其他變動
+
+* 🐋 ci: 優化 Dockerfile 快取，由 [@faustoFF](https://github.com/faustoFF) 於 [#8480](https://github.com/danny-avila/LibreChat/pull/8480) 提交
+* 🔗 chore: 從 `index.html` 移除 `<link href='#' />`，由 [@mattmueller-stripe](https://github.com/mattmueller-stripe) 於 [#9222](https://github.com/danny-avila/LibreChat/pull/9222) 提交
+* 🎭 refactor: 優化大頭照載入 UX 並修復姓名縮寫渲染臭蟲，由 [@berry-13](https://github.com/berry-13) 於 [#9261](https://github.com/danny-avila/LibreChat/pull/9261) 提交
+* 📜 chore: 為錯誤日誌加入時間戳記，由 [@danny-avila](https://github.com/danny-avila) 於 [#9262](https://github.com/danny-avila/LibreChat/pull/9262) 提交
+* 🏷️ chore: 補全智慧體、類別與書籤缺失的在地化翻譯，由 [@danny-avila](https://github.com/danny-avila) 於 [#9266](https://github.com/danny-avila/LibreChat/pull/9266) 提交
+
+### 🐛 臭蟲修復
+
+* 🐞 fix: 防止成功刪除書籤時出現類型錯誤，由 [@usnavy13](https://github.com/usnavy13) 於 [#9014](https://github.com/danny-avila/LibreChat/pull/9014) 提交
+* 🔧 fix: 修正 Redis 叢集連線錯誤與配置問題，由 [@nhtruong](https://github.com/nhtruong) 於 [#9016](https://github.com/danny-avila/LibreChat/pull/9016) 提交
+* 🚌 fix: 修正 MCP 初始化期間的執行階段錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#9046](https://github.com/danny-avila/LibreChat/pull/9046) 提交
+* 🐞 fix: 更新 MCP 伺服器初始化邏輯，跳過非啟動型與 OAuth 伺服器，由 [@nhtruong](https://github.com/nhtruong) 於 [#9049](https://github.com/danny-avila/LibreChat/pull/9049) 提交
+* 🛠️ fix: 針對聯邦 OpenID Nonce 驗證問題提供權宜措施，由 [@busla](https://github.com/busla) 於 [#9067](https://github.com/danny-avila/LibreChat/pull/9067) 提交
+* 🔄 fix: 修正現有使用者的 `lastRefill` 日期並重構餘額中間件，由 [@danny-avila](https://github.com/danny-avila) 於 [#9086](https://github.com/danny-avila/LibreChat/pull/9086) 提交
+* 🔄 fix: MCP 工具呼叫支援 Azure 並新增至內容陣列供應商，由 [@danny-avila](https://github.com/danny-avila) 於 [#9092](https://github.com/danny-avila/LibreChat/pull/9092) 提交
+* 🛡️ fix: 為參數設定加入空值檢查，防止未定義存取，由 [@thelinuxkid](https://github.com/thelinuxkid) 於 [#9108](https://github.com/danny-avila/LibreChat/pull/9108) 提交
+* 🐛 fix: 修正餘額設定中的下次充值日期邏輯，由 [@Isydmr](https://github.com/Isydmr) 於 [#9121](https://github.com/danny-avila/LibreChat/pull/9121) 提交
+* 🐍 fix: 配置腳本改用標準 Mongoose 模組解析方式，由 [@derhelge](https://github.com/derhelge) 於 [#9143](https://github.com/danny-avila/LibreChat/pull/9143) 提交
+* 🚮 fix: 移除 MCP 初始化前的過濾邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#9149](https://github.com/danny-avila/LibreChat/pull/9149) 提交
+* 🛠️ fix: 限制可編輯內容類型並整合類型定義，由 [@danny-avila](https://github.com/danny-avila) 於 [#9173](https://github.com/danny-avila/LibreChat/pull/9173) 提交
+* ⛔ fix: 修正新聊天對話的 `AbortSignal` 清理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#9177](https://github.com/danny-avila/LibreChat/pull/9177) 提交
+* 🧰 fix: 獲取可用工具時正確使用 MCP 快取，由 [@danny-avila](https://github.com/danny-avila) 於 [#9181](https://github.com/danny-avila/LibreChat/pull/9181) 提交
+* 🪪 fix: 更新配置時保留現有的介面權限，由 [@danny-avila](https://github.com/danny-avila) 於 [#9199](https://github.com/danny-avila/LibreChat/pull/9199) 提交
+* 🧮 fix: 正確處理貨幣符號轉義，防止代碼區塊中的 LaTeX 錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#9248](https://github.com/danny-avila/LibreChat/pull/9248) 提交
+
+
+### 🌍 國際化 (i18n)
+
+* 🌍 i18n: 翻譯更新，包含自動更新 `translation.json` 以及新增波士尼亞語與挪威博克馬爾語支援
+
+## 新貢獻者
+* [@faustoFF](https://github.com/faustoFF) 於 [#8480](https://github.com/danny-avila/LibreChat/pull/8480) 提交了其首份貢獻
+* [@busla](https://github.com/busla) 於 [#9067](https://github.com/danny-avila/LibreChat/pull/9067) 提交了其首份貢獻
+* [@luiscga](https://github.com/luiscga) 於 [#9039](https://github.com/danny-avila/LibreChat/pull/9039) 提交了其首份貢獻
+* [@ruggishop](https://github.com/ruggishop) 於 [#8920](https://github.com/danny-avila/LibreChat/pull/8920) 提交了其首份貢獻
+* [@Isydmr](https://github.com/Isydmr) 於 [#9121](https://github.com/danny-avila/LibreChat/pull/9121) 提交了其首份貢獻
+* [@mattmueller-stripe](https://github.com/mattmueller-stripe) 於 [#9222](https://github.com/danny-avila/LibreChat/pull/9222) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.8.0-rc2...v0.8.0-rc3

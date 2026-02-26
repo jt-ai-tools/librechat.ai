@@ -1,0 +1,31 @@
+---
+date: 2023-07-16
+title: 🚀 LibreChat v0.5.5
+description: ChatGPT 外掛程式 (Plugins)...
+version: "0.5.5"
+---
+
+# 更新內容
+
+此更新引入了 ChatGPT 外掛程式 (OpenAPI 規範)，可搭配我們的外掛程式 (Plugins) 終端使用！將其整合至 LibreChat 的主要使用情境之一是：允許在沒有 ChatGPT Plus 的情況下，與 gpt-3.5 模型配合使用官方外掛程式。請閱讀 [完整文檔](https://github.com/danny-avila/LibreChat/blob/main/docs/features/plugins/chatgpt_plugins_openapi.md) 瞭解如何新增與配置它們。
+
+> 備註：LibreChat 的實作與 ChatGPT 並非 1:1 完全相同，它依賴於 [LangChainJS 函式庫](https://github.com/hwchase17/langchainjs)，且目前為初步版本。關於限制事項的更多聲明，請[點此閱讀](https://github.com/danny-avila/LibreChat/blob/main/docs/features/plugins/chatgpt_plugins_openapi.md#disclaimers)。
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/afd59d06-95af-4780-be81-fee1e6b64387)
+
+## ✨ 功能
+
+- feat: 外掛程式終端支援 ChatGPT 外掛程式/OpenAPI 規範，由 [@danny-avila](https://github.com/danny-avila) 於 [#620](https://github.com/danny-avila/LibreChat/pull/620) 提交。
+  - [關於此更新的完整文檔](https://github.com/danny-avila/LibreChat/blob/main/docs/features/plugins/chatgpt_plugins_openapi.md)
+- style (Nav)：優化導覽列開啟/關閉的過渡動畫，由 [@danny-avila](https://github.com/danny-avila) 於 [#652](https://github.com/danny-avila/LibreChat/pull/652) 提交。
+- feat (Meilisearch)：預設停用匿名分析遙測，由 [@danny-avila](https://github.com/danny-avila) 於 [#647](https://github.com/danny-avila/LibreChat/pull/647) 提交。
+
+## 🔧 臭蟲修復
+
+- fix(Settings.jsx)：修正 0.5.4 更新後設定輸入框失去焦點至主文字區域的問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#646](https://github.com/danny-avila/LibreChat/pull/646) 提交。
+- fix：修正 langchain 代理配置中的拼字錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#653](https://github.com/danny-avila/LibreChat/pull/653) 提交。
+- fix：優化 Bing Chat 圖標的清晰度，由 [@fuegovic](https://github.com/fuegovic) 於 [#648](https://github.com/danny-avila/LibreChat/pull/648) 提交。
+
+我們一直在尋找各種技能水平的貢獻者。**[這是我們的開發藍圖](https://github.com/users/danny-avila/projects/2)**，看看是否有您感興趣的項目，或者您可以直接在 **[Discord](https://discord.librechat.ai/)** 上詢問如何提供貢獻，特別是如果您有新的想法。如果您從未貢獻過開源專案，這是一個非常好的開始。
+
+**完整變更紀錄**: [https://github.com/danny-avila/LibreChat/compare/v0.5.4...v0.5.5](https://github.com/danny-avila/LibreChat/compare/v0.5.4...v0.5.5)

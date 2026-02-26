@@ -1,0 +1,119 @@
+---
+date: 2024-04-23
+title: 🚀 LibreChat v0.7.1
+description: LibreChat 的 v0.7.1 版本發布
+ogImage: /images/changelog/v0.7.1.webp
+version: "0.7.1"
+---
+
+### 🏞️ 亮點介紹
+
+- 支援 Cohere AI、Gemini 1.5 以及廣泛的 Vertex AI 支援
+- 為所有終端引入側邊面板 (Side panel) 使用模式
+- 重大的 PWA 與文字區域 (Textarea) 改進
+
+### 👀 下步計畫
+
+- 透過 `librechat.yaml` 提供系統級的自定義模型選項
+- 支援從 ChatGPT、LibreChat 與 Chatbot UI 匯入對話
+
+**追蹤即時變更：** https://github.com/danny-avila/LibreChat/milestone/4
+
+### ✨ 新功能
+
+- 實作 OpenID 必要角色限制，由 [@danny-avila](https://github.com/danny-avila) 於 [2279](https://github.com/danny-avila/LibreChat/pull/2279) 提交
+- 支援 Cohere AI 作為自定義終端，由 [@danny-avila](https://github.com/danny-avila) 於 [2328](https://github.com/danny-avila/LibreChat/pull/2328)、[2329](https://github.com/danny-avila/LibreChat/pull/2329) 提交
+- 強化訊息編輯功能，支援檔案重新提交，由 [@danny-avila](https://github.com/danny-avila) 於 [2347](https://github.com/danny-avila/LibreChat/pull/2347) 提交
+- 標題產生功能優化，由 [@danny-avila](https://github.com/danny-avila) 於 [2363](https://github.com/danny-avila/LibreChat/pull/2363) 提交
+- 為側邊面板新增模型與助手組合方塊 (Combobox)，由 [@danny-avila](https://github.com/danny-avila) 於 [2380](https://github.com/danny-avila/LibreChat/pull/2380) 提交
+- 更新上下文限制，由 [@danny-avila](https://github.com/danny-avila) 於 [2381](https://github.com/danny-avila/LibreChat/pull/2381) 提交
+- 支援 Gemini 1.5 (包含 Vertex AI)，由 [@danny-avila](https://github.com/danny-avila) 於 [2383](https://github.com/danny-avila/LibreChat/pull/2383) 提交
+- 實作具備身份驗證的圖片請求，由 [@danny-avila](https://github.com/danny-avila) 於 [2389](https://github.com/danny-avila/LibreChat/pull/2389) 提交
+- 新增 「Enter 鍵傳送 (EnterToSend)」 選項並更新巴西葡萄牙語翻譯 🇧🇷，由 [@danny-avila](https://github.com/danny-avila) 於 [2413](https://github.com/danny-avila/LibreChat/pull/2413) 提交
+- 透過 Vite 新增 PWA 設定與手動分塊 (Manual Chunks) 功能，由 [@danny-avila](https://github.com/danny-avila) 於 [2477](https://github.com/danny-avila/LibreChat/pull/2477) 提交
+
+### ⚙️ 其他變動
+
+- 透過快取 npm 安裝步驟優化用戶端建置流程，由 [@ochen1](https://github.com/ochen1) 於 [2275](https://github.com/danny-avila/LibreChat/pull/2275) 提交
+- 將翻譯檔案轉換為 「.ts」 格式，由 [@berry-13](https://github.com/berry-13) 於 [2288](https://github.com/danny-avila/LibreChat/pull/2288) 提交
+- 優化 ModelsConfig 查詢快取，由 [@danny-avila](https://github.com/danny-avila) 於 [2330](https://github.com/danny-avila/LibreChat/pull/2330) 提交
+- 嘗試修復預設設定問題及多項變動，由 [@danny-avila](https://github.com/danny-avila) 於 [2342](https://github.com/danny-avila/LibreChat/pull/2342) 提交
+- 支援助手檔案下載，由 [@danny-avila](https://github.com/danny-avila) 於 [2364](https://github.com/danny-avila/LibreChat/pull/2364) 提交
+- 調整對話刪除後的列表行為，由 [@danny-avila](https://github.com/danny-avila) 於 [2414](https://github.com/danny-avila/LibreChat/pull/2414) 提交
+- 讓圖片 URL 安全性成為選配功能，由 [@danny-avila](https://github.com/danny-avila) 於 [2415](https://github.com/danny-avila/LibreChat/pull/2415) 提交
+- 更新 .env.example，由 [@fuegovic](https://github.com/fuegovic) 於 [2449](https://github.com/danny-avila/LibreChat/pull/2449) 提交
+- 大頭照功能改用策略函式處理，由 [@danny-avila](https://github.com/danny-avila) 於 [2467](https://github.com/danny-avila/LibreChat/pull/2467) 提交
+- 整合邏輯並加入更多警告提示，由 [@danny-avila](https://github.com/danny-avila) 於 [2468](https://github.com/danny-avila/LibreChat/pull/2468) 提交
+- 支援向用戶端顯示錯誤訊息，由 [@danny-avila](https://github.com/danny-avila) 於 [2476](https://github.com/danny-avila/LibreChat/pull/2476) 提交
+- 為 「backend-review.yml」 新增 「.env.test」，由 [@danny-avila](https://github.com/danny-avila) 於 [2501](https://github.com/danny-avila/LibreChat/pull/2501) 提交
+
+### 🎨 樣式
+
+- 實作 CodeAnalyze、WrenchIcon 與 ImageGen 的 SVG 動畫，由 [@walbercardoso](https://github.com/walbercardoso) 於 [2348](https://github.com/danny-avila/LibreChat/pull/2348)、[2382](https://github.com/danny-avila/LibreChat/pull/2382) 提交
+- 移除外掛程式 (Plugins) 圖標的背景，由 [@mawburn](https://github.com/mawburn) 於 [2368](https://github.com/danny-avila/LibreChat/pull/2368) 提交
+- 更新 CodeSherpa 圖標，由 [@Passerby1011](https://github.com/Passerby1011) 於 [2417](https://github.com/danny-avila/LibreChat/pull/2417) 提交
+
+### 🔧 臭蟲修復
+
+- 確保建置時建立必要的目錄，由 [@lazka](https://github.com/lazka) 於 [2277](https://github.com/danny-avila/LibreChat/pull/2277) 提交
+- 從 「loadActionSets」 移除 userId 過濾並更新文檔，由 [@danny-avila](https://github.com/danny-avila) 於 [2286](https://github.com/danny-avila/LibreChat/pull/2286) 提交
+- 修正文字區域復原操作後產生不必要新行的問題，由 [@danny-avila](https://github.com/danny-avila) 於 [2289](https://github.com/danny-avila/LibreChat/pull/2289) 提交
+- 捕捉 「deleteVectors」 錯誤並更新 RAG API 文檔，由 [@danny-avila](https://github.com/danny-avila) 於 [2299](https://github.com/danny-avila/LibreChat/pull/2299) 提交
+- 強化餘額與代幣使用追蹤，由 [@danny-avila](https://github.com/danny-avila) 於 [2350](https://github.com/danny-avila/LibreChat/pull/2350) 提交
+- 多項微小修復與重構，由 [@danny-avila](https://github.com/danny-avila) 於 [2388](https://github.com/danny-avila/LibreChat/pull/2388) 提交
+- 處理 OIDC 使用者名稱陣列的邊緣案例，由 [@ventz](https://github.com/ventz) 於 [2394](https://github.com/danny-avila/LibreChat/pull/2394) 提交
+- 更新 「maxOutputTokens」 的條件判斷，由 [@danny-avila](https://github.com/danny-avila) 於 [2434](https://github.com/danny-avila/LibreChat/pull/2434) 提交
+- 確保 「imageOutputType」 始終具備定義，由 [@danny-avila](https://github.com/danny-avila) 於 [2438](https://github.com/danny-avila/LibreChat/pull/2438) 提交
+- 整合文字區域 Ref 與表單以簡化處理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [2456](https://github.com/danny-avila/LibreChat/pull/2456) 提交
+- 修正 Assistants 終端的微小問題，由 [@danny-avila](https://github.com/danny-avila) 於 [2472](https://github.com/danny-avila/LibreChat/pull/2472) 提交
+- 支援長網域名稱處理及其他微小變動，由 [@danny-avila](https://github.com/danny-avila) 於 [2475](https://github.com/danny-avila/LibreChat/pull/2475) 提交
+- 解決依賴項問題以修復應用程式錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [2488](https://github.com/danny-avila/LibreChat/pull/2488) 提交
+- 支援程式碼檔案類型並抑制已知的 Vite 警告，由 [@danny-avila](https://github.com/danny-avila) 於 [2492](https://github.com/danny-avila/LibreChat/pull/2492) 提交
+
+### 📝 文檔
+
+- 移除 Google Domains 相關引用，由 [@illgitthat](https://github.com/illgitthat) 於 [2267](https://github.com/danny-avila/LibreChat/pull/2267) 提交
+- 為 Ollama 配置新增 「host.docker.internal」 備註，由 [@kinnla](https://github.com/kinnla) 於 [2274](https://github.com/danny-avila/LibreChat/pull/2274) 提交
+- 更新 NagaAI 資訊，由 [@ZentixUA](https://github.com/ZentixUA) 於 [2278](https://github.com/danny-avila/LibreChat/pull/2278) 提交
+- 修正 Docker Compose 覆寫檔案連結，由 [@h4de5](https://github.com/h4de5) 於 [2287](https://github.com/danny-avila/LibreChat/pull/2287) 提交
+- 更新 Ollama + LiteLLM 說明，由 [@mariusgau](https://github.com/mariusgau) 於 [2302](https://github.com/danny-avila/LibreChat/pull/2302) 提交
+- 修正 Traefik 網頁佈局，由 [@ventz](https://github.com/ventz) 於 [2305](https://github.com/danny-avila/LibreChat/pull/2305) 提交
+- 修正 Google OAuth 回呼 URL 範例，由 [@peaster](https://github.com/peaster) 於 [2311](https://github.com/danny-avila/LibreChat/pull/2311) 提交
+- 更新 「traefik.md」 —— 修正邊緣案例下的競態條件文檔，由 [@ventz](https://github.com/ventz) 於 [2322](https://github.com/danny-avila/LibreChat/pull/2322) 提交
+- 提供 LiteLLM、Docker、LibreChat 運作範例，以及適用於 AWS、Azure、GCP 的 LiteLLM 模型範例，由 [@ventz](https://github.com/ventz) 於 [2323](https://github.com/danny-avila/LibreChat/pull/2323) 提交
+- 修正使用 docker-compose 時的 LiteLLM baseURL 資訊，由 [@dlaporte](https://github.com/dlaporte) 於 [2324](https://github.com/danny-avila/LibreChat/pull/2324) 提交
+- 為 「nginx.md」 新增備註，由 [@chrislbrown84](https://github.com/chrislbrown84) 於 [2341](https://github.com/danny-avila/LibreChat/pull/2341) 提交
+- 更新預設值警告與 Docker 文檔，由 [@danny-avila](https://github.com/danny-avila) 於 [2343](https://github.com/danny-avila/LibreChat/pull/2343) 提交
+- 在 Anthropic 模型範例中加入 claude haiku，由 [@jp789](https://github.com/jp789) 於 [2391](https://github.com/danny-avila/LibreChat/pull/2391) 提交
+- 更新從 v0.6.10 升級至 v0.7.0+ 的環境變數變動，由 [@fuegovic](https://github.com/fuegovic) 於 [2442](https://github.com/danny-avila/LibreChat/pull/2442) 提交
+- 更新 docker_compose_install.md，由 [@fuegovic](https://github.com/fuegovic) 於 [2447](https://github.com/danny-avila/LibreChat/pull/2447) 提交
+- 移除重複資訊，由 [@iamNoah1](https://github.com/iamNoah1) 於 [2451](https://github.com/danny-avila/LibreChat/pull/2451) 提交
+- 加入 llama3 相關說明，由 [@fuegovic](https://github.com/fuegovic) 於 [2470](https://github.com/danny-avila/LibreChat/pull/2470) 提交
+- 移除 「copilot-gpt4-service」 相關文檔，由 [@fuegovic](https://github.com/fuegovic) 於 [2491](https://github.com/danny-avila/LibreChat/pull/2491) 提交
+
+### 🌐 國際化
+
+- 新增日語在地化條目，由 [@happy-ryo](https://github.com/happy-ryo) 於 [2282](https://github.com/danny-avila/LibreChat/pull/2282) 提交
+- 更新中文翻譯，由 [@HundSimon](https://github.com/HundSimon) 於 [2351](https://github.com/danny-avila/LibreChat/pull/2351) 提交
+- 更新德語翻譯，由 [@marlonka](https://github.com/marlonka) 於 [2409](https://github.com/danny-avila/LibreChat/pull/2409) 提交
+
+## 新貢獻者
+* [@ZentixUA](https://github.com/ZentixUA) 於 [2278](https://github.com/danny-avila/LibreChat/pull/2278) 提交了其首份貢獻
+* [@lazka](https://github.com/lazka) 於 [2277](https://github.com/danny-avila/LibreChat/pull/2277) 提交了其首份貢獻
+* [@kinnla](https://github.com/kinnla) 於 [2274](https://github.com/danny-avila/LibreChat/pull/2274) 提交了其首份貢獻
+* [@illgitthat](https://github.com/illgitthat) 於 [2267](https://github.com/danny-avila/LibreChat/pull/2267) 提交了其首份貢獻
+* [@h4de5](https://github.com/h4de5) 於 [2287](https://github.com/danny-avila/LibreChat/pull/2287) 提交了其首份貢獻
+* [@happy-ryo](https://github.com/happy-ryo) 於 [2282](https://github.com/danny-avila/LibreChat/pull/2282) 提交了其首份貢獻
+* [@ventz](https://github.com/ventz) 於 [2305](https://github.com/danny-avila/LibreChat/pull/2305) 提交了其首份貢獻
+* [@mariusgau](https://github.com/mariusgau) 於 [2302](https://github.com/danny-avila/LibreChat/pull/2302) 提交了其首份貢獻
+* [@ochen1](https://github.com/ochen1) 於 [2275](https://github.com/danny-avila/LibreChat/pull/2275) 提交了其首份貢獻
+* [@peaster](https://github.com/peaster) 於 [2311](https://github.com/danny-avila/LibreChat/pull/2311) 提交了其首份貢獻
+* [@dlaporte](https://github.com/dlaporte) 於 [2324](https://github.com/danny-avila/LibreChat/pull/2324) 提交了其首份貢獻
+* [@chrislbrown84](https://github.com/chrislbrown84) 於 [2341](https://github.com/danny-avila/LibreChat/pull/2341) 提交了其首份貢獻
+* [@HundSimon](https://github.com/HundSimon) 於 [2351](https://github.com/danny-avila/HundSimon) 提交了其首份貢獻
+* [@mawburn](https://github.com/mawburn) 於 [2368](https://github.com/danny-avila/LibreChat/pull/2368) 提交了其首份貢獻
+* [@jp789](https://github.com/jp789) 於 [2391](https://github.com/danny-avila/LibreChat/pull/2391) 提交了其首份貢獻
+* [@iamNoah1](https://github.com/iamNoah1) 於 [2451](https://github.com/danny-avila/LibreChat/pull/2451) 提交了其首份貢獻
+* [@Passerby1011](https://github.com/Passerby1011) 於 [2417](https://github.com/danny-avila/LibreChat/pull/2417) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.7.0...v0.7.1

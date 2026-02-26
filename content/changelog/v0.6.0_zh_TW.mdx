@@ -1,0 +1,73 @@
+---
+date: 2023-10-22
+title: 🚀 LibreChat v0.6.0
+description: 訊息摘要、標題產生模型、代幣使用追蹤與選配餘額功能，以及更多...
+ogImage: /images/changelog/v0.6.0.png
+version: "0.6.0"
+---
+
+# 更新內容
+
+## ✨ 新功能
+
+- 針對長對話實作訊息摘要功能 (ConversationSummaryBufferMemory)，由 [@danny-avila](https://github.com/danny-avila) 於 [#973](https://github.com/danny-avila/LibreChat/pull/973) 提交
+  > (選填/實驗性) 可透過在 .env 檔案中設定下列變數來啟用訊息摘要：
+  > 備註：產生摘要時可能會影響回應時間。此功能可在訊息密集的對話中為您節省代幣。
+  > `OPENAI_SUMMARIZE=true`
+- 新增停用標題產生選項、配置標題產生模型，並優化標題提示詞，由 [@danny-avila](https://github.com/danny-avila) 於 [#977](https://github.com/danny-avila/LibreChat/pull/977) 提交
+- 支援 GPT-3.5-Turbo-Instruct 模型並重構模型獲取邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#981](https://github.com/danny-avila/LibreChat/pull/981) 提交
+- 實作精確的代幣使用追蹤與選配的餘額功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#1018](https://github.com/danny-avila/LibreChat/pull/1018) 提交
+  > 瞭解更多關於 [代幣使用量/餘額功能](/docs/features/token_usage_zh_TW)
+- 新增外掛程式搜尋功能，由 [@walbercardoso](https://github.com/walbercardoso) 於 [#1007](https://github.com/danny-avila/LibreChat/pull/1007) 提交
+- 初始支援 Redis 以提升擴充性，由 [@danny-avila](https://github.com/danny-avila) 於 [#1039](https://github.com/danny-avila/LibreChat/pull/1039) 提交
+- 新增使用者設定：自動捲動至對話底部，由 [@Berry-13](https://github.com/Berry-13) 於 [#1049](https://github.com/danny-avila/LibreChat/pull/1049) 提交
+
+## 🌐 國際化
+
+- 更新 Zh.tsx (簡體中文)，由 [@liukaixiang817](https://github.com/liukaixiang817) 於 [#1019](https://github.com/danny-avila/LibreChat/pull/1019) 提交
+- 優化繁體中文在地化，由 [@PeterDaveHello](https://github.com/PeterDaveHello) 於 [#1055](https://github.com/danny-avila/LibreChat/pull/1055) 提交
+- 新增韓語支援，由 [@ywkim](https://github.com/ywkim) 於 [#1005](https://github.com/danny-avila/LibreChat/pull/1005) 提交
+- 新增繁體中文支援，由 [@goodair220917](https://github.com/goodair220917) 於 [#1006](https://github.com/danny-avila/LibreChat/pull/1006) 提交
+
+## 🔧 臭蟲修復
+
+- 修正 ModelOptions 的 SetOptions() 處理邏輯，由 [@jordantgh](https://github.com/jordantgh) 於 [#975](https://github.com/danny-avila/LibreChat/pull/975) 提交
+- 修正登入表單的最大長度限制，由 [@danny-avila](https://github.com/danny-avila) 於 [#980](https://github.com/danny-avila/LibreChat/pull/980) 提交
+- 在行動端訊息串流期間取消自動捲動，由 [@danny-avila](https://github.com/danny-avila) 於 [#984](https://github.com/danny-avila/LibreChat/pull/984) 提交
+- 調整文字聊天捲動條空間，以便在螢幕下方更容易選取捲動條，由 [@danny-avila](https://github.com/danny-avila) 於 [#988](https://github.com/danny-avila/LibreChat/pull/988) 提交
+- 修正 #1018 中引入的 GPT-4 錯誤代幣使用費率，由 [@danny-avila](https://github.com/danny-avila) 於 [#1020](https://github.com/danny-avila/LibreChat/pull/1020) 提交
+- 修正 OpenAIClient/PluginsClient 的代理處理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#1029](https://github.com/danny-avila/LibreChat/pull/1029) 提交
+- 確保重新整理或進入頁面後，聊天內容能正確渲染，由 [@danny-avila](https://github.com/danny-avila) 於 [#1037](https://github.com/danny-avila/LibreChat/pull/1037) 提交
+- 修正 SearchBar 的防抖 (Debounce) 問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#1039](https://github.com/danny-avila/LibreChat/pull/1039) 提交
+- 修正 BingAIClient（現已改用 [nodejs-gpt](https://github.com/danny-avila/nodejs-gpt)），由 [@danny-avila](https://github.com/danny-avila) 提交
+- 設定正確的預設語言設定，由 [@Berry-13](https://github.com/Berry-13) 於 [#1061](https://github.com/danny-avila/LibreChat/pull/1061) 提交
+- 修正 OpenAI 名稱屬性的正則表達式符合性（在預設設定中使用自定義名稱不再報錯），由 [@danny-avila](https://github.com/danny-avila) 於 [#1076](https://github.com/danny-avila/LibreChat/pull/1076) 提交
+- 修正 `getLogStores` 屬性與 401 錯誤時的重新整理權杖處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#1084](https://github.com/danny-avila/LibreChat/pull/1084) 提交
+
+## 📝 文檔
+
+- 說明如何在 Render 部署中使用 Meilisearch，由 [@itzraiss](https://github.com/itzraiss) 於 [#972](https://github.com/danny-avila/LibreChat/pull/972) 提交
+- 更新 Render.md，加入 Meilisearch 指南，由 [@danny-avila](https://github.com/danny-avila) 於 [#982](https://github.com/danny-avila/LibreChat/pull/982) 提交
+- 修正 Docker Compose 安裝指令，由 [@PeterDaveHello](https://github.com/PeterDaveHello) 於 [#1053](https://github.com/danny-avila/LibreChat/pull/1053) 提交
+- 在 README 加入代幣使用量說明，由 [@Berry-13](https://github.com/Berry-13) 於 [#1060](https://github.com/danny-avila/LibreChat/pull/1060) 提交
+- 更新 Render 環境下的 Meilisearch 與電子郵件密碼重設文檔，由 [@fuegovic](https://github.com/fuegovic) 於 [#1062](https://github.com/danny-avila/LibreChat/pull/1062) 提交
+- 更新 README 內容，由 [@Berry-13](https://github.com/Berry-13) 於 [#1086](https://github.com/danny-avila/LibreChat/pull/1086) 提交
+
+## ⚙️ 其他變動
+
+- 升級 Langchain 版本，由 [@danny-avila](https://github.com/danny-avila) 於 [#979](https://github.com/danny-avila/LibreChat/pull/979) 提交
+- 實作供 Fail2Ban 使用的登入日誌，由 [@Berry-13](https://github.com/Berry-13) 於 [#986](https://github.com/danny-avila/LibreChat/pull/986) 提交
+- 圖標與 Favicon 調整、檔案轉換與單元測試，由 [@Berry-13](https://github.com/Berry-13) 於 [#987](https://github.com/danny-avila/LibreChat/pull/987) 提交
+- 重構 PluginStoreDialog 對話框，由 [@Berry-13](https://github.com/Berry-13) 於 [#1047](https://github.com/danny-avila/LibreChat/pull/1047) 提交
+- 支援 Docker-Compose UID/GID 設定，由 [@Berry-13](https://github.com/Berry-13) 於 [#1044](https://github.com/danny-avila/LibreChat/pull/1044) 提交
+- 將 EndpointsConfig 的 Recoil Store 替換為 React Query，由 [@danny-avila](https://github.com/danny-avila) 於 [#1085](https://github.com/danny-avila/LibreChat/pull/1085) 提交
+
+## 新貢獻者
+
+- [@jordantgh](https://github.com/jordantgh) 於 [#975](https://github.com/danny-avila/LibreChat/pull/975) 提交了其首份貢獻
+- [@goodair220917](https://github.com/goodair220917) 於 [#1006](https://github.com/danny-avila/LibreChat/pull/1006) 提交了其首份貢獻
+- [@liukaixiang817](https://github.com/liukaixiang817) 於 [#1019](https://github.com/danny-avila/LibreChat/pull/1019) 提交了其首份貢獻
+- [@walbercardoso](https://github.com/walbercardoso) 於 [#1007](https://github.com/danny-avila/LibreChat/pull/1007) 提交了其首份貢獻
+- [@PeterDaveHello](https://github.com/PeterDaveHello) 於 [#1053](https://github.com/danny-avila/LibreChat/pull/1053) 提交了其首份貢獻
+
+**完整變更紀錄**: [https://github.com/danny-avila/LibreChat/compare/v0.5.9...v0.6.0](https://github.com/danny-avila/LibreChat/compare/v0.5.9...v0.6.0)

@@ -1,0 +1,77 @@
+---
+title: "Anthropic"
+icon: Bot
+---
+
+- 在 **[https://console.anthropic.com/](https://console.anthropic.com/)** 建立帳號。
+- 前往 **[https://console.anthropic.com/account/keys](https://console.anthropic.com/account/keys)** 獲取您的 API 金鑰。
+- 您需要將下列環境變數設定為您的金鑰，或者可以將其設定為 `user_provided` 以允許使用者提供其自有的金鑰。
+
+```bash filename=".env"
+ANTHROPIC_API_KEY=user_provided
+```
+
+- 您可以透過 `ANTHROPIC_MODELS` 決定想提供哪些模型。
+
+```bash filename=".env"
+ANTHROPIC_MODELS=claude-3-opus-20240229,claude-3-sonnet-20240229,claude-3-haiku-20240307,claude-2.1,claude-2,claude-1.2,claude-1,claude-1-100k,claude-instant-1,claude-instant-1-100k
+```
+
+**備註：**
+
+- Anthropic 終端支援透過 `librechat.yaml` 配置文件設定所有[共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW)，包含 `streamRate`、`titleModel`、`titleMethod`、`titlePrompt`、`titlePromptTemplate` 與 `titleEndpoint`。
+
+---
+
+## Vertex AI
+
+LibreChat 支援透過 **Google Cloud Vertex AI** 執行 Anthropic Claude 模型。若您具備下列需求，這將非常有用：
+- 已有現成的 Google Cloud 基礎設施。
+- 希望使用現有的 GCP 計費系統與憑證。
+- 需要符合區域性資料落地 (data residency) 要求。
+
+### 快速設定 (環境變數)
+
+設定下列環境變數以透過 Vertex AI 啟用 Anthropic：
+
+```bash filename=".env"
+# 為 Anthropic 啟用 Vertex AI 模式
+ANTHROPIC_USE_VERTEX=true
+
+# Vertex AI 區域（選填，預設為 'us-east5'）
+# 可用區域：global, us-east5, us-central1, europe-west1, europe-west4, asia-southeast1
+ANTHROPIC_VERTEX_REGION=global
+
+# Google 服務帳號金鑰檔案路徑（選填）
+# 若未指定，預設路徑為：api/data/auth.json
+GOOGLE_SERVICE_KEY_FILE=/path/to/service-account.json
+```
+
+### 先決條件
+
+1. **Google Cloud 專案** 並已啟用 Vertex AI API。
+2. **服務帳號 (Service Account)** 具備下列角色：
+   - `Vertex AI User` (`roles/aiplatform.user`)
+   - 或具備完整存取權限的 `Vertex AI Administrator`。
+3. **Claude 模型** 已在您的 Vertex AI Model Garden 中啟用。
+4. 已下載 **服務帳號金鑰** (JSON 檔案) 且可供 LibreChat 存取。
+
+### 進階配置
+
+如需進行模型名稱映射與進階設定（類似於 Azure OpenAI 配置），請使用 `librechat.yaml` 檔案：
+
+```yaml filename="librechat.yaml"
+endpoints:
+  anthropic:
+    vertex:
+      region: us-east5
+      models:
+        claude-opus-4.5:
+          deploymentName: claude-opus-4-5@20251101
+        claude-sonnet-4:
+          deploymentName: claude-sonnet-4-20250514
+        claude-3.5-haiku:
+          deploymentName: claude-3-5-haiku@20241022
+```
+
+如需詳細的 YAML 配置選項，請參閱 [Anthropic Vertex AI 配置](/docs/configuration/librechat_yaml/object_structure/anthropic_vertex_zh_TW)。

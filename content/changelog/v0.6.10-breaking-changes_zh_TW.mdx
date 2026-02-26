@@ -1,0 +1,55 @@
+---
+date: 2024-02-17
+title: ⚠️ 重大變更 v0.6.10+
+description: LibreChat v0.6.10+ 版本的重大變更
+version: "0.6.10-breaking-changes"
+---
+
+<Callout type="info" title="Meilisearch v1.7" emoji="🔍">
+  - **Meilisearch 更新**：隨著 Meilisearch 最近的更新，您的根目錄中可能存在一個名為 `meili_data_v1.6` 的未使用資料夾。此資料夾已不再需要，可以 **放心刪除** 以節省空間。
+  - **新的索引數據位置**：在當前的 Meilisearch 版本 `1.7.3` 下，新的索引數據資料夾將為 `meili_data_v1.7`。
+</Callout>
+
+<Callout type="info" title="Meilisearch v1.6" emoji="🔍">
+  - **Meilisearch 更新**：隨著 Meilisearch 最近的更新，您的根目錄中可能存在一個名為 `meili_data_v1.5` 的未使用資料夾。此資料夾已不再需要，可以 **放心刪除** 以節省空間。
+  - **新的索引數據位置**：在當前的 Meilisearch 版本 `1.6` 下，新的索引數據資料夾將為 `meili_data_v1.6`。
+</Callout>
+
+<Callout type="error" title="Ninja 🥷🪦">
+  - 隨著 「Ninja」 服務的關閉，ChatGPTbrowser 終端在 LibreChat 中已不再可用。
+</Callout>
+
+<Callout type="warning" title="`docker-compose.yml` 更新" emoji='🐋'>
+我們對 `docker-compose.yml` 檔案進行了調整以優化預設行為。從現在開始，該檔案預設使用預建映像。如果您偏好自行建置映像，則需要利用覆寫檔案來指定您的自定義建置配置。
+
+以下是 `docker-compose.override.yml` 的範例：
+
+```yaml
+version: '3.4'
+
+services:
+  api:
+  image: librechat
+  build:
+    context: .
+    target: node
+```
+
+如需更多關於使用 `docker-compose.override.yaml` 的詳細資訊，請參閱我們的文檔：[docker_override](/docs/configuration/docker_override_zh_TW)
+
+</Callout>
+
+<Callout type="note" title="Söhne 字體授權問題">
+在最近的授權審查中，發現 LibreChat 中使用的 Söhne 字體需要適當的授權才能合法使用。這些字體是專案早期由社群貢獻加入的，目的是為了鏡像呈現 ChatGPT 的美學，但在未充分瞭解的情況下允許使用它們是我的疏忽。
+
+為了解決此問題，我們已從專案中移除 Söhne 字體，並以開源字體取代，此變更已在 GitHub 儲存庫的最新版本中立即生效。我們已聯繫相關字體公司以解決此事。
+
+所有使用者以及分叉 (fork) 過 LibreChat 的人，都必須更新至最新版本以符合字體授權法。如果您偏好繼續使用該字體，請遵循[此處](https://gist.github.com/danny-avila/e1d623e51b24cf0989865197bb788102)提供的說明。
+
+LibreChat 始終致力於確保合規性、無障礙性與持續改進。為了匹配 OpenAI ChatGPT 樣式所做的努力初衷是好的，但執行欠佳；往後專案的所有面向都將符合法律與許可標準。
+
+感謝您的理解與配合完成這些必要的調整。如需關於實施這些變更的更新或指引，請隨時聯繫。
+
+感謝您對 LibreChat 的持續支持。
+
+</Callout>

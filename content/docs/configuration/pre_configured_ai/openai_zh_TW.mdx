@@ -1,0 +1,31 @@
+---
+title: "OpenAI"
+icon: Bot
+---
+
+若要獲取您的 OpenAI API 金鑰，您需要：
+
+- 前往 **[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)**。
+- 建立帳號或登入現有帳號。
+- 為您的帳號新增付款方式。
+- 前往 https://platform.openai.com/api-keys 獲取金鑰。
+- 您需要將下列環境變數設定為您的金鑰，或者可以將其設定為 `user_provided` 以允許使用者提供其自有的金鑰。
+
+```bash filename=".env"
+OPENAI_API_KEY=user_provided
+```
+
+- 您可以透過 `OPENAI_MODELS` 決定想提供哪些模型：
+  - 當 `OPENAI_API_KEY` 設定為 `user_provided` 時 → 僅在此清單中列出的模型才可用。
+    - ⚠️ 新模型不會自動出現，您需要先手動將其加入此清單。
+  - 當 `OPENAI_API_KEY` 設定為實際的 API 金鑰值時 → 只要將 `OPENAI_MODELS` 保持為註釋狀態，系統將會進行 API 呼叫以查詢可用模型，這應會包含所有新模型。
+
+```bash filename=".env"
+OPENAI_MODELS=gpt-3.5-turbo-0125,gpt-3.5-turbo-0301,gpt-3.5-turbo,gpt-4,gpt-4-0613,gpt-4-vision-preview,gpt-3.5-turbo-0613,gpt-3.5-turbo-16k-0613,gpt-4-0125-preview,gpt-4-turbo-preview,gpt-4-1106-preview,gpt-3.5-turbo-1106,gpt-3.5-turbo-instruct,gpt-3.5-turbo-instruct-0914,gpt-3.5-turbo-16k
+```
+
+**備註：**
+
+- 針對附帶附件的訊息，無需特意選取視覺 (vision) 模型，因為系統會在幕後自動為您切換。如果您未直接選取視覺模型，系統僅會在處理視覺請求時使用它，請求成功後您仍會看到先前選取的非視覺模型。
+- OpenAI 視覺模型允許傳送不含附件的訊息。
+- OpenAI 終端支援透過 `librechat.yaml` 配置文件設定所有[共用終端設定](/docs/configuration/librechat_yaml/object_structure/shared_endpoint_settings_zh_TW)，包含 `streamRate`、`titleModel`、`titleMethod`、`titlePrompt`、`titlePromptTemplate` 與 `titleEndpoint`。

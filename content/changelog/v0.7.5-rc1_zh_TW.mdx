@@ -1,0 +1,81 @@
+---
+date: 2024-08-28
+title: 🚀 LibreChat v0.7.5-rc1
+description: LibreChat 的 v0.7.5-rc1 版本發布
+version: "0.7.5-rc1"
+---
+
+## 更新內容
+
+v0.7.5 發布候選版
+
+### ✨ 新功能
+
+* 🛠️ feat: 支援 Azure OpenAI Assistants 檔案下載，由 [@danny-avila](https://github.com/danny-avila) 於 [#3653](https://github.com/danny-avila/LibreChat/pull/3653) 提交
+* 🤖 feat: 辨識 `chatgpt-4o-latest` 模型，更新預設 OpenAI 模型清單，由 [@danny-avila](https://github.com/danny-avila) 於 [#3667](https://github.com/danny-avila/LibreChat/pull/3667) 提交
+* 💾 feat: 支援 Anthropic 提示詞快取 (Prompt Caching)，由 [@danny-avila](https://github.com/danny-avila) 於 [#3670](https://github.com/danny-avila/LibreChat/pull/3670) 提交
+* 📩 feat: 實作邀請使用者功能，由 [@berry-13](https://github.com/berry-13) 於 [#3012](https://github.com/danny-avila/LibreChat/pull/3012) 提交
+* 🧪 feat: 實作提示詞下拉選單變數；style: 新增 Markdown 支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#3681](https://github.com/danny-avila/LibreChat/pull/3681) 提交
+* 🔐 feat: 支援透過 `librechat.yaml` 切換提示詞存取權限，由 [@danny-avila](https://github.com/danny-avila) 於 [#3735](https://github.com/danny-avila/LibreChat/pull/3735) 提交
+* 🔖 feat: 強化書籤 UX，加入角色存取控制 (RBAC)，支援透過 `librechat.yaml` 切換，由 [@danny-avila](https://github.com/danny-avila) 於 [#3747](https://github.com/danny-avila/LibreChat/pull/3747) 提交
+* 🧮 feat: 提升 LaTeX 渲染的一致性，由 [@danny-avila](https://github.com/danny-avila) 於 [#3763](https://github.com/danny-avila/LibreChat/pull/3763) 提交
+* 🧮 feat: 優化結構化代幣計費與測試；fix: 修正 Anthropic 快取計費，由 [@danny-avila](https://github.com/danny-avila) 於 [#3766](https://github.com/danny-avila/LibreChat/pull/3766) 提交
+* 🐋 feat: 新增已知終端：DeepSeek、Unify，由 [@fuegovic](https://github.com/fuegovic) 於 [#3776](https://github.com/danny-avila/LibreChat/pull/3776)、[#3778](https://github.com/danny-avila/LibreChat/pull/3778) 提交
+* 🧠 feat: 實作提示詞快取開關、提示詞查詢參數；refactor: 優化靜態快取、提示詞/Markdown 樣式，修剪複製的代碼，切換新對話至對話 URL，由 [@danny-avila](https://github.com/danny-avila) 於 [#3784](https://github.com/danny-avila/LibreChat/pull/3784) 提交
+
+### 🚀 優化項目：
+
+* 📜 refactor: 優化長訊息執行緒的效能，由 [@danny-avila](https://github.com/danny-avila) 於 [#3610](https://github.com/danny-avila/LibreChat/pull/3610) 提交
+* 🔀 refactor: 模組化 TTS 邏輯以改進瀏覽器支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#3657](https://github.com/danny-avila/LibreChat/pull/3657) 提交
+* 🖱️ fix: 修正訊息捲動 UX；refactor: 前端 UX/DX 優化，由 [@danny-avila](https://github.com/danny-avila) 於 [#3733](https://github.com/danny-avila/LibreChat/pull/3733) 提交
+
+### 🎨 樣式調整
+
+* 🖼️ style: 更新對話選單與對話框樣式，由 [@berry-13](https://github.com/berry-13) 於 [#3601](https://github.com/danny-avila/LibreChat/pull/3601) 提交
+* ⏺️ style: 優化 Markdown 列表顯示，由 [@danny-avila](https://github.com/danny-avila) 於 [#3777](https://github.com/danny-avila/LibreChat/pull/3777) 提交
+* ⌨️ style(a11y): 為 LLM 終端選單新增鍵盤存取支援；refactor: 樣式重構，由 [@berry-13](https://github.com/berry-13) 於 [#3714](https://github.com/danny-avila/LibreChat/pull/3714) 提交
+
+### 🔧 臭蟲修復
+
+* 📧 fix: 修正點選選取時 [@指令](https://github.com/指令) 與 +指令的觸發時機，由 [@berry-13](https://github.com/berry-13) 於 [#3617](https://github.com/danny-avila/LibreChat/pull/3617) 提交
+* 🎛️ fix: 改善前端音訊設定的實作規範，由 [@danny-avila](https://github.com/danny-avila) 於 [#3624](https://github.com/danny-avila/LibreChat/pull/3624) 提交
+* 🎙️ fix: 優化並修正瀏覽器 TTS 不相容問題 (Firefox)，由 [@danny-avila](https://github.com/danny-avila) 於 [#3627](https://github.com/danny-avila/LibreChat/pull/3627) 提交
+* 🎧 fix(TTS): 提升音訊播放狀態管理、Hook 模式，並修正 MediaSource 未定義問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3632](https://github.com/danny-avila/LibreChat/pull/3632) 提交
+* 🔧 fix: 修正書籤上移時的順序調整問題，由 [@ohneda](https://github.com/ohneda) 於 [#3634](https://github.com/danny-avila/LibreChat/pull/3634) 提交
+* 🦙 fix: 若未提供則為 Ollama 更新標題訊息角色，由 [@danny-avila](https://github.com/danny-avila) 於 [#3663](https://github.com/danny-avila/LibreChat/pull/3663) 提交
+* 🔧 fix: 修正封存對話刪除時的 z-index 層次問題，由 [@arthurian](https://github.com/arthurian) 於 [#3643](https://github.com/danny-avila/LibreChat/pull/3643) 提交
+* ⚓ fix: 修正匯出按鈕內容位移問題；chore: 升級 `axios` 並增加日誌紀錄，由 [@berry-13](https://github.com/berry-13) 於 [#3668](https://github.com/danny-avila/LibreChat/pull/3668) 提交
+* 📱 fix: 解決 Android 裝置上側邊欄組合方塊 (Combobox) 的無障礙問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3689](https://github.com/danny-avila/LibreChat/pull/3689) 提交
+* 🐛 fix: 處理 Anthropic 提示詞快取的邊緣案例，由 [@danny-avila](https://github.com/danny-avila) 於 [#3690](https://github.com/danny-avila/LibreChat/pull/3690) 提交
+* 🔑 fix(AuthService): 正確處理密碼重設權杖的讀取與刪除，由 [@berry-13](https://github.com/berry-13) 於 [#3697](https://github.com/danny-avila/LibreChat/pull/3697) 提交
+* 🔧 fix: 為書籤導覽項目新增 「全部清除」 按鈕，由 [@berry-13](https://github.com/berry-13) 於 [#3721](https://github.com/danny-avila/LibreChat/pull/3721) 提交
+* 🔧 fix: 修正使用 `@` 提及指令時 EndpointIcon 崩潰的問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3742](https://github.com/danny-avila/LibreChat/pull/3742) 提交
+* 🔧 fix: 處理自定義配置中缺失語音設定的情況，由 [@berry-13](https://github.com/berry-13) 於 [#3790](https://github.com/danny-avila/LibreChat/pull/3790) 提交
+* 🔍 fix: 修正 `USE_REDIS` 條件判斷、Markdown 列表計數與代碼突顯問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3806](https://github.com/danny-avila/LibreChat/pull/3806) 提交
+
+### ⚙️ 其他變動
+
+* 🤖 refactor: 移除所有終端的預設模型參數，由 [@danny-avila](https://github.com/danny-avila) 於 [#3682](https://github.com/danny-avila/LibreChat/pull/3682) 提交
+* 🧹 chore: 處理多項微小問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3710](https://github.com/danny-avila/LibreChat/pull/3710) 提交
+* 🐋 ci: 重寫 Dockerfile.multi 並維持套件完整性，由 [@danny-avila](https://github.com/danny-avila) 於 [#3772](https://github.com/danny-avila/LibreChat/pull/3772) 提交
+* 🧹 chore: 移除舊版 Markdown 程式碼，由 [@danny-avila](https://github.com/danny-avila) 於 [#3789](https://github.com/danny-avila/LibreChat/pull/3789) 提交
+* 🚚 chore: 從 deploy-compose.yml 移除 client-dist 磁碟卷，由 [@danny-avila](https://github.com/danny-avila) 於 [#3799](https://github.com/danny-avila/LibreChat/pull/3799) 提交
+* 🏷️ chore: 為 Claude-3.5-Sonnet 加入非官方命名變體支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#3800](https://github.com/danny-avila/LibreChat/pull/3800) 提交
+
+### 🌍 國際化 (i18n)：
+
+* 🌏i18n: 優化俄語翻譯，由 [@kukoboris](https://github.com/kukoboris) 於 [#3674](https://github.com/danny-avila/LibreChat/pull/3674)、[#3718](https://github.com/danny-avila/LibreChat/pull/3718) 提交
+
+### 新貢獻者
+* [@akash-singh8](https://github.com/akash-singh8) 於 [#3604](https://github.com/danny-avila/LibreChat/pull/3604) 提交了其首份貢獻
+* [@Tanvez](https://github.com/Tanvez) 於 [#3630](https://github.com/danny-avila/LibreChat/pull/3630) 提交了其首份貢獻
+* [@kukoboris](https://github.com/kukoboris) 於 [#3674](https://github.com/danny-avila/LibreChat/pull/3674) 提交了其首份貢獻
+
+
+### 👀 下步計畫
+
+**[追蹤 v0.7.5 剩餘的變更項目](https://github.com/danny-avila/LibreChat/milestone/7)**
+
+---
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.7.4...v0.7.5-rc1

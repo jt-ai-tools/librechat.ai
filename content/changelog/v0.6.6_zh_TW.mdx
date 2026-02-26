@@ -1,0 +1,131 @@
+---
+date: 2024-01-19
+title: 🚀 LibreChat v0.6.6
+description: GitHub 趨勢熱門🎉、自定義終端、Firebase，以及更多...
+version: "0.6.6"
+---
+
+# 更新內容
+
+## 🏞️ 亮點介紹
+
+<a href="https://trendshift.io/repositories/4685" target="_blank">
+  <img
+    src="https://trendshift.io/api/badge/repositories/4685"
+    alt="danny-avila%2FLibreChat | Trendshift"
+    width="250"
+    height="55"
+  />
+</a>
+
+- **LibreChat 達成重大里程碑，連續多日登上 GitHub 趨勢榜！**
+- 感謝所有關注此專案的朋友，我們仍有許多功能正在積極開發中！
+
+- **[現在支援自定義終端（需遵循 OpenAI 規範）：](/docs/configuration/librechat_yaml/ai_endpoints_zh_TW)**
+
+![fd0d2307-008f-4e1d-b75b-4f141070ce71](https://user-images.githubusercontent.com/110412045/298197340-f8c71b96-c729-454a-a485-99fc2c4ef6ae.png)
+
+- **您可以在「設定」中啟用實驗性模式，以便在對話中途切換終端：**
+
+![image](https://github.com/danny-avila/LibreChat/assets/110412045/b6c4c7a4-c96c-4d37-b080-ac669a408228)
+
+## :sparkles: 新功能
+
+- 👮feat: 實作審核文字功能，由 [@Berry-13](https://github.com/Berry-13) 於 [#1388](https://github.com/danny-avila/LibreChat/pull/1388) 提交
+- 🔥🚀 feat: 支援 CDN (Firebase) 及 feat: 新增帳號區段，由 [@Berry-13](https://github.com/Berry-13) 於 [#1438](https://github.com/danny-avila/LibreChat/pull/1438) 提交
+- 🚫🔍 feat: 支援停用搜尋引擎索引，由 [@Berry-13](https://github.com/Berry-13) 於 [#1409](https://github.com/danny-avila/LibreChat/pull/1409) 提交
+- 🐳 : 優化 Docker 建置流程，由 [@ineiti](https://github.com/ineiti) 於 [#1415](https://github.com/danny-avila/LibreChat/pull/1415) 提交
+- 📃 feat: 新增 `list-balances`、`remove-user` 並優化使用者相關腳本，由 [@ineiti](https://github.com/ineiti) 於 [#1418](https://github.com/danny-avila/LibreChat/pull/1418) 提交
+- 📱feat: 支援 PWA，由 [@Berry-13](https://github.com/Berry-13) 於 [#1440](https://github.com/danny-avila/LibreChat/pull/1440) 提交
+- 💫 feat: 實作配置檔案與自定義終端功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#1474](https://github.com/danny-avila/LibreChat/pull/1474) 提交
+- 🧪 feat: 實驗性：支援在對話中途切換終端，由 [@danny-avila](https://github.com/danny-avila) 於 [#1483](https://github.com/danny-avila/LibreChat/pull/1483) 提交
+- ✨ feat(saveImageFromUrl): 動態處理副檔名，由 [@danny-avila](https://github.com/danny-avila) 於 [#1514](https://github.com/danny-avila/LibreChat/pull/1514) 提交
+- 🚀 Feat: 精簡檔案策略與 GPT-4-Vision 設定，由 [@danny-avila](https://github.com/danny-avila) 於 [#1535](https://github.com/danny-avila/LibreChat/pull/1535) 提交
+- ✏️ feat: 訊息支援 LaTeX 解析，由 [@danny-avila](https://github.com/danny-avila) 於 [#1585](https://github.com/danny-avila/LibreChat/pull/1585) 提交
+- 🖼️ feat(DALL-E): 支援 Azure OpenAI 及新增配置變數，由 [@danny-avila](https://github.com/danny-avila) 於 [#1586](https://github.com/danny-avila/LibreChat/pull/1586) 提交
+- 🎯 feat(config): 自定義終端支援自定義請求標頭，由 [@danny-avila](https://github.com/danny-avila) 於 [#1588](https://github.com/danny-avila/LibreChat/pull/1588) 提交
+- 🚀 feat: 所有 OpenAI 請求均支援 `OPENAI_ORGANIZATION` 變數，由 [@danny-avila](https://github.com/danny-avila) 於 [#1590](https://github.com/danny-avila/LibreChat/pull/1590) 提交
+- 🖌️ feat: 訊息支援選配顯示使用者名稱、優化發送/停止按鈕樣式、更新在地化翻譯，由 @itzraiss 與 @danny-avila 於 [#1592](https://github.com/danny-avila/LibreChat/pull/1592) 提交
+- 🪶 feat: 支援 Azure OpenAI 基礎 URL，由 [@danny-avila](https://github.com/danny-avila) 於 [#1596](https://github.com/danny-avila/LibreChat/pull/1596) 提交
+
+## :gear: 其他變動
+
+- 🔖 Chore: 使用硬連結更新 pull_request_template.md，由 [@danny-avila](https://github.com/danny-avila) 於 [#1417](https://github.com/danny-avila/LibreChat/pull/1417) 提交
+- 🎨 style: 為終端/模型選單加入動態高度設定，由 [@danny-avila](https://github.com/danny-avila) 於 [#1480](https://github.com/danny-avila/LibreChat/pull/1480) 提交
+- 🧹 chore: 移除 「MEILI_HTTP_ADDR」 變數，由 [@fuegovic](https://github.com/fuegovic) 於 [#1475](https://github.com/danny-avila/LibreChat/pull/1475) 提交
+- 🗨️ refactor: 「開啟新對話」支援 Ctrl+點擊或組合鍵在新分頁開啟，由 [@danny-avila](https://github.com/danny-avila) 於 [#1484](https://github.com/danny-avila/LibreChat/pull/1484) 提交
+- 🐋 refactor: Docker 支援掛載配置檔案並加入 .dockerignore，由 [@danny-avila](https://github.com/danny-avila) 於 [#1493](https://github.com/danny-avila/LibreChat/pull/1493) 提交
+- 🐳 : 進一步清理 Docker 建置腳本並更新文檔，由 [@danny-avila](https://github.com/danny-avila) 於 [#1502](https://github.com/danny-avila/LibreChat/pull/1502) 提交
+- 🔄 refactor(config): 將 `connectWithTimeout` 移出 Helpers 模組，由 [@danny-avila](https://github.com/danny-avila) 於 [#1513](https://github.com/danny-avila/LibreChat/pull/1513) 提交
+- 🎨: 更新外掛程式搜尋列樣式，由 @itzraiss 於 [#1549](https://github.com/danny-avila/LibreChat/pull/1549) 提交
+- 🪙 refactor: 更新 tokens.js，為最大限制增加上下文緩衝空間，由 [@danny-avila](https://github.com/danny-avila) 於 [#1573](https://github.com/danny-avila/LibreChat/pull/1573) 提交
+- 📜 refactor: 提升自動捲動速度並優化 UseEffect 清理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#1591](https://github.com/danny-avila/LibreChat/pull/1591) 提交
+
+## 🔧 臭蟲修復
+
+- 🐛 fix: 防止日誌物件中對 Symbol 進行不必要的複製，由 [@danny-avila](https://github.com/danny-avila) 於 [#1455](https://github.com/danny-avila/LibreChat/pull/1455) 提交
+- 🧹fix: 處理終止訊息時的邊緣案例，由 [@danny-avila](https://github.com/danny-avila) 於 [#1462](https://github.com/danny-avila/LibreChat/pull/1462) 提交
+- 🛠️ fix: 修正 `Message`、`Ask/EditController`、`OpenAIClient` 與 `countTokens` 中的多項微小錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#1463](https://github.com/danny-avila/LibreChat/pull/1463) 提交
+- 🔧 fix(OpenAIClient): 發生補全錯誤時不再呼叫 abortCompletion，由 [@danny-avila](https://github.com/danny-avila) 於 [#1473](https://github.com/danny-avila/LibreChat/pull/1473) 提交
+- 🔧 fix: 解決 langchain 套件版本衝突、為 `deploy-compose.yaml` 掛載配置檔案、靜默「找不到配置文件」錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#1481](https://github.com/danny-avila/LibreChat/pull/1481) 提交
+- 🛠️ fix: 修正錯誤訊息解析與 ChatOpenAI 憑證問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#1482](https://github.com/danny-avila/LibreChat/pull/1482) 提交
+- 🔧 fix: 優化終端處理並解決多個邊緣案例，由 [@danny-avila](https://github.com/danny-avila) 於 [#1486](https://github.com/danny-avila/LibreChat/pull/1486) 提交
+- ⬆️ fix(SendButton): 修正啟動 (enabled) 狀態下暗色主題的背景顏色，由 [@danny-avila](https://github.com/danny-avila) 於 [#1503](https://github.com/danny-avila/LibreChat/pull/1503) 提交
+- 🛠️ fix: 修正自定義終端問題，優化 SSE 回應處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#1510](https://github.com/danny-avila/LibreChat/pull/1510) 提交
+- 🐛 fix: 在呼叫棧頂層載入 `dotenv`，由 [@danny-avila](https://github.com/danny-avila) 於 [#1512](https://github.com/danny-avila/LibreChat/pull/1512) 提交
+- 🔧 fix: 錯誤處理邏輯優化，由 [@danny-avila](https://github.com/danny-avila) 於 [#1518](https://github.com/danny-avila/LibreChat/pull/1518) 提交
+- fix(getUserPluginAuthValue): 若無匹配使用者則拋出錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#1522](https://github.com/danny-avila/LibreChat/pull/1522) 提交
+- 🐛 fix: 自定義終端從 `modelOptions` 中移除 `resendImages` 與 `imageDetail`，由 [@danny-avila](https://github.com/danny-avila) 於 [#1537](https://github.com/danny-avila/LibreChat/pull/1537) 提交
+- 🏗️ fix(config): 修正 Linux 與 Windows 上輔助腳本的路徑解析，由 [@danny-avila](https://github.com/danny-avila) 於 [#1542](https://github.com/danny-avila/LibreChat/pull/1542) 提交
+- 📕 fix: 根據 `appTitle` 與 「New Chat」 狀態更新文件標題，由 [@danny-avila](https://github.com/danny-avila) 於 [#1553](https://github.com/danny-avila/LibreChat/pull/1553) 提交
+
+## :memo: 文檔
+
+- 🧹📚 docs: 文檔重構與清理，由 [@fuegovic](https://github.com/fuegovic) 於 [#1392](https://github.com/danny-avila/LibreChat/pull/1392) 提交
+- 🪪mkdocs: 實作社群分享卡片，由 [@fuegovic](https://github.com/fuegovic) 於 [#1428](https://github.com/danny-avila/LibreChat/pull/1428) 提交
+- doc update: 更新 firebase.md，由 [@fuegovic](https://github.com/fuegovic) 於 [#1456](https://github.com/danny-avila/LibreChat/pull/1456) 提交
+- docs: 更新 pull_request_template.md，由 [@fuegovic](https://github.com/fuegovic) 於 [#1466](https://github.com/danny-avila/LibreChat/pull/1466) 提交
+- docs: 將授權日期更新至 2024 年，由 [@Berry-13](https://github.com/Berry-13) 於 [#1501](https://github.com/danny-avila/LibreChat/pull/1501) 提交
+- 🚆 docs: 新增 Sealos 一鍵部署指南，由 [@yangchuansheng](https://github.com/yangchuansheng) 於 [#1578](https://github.com/danny-avila/LibreChat/pull/1578) 提交
+- 🚆docs: 新增 Railway 支援文檔，由 [@Berry-13](https://github.com/Berry-13) 於 [#1529](https://github.com/danny-avila/LibreChat/pull/1529) 提交
+- 📑 docs: 更新 Mistral AI API 關於 `dropParams` 的範例，由 [@danny-avila](https://github.com/danny-avila) 於 [#1538](https://github.com/danny-avila/LibreChat/pull/1538) 提交
+- 🚆docs: 修正 Hetzner Ubuntu 範例中無效的環境變數，由 [@nicam](https://github.com/nicam) 於 [#1539](https://github.com/danny-avila/LibreChat/pull/1539) 提交
+- 📔 docs: 更新 Render 託管指南，由 [@tmendenhall](https://github.com/tmendenhall) 於 [#1528](https://github.com/danny-avila/LibreChat/pull/1528) 提交
+- 📑 docs: 修正 Mistral AI API 範例，將 `safe_mode` 改為 `safe_prompt`，由 [@danny-avila](https://github.com/danny-avila) 於 [#1541](https://github.com/danny-avila/LibreChat/pull/1541) 提交
+- 🧹 docs: 更新 docker_override.md，由 [@eltociear](https://github.com/eltociear) 於 [#1546](https://github.com/danny-avila/LibreChat/pull/1546) 提交
+- 🐳 docs: 更新 dotenv.md，由 [@ganeshkrishnan1](https://github.com/ganeshkrishnan1) 於 [#1564](https://github.com/danny-avila/LibreChat/pull/1564) 提交
+
+## 🌐 國際化
+
+- 法語翻譯由 [@fuegovic](https://github.com/fuegovic) 更新。
+- 俄語翻譯由 [@LedyBacer](https://github.com/LedyBacer) 與 [@machinsoft](https://github.com/machinsoft) 更新。
+- 義大利語翻譯由 [@Berry-13](https://github.com/Berry-13) 更新。
+- 葡萄牙語翻譯由 @itzraiss 更新。
+- 印尼語翻譯由 @wahitftry 更新。
+- 中文翻譯由 @snekkenull 更新。
+
+## ⚠️ 重大變更
+
+- **DALL-E 更新**：使用者提供的 DALL-E 金鑰現在必須區分版本，即：`DALLE3_API_KEY` 與 `DALLE2_API_KEY`。
+- 備註：當管理員提供憑證時，`DALLE_API_KEY` 仍可同時適用於 DALL-E-3 與 DALL-E-2；換句話說，這僅在 `.env` 中未設定 DALLE_API_KEY 時才會影響使用者。在此情況下，使用者只需「解除安裝」外掛程式並重新提供 API 金鑰即可。
+- 未使用的舊版代碼近期將從儲存庫中移除（主要集中在客戶端）。
+
+## 👀 下步計畫
+
+- Assistants API 整合與通用檔案支援持續積極開發中，預計 1 月底發布。
+- 聚焦於提示工程 (Prompt-engineering) 的功能，例如在任何時間點新增/移除訊息。
+- 提供更好、更易自定義且更簡單的系統級終端/模型/預設設定配置方式。
+- [完整開發藍圖](https://github.com/users/danny-avila/projects/2)
+
+## 新貢獻者
+
+- [@LedyBacer](https://github.com/LedyBacer) 於 [#1413](https://github.com/danny-avila/LibreChat/pull/1413) 提交了其首份貢獻
+- [@ineiti](https://github.com/ineiti) 於 [#1418](https://github.com/danny-avila/LibreChat/pull/1418) 提交了其首份貢獻
+- [@nicam](https://github.com/nicam) 於 [#1539](https://github.com/danny-avila/LibreChat/pull/1539) 提交了其首份貢獻
+- [@tmendenhall](https://github.com/tmendenhall) 於 [#1528](https://github.com/danny-avila/LibreChat/pull/1528) 提交了其首份貢獻
+- [@eltociear](https://github.com/eltociear) 於 [#1546](https://github.com/danny-avila/LibreChat/pull/1546) 提交了其首份貢獻
+- [@ganeshkrishnan1](https://github.com/ganeshkrishnan1) 於 [#1564](https://github.com/danny-avila/LibreChat/pull/1564) 提交了其首份貢獻
+- [@wahitftry](https://github.com/wahitftry) 於 [#1563](https://github.com/danny-avila/LibreChat/pull/1563) 提交了其首份貢獻
+- [@yangchuansheng](https://github.com/yangchuansheng) 於 [#1578](https://github.com/danny-avila/LibreChat/pull/1578) 提交了其首份貢獻
+
+**完整變更紀錄**: [比較 v0.6.5...v0.6.6](https://github.com/danny-avila/LibreChat/compare/v0.6.5...v0.6.6)

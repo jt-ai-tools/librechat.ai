@@ -1,0 +1,52 @@
+---
+date: 2023-12-19
+title: 🚀 LibreChat v0.6.5
+description: UI 更新與視覺支援、預設設定、自定義 SMTP 伺服器，以及更多...
+version: "0.6.5"
+---
+
+# 更新內容
+
+## ✨ v0.6.5 新功能
+
+- **UI 更新與視覺支援：** 重大 UI 更新以對齊 ChatGPT 官方樣式，並為 GPT-4 Vision 增加初始支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#1190](https://github.com/danny-avila/LibreChat/pull/1190) 與 [#1203](https://github.com/danny-avila/LibreChat/pull/1203) 提交。
+- **預設設定選取：** 實作對話的預設設定 (Preset) 選取功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#1275](https://github.com/danny-avila/LibreChat/pull/1275) 提交。
+- **Gemini 支援與 Google 更新：** 新增 Google Gemini Pro 與 Gemini Pro Vision 支援。現在也完整支援所有 Google Vertex AI 的文字與聊天模型 (PaLM 2 與 Codey)，由 [@danny-avila](https://github.com/danny-avila) 於 [#1316](https://github.com/danny-avila/LibreChat/pull/1316) 與 [#1355](https://github.com/danny-avila/LibreChat/pull/1355) 提交。
+- **Azure 視覺支援：** 實作透過 Azure OpenAI 的 GPT-4 Vision 支援，由 [@danny-avila](https://github.com/danny-avila) 於 [#1389](https://github.com/danny-avila/LibreChat/pull/1389) 提交。
+- **ENDPOINTS 環境變數：** 透過 `ENDPOINTS` 環境變數實作對終端的排序與停用功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#1206](https://github.com/danny-avila/LibreChat/pull/1206) 提交。
+- **反向代理修改：** 現在允許配置任何反向代理 URL。同時為 Anthropic 加入了反向代理支援，由 [@danny-avila](https://github.com/danny-avila) 與 @madonchik123 於 [#1192](https://github.com/danny-avila/LibreChat/pull/1192) 與 [#1106](https://github.com/danny-avila/LibreChat/pull/1106) 提交。
+- **自定義 SMTP 伺服器支援：** 新增使用自定義 SMTP 伺服器的功能，由 @Pikaro 於 [#1219](https://github.com/danny-avila/LibreChat/pull/1219) 提交。
+
+## 🌐 國際化
+
+- **多國語言更新：** 更新越南語、葡萄牙語、西班牙語、土耳其語、俄語、荷蘭語與日語翻譯，由多位貢獻者於多個 PR 提交。
+
+## 🔧 臭蟲修復
+
+- **UI 修復：** 完成多項與新 UI 相關的微小與廣泛修復，由 [@danny-avila](https://github.com/danny-avila) 與 @Berry-13 提交。
+- **修復與優化：** 解決文字區域捲動、錯誤處理、回應發送器中的預設模型名稱、終端切換、Anthropic 用戶端、代幣餘額、AzureAISearch 外掛程式檔案等問題；防止上傳圖片自動旋轉、對話重新整理時的訊息誤載，並確保發送訊息需要 API 金鑰，由多位開發者共同提交。
+
+## 📝 文檔
+
+- **文檔更新：** 更新 `dotenv.md`、LiteLLM 代理、MongoDB 與 Facebook 更新等多方面的指南與文檔，由多位貢獻者提交。
+
+## ⚙️ 其他變動
+
+- **樣式與功能強化：** 實作多項樣式與功能修改，包含：使用 ENDPOINTS 變數管理終端、支援自定義 SMTP 伺服器、新增停用登入功能 (ALLOW_EMAIL_LOGIN)、對話預設設定選取，以及為新使用者自動開啟側邊欄彈出視窗，由多位開發者共同提交。
+
+## 👀 下步計畫
+
+- Assistants API 整合與通用檔案支援正在積極開發中。
+- 提供更好、更易自定義且更簡單的系統級終端/模型/預設設定配置方式。
+- **[完整開發藍圖](https://github.com/users/danny-avila/projects/2)**
+
+## 新貢獻者
+
+- [@madonchik123](https://github.com/madonchik123) 於 [#1106](https://github.com/danny-avila/LibreChat/pull/1106) 提交了其首份貢獻
+- [@jonas-w](https://github.com/jonas-w) 於 [#1237](https://github.com/danny-avila/LibreChat/pull/1237) 提交了其首份貢獻
+- [@Pikaro](https://github.com/Pikaro) 於 [#1219](https://github.com/danny-avila/LibreChat/pull/1219) 提交了其首份貢獻
+- [@ishaan-jaff](https://github.com/ishaan-jaff) 於 [#1249](https://github.com/danny-avila/LibreChat/pull/1249) 提交了其首份貢獻
+- [@KenTaniguchi-R](https://github.com/KenTaniguchi-R) 於 [#1298](https://github.com/danny-avila/LibreChat/pull/1298) 提交了其首份貢獻
+- [@eburnette](https://github.com/eburnette) 於 [#1317](https://github.com/danny-avila/LibreChat/pull/1317) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.6.1...v0.6.5

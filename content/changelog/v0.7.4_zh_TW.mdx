@@ -1,0 +1,153 @@
+---
+date: 2024-08-10
+title: ✨ LibreChat v0.7.4
+description: LibreChat 的 v0.7.4 版本發布
+ogImage: /images/changelog/v0.7.4.png
+version: "0.7.4"
+---
+
+# 更新內容
+
+## 🏞️ 亮點介紹
+
+- 🗨️ 提示詞庫 (Prompts Library)
+- 🌿 多重回應串流 (Multi-response Streaming)
+- 🔖 對話書籤 (Conversation Bookmarks)
+- 🤲 初始的數位無障礙性優化
+- 🚀 全面顯著的效能提升
+
+## ✨ 新功能
+
+### 🗨️ 提示詞庫：
+* 實作聊天提示詞的建立、分享與使用功能：
+  - 包含變數、管理員控制以及針對提示詞的斜線指令 (Slash commands)
+  - 由 [@danny-avila](https://github.com/danny-avila) 於 [#3131](https://github.com/danny-avila/LibreChat/pull/3131)、[#3138](https://github.com/danny-avila/LibreChat/pull/3138)、[#3219](https://github.com/danny-avila/LibreChat/pull/3219) 提交
+
+### 🌿 多重回應串流：
+* 支援在使用相容的模型/終端時，同時產生 2 則回應
+  - 可透過鍵盤指令 (「+」) 或預設設定旁的 (「+」) 按鈕啟動
+  - 由 [@danny-avila](https://github.com/danny-avila) 於 [#3191](https://github.com/danny-avila/LibreChat/pull/3191) 提交
+
+### 🔖 對話書籤
+* 建立書籤以輕鬆過濾並組織您的對話
+* 由 [@ohneda](https://github.com/ohneda)、[@berry-13](https://github.com/berry-13) 與 [@danny-avila](https://github.com/danny-avila) 於 [#3344](https://github.com/danny-avila/LibreChat/pull/3344)、[#3479](https://github.com/danny-avila/LibreChat/pull/3479)、[#3590](https://github.com/danny-avila/LibreChat/pull/3590) 提交
+
+### 其他功能：
+* ⚙️ 支援調整訊息串流速率（有助於穩定聊天請求的效能），由 [@danny-avila](https://github.com/danny-avila) 於 [#3244](https://github.com/danny-avila/LibreChat/pull/3244) 提交
+* 🔑 為使用者提供的 API 金鑰新增無限期過期選項，由 [@berry-13](https://github.com/berry-13) 於 [#3252](https://github.com/danny-avila/LibreChat/pull/3252) 提交
+* ⚡ 原生靜態檔案快取支援，由 [@mawburn](https://github.com/mawburn) 於 [#3455](https://github.com/danny-avila/LibreChat/pull/3455) 提交
+
+## ⚙️ 其他變動
+
+### 模型與終端：
+* 🧠 支援 `claude-3-5-sonnet` 模型（支援更長的輸出代幣長度），由 [@danny-avila](https://github.com/danny-avila) 於 [#3135](https://github.com/danny-avila/LibreChat/pull/3135) 提交
+* 🚀 支援 `gpt-4o-mini` 模型，由 [@berry-13](https://github.com/berry-13) 於 [#3384](https://github.com/danny-avila/LibreChat/pull/3384) 提交
+* 🪙 更新 `gpt-4o-2024-08-06` 與 AWS 模型的代幣交易計費（即將推出），由 [@danny-avila](https://github.com/danny-avila) 於 [#3594](https://github.com/danny-avila/LibreChat/pull/3594) 提交
+
+### 🛡️ 身份驗證與安全：
+* 🚀 LDAP：新增靈活的配置選項，由 [@ohneda](https://github.com/ohneda) 於 [#3124](https://github.com/danny-avila/LibreChat/pull/3124) 提交
+* 💊 OpenID 代理支援，用於透過代理下載個人資料圖片，由 [@berry-13](https://github.com/berry-13) 於 [#3263](https://github.com/danny-avila/LibreChat/pull/3263) 提交
+* 🛂 允許透過使用者名稱進行 LDAP 登入，由 [@danny-avila](https://github.com/danny-avila) 與 [@lidonius1122](https://github.com/lidonius1122) 於 [#3463](https://github.com/danny-avila/LibreChat/pull/3463)、[#3472](https://github.com/danny-avila/LibreChat/pull/3472) 提交
+* 🔒 為 LDAP 身份驗證新增停用 TLS 的選項，由 [@ravi-katiyar](https://github.com/ravi-katiyar) 於 [#3247](https://github.com/danny-avila/LibreChat/pull/3247) 提交
+* 🔐 強化訊息與圖片的存取安全性，由 [@danny-avila](https://github.com/danny-avila) 於 [#3363](https://github.com/danny-avila/LibreChat/pull/3363)、[#3365](https://github.com/danny-avila/LibreChat/pull/3365) 提交
+* 🛡️ 優化並提升共享連結 (SharedLinks) 的匿名性，由 [@danny-avila](https://github.com/danny-avila) 於 [#3543](https://github.com/danny-avila/LibreChat/pull/3543) 提交
+* 🛂 加強對話存取的安全性，由 [@danny-avila](https://github.com/danny-avila) 於 [#3588](https://github.com/danny-avila/LibreChat/pull/3588) 提交
+
+### 🚀 優化項目：
+
+* 🔧 簡化初始載入效果與訊息樣式複雜度，由 [@danny-avila](https://github.com/danny-avila) 於 [#3213](https://github.com/danny-avila/LibreChat/pull/3213) 提交
+* 🚤 優化聊天請求生命週期速度，由 [@danny-avila](https://github.com/danny-avila) 於 [#3222](https://github.com/danny-avila/LibreChat/pull/3222)、[#3230](https://github.com/danny-avila/LibreChat/pull/3230) 提交
+* 🕸️ 從 `crypto` 遷移至 Web Crypto API，由 [@mawburn](https://github.com/mawburn) 與 [@danny-avila](https://github.com/danny-avila) 於 [#3357](https://github.com/danny-avila/LibreChat/pull/3357)、[#3556](https://github.com/danny-avila/LibreChat/pull/3556) 提交
+* ⏬ 使用 Intersection Observer 優化自動與手動滾動處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#3564](https://github.com/danny-avila/LibreChat/pull/3564) 提交
+* 🌡️ 定期執行健康檢查，防止因 UI 閒置導致的連線錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#3589](https://github.com/danny-avila/LibreChat/pull/3589) 提交
+
+### 語音與音訊：
+* 🎤 實作自定義語音配置、瀏覽器 TTS/STT 功能及動態語音分頁設定，由 [@berry-13](https://github.com/berry-13) 於 [#2921](https://github.com/danny-avila/LibreChat/pull/2921)、[#3282](https://github.com/danny-avila/LibreChat/pull/3282) 提交
+* 🗣️ 新增 Azure OpenAI TTS 服務，由 [@berry-13](https://github.com/berry-13) 於 [#2985](https://github.com/danny-avila/LibreChat/pull/2985) 提交
+* 🗣️ 重構 OpenAI STT 服務，由 [@berry-13](https://github.com/berry-13) 於 [#3431](https://github.com/danny-avila/LibreChat/pull/3431) 提交
+* 🌩️ 支援基於雲端的瀏覽器語音，由 [@berry-13](https://github.com/berry-13) 於 [#3297](https://github.com/danny-avila/LibreChat/pull/3297) 提交
+* ✨ 新增自動發送文字滑桿，由 [@berry-13](https://github.com/berry-13) 於 [#3312](https://github.com/danny-avila/LibreChat/pull/3312) 提交
+* 🗣️ 支援 Edge TTS 引擎，由 [@berry-13](https://github.com/berry-13) 於 [#3358](https://github.com/danny-avila/LibreChat/pull/3358) 提交
+
+### UI/UX 增強：
+* 🕑 伺服器連線錯誤訊息支援 Suspense 載入效果，由 [@danny-avila](https://github.com/danny-avila) 於 [#3074](https://github.com/danny-avila/LibreChat/pull/3074) 提交
+* 🔄 支援聊天方向設定 (LTR-RTL)，由 [@berry-13](https://github.com/berry-13) 於 [#3260](https://github.com/danny-avila/LibreChat/pull/3260) 提交
+* 👤 使用者大頭照支援縮放與旋轉，由 [@berry-13](https://github.com/berry-13) 於 [#3264](https://github.com/danny-avila/LibreChat/pull/3264) 提交
+* ⬆️ 支援使用 PageDown 與 PageUp 鍵滾動聊天訊息，由 [@ohneda](https://github.com/ohneda) 於 [#3350](https://github.com/danny-avila/LibreChat/pull/3350) 提交
+* 🤲 初始的數位無障礙性改進（更多更新即將推出），由 [@danny-avila](https://github.com/danny-avila) 於 [#3536](https://github.com/danny-avila/LibreChat/pull/3536) 提交
+* 🅰️ 支援選取訊息字體大小，由 [@krakenftw](https://github.com/krakenftw) 與 [@danny-avila](https://github.com/danny-avila) 於 [#3568](https://github.com/danny-avila/LibreChat/pull/3568) 提交
+* 🎛️ 優化文字指令，加入鍵盤快捷鍵切換，並僅對第一個字元觸發，由 [@danny-avila](https://github.com/danny-avila) 於 [#3152](https://github.com/danny-avila/LibreChat/pull/3152)、[#3566](https://github.com/danny-avila/LibreChat/pull/3566) 提交
+
+## 🎨 樣式
+
+* 全面改進，主要針對按鈕、對話框、選單等，由 [@berry-13](https://github.com/berry-13) 與 [@danny-avila](https://github.com/danny-avila) 於 [#3088](https://github.com/danny-avila/LibreChat/pull/3088)、[#3100](https://github.com/danny-avila/LibreChat/pull/3100)、[#3205](https://github.com/danny-avila/LibreChat/pull/3205) 提交
+* 更新助手 (Assistants) 構建器表單樣式，由 [@berry-13](https://github.com/berry-13) 於 [#3397](https://github.com/danny-avila/LibreChat/pull/3397) 提交
+* 強化字體大小、提及與提示詞的 UI/UX，由 [@danny-avila](https://github.com/danny-avila) 於 [#3575](https://github.com/danny-avila/LibreChat/pull/3575)、[#3576](https://github.com/danny-avila/LibreChat/pull/3576) 提交
+
+## 🌍 國際化 (i18n)：
+* 優化繁體中文翻譯，由 [@PeterDaveHello](https://github.com/PeterDaveHello) 於 [#3143](https://github.com/danny-avila/LibreChat/pull/3143)、[#3144](https://github.com/danny-avila/LibreChat/pull/3144)、[#3311](https://github.com/danny-avila/LibreChat/pull/3311) 提交
+* 更新土耳其語翻譯，由 [@eniyiweb](https://github.com/eniyiweb) 於 [#3232](https://github.com/danny-avila/LibreChat/pull/3232) 提交
+* 更新法語翻譯，由 [@GaelMartins0](https://github.com/GaelMartins0) 於 [#3240](https://github.com/danny-avila/LibreChat/pull/3240) 提交
+* 新增芬蘭語翻譯，由 [@ylioja](https://github.com/ylioja) 於 [#3316](https://github.com/danny-avila/LibreChat/pull/3316) 提交
+* 優化德語翻譯，由 [@marlonka](https://github.com/marlonka) 於 [#3516](https://github.com/danny-avila/LibreChat/pull/3516) 提交
+* 優化日語翻譯，由 [@ohneda](https://github.com/ohneda) 於 [#3119](https://github.com/danny-avila/LibreChat/pull/3119) 提交
+
+## 📝 文檔：
+* 🔊 全面更新文檔，由 [@berry-13](https://github.com/berry-13) 於 [#3093](https://github.com/danny-avila/LibreChat/pull/3093)、[#3274](https://github.com/danny-avila/LibreChat/pull/3274)、[#3281](https://github.com/danny-avila/LibreChat/pull/3281)、[#3287](https://github.com/danny-avila/LibreChat/pull/3287)、[#3242](https://github.com/danny-avila/LibreChat/pull/3242) 提交
+* 📝 更新 `.env.example` 以包含 RAG API 變數，由 [@aoaim](https://github.com/aoaim) 於 [#3461](https://github.com/danny-avila/LibreChat/pull/3461) 提交
+* 📝 提供 RAG API 服務在 Linux 上與 Ollama 服務通訊的 Docker 覆寫範例檔案，由 [@hulkds](https://github.com/hulkds) 於 [#3356](https://github.com/danny-avila/LibreChat/pull/3356) 提交
+* 🚅 新增 Nginx gzip 設定範例，由 [@ohneda](https://github.com/ohneda) 於 [#3173](https://github.com/danny-avila/LibreChat/pull/3173) 提交
+* 🪖 新增 Helm Chart 範例，由 [@iamNoah1](https://github.com/iamNoah1) 與 [@danny-avila](https://github.com/danny-avila) 於 [#3539](https://github.com/danny-avila/LibreChat/pull/3539) 提交
+
+## 🔧 臭蟲修復
+
+* ✉️ 修正電子郵件驗證連結中的電子郵件地址 URL 編碼問題，由 [@berry-13](https://github.com/berry-13) 於 [#3085](https://github.com/danny-avila/LibreChat/pull/3085) 提交
+* 🔧 useTextArea: 修正日語文字輸入時不正確的新行問題，由 [@ohneda](https://github.com/ohneda) 於 [#3103](https://github.com/danny-avila/LibreChat/pull/3103) 提交
+* 🔧 共享連結：修正共享連結錯誤處理，由 [@ohneda](https://github.com/ohneda) 於 [#3118](https://github.com/danny-avila/LibreChat/pull/3118) 提交
+* 🌐 Assistants API Actions: 修正 `createURL` 中子網域的 URL 構建邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#3149](https://github.com/danny-avila/LibreChat/pull/3149) 提交
+* 🧹 移除建立使用者時不必要的 try/catch，由 [@danny-avila](https://github.com/danny-avila) 於 [#3153](https://github.com/danny-avila/LibreChat/pull/3153) 提交
+* 🧹 代碼清理：包含註釋、拼字錯誤修正，由 [@eltociear](https://github.com/eltociear) 與 [@rehas](https://github.com/rehas) 於 [#3105](https://github.com/danny-avila/LibreChat/pull/3105)、[#3160](https://github.com/danny-avila/LibreChat/pull/3160) 提交
+* 📋 剪貼簿僅允許純文字貼上，防止 RTF 格式，由 [@danny-avila](https://github.com/danny-avila) 於 [#3179](https://github.com/danny-avila/LibreChat/pull/3179) 提交
+* 📂 為 Assistants 終端上傳新增版本選擇功能，由 [@danny-avila](https://github.com/danny-avila) 於 [#3236](https://github.com/danny-avila/LibreChat/pull/3236) 提交
+* 🛠️ 修正 PluginsClient 中的工具過濾邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#3266](https://github.com/danny-avila/LibreChat/pull/3266) 提交
+* ⚒️ 語音：修正 openaiProvider 問題，由 [@berry-13](https://github.com/berry-13) 於 [#3283](https://github.com/danny-avila/LibreChat/pull/3283) 提交
+* 🗣️ 更新 StreamAudio 中獲取音訊的 API 終端，由 [@danny-avila](https://github.com/danny-avila) 於 [#3307](https://github.com/danny-avila/LibreChat/pull/3307) 提交
+* 🗨️ 變更過濾器時重置提示組查詢，由 [@meroo36](https://github.com/meroo36) 於 [#3294](https://github.com/danny-avila/LibreChat/pull/3294) 提交
+* 🪙 處理串流回應中的代幣計費問題，由 [@danny-avila](https://github.com/danny-avila) 於 [#3323](https://github.com/danny-avila/LibreChat/pull/3323) 提交
+* 🔧 使助手工具過濾與外掛程式過濾相容，由 [@bnord01](https://github.com/bnord01) 於 [#3325](https://github.com/danny-avila/LibreChat/pull/3325) 提交
+* 🌿 強化訊息路由錯誤處理，由 [@danny-avila](https://github.com/danny-avila) 於 [#3378](https://github.com/danny-avila/LibreChat/pull/3378)、[#3379](https://github.com/danny-avila/LibreChat/pull/3379) 提交
+* ⚙️ 修正外掛程式訊息處理錯誤，由 [@danny-avila](https://github.com/danny-avila) 於 [#3392](https://github.com/danny-avila/LibreChat/pull/3392) 提交
+* ⌚ 在處理回應前先等待初始訊息儲存，並確保最新訊息狀態正確，由 [@danny-avila](https://github.com/danny-avila) 於 [#3399](https://github.com/danny-avila/LibreChat/pull/3399) 提交
+* 🔧 實作 STT/TTS 的外部檢查，由 [@berry-13](https://github.com/berry-13) 於 [#3409](https://github.com/danny-avila/LibreChat/pull/3409)、[#3410](https://github.com/danny-avila/LibreChat/pull/3410) 提交
+* 🗣️ 支援 Elevenlabs TTS 與 STT，由 [@berry-13](https://github.com/berry-13) 於 [#3482](https://github.com/danny-avila/LibreChat/pull/3482) 提交
+* 💫 在 recoil 狀態使用中捕捉常數條件，由 [@GerkinDev](https://github.com/GerkinDev) 於 [#3513](https://github.com/danny-avila/LibreChat/pull/3513) 提交
+* 🛠️ 為 Gemini API 套用安全設定，由 [@lidonius1122](https://github.com/lidonius1122) 於 [#3533](https://github.com/danny-avila/LibreChat/pull/3533) 提交
+* 🖼️ 修正外掛程式圖片工具的圖片提取邏輯，由 [@jung0han](https://github.com/jung0han) 與 [@danny-avila](https://github.com/danny-avila) 於 [#3538](https://github.com/danny-avila/LibreChat/pull/3538) 提交
+* 🔧 優化 GoogleSearch 與 TavilySearch 工具的 API 金鑰處理方式，由 [@jung0han](https://github.com/jung0han) 於 [#3541](https://github.com/danny-avila/LibreChat/pull/3541) 提交
+* 📜 優化 OpenAI Assistants 的註解處理邏輯，由 [@danny-avila](https://github.com/danny-avila) 於 [#3565](https://github.com/danny-avila/LibreChat/pull/3565) 提交
+
+### 👀 下步計畫
+
+**v0.7.5:** https://github.com/danny-avila/LibreChat/milestone/7
+
+### 新貢獻者
+* [@kurtseifried](https://github.com/kurtseifried) 於 [#3107](https://github.com/danny-avila/LibreChat/pull/3107) 提交了其首份貢獻
+* [@PedroGruvhagen](https://github.com/PedroGruvhagen) 於 [#3142](https://github.com/danny-avila/LibreChat/pull/3142) 提交了其首份貢獻
+* [@mungewrath](https://github.com/mungewrath) 於 [#2983](https://github.com/danny-avila/LibreChat/pull/2983) 提交了其首份貢獻
+* [@rehas](https://github.com/rehas) 於 [#3160](https://github.com/danny-avila/LibreChat/pull/3160) 提交了其首份貢獻
+* [@KiGamji](https://github.com/KiGamji) 於 [#3154](https://github.com/danny-avila/LibreChat/pull/3154) 提交了其首份貢獻
+* [@GhaithAlHallak8](https://github.com/GhaithAlHallak8) 於 [#3195](https://github.com/danny-avila/LibreChat/pull/3195) 提交了其首份貢獻
+* [@GaelMartins0](https://github.com/GaelMartins0) 於 [#3240](https://github.com/danny-avila/LibreChat/pull/3240) 提交了其首份貢獻
+* [@meroo36](https://github.com/meroo36) 於 [#3294](https://github.com/danny-avila/LibreChat/pull/3294) 提交了其首份貢獻
+* [@ylioja](https://github.com/ylioja) 於 [#3316](https://github.com/danny-avila/LibreChat/pull/3316) 提交了其首份貢獻
+* [@bnord01](https://github.com/bnord01) 於 [#3325](https://github.com/danny-avila/LibreChat/pull/3325) 提交了其首份貢獻
+* [@ravi](https://github.com/ravi)-katiyar 於 [#3247](https://github.com/danny-avila/LibreChat/pull/3247) 提交了其首份貢獻
+* [@jacobcolyvan](https://github.com/jacobcolyvan) 於 [#3459](https://github.com/danny-avila/LibreChat/pull/3459) 提交了其首份貢獻
+* [@lidonius1122](https://github.com/lidonius1122) 於 [#3472](https://github.com/danny-avila/LibreChat/pull/3472) 提交了其首份貢獻
+* [@GerkinDev](https://github.com/GerkinDev) 於 [#3513](https://github.com/danny-avila/LibreChat/pull/3513) 提交了其首份貢獻
+* [@xueshanf](https://github.com/xueshanf) 於 [#3528](https://github.com/danny-avila/LibreChat/pull/3528) 提交了其首份貢獻
+* [@aoaim](https://github.com/aoaim) 於 [#3461](https://github.com/danny-avila/LibreChat/pull/3461) 提交了其首份貢獻
+* [@hulkds](https://github.com/hulkds) 於 [#3356](https://github.com/danny-avila/LibreChat/pull/3356) 提交了其首份貢獻
+* [@jung0han](https://github.com/jung0han) 於 [#3541](https://github.com/danny-avila/LibreChat/pull/3541) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.7.3...v0.7.4

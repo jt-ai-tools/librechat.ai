@@ -1,0 +1,58 @@
+---
+date: 2023-08-28
+title: 🚀 LibreChat v0.5.8
+description: 繼續產生、編輯訊息、外掛程式優化，以及更多...
+version: "0.5.8"
+---
+
+- 顯示 Bing 評分，由 [@psarno](https://github.com/danny-avila/LibreChat/pull/814) 提交。
+- 支援針對社群登入停用註冊功能，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/813) 提交。
+- 外掛程式：優化 OpenAPI 處理、支援顯示多個外掛程式及其他改進，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/845) 提交。
+
+## 🌐 國際化
+
+- 俄語翻譯，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/830) 提交。
+- 波蘭語翻譯，由 [@fuegovic](https://github.com/danny-avila/LibreChat/pull/840) 提交。
+- 更新中文翻譯，由 [@ztc1997](https://github.com/danny-avila/LibreChat/pull/846) 提交。
+
+## 🔧 臭蟲修復
+
+- 腳本：從 down 指令中移除 --volumes 旗標，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/784) 提交。
+- 更新使用者名稱規則，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/787) 提交。
+- 修正註冊驗證、不區分大小寫的變數處理、Playwright 工作流，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/805) 提交。
+- CodeBlock.tsx：修正部分瀏覽器上的「複製至剪貼簿」功能，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/806) 提交。
+- 修正重設密碼錯誤，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/810) 提交。
+- PluginsClient.js：修正 ChatOpenAI 的 Azure 配置問題，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/812) 提交。
+- HoverButtons 亮色/暗色樣式調整以匹配官方網站，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/821) 提交。
+- 更新社群個人資料圖片，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/792) 提交。
+- BingAI：修正最終串流回應的 Markdown 與錯誤格式化，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/829) 提交。
+- 註冊流程支援將使用者名稱設為選填，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/831) 提交。
+- 修正 Meilisearch 錯誤並重構伺服器 index.js 檔案，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/832) 提交。
+
+## :memo: 文檔
+
+- 實作 DigitalOcean 部署文檔，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/783) 提交。
+- 更新 chimeragpt 文檔，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/826) 提交。
+- 新增 Podman 安裝說明；更新 Dockerfile 以包含環境變數預設值，由 [@f1yn](https://github.com/danny-avila/LibreChat/pull/819) 提交。
+- 多項微小更新，由 [@fuegovic](https://github.com/danny-avila/LibreChat/pull/841) 提交。
+- 在文檔中展示第三方 LibreChat 工具，由 [@fuegovic](https://github.com/danny-avila/LibreChat/pull/848) 提交。
+
+## ⚙️ 其他變動
+
+- 在 Compose 檔案中不再暴露 MongoDB 連接埠，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/786) 提交。
+- 在 Compose 檔案中註釋掉 Meilisearch 連接埠，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/807) 提交。
+- 翻譯修復、Lint 錯誤修正以及新增翻譯，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/788) 提交。
+- 將「匯出為截圖」邏輯轉換為 TSX 並改用 html-to-image，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/809) 提交。
+- 重構（MessageHandler -> useServerStream）：將伺服器串流功能轉換為 TS 並實作自定義 Hook，由 [@danny-avila](https://github.com/danny-avila/LibreChat/pull/818) 提交。
+- 樣式（Dialog）：優化關閉按鈕 (「X」) 的位置，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/824) 提交。
+- 樣式（NavLinks）：優化導覽連結的動畫與縮放效果，由 [@Berry-13](https://github.com/danny-avila/LibreChat/pull/843) 提交。
+
+## 新貢獻者
+
+- [@psarno](https://github.com/psarno) 於 [#814](https://github.com/danny-avila/LibreChat/pull/814) 提交了其首份貢獻
+- [@zentooo](https://github.com/zentooo) 於 [#815](https://github.com/danny-avila/LibreChat/pull/815) 提交了其首份貢獻
+- [@f1yn](https://github.com/f1yn) 於 [#819](https://github.com/danny-avila/LibreChat/pull/819) 提交了其首份貢獻
+- [@ztc1997](https://github.com/ztc1997) 於 [#846](https://github.com/danny-avila/LibreChat/pull/846) 提交了其首份貢獻
+- [@ronith256](https://github.com/ronith256) 於 [#837](https://github.com/danny-avila/LibreChat/pull/837) 提交了其首份貢獻
+
+**完整變更紀錄**: https://github.com/danny-avila/LibreChat/compare/v0.5.7...v0.5.8
