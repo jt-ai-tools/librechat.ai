@@ -1,14 +1,18 @@
 ---
 title: LiteLLM
 icon: LiteLLM
-description: Example configuration for LiteLLM
+description: Configure LiteLLM as a custom endpoint in LibreChat.
 ---
 
-**Notes:**
+LiteLLM Proxy is a self-hosted gateway that exposes models from many providers through a single OpenAI-compatible endpoint, so you can point LibreChat at your own proxy.
 
-- Reference [Using LibreChat with LiteLLM Proxy](/blog/2023-11-30_litellm) for configuration.
+## Configuration
+
+The API key matches the value set in your LiteLLM proxy config rather than a provider key, so use the placeholder below or your own. Point `baseURL` at your running proxy. Add the endpoint to the `custom` list under `endpoints` in your `librechat.yaml`. If your file already has an `endpoints.custom` list, paste only the `- name:` entry into it, keeping the same indentation:
 
 ```yaml filename="librechat.yaml"
+endpoints:
+  custom:
     - name: "LiteLLM"
       apiKey: "sk-from-config-file"
       baseURL: "http://localhost:8000/v1"
@@ -23,4 +27,8 @@ description: Example configuration for LiteLLM
       modelDisplayLabel: "LiteLLM"
 ```
 
-![image](https://github.com/danny-avila/LibreChat/assets/110412045/ddb4b2f3-608e-4034-9a27-3e94fc512034)
+## Notes
+
+- See [Using LibreChat with LiteLLM Proxy](/blog/2023-11-30_litellm) for a full walkthrough of setting up the proxy.
+- With `fetch: true`, LibreChat loads the full list of models configured in your proxy, so `default` is only the initial selection.
+- If you run the bundled proxy from `docker-compose.override.yml.example`, set `baseURL` to `http://litellm:8000/v1` so the containers reach each other by service name.

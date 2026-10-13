@@ -1,22 +1,18 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createPreset } = require('fumadocs-ui/tailwind-plugin')
-
 /**
  * Tailwind CSS configuration for the LibreChat docs site.
- * Colors use CSS custom properties (HSL) defined in app/global.css and style.css.
- * Fumadocs UI preset provides documentation-specific styling.
+ * Colors use CSS custom properties (HSL) defined in app/global.css.
+ * Loaded under Tailwind v4 via `@config` in app/global.css; Fumadocs UI styling
+ * now comes from its `fumadocs-ui/css/*` imports there (the v3 preset is gone).
  * @type {import('tailwindcss').Config}
  */
 module.exports = {
   darkMode: ['class'],
-  presets: [createPreset()],
   content: [
     './components/**/*.{js,jsx,ts,tsx,mdx}',
     './pages/**/*.{js,jsx,ts,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './content/**/*.{md,mdx}',
     './lib/**/*.{js,jsx,ts,tsx}',
-    './node_modules/fumadocs-ui/dist/**/*.js',
   ],
   theme: {
     container: {
@@ -87,6 +83,4 @@ module.exports = {
       },
     },
   },
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require('tailwindcss-animate')],
 }

@@ -1,34 +1,56 @@
 ---
-title: Openrouter
+title: OpenRouter
 icon: OpenRouter
-description: Example configuration for Openrouter
+description: Configure OpenRouter as a custom endpoint in LibreChat.
 ---
 
-> OpenRouter API key: [openrouter.ai/keys](https://openrouter.ai/keys)
+OpenRouter routes requests to hundreds of models from OpenAI, Anthropic, Google, Meta, Mistral, and other providers through a single OpenAI-compatible endpoint.
 
-**Notes:**
+## Get an API key
 
-- **Known:** icon provided, fetching list of models is recommended as API token rates and pricing used for token credit balances when models are fetched.
+Create an account at [openrouter.ai](https://openrouter.ai/) and generate a key from the [Keys page](https://openrouter.ai/keys). The key starts with `sk-or-v1-`. Add it to your `.env` file:
 
-- `stop` is no longer included as a default parameter, so there is no longer a need to include it in [`dropParams`](/docs/configuration/librechat_yaml/object_structure/custom_endpoint#dropparams), unless you would like to completely prevent users from configuring this field.
+```bash filename=".env"
+OPENROUTER_KEY=sk-or-v1-your-key-here
+```
 
-- **Known issue:** you should not use `OPENROUTER_API_KEY` as it will then override the `openAI` endpoint to use OpenRouter as well.
+<Callout type="error" title="Use OPENROUTER_KEY, not OPENROUTER_API_KEY">
 
-```yaml
+The variable must be named `OPENROUTER_KEY`. Naming it `OPENROUTER_API_KEY` reroutes the built-in OpenAI endpoint through OpenRouter as well, which is almost never what you want.
+
+</Callout>
+
+## Configuration
+
+Add the endpoint to the `custom` list under `endpoints` in your `librechat.yaml`. If your file already has an `endpoints.custom` list, paste only the `- name:` entry into it, keeping the same indentation:
+
+```yaml filename="librechat.yaml"
+endpoints:
+  custom:
     - name: "OpenRouter"
-      # For `apiKey` and `baseURL`, you can use environment variables that you define.
-      # recommended environment variables:
-      apiKey: "${OPENROUTER_KEY}" # NOT OPENROUTER_API_KEY
+      apiKey: "${OPENROUTER_KEY}"
       baseURL: "https://openrouter.ai/api/v1"
       models:
         default: ["meta-llama/llama-3-70b-instruct"]
         fetch: true
       titleConvo: true
       titleModel: "meta-llama/llama-3-70b-instruct"
-      # Recommended: Drop the stop parameter from the request as Openrouter models use a variety of stop tokens.
       dropParams: ["stop"]
       modelDisplayLabel: "OpenRouter"
 ```
 
-![image](https://github.com/danny-avila/LibreChat/assets/110412045/c4a0415e-732c-46af-82a6-3598663b7f42)
+To pin a fixed model list instead of fetching the full catalog, set `fetch: false` and list the models yourself:
 
+```yaml filename="librechat.yaml"
+      models:
+        default: ["anthropic/claude-3.5-sonnet", "openai/gpt-4o", "meta-llama/llama-3-70b-instruct"]
+        fetch: false
+```
+
+To let each user supply their own key through the LibreChat UI instead of reading one from `.env`, set `apiKey: "user_provided"`. Users then see a key input field when they select the endpoint.
+
+## Notes
+
+- With `fetch: true`, LibreChat loads the full model list from OpenRouter so new models appear automatically. The `default` array is only the initial selection.
+- `dropParams: ["stop"]` strips the `stop` parameter from requests. OpenRouter models use varied stop tokens, and dropping it avoids compatibility errors.
+- A `402 Payment Required` response comes from OpenRouter, not LibreChat. Add credits or pick a free model in your OpenRouter account, then retry.

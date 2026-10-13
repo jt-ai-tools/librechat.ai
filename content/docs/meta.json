@@ -2,15 +2,20 @@
   "pages": [
     "index",
     "---Deploy---",
+    "quick_start",
     "local",
     "remote",
+    "---Configure---",
     "configuration",
-    "---Learn---",
+    "---Use---",
     "features",
+    "compatibility",
+    "mcp_servers",
     "user_guides",
-    "translation",
+    "---Tools---",
+    "toolkit",
     "---Contributing---",
-    "development",
-    "documentation"
+    "translation",
+    "development"
   ]
 }

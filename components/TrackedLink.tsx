@@ -1,11 +1,22 @@
 'use client'
 
 import Link from 'next/link'
-import { track } from '@vercel/analytics'
+import { usePathname } from 'next/navigation'
+import { isExternalHref, localizeDocsHref } from '@/lib/localize-href'
 import type { ReactNode, AnchorHTMLAttributes } from 'react'
 
-function isExternalHref(href: string): boolean {
-  return href.startsWith('http') || href.startsWith('mailto:')
+declare global {
+  interface Window {
+    plausible?: (
+      event: string,
+      options?: { props?: Record<string, string | number | boolean> },
+    ) => void
+  }
+}
+
+/** Rewrite an internal /docs link to the active locale; see localizeDocsHref. */
+function useLocalizedHref(href: string): string {
+  return localizeDocsHref(href, usePathname())
 }
 
 export function TrackedLink({
@@ -19,10 +30,13 @@ export function TrackedLink({
   title?: string
   children: ReactNode
 }) {
+  const localizedHref = useLocalizedHref(href)
   const handleClick = () => {
-    track('card_click', {
-      title: title ?? href,
-      href,
+    window.plausible?.('card_click', {
+      props: {
+        title: title ?? href,
+        href,
+      },
     })
   }
 
@@ -42,7 +56,7 @@ export function TrackedLink({
   }
 
   return (
-    <Link href={href} className={className} onClick={handleClick} {...props}>
+    <Link href={localizedHref} className={className} onClick={handleClick} {...props}>
       {children}
     </Link>
   )
@@ -53,15 +67,18 @@ export function TrackedAnchor({
   children,
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement> & { children?: ReactNode }) {
+  const localizedHref = useLocalizedHref(href ?? '')
   if (!href) return <a {...props}>{children}</a>
 
   const handleClick = () => {
     const label = typeof children === 'string' ? children : (props['aria-label'] ?? href)
 
-    track('link_click', {
-      href,
-      label: String(label).slice(0, 100),
-      external: isExternalHref(href),
+    window.plausible?.('link_click', {
+      props: {
+        href,
+        label: String(label).slice(0, 100),
+        external: isExternalHref(href),
+      },
     })
   }
 
@@ -74,7 +91,7 @@ export function TrackedAnchor({
   }
 
   return (
-    <Link href={href} onClick={handleClick} {...props}>
+    <Link href={localizedHref} onClick={handleClick} {...props}>
       {children}
     </Link>
   )

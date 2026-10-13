@@ -1,17 +1,25 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx'
+import { ImageZoom } from 'fumadocs-ui/components/image-zoom'
 import { Callout } from 'fumadocs-ui/components/callout'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
-import { Tabs } from 'fumadocs-ui/components/tabs'
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { File as FumadocsFile, Folder, Files } from 'fumadocs-ui/components/files'
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion'
 import { OptionTable } from '@/components/table'
 import { Frame } from '@/components/Frame'
+import { ThemeImage } from '@/components/ThemeImage'
+import { Video } from '@/components/Video'
 import { DocsHub } from '@/components/DocsHub'
 import { LocalInstallHub } from '@/components/LocalInstallHub'
 import { QuickStartHub } from '@/components/QuickStartHub'
 import { FeaturesHub } from '@/components/FeaturesHub'
 import Carousel from '@/components/carousel/Carousel'
 import { TrackedLink, TrackedAnchor } from '@/components/TrackedLink'
+import { CredentialsGeneratorMDX } from '@/components/tools/CredentialsGeneratorMDX'
+import { YAMLValidatorMDX } from '@/components/tools/YAMLValidatorMDX'
+import { CompatibilityMatrix } from '@/components/CompatibilityMatrix'
+import { AnalyticsArchitecture } from '@/components/blog/AnalyticsArchitecture'
+import { SiteStats } from '@/components/blog/SiteStats'
 import type { ReactNode } from 'react'
 
 function mapCalloutType(type?: string): 'info' | 'warn' | 'error' {
@@ -64,15 +72,22 @@ function CalloutCompat({
 }
 
 /**
- * Simple Tab/Tabs wrappers that render content directly.
- * The fumadocs-mdx compiler generates tab structures that may be incomplete
- * when the remarkCodeTab plugin isn't available. These wrappers render the
- * content as simple divs to avoid Radix UI context errors.
+ * Tab/Tabs wrappers for MDX content.
+ *
+ * When `items` are provided (explicit `<Tabs items={[...]}>`), we render the
+ * real fumadocs `<Tabs>` + `<Tab>` so that clicking tab triggers actually
+ * switches the visible content.
+ *
+ * `<Tabs.Tab>` is used in MDX as a compound component. When it lives inside a
+ * Tabs with `items`, it renders as the real fumadocs `<Tab>`. Otherwise it
+ * falls back to a plain `<div>` (e.g. for auto-generated code tabs from
+ * remarkCodeTab where the fumadocs context is not set up).
+ *
+ * We achieve this by mapping `Tabs` → `TabsCompat` and `Tabs.Tab` → `Tab`
+ * (the real fumadocs Tab). `TabsCompat` wraps children with the real
+ * `<Tabs>` when items exist. The fumadocs `<Tab>` auto-resolves its value
+ * from the parent context — no extra plumbing needed.
  */
-function TabCompat({ children, ...props }: { children?: ReactNode; [key: string]: any }) {
-  return <div {...props}>{children}</div>
-}
-
 function TabsCompat({
   children,
   items,
@@ -93,7 +108,13 @@ function TabsCompat({
   // Fallback: render children directly for auto-generated tab structures
   return <div {...props}>{children}</div>
 }
-;(TabsCompat as any).Tab = TabCompat
+
+/**
+ * Compound component pattern: MDX resolves `<Tabs.Tab>` → `TabsCompat.Tab`.
+ * We assign the real fumadocs `Tab` so it registers with the parent `<Tabs>`
+ * context and tab switching works.
+ */
+const TabsWithTab = Object.assign(TabsCompat, { Tab })
 
 function CardsCompat({
   children,
@@ -137,7 +158,7 @@ function CardCompat({
 }) {
   const content = (
     <div className="flex flex-col gap-2">
-      {icon && <div className="[&>svg]:h-6 [&>svg]:w-6">{icon}</div>}
+      {icon && <div className="[&>svg]:size-6">{icon}</div>}
       {title && <h3 className="font-semibold text-fd-foreground">{title}</h3>}
       {children && <div className="text-sm text-fd-muted-foreground">{children}</div>}
     </div>
@@ -198,13 +219,22 @@ function ImgCompat({ image: _, ...props }: { image?: boolean; [key: string]: any
   const src = typeof props.src === 'string' ? props.src : ''
   const isExternal = src.startsWith('http://') || src.startsWith('https://')
   if (isExternal) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} loading="lazy" />
+    // External images can't use next/image's static-import path, so render a
+    // plain <img> but still wrap it in ImageZoom (via children) so click-to-zoom
+    // works the same as for local images.
+    return (
+      <ImageZoom src={src} alt={props.alt ?? ''}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img {...props} loading="lazy" />
+      </ImageZoom>
+    )
   }
-  const DefaultImg = defaultMdxComponents.img
-  if (DefaultImg) return <DefaultImg {...props} />
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img {...props} />
+  // Local images: remarkImage rewrites these to a Next static-import object
+  // (or a string) plus width/height, so let ImageZoom render them through
+  // Fumadocs' next/image wrapper. This adds click-to-zoom while correctly
+  // handling both src forms — passing a plain <img> here would stringify the
+  // static-import object into src="[object Object]".
+  return <ImageZoom {...(props as any)} />
 }
 
 export const mdxComponents = {
@@ -214,8 +244,10 @@ export const mdxComponents = {
   Callout: CalloutCompat,
   Steps,
   Step,
-  Tab: TabCompat,
-  Tabs: TabsCompat,
+  Tab: ({ children, ...props }: { children?: ReactNode; [key: string]: any }) => (
+    <div {...props}>{children}</div>
+  ),
+  Tabs: TabsWithTab,
   Cards: CardsWithCard,
   Card: CardCompat,
   FileTree: FileTreeWithChildren,
@@ -225,7 +257,12 @@ export const mdxComponents = {
   Accordion,
   Accordions,
   OptionTable,
+  CompatibilityMatrix,
+  AnalyticsArchitecture,
+  SiteStats,
   Frame,
+  ThemeImage,
+  Video,
   Carousel,
   DocsHub,
   QuickStartHub,
@@ -236,4 +273,6 @@ export const mdxComponents = {
       {children}
     </button>
   ),
+  CredentialsGeneratorMDX,
+  YAMLValidatorMDX,
 }

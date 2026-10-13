@@ -1,8 +1,8 @@
 'use client'
 
 import ArrowRight from '../svg/ArrowRight'
-import cn from 'clsx'
-import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
+import { motion, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import styles from './style.module.css'
@@ -27,10 +27,11 @@ export function Feature({
   href,
   ...props
 }: FeatureProps) {
+  const reduceMotion = useReducedMotion()
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      initial={reduceMotion ? false : { opacity: 0 }}
+      whileInView={reduceMotion ? undefined : { opacity: 1 }}
       viewport={{ once: false, margin: '-20px' }}
       transition={{ duration: 0.5 }}
       className={cn(

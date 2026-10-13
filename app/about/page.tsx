@@ -20,12 +20,19 @@ import { baseOptions } from '@/app/layout.config'
 import FooterMenu from '@/components/FooterMenu'
 import Discord from '@/components/icons/discord'
 import X from '@/components/icons/x'
+import { ogImageUrl } from '@/lib/og'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'About LibreChat',
   description:
     'LibreChat is a free, open-source AI platform that brings together all your AI conversations in one unified, customizable interface.',
+  openGraph: {
+    title: 'About LibreChat',
+    description:
+      'LibreChat is a free, open-source AI platform that brings together all your AI conversations in one unified, customizable interface.',
+    images: [ogImageUrl({ title: 'About LibreChat' })],
+  },
 }
 
 async function getGitHubData(): Promise<{
@@ -35,11 +42,11 @@ async function getGitHubData(): Promise<{
 }> {
   try {
     const [repoRes, contribRes] = await Promise.all([
-      fetch('https://api.github.com/repos/danny-avila/LibreChat', {
+      fetch('https://api.github.com/repos/LibreChat-AI/LibreChat', {
         next: { revalidate: 3600 },
       }),
       fetch(
-        'https://api.github.com/repos/danny-avila/LibreChat/contributors?per_page=1&anon=true',
+        'https://api.github.com/repos/LibreChat-AI/LibreChat/contributors?per_page=1&anon=true',
         {
           next: { revalidate: 3600 },
         },
@@ -103,7 +110,7 @@ function HeroSection() {
             <ArrowRight className="ml-2 size-4" aria-hidden="true" />
           </Link>
           <Link
-            href="https://github.com/danny-avila/LibreChat"
+            href="https://github.com/LibreChat-AI/LibreChat"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
@@ -285,7 +292,7 @@ function ContributorsSection() {
           and ideas
         </p>
         <Link
-          href="https://github.com/danny-avila/LibreChat/graphs/contributors"
+          href="https://github.com/LibreChat-AI/LibreChat/graphs/contributors"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block transition-opacity hover:opacity-80"
@@ -293,7 +300,7 @@ function ContributorsSection() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://contrib.rocks/image?repo=danny-avila/LibreChat&columns=16&max=160"
+            src="https://contrib.rocks/image?repo=LibreChat-AI/LibreChat&columns=16&max=160"
             alt="LibreChat contributors"
             className="mx-auto rounded-xl"
             loading="lazy"
@@ -303,7 +310,7 @@ function ContributorsSection() {
         </Link>
         <div className="mt-10">
           <Link
-            href="https://github.com/danny-avila/LibreChat"
+            href="https://github.com/LibreChat-AI/LibreChat"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
@@ -326,7 +333,7 @@ const communityLinks = [
     icon: Github,
     title: 'GitHub Discussions',
     description: 'Ask questions, share ideas, report bugs',
-    href: 'https://github.com/danny-avila/LibreChat/discussions',
+    href: 'https://github.com/LibreChat-AI/LibreChat/discussions',
   },
   {
     icon: Discord,
@@ -413,7 +420,7 @@ function LicenseSection() {
         <p className="text-sm text-muted-foreground">
           LibreChat is released under the{' '}
           <Link
-            href="https://github.com/danny-avila/LibreChat/blob/main/LICENSE"
+            href="https://github.com/LibreChat-AI/LibreChat/blob/main/LICENSE"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
@@ -453,7 +460,7 @@ function SponsorSection() {
             Become a Sponsor
           </Link>
           <Link
-            href="https://github.com/danny-avila/LibreChat"
+            href="https://github.com/LibreChat-AI/LibreChat"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
@@ -476,7 +483,7 @@ export default async function AboutPage() {
 
   return (
     <HomeLayout {...baseOptions}>
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen">
         <HeroSection />
         <StatsSection stars={stars} forks={forks} contributors={contributors} />
         <ValuesSection />

@@ -1,6 +1,6 @@
 ---
 title: Docker (Remote Linux)
-icon: Container
+icon: Docker
 description: These instructions are designed for someone starting from scratch for a Docker Installation on a remote Ubuntu server
 ---
 
@@ -112,38 +112,21 @@ You should see an output that says **active (running)** for status.
 
 Exit this log by pressing CTRL (or CMD) + C.
 
-### **5. Install the Latest Version of Docker Compose**
+### **5. Install Docker Compose**
 
-The version of docker-compose packaged with the Linux distribution is probably old and will not work for us.
-
-Checking the releases on the [Docker Compose GitHub](https://github.com/docker/compose/releases), the last release is v2.26.1 (as of 4/6/24).
-
-You will have to manually download and install it. But fear not, it is quite easy.
-
-First, download the latest version of Docker Compose using the following command:
+Since we already added Docker's official repository in step 2, installing Docker Compose is straightforward using the [official Compose plugin](https://docs.docker.com/compose/install/linux/):
 
 ```bash
-sudo curl -L https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo apt install docker-compose-plugin
 ```
 
-Next, make it executable using the following command:
+Verify the installation:
 
 ```bash
-sudo chmod +x /usr/local/bin/docker-compose
+docker compose version
 ```
 
-Docker Compose should now be installed on your Ubuntu system. Let's check to be sure.
-
-```bash
-docker-compose -v
-# output should be: Docker Compose version v2.20.2
-```
-
-If you get a permission denied error, like I did, reboot/switch to your created user again, and run `sudo chmod +x /usr/local/bin/docker-compose` again
-
-#### Note on Docker Compose Commands
-
-As of Docker Compose v2, `docker-compose` is now `docker compose`. This guide will use the old commands for now, but you should be aware of this change and that `docker compose` is often preferred.
+> Note: Docker Compose v2 uses the `docker compose` command (without hyphen) instead of the legacy `docker-compose`. All commands in this guide use the modern syntax.
 
 ### **6. As part of this guide, I will recommend you have git and npm installed:**
 
@@ -165,7 +148,7 @@ npm -v
 
 ![image](https://github.com/danny-avila/LibreChat/assets/110412045/fbba1a38-95cd-4e8e-b813-04001bb82b25)
 
-> Note: this will install some pretty old versions, for npm in particular. LibreChat requires Node.js v20.19.0+ (or ^22.12.0 or >= 23.0.0) for compatibility with openid-client v6 when using CommonJS. If you need to run LibreChat directly on the host (not using Docker), you'll need to install a compatible Node.js version. However, for this Docker-based guide, the Node.js version on the host doesn't matter as the application runs inside containers.
+> Note: this may install old Node.js and npm versions. If you run LibreChat directly on the host, use Node.js `v24.16.0` with npm `v11.16.0`. For this Docker-based guide, the host Node.js version does not matter because LibreChat runs inside containers.
 
 **Ok, now that you have set up the Droplet, you will now setup the app itself**
 
@@ -179,7 +162,7 @@ From the _droplet_ commandline (as your user, not root):
 
 ```bash
 # clone down the repository
-git clone https://github.com/danny-avila/LibreChat.git
+git clone https://github.com/LibreChat-AI/LibreChat.git
 
 # enter the project directory
 cd LibreChat/
@@ -204,7 +187,7 @@ You will enter the editor screen, and you can paste the following:
 # https://www.librechat.ai/docs/configuration/librechat_yaml
 
 # Configuration version (required)
-version: 1.3.4
+version: 1.3.17
 # This setting caches the config file for faster loading across app lifecycle
 cache: true
 ```
@@ -219,34 +202,36 @@ Before deploying, validate your configuration using the [YAML Validator](/toolki
 
 #### Environment (.env) File
 
-The default values are enough to get you started and running the app, allowing you to provide your credentials from the web app.
+The example file is enough to start a single Docker Compose deployment and provide model credentials from the web app.
 
 ```bash
 # Copies the example file as your global env file
 cp .env.example .env
 ```
 
-However, it's **highly recommended** you adjust the "secret" values from their default values for added security. The API startup logs will warn you if you don't.
+`CREDS_KEY`, `CREDS_IV`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` are blank by default. On first startup, LibreChat generates unique temporary values and stores them at `/app/data/.env.temp`; the bundled `librechat-data` volume keeps that file across container recreation.
 
-For conveninence, you can run this to generate your own values:
+For production, generate permanent values instead:
 
-[https://www.librechat.ai/toolkit/creds_generator](https://www.librechat.ai/toolkit/creds_generator)
+[Credentials Generator](/docs/toolkit/credentials-generator)
 
 ```bash
 nano .env
 
-# FIND THESE VARIABLES AND REPLACE THEIR DEFAULT VALUES!
+# Set unique, permanent values before production use.
 
 # Must be a 16-byte IV (32 characters in hex)
 
-CREDS_IV=e2341419ec3dd3d19b13a1a87fafcbfb
+CREDS_IV=<your-generated-value>
 
 # Must be 32-byte keys (64 characters in hex)
 
-CREDS_KEY=f34be427ebb29de8d88c107a71546019685ed8b241d8f2ed00c3df97ad2566f0
-JWT_SECRET=16f8c0ef4a5d391b26034086c628469d3f9f497f08163ab9b40137092f2909ef
-JWT_REFRESH_SECRET=eaa5191f2914e30b9387fd84e254e4ba6fc51b4654968a9b0803b456a54b8418
+CREDS_KEY=<your-generated-value>
+JWT_SECRET=<your-generated-value>
+JWT_REFRESH_SECRET=<your-generated-value>
 ```
+
+Keep these values and the `librechat-data` volume private. Every replica must use the same permanent values. Losing the temporary file or changing established credentials can invalidate sessions and make encrypted records unreadable; LibreChat warns when active credential fingerprints no longer match the database marker.
 
 If you'd like to provide any credentials for all users of your instance to consume, you should add them while you're still editing this file:
 
@@ -288,7 +273,7 @@ docker info
 Now we can start the app container. For the first time, we'll use the full command and later we can use a shorthand command
 
 ```bash
-sudo docker-compose -f ./deploy-compose.yml up -d
+sudo docker compose -f ./deploy-compose.yml up -d
 ```
 
 ![image](https://github.com/danny-avila/LibreChat/assets/110412045/5e2f6627-8ca4-4fa3-be73-481539532ee7)
@@ -307,6 +292,8 @@ It's safe to close the terminal if you wish -- the docker app will continue to r
 
 #### Sign up, log in, and enjoy your own privately hosted, remote LibreChat :)
 
+Follow [Your First Chat](/docs/quick_start/first_chat) to register an account, add a model API key, and send your first message.
+
 ![image](https://github.com/danny-avila/LibreChat/assets/110412045/85070a54-eb57-479f-8011-f63c14116ee3)
 
 ![image](https://github.com/danny-avila/LibreChat/assets/110412045/b3fc2152-4b6f-46f9-81e7-4200b76bc468)
@@ -323,13 +310,15 @@ Run the following for an automated update
 npm run update:deployed
 ```
 
+After pulling the current images, the update script runs `sudo docker image prune -f` to remove unused dangling images left by prior versions. This can reclaim substantial disk space, including dangling images unrelated to LibreChat; tagged images, containers, and volumes are not removed.
+
 **Stopping the docker container**
 
 ```bash
 npm run stop:deployed
 ```
 
-> This simply runs `docker-compose -f ./deploy-compose.yml down`
+> This simply runs `docker compose -f ./deploy-compose.yml down`
 
 **Starting the docker container**
 
@@ -337,7 +326,7 @@ npm run stop:deployed
 npm run start:deployed
 ```
 
-> This simply runs `docker-compose -f ./deploy-compose.yml up -d`
+> This simply runs `docker compose -f ./deploy-compose.yml up -d`
 
 **Check active docker containers**
 
@@ -356,11 +345,12 @@ docker compose -f ./deploy-compose.yml down
 docker images -a | grep "librechat" | awk '{print $3}' | xargs docker rmi
 
 # Windows (PowerShell)
-docker images -a --format "{{.ID}}" --filter "reference=*librechat*" | ForEach-Object { docker rmi $_ }
+docker images -a --filter "reference=registry.librechat.ai/librechat-ai/librechat*" --format "{{.ID}}" | ForEach-Object { docker rmi $_ }
+docker images -a --filter "reference=ghcr.io/librechat-ai/librechat*" --format "{{.ID}}" | ForEach-Object { docker rmi $_ }
 ```
 
 ```bash filename="Pull latest project changes"
-git pull 
+git pull
 ```
 
 ```bash filename="Pull the latest LibreChat image""
@@ -434,7 +424,7 @@ You should be all set!
 
 ## Part V: Use the Latest Stable Release instead of Latest Main Branch
 
-By default, this setup will pull the latest updates to the main branch of Librechat. If you would rather have the latest "stable" release, which is defined by the [latest tags](https://github.com/danny-avila/LibreChat/releases), you will need to edit deploy-compose.yml and commit your changes exactly as above in Part V. Be aware that you won't benefit from the latest feature as soon as they come if you do so.
+By default, this setup will pull the latest updates to the main branch of Librechat. If you would rather have the latest "stable" release, which is defined by the [latest tags](https://github.com/LibreChat-AI/LibreChat/releases), you will need to edit deploy-compose.yml and commit your changes exactly as above in Part V. Be aware that you won't benefit from the latest feature as soon as they come if you do so.
 
 Let's edit `deploy-compose.yml`:
 
@@ -445,7 +435,7 @@ nano deploy-compose.yml
 Change `librechat-dev-api` to `librechat-api`:
 
 ```yaml
-image: ghcr.io/danny-avila/librechat-api:latest
+image: registry.librechat.ai/librechat-ai/librechat-api:latest
 ```
 
 Stage and commit as in Part V, and you're all set!

@@ -1,6 +1,6 @@
 ---
 title: Azure Entra
-icon: Building2
+icon: Azure
 description: Learn how to configure LibreChat to use Azure Entra for user authentication.
 ---
 
@@ -8,7 +8,7 @@ description: Learn how to configure LibreChat to use Azure Entra for user authen
 2. In the search box, type "Azure Entra" and click on it.
 3. On the left menu, click on App registrations and then on New registration.
 4. Give your app a name and select Web as the platform type.
-5. In the Redirect URI field, enter `http://localhost:3080/oauth/openid/callback` and click on Register.
+5. In the Redirect URI field, enter your LibreChat OpenID callback URL and click on Register. For local Docker installs, use `http://localhost:3080/oauth/openid/callback`. For deployed instances, replace `http://localhost:3080` with your public `DOMAIN_SERVER` value, for example `https://chat.example.com/oauth/openid/callback`.
 
 ![image](https://github.com/danny-avila/LibreChat/assets/6623884/2b1aabce-850e-4165-bf76-3c1984f10b6c)
 
@@ -56,8 +56,14 @@ OPENID_REQUIRED_ROLE_PARAMETER_PATH="roles"
 OPENID_REQUIRED_ROLE="Your Group Name" # Single role or comma-separated roles (e.g., Group1,Group2,Admin)
 
 # Optional: redirects the user to the end session endpoint after logging out
-OPENID_USE_END_SESSION_ENDPOINT=true 
+OPENID_USE_END_SESSION_ENDPOINT=true
+
+# Maximum logout URL length before using logout_hint instead of id_token_hint (default: 2000)
+# OPENID_MAX_LOGOUT_URL_LENGTH=2000
 ```
+
+The redirect URI registered in Azure must exactly match the URL LibreChat serves. If `DOMAIN_SERVER=https://chat.example.com`, Azure should use `https://chat.example.com/oauth/openid/callback`.
+
 11. Save the .env file
 
 > Note: If using docker, run `docker compose up -d` to apply the .env configuration changes
@@ -132,6 +138,7 @@ LibreChat can integrate with SharePoint Online and OneDrive for Business, allowi
 
 1. All requirements from [Token Reuse](#advanced-token-reuse) must be met
 2. Your Azure app registration needs additional SharePoint permissions
+3. Your Azure app registration must expose and grant a LibreChat API scope, such as `api://<client-id>/access_as_user`
 
 ### Adding SharePoint Permissions
 
@@ -153,7 +160,14 @@ LibreChat can integrate with SharePoint Online and OneDrive for Business, allowi
 
 ### Configuration
 
+Before enabling the SharePoint variables, make sure the OpenID token reuse configuration requests the LibreChat app API scope. This gives Azure an app-audience access token that can be used as the on-behalf-of assertion for SharePoint and Graph token exchange.
+
 ```bash filename=".env"
+# OpenID token reuse and OBO-compatible audience
+OPENID_REUSE_TOKENS=true
+OPENID_SCOPE=openid profile email offline_access api://<client-id>/access_as_user
+OPENID_ON_BEHALF_FLOW_FOR_USERINFO_REQUIRED=true
+
 # Enable SharePoint file picker
 ENABLE_SHAREPOINT_FILEPICKER=true
 
@@ -170,7 +184,7 @@ SHAREPOINT_PICKER_GRAPH_SCOPE=Files.Read.All
 ### Usage
 
 When properly configured:
-1. Users will see "From SharePoint" option in the file attachment menu
+1. Users will see a **From SharePoint** option in the **Attach** section of the [composer's **+** palette](/docs/features/composer#add-files)
 2. Clicking it opens the native SharePoint file picker
 3. Users can browse and select files from any SharePoint site or OneDrive they have access to
 4. Selected files are downloaded and attached to the conversation
@@ -180,4 +194,3 @@ The SharePoint integration respects all existing SharePoint permissions. Users c
 </Callout>
 
 For detailed troubleshooting and advanced configuration, see: [SharePoint Integration Guide](/docs/configuration/sharepoint)
-

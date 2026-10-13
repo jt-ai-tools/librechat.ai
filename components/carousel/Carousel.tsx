@@ -8,8 +8,17 @@ import styles from './style.module.css'
 
 // TODO: Fix "showControls" and "showBullets" + theme detection and dynamic style (broke when moving to nextra v3)
 
-const Carousel = ({ children, ...props }) => {
-  const carouselRef = useRef(null)
+interface CarouselProps {
+  children: React.ReactNode
+  autoplay?: boolean
+  animationDuration?: string
+  showControls?: boolean
+  showBullets?: boolean
+  perView?: string
+}
+
+const Carousel = ({ children, ...props }: CarouselProps) => {
+  const carouselRef = useRef<HTMLDivElement>(null)
 
   const {
     autoplay = false,
@@ -51,10 +60,18 @@ const Carousel = ({ children, ...props }) => {
       </div>
       {showControls && (
         <div className={styles.glide__arrows} data-glide-el="controls">
-          <button className={`${styles.glide__arrow} glide__arrow--left}`} data-glide-dir="<" aria-label="Previous slide">
+          <button
+            className={`${styles.glide__arrow} glide__arrow--left}`}
+            data-glide-dir="<"
+            aria-label="Previous slide"
+          >
             ←
           </button>
-          <button className={`${styles.glide__arrow} glide__arrow--right}`} data-glide-dir=">" aria-label="Next slide">
+          <button
+            className={`${styles.glide__arrow} glide__arrow--right}`}
+            data-glide-dir=">"
+            aria-label="Next slide"
+          >
             →
           </button>
         </div>
@@ -62,7 +79,11 @@ const Carousel = ({ children, ...props }) => {
       {showBullets && (
         <div className={styles.glide__bullets} data-glide-el="controls[nav]">
           {React.Children.map(children, (_, index) => (
-            <button className={styles.glide__bullets} data-glide-dir={`=${index}`} aria-label={`Go to slide ${index + 1}`}></button>
+            <button
+              className={styles.glide__bullets}
+              data-glide-dir={`=${index}`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
           ))}
         </div>
       )}

@@ -12,36 +12,116 @@ Here's an overview of the general configuration.
 
 <OptionTable
   options={[
-    ['ALLOW_EMAIL_LOGIN', 'boolean', 'Enable or disable ONLY email login.','ALLOW_EMAIL_LOGIN=true'],
-    ['ALLOW_REGISTRATION', 'boolean', 'Enable or disable Email registration of new users.','ALLOW_REGISTRATION=true'],
-    ['ALLOW_SOCIAL_LOGIN', 'boolean', 'Allow users to connect to LibreChat with various social networks.','ALLOW_SOCIAL_LOGIN=false'],
-    ['ALLOW_SOCIAL_REGISTRATION', 'boolean', 'Enable or disable registration of new users using various social networks.','ALLOW_SOCIAL_REGISTRATION=false'],
+    [
+      'ALLOW_EMAIL_LOGIN',
+      'boolean',
+      'Show email login and allow local or LDAP credential login through the authentication API.',
+      'ALLOW_EMAIL_LOGIN=true',
+    ],
+    [
+      'ALLOW_EMAIL_LOGIN_OVERRIDE',
+      'boolean',
+      'Allow direct credential requests to the login API while ALLOW_EMAIL_LOGIN is false. Default: false.',
+      'ALLOW_EMAIL_LOGIN_OVERRIDE=false',
+    ],
+    [
+      'ALLOW_REGISTRATION',
+      'boolean',
+      'Enable or disable email registration of new users.',
+      'ALLOW_REGISTRATION=true',
+    ],
+    [
+      'ALLOW_SOCIAL_LOGIN',
+      'boolean',
+      'Allow users to connect to LibreChat with various social networks.',
+      'ALLOW_SOCIAL_LOGIN=false',
+    ],
+    [
+      'ALLOW_SOCIAL_REGISTRATION',
+      'boolean',
+      'Enable or disable registration of new users using various social networks.',
+      'ALLOW_SOCIAL_REGISTRATION=false',
+    ],
   ]}
 />
 
 > **Note:** OpenID and SAML do not support the ability to disable only registration.
+
+Setting `ALLOW_EMAIL_LOGIN=false` hides the email login form and rejects local or LDAP credential requests to `/api/auth/login`; OAuth, OpenID Connect, and SAML sign-in are unaffected. `ALLOW_EMAIL_LOGIN_OVERRIDE=true` is intended only for a controlled API integration that still needs credential login while the form is hidden. Every override use logs the request IP, so protect and monitor that route carefully.
 
 Quick Tips:
 
 - Even with registration disabled, you can add users directly to the database using [the create-user script](#create-user-script) detailed below.
 - To delete a user, you can use [the delete-user script](#delete-user-script) also detailed below.
 
+<ThemeImage
+  light="https://github.com/danny-avila/LibreChat/assets/32828263/4c51dc25-31d3-4c51-8c2a-0cdfb5a25033"
+  dark="https://github.com/danny-avila/LibreChat/assets/32828263/3bc5371d-e51d-4e91-ac68-56db6e85bb2c"
+  alt="User registration screen"
+/>
 
-<div style={{display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column"}}>
-  <div className="image-light-theme">
-    ![register-light](https://github.com/danny-avila/LibreChat/assets/32828263/4c51dc25-31d3-4c51-8c2a-0cdfb5a25033)
-  </div>
+Related sign-in options for local accounts:
 
-  <div className="image-dark-theme">
-    ![register](https://github.com/danny-avila/LibreChat/assets/32828263/3bc5371d-e51d-4e91-ac68-56db6e85bb2c)
-  </div>
-</div>
+- [Passkeys](/docs/configuration/authentication/passkeys): passwordless sign-in with a device screen lock or security key (`ALLOW_PASSKEY_LOGIN`).
+- [Email address change](/docs/configuration/authentication/email#email-address-change): lets users change their registered email from **Settings > Account** (`ALLOW_EMAIL_CHANGE`, on by default).
 
+## Required Two-Factor Authentication
+
+Users can always turn on two-factor authentication (TOTP) themselves from **Settings > Account**. To make it mandatory, set:
+
+```bash filename=".env"
+ENFORCE_TWO_FACTOR_AUTHENTICATION=true
+```
+
+**Who it applies to:** local (email and password) and LDAP accounts. Accounts that sign in through OAuth, OpenID Connect, or SAML are not affected, because their identity provider is responsible for MFA. A federated account that tries to sign in with a password while enforcement is on is told to use its identity provider instead.
+
+**What users see:** a user without 2FA who signs in (with a password, LDAP credentials, or a passkey) gets no session until setup is complete. They land on a **Two-Factor Authentication Required** screen ("Your administrator requires two-factor authentication. Set it up before continuing."), scan a QR code with an authenticator app, enter a code to verify, and save their backup codes. Users who are already signed in are moved into the same setup the next time their session is checked or refreshed, and access tokens issued before enrollment stop working. The setup session lasts 10 minutes; if it expires, the user returns to the login page and starts again.
+
+**After enrollment:** the **Disable 2FA** control in **Settings > Account** shows **Required by administrator**, and the server rejects attempts to disable 2FA while the policy is on. Users can still regenerate backup codes.
+
+<OptionTable
+  options={[
+    [
+      'ENFORCE_TWO_FACTOR_AUTHENTICATION',
+      'boolean',
+      'Require local and LDAP accounts to enroll in 2FA before a full session is issued. Default: false.',
+      'ENFORCE_TWO_FACTOR_AUTHENTICATION=false',
+    ],
+    [
+      'TWO_FACTOR_TEMP_MAX',
+      'integer',
+      'Two-factor code attempts (sign-in challenge and enrollment confirmation) per TWO_FACTOR_TEMP_WINDOW. Defaults to LOGIN_MAX (7).',
+      '# TWO_FACTOR_TEMP_MAX=7',
+    ],
+    [
+      'TWO_FACTOR_TEMP_WINDOW',
+      'integer',
+      'Window in minutes for TWO_FACTOR_TEMP_MAX. Defaults to LOGIN_WINDOW (5).',
+      '# TWO_FACTOR_TEMP_WINDOW=5',
+    ],
+    [
+      'TWO_FACTOR_SETUP_MAX',
+      'integer',
+      'Enrollment steps that check no guessable code (starting setup, acknowledging backup codes, finishing). Kept separate so wrong codes cannot strand an enrollment. Default: 20.',
+      '# TWO_FACTOR_SETUP_MAX=20',
+    ],
+    [
+      'TWO_FACTOR_SETUP_WINDOW',
+      'integer',
+      'Window in minutes for TWO_FACTOR_SETUP_MAX. Defaults to TWO_FACTOR_TEMP_WINDOW.',
+      '# TWO_FACTOR_SETUP_WINDOW=5',
+    ],
+  ]}
+/>
+
+<Callout type="info" title="Environment only">
+`ENFORCE_TWO_FACTOR_AUTHENTICATION` and the `TWO_FACTOR_TEMP_*` and `TWO_FACTOR_SETUP_*` limits are process-wide `.env` settings. They apply before a request or tenant configuration is available, so they cannot be set in `librechat.yaml` or per tenant. Set the same values on every replica. The separate budget for managing 2FA from settings is [`rateLimits.twoFactorManagement`](/docs/configuration/librechat_yaml/object_structure/config#ratelimits).
+</Callout>
 
 ## Session Expiry and Refresh Token
 
 - Default values: session expiry: 15 minutes, refresh token expiry: 7 days
-  - For more information: **[GitHub PR #927 - Refresh Token](https://github.com/danny-avila/LibreChat/pull/927)**
+  - For more information: **[GitHub PR #927 - Refresh Token](https://github.com/LibreChat-AI/LibreChat/pull/927)**
 
 <OptionTable
   options={[
@@ -76,15 +156,16 @@ sequenceDiagram
 
 ## JWT Secret and Refresh Secret
 
-- You should use new secure values. The examples given are 32-byte keys (64 characters in hex).
-  - Use this tool to generate some quickly: **[JWT Keys](/toolkit/creds_generator)**
+Use unique values of at least 32 bytes. Generate permanent values with the [Credentials Generator](/toolkit/creds_generator), store them securely, and provide the same values to every LibreChat replica.
 
 <OptionTable
   options={[
-    ['JWT_SECRET', 'string (hex)', 'JWT secret key.','JWT_SECRET=16f8c0ef4a5d391b26034086c628469d3f9f497f08163ab9b40137092f2909ef'],
-    ['JWT_REFRESH_SECRET', 'string (hex)', 'JWT refresh secret key.','JWT_REFRESH_SECRET=eaa5191f2914e30b9387fd84e254e4ba6fc51b4654968a9b0803b456a54b8418'],
+    ['JWT_SECRET', 'string (hex)', 'JWT secret key.','JWT_SECRET='],
+    ['JWT_REFRESH_SECRET', 'string (hex)', 'JWT refresh secret key.','JWT_REFRESH_SECRET='],
   ]}
 />
+
+When either value is blank, LibreChat can generate and reuse a value from its temporary credentials file. The default Docker Compose stacks persist that file, but this is intended only as a bootstrap convenience. If the file is lost or cannot be written, sessions can become invalid after restart. See [Credentials Configuration](/docs/configuration/dotenv#credentials-configuration) for precedence, persistence, and production guidance.
 
 ---
 
@@ -104,7 +185,7 @@ The create-user script allows you to add users directly to the database, even wh
 
 1. For the default `docker-compose.yml` (if you use `docker compose up` to start the app):
    ```bash
-   docker-compose exec api npm run create-user
+   docker compose exec api npm run create-user
    ```
 
 2. For the `deploy-compose.yml` (if you followed the [Ubuntu Docker Guide](/docs/remote/docker_linux)):
@@ -125,7 +206,7 @@ To delete a user, you can use the delete-user script:
 
 1. For the default `docker-compose.yml` (if you use `docker compose up` to start the app):
    ```bash
-   docker-compose exec api npm run delete-user email@domain.com
+   docker compose exec api npm run delete-user email@domain.com
    ```
 
 2. For the `deploy-compose.yml` (if you followed the [Ubuntu Docker Guide](/docs/remote/docker_linux)):
@@ -139,4 +220,3 @@ To delete a user, you can use the delete-user script:
    ```
 
 Replace `email@domain.com` with the email of the user you want to delete.
-

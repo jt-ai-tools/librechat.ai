@@ -1,16 +1,26 @@
 ---
 title: ShuttleAI
 icon: ShuttleAI
-description: Example configuration for ShuttleAI
+description: Configure ShuttleAI as a custom endpoint in LibreChat.
 ---
 
-> ShuttleAI API key: [shuttleai.com/keys](https://shuttleai.com/keys)
+ShuttleAI provides access to its Shuttle models through an OpenAI-compatible API, used in LibreChat as a custom endpoint.
 
-**Notes:**
+## Get an API key
 
-- **Known:** icon provided, fetching list of models is recommended.
+Create a key from the [ShuttleAI keys page](https://shuttleai.com/keys). Add it to your `.env` file:
 
-```yaml
+```bash filename=".env"
+SHUTTLEAI_API_KEY=your-api-key
+```
+
+## Configuration
+
+Add the endpoint to the `custom` list under `endpoints` in your `librechat.yaml`. If your file already has an `endpoints.custom` list, paste only the `- name:` entry into it, keeping the same indentation:
+
+```yaml filename="librechat.yaml"
+endpoints:
+  custom:
     - name: "ShuttleAI"
       apiKey: "${SHUTTLEAI_API_KEY}"
       baseURL: "https://api.shuttleai.com/v1"
@@ -26,5 +36,3 @@ description: Example configuration for ShuttleAI
       modelDisplayLabel: "ShuttleAI"
       dropParams: ["user", "stop"]
 ```
-
-![image](https://github.com/danny-avila/LibreChat/assets/32828263/a694e6d0-5663-4c89-92b5-887742dca876)

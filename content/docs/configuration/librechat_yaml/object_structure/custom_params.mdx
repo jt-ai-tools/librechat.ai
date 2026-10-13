@@ -1,6 +1,6 @@
 ---
-title: "Custom Parameters"
-icon: Braces
+title: 'Custom Parameters'
+icon: SlidersHorizontal
 ---
 
 ### Picking A Default Parameters Set
@@ -18,6 +18,37 @@ endpoints:
 ```
 
 Your "Google Gemini" endpoint will now display parameters for Google API when you create a new agent or preset.
+
+#### Accepted Values
+
+`defaultParamsEndpoint` selects which built-in parameter set the endpoint's panel renders. These are the values that resolve to one:
+
+<OptionTable
+  options={[
+    ['custom', 'String', 'OpenAI parameter set. This is the schema default, and what an endpoint with no `provider` falls back to.', 'Default'],
+    ['openAI', 'String', 'OpenAI parameter set.', ''],
+    ['azureOpenAI', 'String', 'OpenAI parameter set.', ''],
+    ['anthropic', 'String', 'Anthropic parameter set.', ''],
+    ['google', 'String', 'Google parameter set.', ''],
+    ['openrouter', 'String', 'OpenRouter parameter set. Lowercase, unlike the others.', ''],
+  ]}
+/>
+
+Note the casing: `openAI` and `azureOpenAI` are camelCase, but `openrouter` is all lowercase.
+
+<Callout type="info" title="A provider setting supplies this value for you">
+
+If the custom endpoint sets `provider`, LibreChat fills `defaultParamsEndpoint` in from it, so the effective default is the provider's parameter set rather than `custom`. That substitution happens only when you leave the field out or leave it at `custom`; any other value you set explicitly wins. A `provider: 'anthropic'` endpoint therefore starts on the Anthropic parameter set without you writing `defaultParamsEndpoint` at all.
+
+</Callout>
+
+The values `assistants`, `azureAssistants`, `agents`, and `bedrock` are also recognized when LibreChat resolves conversation and preset schemas, but none of them maps to a parameter set a custom endpoint can render, so setting one leaves the panel empty.
+
+<Callout type="warning" title="Unrecognized values fail silently">
+
+The field is a free-form string, not a closed enum, so a value outside this list passes configuration validation. It simply matches no parameter set, and the endpoint's panel renders with **no parameters at all** rather than reporting an error. If your parameter panel is unexpectedly empty, check this value first.
+
+</Callout>
 
 ### Overriding Parameter Definitions
 
@@ -39,7 +70,33 @@ endpoints:
               step: 0.1
             default: 0.5
 ```
+
 As a result, the `Temperature` slider will be limited to the range of `0.0` and `0.7` with step of `0.1`, and a default of `0.5`. The rest of the parameters will be set to their default values.
+
+#### Sentinel ranges
+
+Use `range.positiveMin` when `range.min` is a special sentinel value but regular values have a higher lower bound. For example, a thinking budget can use `-1` for automatic behavior while accepting explicit budgets only from `128` through `32768`:
+
+```yaml filename="excerpt of librechat.yaml"
+endpoints:
+  custom:
+    - name: 'My Gemini Gateway'
+      apiKey: ...
+      baseURL: ...
+      customParams:
+        paramDefinitions:
+          - key: thinkingBudget
+            type: number
+            component: slider
+            range:
+              min: -1
+              positiveMin: 128
+              max: 32768
+              step: 1
+            default: -1
+```
+
+With `positiveMin`, the only accepted values are the sentinel `min` or values from `positiveMin` through `max`; values between them are not valid. `positiveMin` cannot exceed `max`, and the default must be either `min` or at least `positiveMin`.
 
 ### Setting Default Parameter Values
 
@@ -48,6 +105,7 @@ You can specify default values for parameters that will be automatically applied
 The `default` field in `paramDefinitions` allows you to set default values that are applied when parameters are undefined. These defaults follow a priority order to ensure proper override behavior:
 
 **Priority Order (lowest to highest):**
+
 1. **Default values from `paramDefinitions`** - Applied first when parameter is undefined
 2. **`addParams`** - Can override default values
 3. **User-configured `modelOptions`** - Highest priority, overrides everything
@@ -70,6 +128,7 @@ endpoints:
 ```
 
 In this example:
+
 - If a user doesn't specify `temperature`, it defaults to `0.7`
 - If a user explicitly sets `temperature` to `0.5`, their value (`0.5`) takes precedence
 - The `addParams` field (if configured) can override these defaults
@@ -77,17 +136,24 @@ In this example:
 
 ### Anthropic
 
+There are two Anthropic-related custom endpoint modes:
+
+- `provider: 'anthropic'` on the custom endpoint uses the native Anthropic `/v1/messages` client. Use this for Anthropic itself or gateways that speak the Anthropic Messages API.
+- `customParams.defaultParamsEndpoint: 'anthropic'` keeps the custom endpoint on the OpenAI-compatible path while applying Anthropic-style parameter metadata and request adaptation.
+
 When using `defaultParamsEndpoint: 'anthropic'`, the system provides special handling that goes beyond just displaying and using Anthropic parameter sets:
 
 <Callout type="info">
 **Anthropic API Compatibility**
 
-Setting `defaultParamsEndpoint: 'anthropic'` enables full Anthropic API compatibility for parameters, headers, and payload formatting:
+Setting `defaultParamsEndpoint: 'anthropic'` adapts parameters, headers, and payload formatting for Anthropic-shaped requests on the custom endpoint path:
+
 - Parameters are sent to your custom endpoint exactly as the Anthropic API expects
 - This is essential for proxy services like LiteLLM that pass non-OpenAI-spec parameters directly to the underlying provider
 - Anthropic-specific parameters like `thinking` are properly formatted
 - The `messages` payload is formatted according to Anthropic's requirements (thinking blocks and prompt caching)
 - Appropriate beta headers are automatically added based on the model as when using Anthropic directly
+
 </Callout>
 
 This is mainly necessary to properly format the `thinking` parameter, which is not OpenAI-compatible:
@@ -102,14 +168,29 @@ This is mainly necessary to properly format the `thinking` parameter, which is n
 ```
 
 Additionally, the system automatically adds model-specific Anthropic beta headers such as:
+
 - `anthropic-beta: prompt-caching-2024-07-31` for prompt caching support
 - `anthropic-beta: context-1m-2025-08-07` for extended context models
 - Model-specific feature flags based on the Claude model being used
 
-This ensures full compatibility when routing through proxy services or directly to Anthropic-compatible endpoints.
+For native Anthropic-compatible endpoints, prefer `provider: 'anthropic'` on the custom endpoint. It routes agents, summarization, token/context budgeting, and parameter defaults through the Anthropic provider path.
+
+### Reasoning replay
+
+Some OpenAI-compatible reasoning gateways require provider `reasoning_content` to be replayed on assistant tool-call turns. Use custom endpoint flags to opt in only for providers that need this behavior:
+
+```yaml filename="endpoints / custom / customParams"
+customParams:
+  reasoningFormat: reasoning_object
+  reasoningKey: reasoning_content
+  includeReasoningContent: true
+```
+
+Set `includeReasoningHistory: true` only when the provider also requires LibreChat to reconstruct `reasoning_content` from persisted conversation history across later turns. This implies `includeReasoningContent`.
 
 <Callout type="note">
 **Implementation Status**
 
-Currently, this automatic parameter and header handling is fully implemented for Anthropic endpoints. Similar behavior for other `defaultParamsEndpoint` values (e.g., `google`, `bedrock`) is planned for future updates.
+Currently, this automatic parameter and header handling is fully implemented for Anthropic-style custom endpoints. Similar behavior for other `defaultParamsEndpoint` values (e.g., `google`, `bedrock`) is planned for future updates.
+
 </Callout>

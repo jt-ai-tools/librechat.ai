@@ -1,16 +1,26 @@
 ---
 title: Anyscale
 icon: Anyscale
-description: Example configuration for Anyscale
+description: Configure Anyscale as a custom endpoint in LibreChat.
 ---
 
-> **Anyscale API key:** [anyscale.com/credentials](https://app.endpoints.anyscale.com/credentials)
+Anyscale Endpoints serves open models such as Llama through an OpenAI-compatible API that you can add to LibreChat as a custom endpoint.
 
-**Notes:**
+## Get an API key
 
-- **Known:** icon provided, fetching list of models is recommended.
+Create a key from your [Anyscale credentials](https://app.endpoints.anyscale.com/credentials). Add it to your `.env` file:
+
+```bash filename=".env"
+ANYSCALE_API_KEY=your-api-key
+```
+
+## Configuration
+
+Add the endpoint to the `custom` list under `endpoints` in your `librechat.yaml`. If your file already has an `endpoints.custom` list, paste only the `- name:` entry into it, keeping the same indentation:
 
 ```yaml filename="librechat.yaml"
+endpoints:
+  custom:
     - name: "Anyscale"
       apiKey: "${ANYSCALE_API_KEY}"
       baseURL: "https://api.endpoints.anyscale.com/v1"
@@ -26,4 +36,6 @@ description: Example configuration for Anyscale
       modelDisplayLabel: "Anyscale"
 ```
 
-![image](https://github.com/danny-avila/LibreChat/assets/32828263/9f2d8ad9-3f49-4fe3-a3ed-c85994c1c85f)
+## Notes
+
+- With `fetch: true`, LibreChat loads the available model list from Anyscale, so the `default` array is only the initial selection.

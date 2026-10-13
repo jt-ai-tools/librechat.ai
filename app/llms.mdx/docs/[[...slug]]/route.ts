@@ -1,21 +1,25 @@
 import { getLLMText } from '@/lib/get-llm-text'
+import { MARKDOWN_RESPONSE_HEADERS } from '@/lib/markdown-response'
 import { docsSource } from '@/lib/source'
+import { i18n } from '@/lib/i18n'
 import { notFound } from 'next/navigation'
 
 export const revalidate = false
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug?: string[] }> }) {
   const { slug } = await params
-  const page = docsSource.getPage(slug)
+  const page = docsSource.getPage(slug, i18n.defaultLanguage)
   if (!page) notFound()
 
   return new Response(await getLLMText(page), {
-    headers: {
-      'Content-Type': 'text/markdown',
-    },
+    headers: MARKDOWN_RESPONSE_HEADERS,
   })
 }
 
 export function generateStaticParams() {
-  return docsSource.generateParams()
+  // This route serves the English raw markdown; keep one entry per slug.
+  return docsSource
+    .generateParams()
+    .filter((p) => p.lang === i18n.defaultLanguage)
+    .map(({ slug }) => ({ slug }))
 }

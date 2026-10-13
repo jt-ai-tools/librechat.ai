@@ -1,17 +1,46 @@
-/* eslint-disable no-undef */
-
 /** @type {import('next-sitemap').IConfig} */
+const ARCHIVED_DOCS_PATH_RE = /^\/v\d+\.\d+(?:\.\d+|\.x)?(?:-rc\d*)?(?:\/|$)/
+
 module.exports = {
   siteUrl: 'https://www.librechat.ai',
   generateRobotsTxt: true,
-  changefreq: 'daily',
-  exclude: ['*/_meta'],
-  additionalPaths: async () => [
-    {
-      loc: '/',
-      priority: 1,
-      changefreq: 'daily',
+  robotsTxtOptions: {
+    transformRobotsTxt: async (_, robotsTxt) =>
+      robotsTxt.replace(
+        'User-agent: *',
+        'User-agent: *\nContent-Signal: ai-train=no, search=yes, ai-input=yes',
+      ),
+  },
+  changefreq: 'weekly',
+  priority: 0.7,
+  exclude: ['*/_meta', '/v*.*.x/docs*', '/v*.*.*/docs*', '/v*.*-rc*/docs*', '/v*.*.*-rc*/docs*'],
+  // Per-route freshness + priority so search engines crawl the home page and
+  // docs more aggressively than legal/utility pages.
+  transform: async (config, path) => {
+    if (ARCHIVED_DOCS_PATH_RE.test(path)) return null
+
+    let { changefreq } = config
+    let { priority } = config
+
+    if (path === '/') {
+      changefreq = 'daily'
+      priority = 1.0
+    } else if (path.startsWith('/docs')) {
+      changefreq = 'weekly'
+      priority = 0.9
+    } else if (path.startsWith('/blog') || path.startsWith('/changelog')) {
+      changefreq = 'daily'
+      priority = 0.7
+    } else if (/^\/(privacy|tos|cookie|subscribe|unsubscribe)/.test(path)) {
+      changefreq = 'yearly'
+      priority = 0.3
+    }
+
+    return {
+      loc: path,
+      changefreq,
+      priority,
       lastmod: new Date().toISOString(),
-    },
-  ],
+    }
+  },
 }
