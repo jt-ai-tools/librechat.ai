@@ -1,0 +1,105 @@
+{
+  "original_fork_sha": "4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0",
+  "archive_source_commit": "5011f08bbb9e4eee72d1beef28264a0723f954fa",
+  "reviewed_upstream_sha": "091eab21feab77ef190fd31d2df6e251cb792a37",
+  "historical_only": true,
+  "reason": "Upstream removed the Pages Router; preserving this obsolete pages/ root changes Next 16.4.0 navigation hook types and prevents App Router type checking. Contents retained unchanged outside active route/content collections.",
+  "files": [
+    {
+      "original_path": "pages/404_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/404_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "e6a6ef312dbd371defd4cbf30ff1fcd814f307f2",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/404_zh_TW.mdx"
+    },
+    {
+      "original_path": "pages/README_zh_TW.md",
+      "archived_path": "translations/legacy/2026-10-13/pages/README_zh_TW.md",
+      "mode": "100644",
+      "blob_sha": "9c3009dcc3bba52d4add3cba14c581ddb3d5ad16",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/README_zh_TW.md"
+    },
+    {
+      "original_path": "pages/demo_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/demo_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "ad30251adc7e02c82c07352e1f454fd6c2c5adff",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/demo_zh_TW.mdx"
+    },
+    {
+      "original_path": "pages/subscribe_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/subscribe_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "d4f9480c363ef565648f498b5ba5dd0f5a57851f",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/subscribe_zh_TW.mdx"
+    },
+    {
+      "original_path": "pages/toolkit/creds_generator_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/toolkit/creds_generator_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "646002f715186894f8746eed964e4eac9c892ea2",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/toolkit/creds_generator_zh_TW.mdx"
+    },
+    {
+      "original_path": "pages/toolkit/index_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/toolkit/index_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "22fc35dd977b3cbc53b24bf51ab433ee3b398295",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/toolkit/index_zh_TW.mdx"
+    },
+    {
+      "original_path": "pages/toolkit/yaml_checker_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/toolkit/yaml_checker_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "56f9d39926618018f48b7fe9de343f8619d808c5",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/toolkit/yaml_checker_zh_TW.mdx"
+    },
+    {
+      "original_path": "pages/unsubscribe_zh_TW.mdx",
+      "archived_path": "translations/legacy/2026-10-13/pages/unsubscribe_zh_TW.mdx",
+      "mode": "100644",
+      "blob_sha": "a19756b589ca84f5164868ecc7108d47c08b50c7",
+      "original_source_url": "https://github.com/jt-ai-tools/librechat.ai/blob/4fb9450875b6b0f3e0a0de4f9c90e30d7a420ec0/pages/unsubscribe_zh_TW.mdx"
+    }
+  ],
+  "incoming_tool_link_updates": [
+    {
+      "path": "content/blog/2024-03-22_unraid_guide_zh_TW.mdx",
+      "target_substitutions": 1
+    },
+    {
+      "path": "content/docs/configuration/authentication/index_zh_TW.mdx",
+      "target_substitutions": 1
+    },
+    {
+      "path": "content/docs/configuration/dotenv_zh_TW.mdx",
+      "target_substitutions": 2
+    },
+    {
+      "path": "content/docs/configuration/librechat_yaml/index_zh_TW.mdx",
+      "target_substitutions": 1
+    },
+    {
+      "path": "content/docs/configuration/librechat_yaml/setup_zh_TW.mdx",
+      "target_substitutions": 1
+    },
+    {
+      "path": "content/docs/local/helm_chart_zh_TW.mdx",
+      "target_substitutions": 1
+    },
+    {
+      "path": "content/docs/remote/docker_linux_zh_TW.mdx",
+      "target_substitutions": 3
+    },
+    {
+      "path": "content/docs/remote/huggingface_zh_TW.mdx",
+      "target_substitutions": 1
+    }
+  ],
+  "evidence": [
+    "https://github.com/vercel/next.js/blob/v16.4.0/packages/next/src/lib/find-pages-dir.ts",
+    "https://github.com/vercel/next.js/blob/v16.4.0/packages/next/src/lib/typescript/writeAppTypeDeclarations.ts",
+    "https://github.com/vercel/next.js/blob/v16.4.0/packages/next/navigation-types/compat/navigation.d.ts"
+  ],
+  "runtime_status": "The original four MDX syntax errors are fixed; this archival repair awaits independent review and fresh build."
+}

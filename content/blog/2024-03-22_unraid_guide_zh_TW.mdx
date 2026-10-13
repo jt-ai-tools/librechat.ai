@@ -51,7 +51,7 @@ Docker compose 檔案是比較棘手的地方，裡面有很多設定。從上�
 
 - **Crypto Key**、**Crypto Initialization Vector**、**JWT Secret** 與 **JWT Refresh Secret**。 
 
-    這 4 個設定我們需要一次獲取，老實說我仍不完全確定它們代表什麼。LibreChat 提供了一個工具來 [產生這些數值](/toolkit/creds_generator_zh_TW)。這應該相當直觀，執行後您會看到 `CREDS_KEY`（填入 `Crypto Key`）、`CREDS_IV`（填入 `Crypto Initialization Vector`）、`JWT_SECRET`（填入 `JWT Secret`）與 `JWT_REFRESH_SECRET`（填入 `JWT Refresh Secret`）。太棒了，最困難的部分解決了。
+    這 4 個設定我們需要一次獲取，老實說我仍不完全確定它們代表什麼。LibreChat 提供了一個工具來 [產生這些數值](/docs/toolkit/credentials-generator)。這應該相當直觀，執行後您會看到 `CREDS_KEY`（填入 `Crypto Key`）、`CREDS_IV`（填入 `Crypto Initialization Vector`）、`JWT_SECRET`（填入 `JWT Secret`）與 `JWT_REFRESH_SECRET`（填入 `JWT Refresh Secret`）。太棒了，最困難的部分解決了。
 
 - 回到 **MongoDB URI**。在此您需要以如下格式填入 MongoDB 實例的位置：`mongodb://ip:port/database`。由於我的伺服器本地 IP 是 `192.168.1.100` 且我保留了預設連接埠 `27017`，因此我輸入了：`mongodb://192.168.1.100:27017/librechat`。等一下，我還沒建立名為 librechat 的資料庫！沒關係，系統會自動為您建立。您其實可以隨意命名，但命名為 librechat 最符合邏輯。
 

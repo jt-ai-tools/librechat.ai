@@ -13,7 +13,7 @@ description: 使用 Helm 在 Kubernetes 上部署 LibreChat 的說明
 
 ## 配置
 
-1. 使用 [憑證產生器](/toolkit/creds_generator_zh_TW) 為 `CREDS_KEY`、`JWT_SECRET`、`JWT_REFRESH_SECRET` 與 `MEILI_MASTER_KEY` 產生安全數值。
+1. 使用 [憑證產生器](/docs/toolkit/credentials-generator) 為 `CREDS_KEY`、`JWT_SECRET`、`JWT_REFRESH_SECRET` 與 `MEILI_MASTER_KEY` 產生安全數值。
 將它們放入 Kubernetes Secret 中，如下所示（若您更改了 Secret 名稱，請記得更新您的 Helm values）：
 
 ```yaml

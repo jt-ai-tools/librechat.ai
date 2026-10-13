@@ -214,7 +214,7 @@ cache: true
 <Callout type="info" title="配置驗證">
 如果您的 `librechat.yaml` 檔案包含驗證錯誤，LibreChat 將以錯誤（結束代碼 1）結束執行。這種「快速失敗」(fail-fast) 行為可確保在部署階段儘早發現配置問題。
 
-在部署前，請使用 [YAML 驗證器](/toolkit/yaml_checker_zh_TW) 驗證您的配置。如果您的 CI/CD 流程啟動了伺服器，它會在遇到無效配置時快速失敗，防止部署帶有配置錯誤的設定。
+在部署前，請使用 [YAML 驗證器](/docs/toolkit/yaml-validator) 驗證您的配置。如果您的 CI/CD 流程啟動了伺服器，它會在遇到無效配置時快速失敗，防止部署帶有配置錯誤的設定。
 </Callout>
 
 #### 環境 (.env) 檔案
@@ -230,7 +230,7 @@ cp .env.example .env
 
 為了方便起見，您可以執行下列工具來產生您自己的數值：
 
-[https://www.librechat.ai/toolkit/creds_generator_zh_TW](https://www.librechat.ai/toolkit/creds_generator_zh_TW)
+[https://www.librechat.ai/docs/toolkit/credentials-generator](https://www.librechat.ai/docs/toolkit/credentials-generator)
 
 ```bash
 nano .env

@@ -24,6 +24,8 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-22C55E" alt="License: MIT"></a>
 </p>
 
+繁體中文舊版頁面已原樣保留於[歷史存檔](translations/legacy/2026-10-13/INDEX.md)；現行網站沿用上游 App Router。
+
 ---
 
 ## What's New in LibreChat v0.8.8-rc2
