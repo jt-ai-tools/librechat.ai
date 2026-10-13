@@ -84,28 +84,18 @@ mcpServers:
     ['command', '字串', '（針對 `stdio` 類型）用於啟動 MCP 伺服器的命令或執行檔。', 'command: "npx"'],
     ['args', '字串陣列', '（針對 `stdio` 類型）傳遞給 `command` 的命令列參數。', 'args: ["-y", "@modelcontextprotocol/server-puppeteer"]'],
     ['url', '字串', '（針對 `websocket`、`streamable-http` 或 `sse` 類型）連接 MCP 伺服器的 URL。', 'url: "http://localhost:3001/sse"'],
-    ['headers', '物件', '（選填，針對 `sse` 與 `streamable-http` 類型）隨請求發送的自定義標頭。支援使用 `{{LIBRECHAT_USER_*}}` 預留位置進行動態使用者欄位替換，以及使用 `${ENV_VAR}` 引用環境變數。', 'headers:
-  X-User-ID: "{{LIBRECHAT_USER_ID}}"
-  X-API-Key: "${SOME_API_KEY}"'],
+    ['headers', '物件', '（選填，針對 `sse` 與 `streamable-http` 類型）隨請求發送的自定義標頭。支援使用 `{{LIBRECHAT_USER_*}}` 預留位置進行動態使用者欄位替換，以及使用 `${ENV_VAR}` 引用環境變數。', 'headers:\n  X-User-ID: "{{LIBRECHAT_USER_ID}}"\n  X-API-Key: "${SOME_API_KEY}"'],
     ['apiKey', '物件', '（選填，針對 `sse` 與 `streamable-http` 類型）MCP 伺服器的 API 金鑰身份驗證配置。', '參見下方 apiKey 章節'],
     ['iconPath', '字串', '（選填）定義在工具選擇對話方塊中顯示的工具圖標。', 'iconPath: "/path/to/icon.svg"'],
     ['chatMenu', '布林值', '（選填）設定為 `false` 時，將 MCP 伺服器從聊天區下拉選單 (MCPSelect) 中排除。預設值為 `true`。', 'chatMenu: false'],
-    ['serverInstructions', '布林值或字串', '（選填）控制如何將 MCP 伺服器指令注入智慧體上下文。伺服器指令為整個 MCP 伺服器提供高層級的使用指南，與個別工具的描述相輔相成。', 'serverInstructions: true
-# 或
-serverInstructions: "自定義指令"'],
+    ['serverInstructions', '布林值或字串', '（選填）控制如何將 MCP 伺服器指令注入智慧體上下文。伺服器指令為整個 MCP 伺服器提供高層級的使用指南，與個別工具的描述相輔相成。', 'serverInstructions: true\n# 或\nserverInstructions: "自定義指令"'],
     ['timeout', '數字', '（選填）MCP 伺服器請求的超時時間（毫秒）。決定等待工具請求回應的時間。', 'timeout: 30000'],
     ['initTimeout', '數字', '（選填）MCP 伺服器初始化的超時時間（毫秒）。決定等待伺服器初始化的時間。', 'initTimeout: 10000'],
-    ['env', '物件', '（選填，僅限 `stdio` 類型）產生程序時使用的環境變數。', 'env:
-  NODE_ENV: "production"'],
+    ['env', '物件', '（選填，僅限 `stdio` 類型）產生程序時使用的環境變數。', 'env:\n  NODE_ENV: "production"'],
     ['requiresOAuth', '布林值', '（選填，僅限 `sse` 類型）此伺服器是否需要 OAuth 身份驗證。若未指定，將在伺服器啟動期間自動偵測。雖然是選填，但若已知伺服器是否需要 OAuth，最好明確設定此值。', 'requiresOAuth: true'],
     ['stderr', '字串、串流或數字', '（選填，僅限 `stdio` 類型）如何處理子程序的 `stderr`。預設值為 `"inherit"`。', 'stderr: "inherit"'],
-    ['customUserVars', '物件', '（選填）定義使用者可為此 MCP 伺服器設定的自定義變數，支援按使用者的憑證或配置（例如 API 金鑰）。這些變數可隨後在 `headers` 或 `env` 欄位中被引用。', 'customUserVars:
-  API_KEY:
-    title: "API 金鑰"
-    description: "您的個人 API 金鑰。"'],
-    ['oauth', '物件', '（選填）與 MCP 伺服器驗證所需的 OAuth2 配置。配置後，系統會提示使用者透過 OAuth 流程進行驗證。', 'oauth:
-  authorization_url: "https://example.com/oauth/authorize"
-  token_url: "https://example.com/oauth/token"'],
+    ['customUserVars', '物件', '（選填）定義使用者可為此 MCP 伺服器設定的自定義變數，支援按使用者的憑證或配置（例如 API 金鑰）。這些變數可隨後在 `headers` 或 `env` 欄位中被引用。', 'customUserVars:\n  API_KEY:\n    title: "API 金鑰"\n    description: "您的個人 API 金鑰。"'],
+    ['oauth', '物件', '（選填）與 MCP 伺服器驗證所需的 OAuth2 配置。配置後，系統會提示使用者透過 OAuth 流程進行驗證。', 'oauth:\n  authorization_url: "https://example.com/oauth/authorize"\n  token_url: "https://example.com/oauth/token"'],
     ['startup', '布林值', '（選填）設定為 false 時，此 MCP 伺服器不會在應用程式啟動時連接。', 'startup: false'],
   ]}
 />

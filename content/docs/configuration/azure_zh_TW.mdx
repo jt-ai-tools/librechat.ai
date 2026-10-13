@@ -103,8 +103,7 @@ endpoints:
     ['titleConvo', 'boolean', '為所有 Azure 模型啟用對話標題產生功能。設定為 `true` 以啟動標題產生。預設值：`false`。', 'titleConvo:false'],
     ['titleMethod', 'string', '控制產生對話標題的方法。有效值："completion" (預設), "structured", "functions" ("structured" 的舊版別名)。', 'titleMethod:completion'],
     ['titlePrompt', 'string', '用於標題產生的自定義提示詞。必須包含 {convo} 佔位符以代表對話內容。', '參閱文檔以獲取預設提示詞'],
-    ['titlePromptTemplate', 'string', '格式化對話內容的模板。必須包含 {input} 與 {output} 佔位符。預設值："User: {input}
-AI: {output}"', 'titlePromptTemplate:'],
+    ['titlePromptTemplate', 'string', '格式化對話內容的模板。必須包含 {input} 與 {output} 佔位符。預設值："User: {input}\nAI: {output}"', 'titlePromptTemplate:'],
     ['titleEndpoint', 'string', '用於產生標題的替代終端。接受值：openAI, azureOpenAI, google, anthropic, bedrock 或自定義終端名稱。', 'titleEndpoint:'],
   ]}
 />
@@ -524,12 +523,8 @@ endpoints:
 **基礎 URL (Base URLs)：**
 <OptionTable
   options={[
-    ['DALLE3_BASEURL', 'string', 'DALL-E 3 API 終端的基礎 URL。支援 `.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）網域格式。','# DALLE3_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.openai.azure.com/openai/deployments/<DALLE3_部署名稱>/
-# 或
-# DALLE3_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.cognitiveservices.azure.com/openai/deployments/<DALLE3_部署名稱>/'],
-    ['DALLE2_BASEURL', 'string', 'DALL-E 2 API 終端的基礎 URL。支援 `.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）網域格式。','# DALLE2_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.openai.azure.com/openai/deployments/<DALLE2_部署名稱>/
-# 或
-# DALLE2_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.cognitiveservices.azure.com/openai/deployments/<DALLE2_部署名稱>/'],
+    ['DALLE3_BASEURL', 'string', 'DALL-E 3 API 終端的基礎 URL。支援 `.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）網域格式。','# DALLE3_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.openai.azure.com/openai/deployments/<DALLE3_部署名稱>/\n# 或\n# DALLE3_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.cognitiveservices.azure.com/openai/deployments/<DALLE3_部署名稱>/'],
+    ['DALLE2_BASEURL', 'string', 'DALL-E 2 API 終端的基礎 URL。支援 `.openai.azure.com`（舊版）與 `.cognitiveservices.azure.com`（新版）網域格式。','# DALLE2_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.openai.azure.com/openai/deployments/<DALLE2_部署名稱>/\n# 或\n# DALLE2_BASEURL=https://<AZURE_OPENAI_API_實例名稱>.cognitiveservices.azure.com/openai/deployments/<DALLE2_部署名稱>/'],
   ]}
 />
 
